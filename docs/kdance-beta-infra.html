@@ -1,0 +1,325 @@
+<title>kdance 베타 인프라 가이드</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  :root{
+    --bg:#FAF6F2; --surface:#FFFFFF; --surface-2:#F3ECE5;
+    --border:rgba(40,26,20,0.12); --text:#241A16; --text-dim:#6E5C53; --text-faint:#9C8A80;
+    --accent:#A8352A; --accent-soft:#F3DEDA; --gold:#A9781F; --gold-soft:#F1E4C2;
+    --warn:#8A5A12; --warn-bg:#FBF0DC; --warn-border:#E3C688;
+    --ok:#2F6B4F; --ok-bg:#E9F1EC; --bad:#A8352A; --bad-bg:#F6E2DE;
+    --shadow: 0 1px 2px rgba(40,26,20,0.06), 0 8px 24px -12px rgba(40,26,20,0.18);
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#18120F; --surface:#221A16; --surface-2:#2A211C; --border:rgba(255,244,235,0.10);
+      --text:#F3E9E1; --text-dim:#C6B4A8; --text-faint:#8E7A6E;
+      --accent:#E28579; --accent-soft:#3A2420; --gold:#E0BD6E; --gold-soft:#3A2F1A;
+      --warn:#E7C482; --warn-bg:#332714; --warn-border:#5B4620;
+      --ok:#8FCBAD; --ok-bg:#17301F; --bad:#E28579; --bad-bg:#3A2420;
+      --shadow: 0 1px 2px rgba(0,0,0,0.4), 0 8px 28px -12px rgba(0,0,0,0.6);
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#18120F; --surface:#221A16; --surface-2:#2A211C; --border:rgba(255,244,235,0.10);
+    --text:#F3E9E1; --text-dim:#C6B4A8; --text-faint:#8E7A6E;
+    --accent:#E28579; --accent-soft:#3A2420; --gold:#E0BD6E; --gold-soft:#3A2F1A;
+    --warn:#E7C482; --warn-bg:#332714; --warn-border:#5B4620;
+    --ok:#8FCBAD; --ok-bg:#17301F; --bad:#E28579; --bad-bg:#3A2420;
+    --shadow: 0 1px 2px rgba(0,0,0,0.4), 0 8px 28px -12px rgba(0,0,0,0.6);
+  }
+
+  *{box-sizing:border-box;}
+  body{background:var(--bg); color:var(--text); font-family:"IBM Plex Sans KR",-apple-system,sans-serif; line-height:1.65; padding:0 20px;}
+  .wrap{max-width:960px; margin:0 auto; padding-block:0 64px;}
+  h1,h2,h3{font-family:"Gowun Batang",Georgia,serif; font-weight:700; text-wrap:balance; color:var(--text); letter-spacing:-0.01em;}
+  code, .mono{font-family:"IBM Plex Mono",ui-monospace,monospace;}
+
+  .hero{padding-block:56px 40px; border-bottom:1px solid var(--border);}
+  .eyebrow{display:flex; align-items:center; gap:10px; font-size:0.8rem; letter-spacing:0.08em; text-transform:uppercase; color:var(--text-faint); margin-bottom:18px;}
+  .eyebrow .rule{width:28px; height:1px; background:var(--text-faint);}
+  .hero h1{font-size:clamp(1.8rem,4vw,2.5rem); margin:0 0 14px; line-height:1.3;}
+  .hero p.lede{font-size:1.05rem; color:var(--text-dim); max-width:66ch; margin:0 0 20px;}
+  .scale-row{display:flex; flex-wrap:wrap; gap:14px;}
+  .scale-tile{background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:14px 18px; box-shadow:var(--shadow); min-width:150px;}
+  .scale-tile .n{font-family:"Gowun Batang",serif; font-weight:700; font-size:1.4rem; color:var(--accent);}
+  .scale-tile .l{font-size:0.78rem; color:var(--text-faint); margin-top:2px;}
+
+  section{padding-block:44px; border-bottom:1px solid var(--border);}
+  section:last-of-type{border-bottom:none;}
+  .section-head{margin-bottom:26px;}
+  .section-head .tag{font-size:0.76rem; letter-spacing:0.08em; text-transform:uppercase; color:var(--accent); font-weight:600; margin-bottom:8px; display:block;}
+  .section-head h2{font-size:1.5rem; margin:0 0 8px;}
+  .section-head p{color:var(--text-dim); margin:0; max-width:70ch;}
+
+  .table-wrap{overflow-x:auto; border:1px solid var(--border); border-radius:12px; background:var(--surface); box-shadow:var(--shadow);}
+  table{border-collapse:collapse; width:100%; font-size:0.86rem; min-width:640px;}
+  thead th{text-align:left; font-size:0.72rem; letter-spacing:0.06em; text-transform:uppercase; color:var(--text-faint); padding:12px 16px; border-bottom:1px solid var(--border); background:var(--surface-2);}
+  tbody td{padding:12px 16px; border-bottom:1px solid var(--border); vertical-align:top; color:var(--text-dim);}
+  tbody tr:last-child td{border-bottom:none;}
+  td.name{color:var(--text); font-weight:600; white-space:nowrap;}
+  .pill{font-size:0.68rem; font-weight:700; padding:2px 9px; border-radius:999px; white-space:nowrap; display:inline-block;}
+  .pill.ok{background:var(--ok-bg); color:var(--ok);}
+  .pill.bad{background:var(--bad-bg); color:var(--bad);}
+  .pill.warn{background:var(--warn-bg); color:var(--warn);}
+
+  .callout{border:1px solid var(--warn-border); background:var(--warn-bg); border-radius:10px; padding:18px 20px; margin-top:22px;}
+  .callout .callout-title{font-weight:700; color:var(--warn); font-size:0.92rem; margin-bottom:6px; display:flex; align-items:center; gap:8px;}
+  .callout p{margin:0 0 8px; font-size:0.9rem; color:var(--text);}
+  .callout p:last-child{margin-bottom:0;}
+  .callout ul{margin:6px 0 0; padding-left:20px; font-size:0.9rem;}
+  .callout li{margin-bottom:4px;}
+
+  .opt-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-top:18px;}
+  @media (max-width:760px){.opt-grid{grid-template-columns:1fr;}}
+  .opt{background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:18px; box-shadow:var(--shadow);}
+  .opt .opt-tag{font-size:0.7rem; font-weight:700; color:var(--accent); text-transform:uppercase; letter-spacing:0.04em;}
+  .opt h3{font-size:1rem; margin:6px 0 8px;}
+  .opt p{font-size:0.85rem; color:var(--text-dim); margin:0 0 8px;}
+  .opt .tradeoff{font-size:0.8rem; color:var(--text-faint); border-top:1px solid var(--border); padding-top:8px; margin-top:8px;}
+
+  .cost-grid{display:grid; grid-template-columns:repeat(2,1fr); gap:16px;}
+  @media (max-width:700px){.cost-grid{grid-template-columns:1fr;}}
+  .cost-card{background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:18px 20px; box-shadow:var(--shadow);}
+  .cost-card .amt{font-family:"Gowun Batang",serif; font-weight:700; font-size:1.6rem; color:var(--accent);}
+  .cost-card .lbl{font-size:0.82rem; color:var(--text-dim); margin-top:4px;}
+
+  .mermaid{background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:20px; box-shadow:var(--shadow);}
+
+  .disclaimer{font-size:0.78rem; color:var(--text-faint); margin-top:10px; font-style:italic;}
+  footer{padding-top:36px; font-size:0.8rem; color:var(--text-faint);}
+</style>
+
+<div class="wrap">
+
+  <div class="hero">
+    <div class="eyebrow"><span class="rule"></span>개발자용 · 베타 서비스 규모 기준</div>
+    <h1>노트북 개발 환경에서<br>실제 베타 서버로</h1>
+    <p class="lede">지금까지의 스택·무료 API 판단은 <b>개인 개발자 노트북 기준</b>이었다.
+    베타를 "1만~10만 명이 실제로 쓴다"는 전제로 바꾸면, 몇 곳은 그대로 못 쓴다 —
+    특히 AI 모델 서빙과 DB가 그렇다. 이 문서는 그 갭을 숨기지 않고 짚는다.</p>
+    <div class="scale-row">
+      <div class="scale-tile"><div class="n">10,000~100,000</div><div class="l">베타 가입자(MAU 가정)</div></div>
+      <div class="scale-tile"><div class="n">RTX 4060 · 8GB</div><div class="l">지금 개발 노트북</div></div>
+      <div class="scale-tile"><div class="n">Qwen3.5 9B</div><div class="l">채팅 AI 모델 (유지)</div></div>
+    </div>
+  </div>
+
+  <!-- ================= 노트북 → 베타 서버 ================= -->
+  <section>
+    <div class="section-head">
+      <span class="tag">전환 · 01</span>
+      <h2>노트북 → 베타 서버, 뭐가 바뀌어야 하나</h2>
+      <p>같은 이름의 도구를 계속 쓰더라도, "어디서 도느냐"가 바뀐다. 노트북에서
+      멀쩡히 돌던 게 실 서비스에서 문제가 되는 지점만 골랐다.</p>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>컴포넌트</th><th>지금(노트북)</th><th>베타(1만~10만)</th><th>바뀌는 이유</th></tr></thead>
+        <tbody>
+          <tr>
+            <td class="name">API 서버(FastAPI)</td>
+            <td>내 PC, <code>uvicorn --reload</code></td>
+            <td><span class="pill bad">이전 필수</span> 클라우드 VPS 2~4대 + 로드밸런서</td>
+            <td>내 PC가 꺼지면 서비스가 통째로 죽는다. 베타는 24시간 떠 있어야 한다</td>
+          </tr>
+          <tr>
+            <td class="name">DB(PostgreSQL+pgvector)</td>
+            <td>Docker 컨테이너, 로컬 디스크</td>
+            <td><span class="pill bad">이전 필수</span> 관리형 DB(백업·복제 자동) 또는 전용 서버</td>
+            <td>노트북 디스크가 죽으면 회원·결제 데이터가 통째로 사라진다. 베타부터는
+            매일 백업이 있어야 한다</td>
+          </tr>
+          <tr>
+            <td class="name">채팅 AI(Qwen3.5 9B)</td>
+            <td>Ollama, 이 노트북 GPU</td>
+            <td><span class="pill bad">이전 필수</span> 별도 GPU 서버 — 아래 02절</td>
+            <td>노트북 GPU 하나로는 동시 사용자 몇 명 이상에서 응답이 밀린다.
+            가장 큰 갭이라 따로 다룬다</td>
+          </tr>
+          <tr>
+            <td class="name">임베딩(로컬 소형 모델)</td>
+            <td>Ollama, 채팅 AI와 같은 GPU</td>
+            <td><span class="pill warn">검토 필요</span> 채팅 AI와 자리 다툼 — 별도 CPU 서빙 고려</td>
+            <td>검색·추천 요청이 늘면 채팅 응답과 GPU를 다투게 된다. 임베딩은
+            비교적 가벼워 CPU로 돌려도 되는 경우가 많다</td>
+          </tr>
+          <tr>
+            <td class="name">Redis·APScheduler</td>
+            <td>Docker, 로컬</td>
+            <td><span class="pill ok">그대로</span> 서버로 옮기기만 하면 됨</td>
+            <td>도구 자체는 안 바뀐다. API 서버와 같은 곳으로 이사만 간다</td>
+          </tr>
+          <tr>
+            <td class="name">오브젝트 스토리지(MinIO)</td>
+            <td>로컬 디스크</td>
+            <td><span class="pill warn">검토 필요</span> 디스크 용량 실측 후 결정</td>
+            <td>포스터 원본이 쌓이는 속도를 먼저 재야 한다 — 학원 수 × 업로드 빈도로
+            추정 가능. 감당되면 셀프호스팅 유지, 넘으면 Cloudflare R2</td>
+          </tr>
+          <tr>
+            <td class="name">카카오 Local·PG·Expo Push</td>
+            <td>클라우드 API 그대로 호출</td>
+            <td><span class="pill ok">그대로</span> 이미 클라우드라 노트북 여부와 무관</td>
+            <td>애초에 내 PC 자원을 안 쓰는 것들이라 전환 대상이 아니다</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ================= AI 모델 서빙 용량 ================= -->
+  <section>
+    <div class="section-head">
+      <span class="tag">병목 · 02</span>
+      <h2>AI 모델 서빙 — 가장 먼저 막힐 자리</h2>
+      <p>Qwen3.5 9B 자체를 바꾸자는 게 아니다. <b>"어디서 돌리느냐"</b>가 이 규모에서
+      갈리는 지점이다.</p>
+    </div>
+
+    <div class="callout">
+      <div class="callout-title">⚠ 노트북 GPU 1대로는 안 된다 — 숫자로 보면</div>
+      <p>Ollama는 기본적으로 모델 하나당 요청을 <b>거의 순차로</b> 처리한다
+      (<code>OLLAMA_NUM_PARALLEL</code>로 늘릴 수 있지만 8GB VRAM에선 여유가 거의 없다).
+      RTX 4060 한 장으로 9B Q4 모델을 돌리면 동시 처리가 체감상 1~4건 수준이다.</p>
+      <p>10만 MAU 중 채팅을 실제로 쓰는 비율을 낙관적으로 5%만 잡아도 5,000명이고,
+      그중 저녁 피크 시간대에 몰리는 수백 명이 동시에 응답을 기다리면 <b>대기열이
+      바로 몇 분 단위로 밀린다.</b> "AI가 느리다"가 아니라 "AI가 한 명씩 순서를
+      기다린다"는 게 정확한 진단이다.</p>
+    </div>
+
+    <div class="opt-grid">
+      <div class="opt">
+        <div class="opt-tag">옵션 A</div>
+        <h3>저가 GPU 클라우드 1대</h3>
+        <p>RunPod·JarvisLabs 등에서 RTX 4090급 인스턴스를 시간당 $0.34~0.59에
+        빌려 Qwen3.5 9B를 그 위에서 돌린다. Ollama 설정은 거의 그대로 옮긴다.</p>
+        <div class="tradeoff">트레이드오프: "완전 무료"가 깨진다 — 24시간 기준 월
+        약 $250~430. 대신 동시 처리가 8GB 노트북보다 훨씬 나아진다</div>
+      </div>
+      <div class="opt">
+        <div class="opt-tag">옵션 B</div>
+        <h3>사용량 제한 + 대기열</h3>
+        <p>채팅 AI 요청에 사용자당 일일 횟수 제한을 걸고, 초과 대기는 "순서대로
+        답변 중입니다" 큐 화면으로 보여준다.</p>
+        <div class="tradeoff">트레이드오프: 비용은 0에 가깝지만, 베타 체감 품질이
+        떨어진다 — AI 챗봇이 "핵심"이라던 원래 방향과 부딪힌다</div>
+      </div>
+      <div class="opt">
+        <div class="opt-tag">옵션 C</div>
+        <h3>AI 챗봇 범위를 좁힌다</h3>
+        <p>"추천·가격·경로"처럼 매번 LLM이 필요 없는 질문은 규칙 기반(필터+정렬)으로
+        먼저 처리하고, LLM은 자유 대화형 질문에만 쓴다.</p>
+        <div class="tradeoff">트레이드오프: 개발 공수가 늘지만, 같은 GPU로 훨씬
+        많은 사용자를 감당한다 — LLM 호출 자체가 줄어드니까</div>
+      </div>
+    </div>
+    <p style="color:var(--text-dim); font-size:0.9rem; margin-top:16px;">
+      <b>추천 — B+C를 먼저, A는 베타 반응 보고 결정.</b> 처음부터 월 $300을 쓰기보다,
+      LLM 호출을 줄이는 설계(C)와 사용량 제한(B)으로 시작해서 실제 병목이 확인되면
+      그때 GPU 서버(A)를 붙이는 순서가 "모두 무료로 시작한다"는 원래 방향과 맞는다.</p>
+  </section>
+
+  <!-- ================= 배포 아키텍처 ================= -->
+  <section>
+    <div class="section-head">
+      <span class="tag">아키텍처 · 03</span>
+      <h2>권장 배포 구조 (베타 기준)</h2>
+      <p>회색 상자는 이미 무료/저비용으로 유지되는 것, 굵은 테두리는 위 02절에서
+      비용이 생기는 지점이다.</p>
+    </div>
+    <pre class="mermaid">
+flowchart TB
+  subgraph client["클라이언트"]
+    APP["Expo 앱 (iOS·Android)"]
+    ADMIN["학원 관리자 웹"]
+  end
+
+  subgraph edge["엣지 · 무료"]
+    KAKAO["카카오 Local API"]
+    PUSH["Expo Push / FCM"]
+    PG["PG(포트원·토스) — 거래수수료"]
+  end
+
+  subgraph core["API 서버 (VPS 2~4대)"]
+    API["FastAPI"]
+    REDIS["Redis"]
+    SCHED["APScheduler"]
+  end
+
+  subgraph data["데이터 (관리형/전용)"]
+    PGDB[("PostgreSQL + pgvector")]
+    MINIO[("MinIO / R2 — 포스터 원본")]
+  end
+
+  subgraph ai["AI 서빙 — 비용 발생 지점"]
+    LLM["Qwen3.5 9B (Ollama)"]
+    EMB["로컬 임베딩 모델"]
+  end
+
+  APP --> API
+  ADMIN --> API
+  API --> REDIS
+  API --> SCHED
+  API --> PGDB
+  API --> MINIO
+  API --> KAKAO
+  API --> PUSH
+  API --> PG
+  API -. 채팅 요청만 .-> LLM
+  API --> EMB
+
+  style LLM stroke:#A8352A,stroke-width:3px
+  style EMB stroke:#A8352A,stroke-width:2px
+    </pre>
+  </section>
+
+  <!-- ================= 무료 vs 불가피한 비용 (스케일 조정) ================= -->
+  <section>
+    <div class="section-head">
+      <span class="tag">비용 · 04</span>
+      <h2>이 규모에서 무료가 유지되는 것 / 안 되는 것</h2>
+      <p><a href="https://claude.ai/code/artifact/7e0d30dd-39ff-4c2f-8e95-c5246f948532" target="_blank"
+      rel="noopener">개발 가이드의 무료 우선순위 가이드</a>를 베타 규모로 다시 채점했다.</p>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>항목</th><th>노트북 기준</th><th>베타(1만~10만) 기준</th></tr></thead>
+        <tbody>
+          <tr><td class="name">카카오 Local API</td><td><span class="pill ok">무료</span></td>
+            <td><span class="pill warn">일부 유료 전환 가능</span> 일 10만 건 근접 시 건당 10~50원</td></tr>
+          <tr><td class="name">OCR(Tesseract 1차)</td><td><span class="pill ok">무료</span></td>
+            <td><span class="pill ok">무료 유지</span> 볼륨이 학원 수 기준이라 사용자 수와 무관하게 완만함</td></tr>
+          <tr><td class="name">임베딩(로컬 소형 모델)</td><td><span class="pill ok">무료</span></td>
+            <td><span class="pill warn">서버 자원 필요</span> 무료지만 별도 CPU 서버 자리가 필요해짐</td></tr>
+          <tr><td class="name">채팅 AI(Qwen3.5 9B)</td><td><span class="pill ok">무료</span></td>
+            <td><span class="pill bad">비용 발생</span> 02절 — 유일하게 구조적으로 돈이 드는 지점</td></tr>
+          <tr><td class="name">DB·API 서버</td><td><span class="pill ok">무료(내 PC)</span></td>
+            <td><span class="pill bad">비용 발생</span> VPS·관리형 DB — 다만 GPU보다 훨씬 저렴</td></tr>
+          <tr><td class="name">PG(결제대행)</td><td>해당 없음</td>
+            <td><span class="pill warn">거래수수료</span> 매출 연동이라 고정비는 아님</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ================= 예상 비용 ================= -->
+  <section>
+    <div class="section-head">
+      <span class="tag">추정 · 05</span>
+      <h2>베타 월 예상 비용 (거친 범위)</h2>
+      <p>PG 거래수수료(매출 비례)는 뺀, <b>고정 인프라비만</b>의 추정이다. 실측 전
+      숫자라 ±50% 오차를 감안한다.</p>
+    </div>
+    <div class="cost-grid">
+      <div class="cost-card"><div class="amt">₩0 ~ 5만원</div>
+        <div class="lbl">옵션 B+C만 적용 (GPU 서버 없이 시작)<br>VPS 소규모 1~2대 정도</div></div>
+      <div class="cost-card"><div class="amt">₩40만 ~ 60만원</div>
+        <div class="lbl">GPU 서버(옵션 A) 추가 시<br>RTX 4090급 24시간 인스턴스 기준</div></div>
+    </div>
+    <p class="disclaimer">클라우드 GPU 시세는 자주 바뀐다. 실제 도입 직전에 RunPod·
+    JarvisLabs 등에서 최신 시간당 단가를 다시 확인할 것.</p>
+  </section>
+
+  <footer>kdance 베타 인프라 가이드 · 작성 2026-09-13 · docs/kdance 폴더</footer>
+
+</div>

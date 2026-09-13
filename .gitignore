@@ -1,0 +1,21 @@
+# Python / uv
+.venv/
+__pycache__/
+*.pyc
+
+# Environment secrets
+.env
+
+# Node
+node_modules/
+dist/
+
+# Expo
+.expo/
+.expo-shared/
+
+# OS
+.DS_Store
+
+# Subagent-driven-development scratch workspace
+.superpowers/

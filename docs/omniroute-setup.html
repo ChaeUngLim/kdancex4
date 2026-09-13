@@ -1,0 +1,474 @@
+<!doctype html>
+<title>OmniRoute 왕초보 가이드</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans+KR:wght@400;500;600;700&display=swap');
+
+  :root {
+    --bg: #F2F6F5;
+    --surface: #FFFFFF;
+    --surface-2: #E9F0EE;
+    --ink: #132420;
+    --muted: #5A6E69;
+    --border: #D8E2DE;
+    --accent: #0F8478;
+    --accent-soft: #E1F3F0;
+    --ok: #2E8E54;
+    --ok-soft: #E4F5EA;
+    --pending: #B8791F;
+    --pending-soft: #FBF0DD;
+    --fe: #3B6FB0;
+    --fe-soft: #E7EFFA;
+    --be: #9A5A1F;
+    --be-soft: #F7EBDD;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0E1714;
+      --surface: #16211D;
+      --surface-2: #1C2823;
+      --ink: #E7F1EC;
+      --muted: #8FA69E;
+      --border: #2A3A34;
+      --accent: #3FCBBB;
+      --accent-soft: #163530;
+      --ok: #4FB579;
+      --ok-soft: #163329;
+      --pending: #E0A94A;
+      --pending-soft: #33280F;
+      --fe: #7FADEE;
+      --fe-soft: #16273F;
+      --be: #E3A15C;
+      --be-soft: #3A2A15;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0E1714; --surface: #16211D; --surface-2: #1C2823; --ink: #E7F1EC;
+    --muted: #8FA69E; --border: #2A3A34; --accent: #3FCBBB; --accent-soft: #163530;
+    --ok: #4FB579; --ok-soft: #163329; --pending: #E0A94A; --pending-soft: #33280F;
+    --fe: #7FADEE; --fe-soft: #16273F; --be: #E3A15C; --be-soft: #3A2A15;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'IBM Plex Sans KR', 'IBM Plex Sans', system-ui, sans-serif;
+    padding-inline: 20px;
+    padding-block: 40px 64px;
+    line-height: 1.6;
+  }
+  .wrap { max-width: 760px; margin-inline: auto; }
+
+  code, .mono { font-family: 'IBM Plex Mono', ui-monospace, monospace; }
+  code {
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 0.1em 0.45em;
+    font-size: 0.88em;
+  }
+
+  header { margin-bottom: 26px; }
+  .eyebrow {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.12em;
+    color: var(--accent);
+    margin: 0 0 8px;
+    font-weight: 600;
+  }
+  h1 {
+    font-size: clamp(1.6rem, 4vw, 2.15rem);
+    margin: 0 0 10px;
+    text-wrap: balance;
+    letter-spacing: -0.01em;
+  }
+  .lede { color: var(--muted); max-width: 64ch; margin: 0 0 20px; font-size: 0.98rem; }
+
+  .callout {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-size: 0.9rem;
+    color: var(--muted);
+    margin-bottom: 22px;
+  }
+  .callout strong { color: var(--ink); }
+
+  .progress { display: flex; align-items: center; gap: 12px; margin-bottom: 30px; }
+  .progress-track {
+    flex: 1 1 auto; height: 8px; border-radius: 999px;
+    background: var(--surface-2); border: 1px solid var(--border); overflow: hidden;
+  }
+  .progress-fill { height: 100%; width: 0%; background: var(--accent); transition: width 0.35s ease; }
+  .progress-label {
+    font-family: 'IBM Plex Mono', monospace; font-size: 0.82rem; color: var(--muted);
+    white-space: nowrap; font-variant-numeric: tabular-nums;
+  }
+
+  .chainbox {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+    margin-bottom: 34px;
+  }
+  .chainbox p.combo-name {
+    font-family: 'IBM Plex Mono', monospace; font-size: 0.72rem; letter-spacing: 0.08em;
+    color: var(--muted); margin: 0 0 12px; text-transform: uppercase;
+  }
+  .chain { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; font-size: 0.86rem; }
+  .chain-node {
+    background: var(--surface-2); border: 1px solid var(--border); border-radius: 7px;
+    padding: 7px 11px; text-align: center; line-height: 1.25; font-weight: 600;
+  }
+  .chain-node small { display:block; color: var(--muted); font-size: 0.76em; font-weight: 400; }
+  .chain-arrow { color: var(--muted); }
+
+  .cards { list-style: none; margin: 0 0 40px; padding: 0; position: relative; }
+  .cards::before {
+    content: ""; position: absolute; left: 19px; top: 6px; bottom: 6px; width: 2px; background: var(--border);
+  }
+  .card { position: relative; display: flex; gap: 16px; padding-block: 22px; border-bottom: 1px solid var(--border); }
+  .card:last-child { border-bottom: none; }
+
+  .card-marker {
+    position: relative; z-index: 1; flex: 0 0 auto; width: 40px; height: 40px; border-radius: 50%;
+    background: var(--surface); border: 2px solid var(--border); display: flex; align-items: center;
+    justify-content: center; font-family: 'IBM Plex Mono', monospace; font-weight: 600; font-size: 0.9rem;
+    color: var(--muted); transition: all 0.2s ease;
+  }
+  .card.done .card-marker { border-color: var(--ok); color: var(--ok); background: var(--ok-soft); }
+
+  .card-body { flex: 1 1 auto; min-width: 0; padding-top: 2px; }
+  .card-head { display: flex; align-items: center; gap: 10px; cursor: pointer; flex-wrap: wrap; }
+  .card-check { width: 18px; height: 18px; accent-color: var(--accent); flex: 0 0 auto; }
+  .card-title { font-weight: 700; font-size: 1.06rem; }
+  .status-pill {
+    font-family: 'IBM Plex Mono', monospace; font-size: 0.66rem; letter-spacing: 0.04em;
+    padding: 2px 8px; border-radius: 999px; background: var(--pending-soft); color: var(--pending); white-space: nowrap;
+  }
+  .card.done .status-pill { background: var(--ok-soft); color: var(--ok); }
+
+  .tags { display: flex; gap: 6px; flex-wrap: wrap; margin: 8px 0 4px; }
+  .tag {
+    font-family: 'IBM Plex Mono', monospace; font-size: 0.68rem; letter-spacing: 0.02em;
+    padding: 2px 8px; border-radius: 5px; border: 1px solid transparent;
+  }
+  .tag-fe { background: var(--fe-soft); color: var(--fe); }
+  .tag-be { background: var(--be-soft); color: var(--be); }
+  .tag-diff { background: var(--surface-2); color: var(--muted); border-color: var(--border); }
+
+  .why { color: var(--muted); font-size: 0.9rem; margin: 8px 0 12px; }
+
+  .subsection { margin-top: 12px; }
+  .subsection h3 {
+    font-size: 0.78rem; letter-spacing: 0.04em; text-transform: uppercase; color: var(--accent);
+    margin: 0 0 8px; font-family: 'IBM Plex Mono', monospace;
+  }
+  .mini-steps { margin: 0 0 14px; padding-left: 1.3em; font-size: 0.92rem; }
+  .mini-steps li { margin-bottom: 5px; }
+  .mini-steps:last-child { margin-bottom: 0; }
+  .quota-row {
+    display: flex; justify-content: space-between; gap: 12px; font-size: 0.84rem; color: var(--muted);
+    margin-top: 10px; font-variant-numeric: tabular-nums; background: var(--surface-2);
+    border-radius: 6px; padding: 8px 12px;
+  }
+  .quota-row .val { color: var(--ink); font-family: 'IBM Plex Mono', monospace; }
+  a { color: var(--accent); }
+
+  pre {
+    margin: 8px 0 0; background: var(--surface-2); border: 1px solid var(--border); border-radius: 6px;
+    padding: 10px 12px; overflow-x: auto; font-size: 0.84rem; line-height: 1.5;
+  }
+  .final-action { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; font-size: 0.92rem; }
+  .final-action p { margin: 0 0 8px; }
+  .final-action p:last-child { margin-bottom: 0; }
+
+  footer { margin-top: 10px; font-size: 0.82rem; color: var(--muted); text-align: center; }
+
+  @media (max-width: 460px) {
+    .cards::before { left: 15px; }
+    .card-marker { width: 32px; height: 32px; font-size: 0.8rem; }
+    .card { gap: 12px; }
+  }
+</style>
+
+<div class="wrap">
+  <header>
+    <p class="eyebrow">FREE MODEL GATEWAY · localhost:20128</p>
+    <h1>OmniRoute 왕초보 가이드</h1>
+    <p class="lede">가장 최신·고성능 무료 AI 모델 6개를 프론트엔드/백엔드 용도에 맞춰 성능 순서대로 연결합니다. 코딩을 몰라도 따라 할 수 있도록 클릭 단위로 적었습니다.</p>
+    <div class="callout">
+      연결 방식은 두 가지뿐입니다 — <strong>OAuth</strong>(그냥 구글/깃허브 같은 기존 계정으로 로그인, 가입 불필요)와 <strong>API 키</strong>(사이트에 가입한 뒤 발급받는 긴 비밀번호 같은 문자열). 아래 각 카드에 어떤 방식인지 표시돼 있습니다.
+    </div>
+    <div class="progress">
+      <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+      <span class="progress-label" id="progressLabel">0 / 8 완료</span>
+    </div>
+  </header>
+
+  <div class="chainbox">
+    <p class="combo-name">완성되면 이런 우선순위 체인이 됩니다</p>
+    <div class="chain">
+      <span class="chain-node">GLM-4.7<br><small>프론트엔드</small></span>
+      <span class="chain-arrow">→</span>
+      <span class="chain-node">Claude Sonnet<br><small>Kiro · 소량</small></span>
+      <span class="chain-arrow">→</span>
+      <span class="chain-node">Kimi K2<br><small>백엔드</small></span>
+      <span class="chain-arrow">→</span>
+      <span class="chain-node">DeepSeek V3.2<br><small>백엔드</small></span>
+      <span class="chain-arrow">→</span>
+      <span class="chain-node">Gemini Flash<br><small>대용량</small></span>
+      <span class="chain-arrow">→</span>
+      <span class="chain-node">Mistral<br><small>최후 보루</small></span>
+    </div>
+  </div>
+
+  <ol class="cards" id="cards">
+
+    <li class="card" data-id="glm">
+      <div class="card-marker"><span>1</span></div>
+      <div class="card-body">
+        <label class="card-head">
+          <input type="checkbox" class="card-check" data-id="glm">
+          <span class="card-title">GLM-4.7 (Qoder 경유)</span>
+          <span class="status-pill">대기</span>
+        </label>
+        <div class="tags"><span class="tag tag-fe">프론트엔드</span><span class="tag tag-diff">난이도: 쉬움 · OAuth</span></div>
+        <p class="why">최신 모델이면서 UI/프론트엔드 코드 생성 벤치마크에서 무료 모델 중 최상위권 — 1순위로 연결.</p>
+        <div class="subsection">
+          <h3>① 계정 만들기</h3>
+          <ol class="mini-steps"><li>따로 가입할 필요 없음 — 아래 연결 과정에서 자동으로 처리됨</li></ol>
+          <h3>② OmniRoute에 연결하기</h3>
+          <ol class="mini-steps">
+            <li>브라우저에서 <code>http://localhost:20128</code> 접속 → 설정한 비밀번호로 로그인</li>
+            <li>왼쪽 메뉴에서 <strong>Providers</strong> 클릭</li>
+            <li><strong>Connect Qoder</strong> 버튼 클릭</li>
+            <li>뜨는 창에서 이메일 인증 또는 소셜 로그인 진행</li>
+            <li>연결되면 모델 목록에 GLM-4.7이 자동으로 나타남</li>
+          </ol>
+        </div>
+      </div>
+    </li>
+
+    <li class="card" data-id="claude">
+      <div class="card-marker"><span>2</span></div>
+      <div class="card-body">
+        <label class="card-head">
+          <input type="checkbox" class="card-check" data-id="claude">
+          <span class="card-title">Claude Sonnet (Kiro 경유)</span>
+          <span class="status-pill">대기</span>
+        </label>
+        <div class="tags"><span class="tag tag-fe">프론트엔드</span><span class="tag tag-be">백엔드</span><span class="tag tag-diff">난이도: 쉬움 · OAuth</span></div>
+        <p class="why">무료 모델 전체를 통틀어 실제 판단력·코드 품질이 가장 좋음. 대신 한도가 적어서(월 약 50회) 정말 중요한 작업에만 아껴 써야 함.</p>
+        <div class="subsection">
+          <h3>① 계정 만들기</h3>
+          <ol class="mini-steps"><li>AWS Builder ID가 없다면 이메일만으로 무료로 즉시 생성 가능 (또는 기존 Google/GitHub 계정 사용)</li></ol>
+          <h3>② OmniRoute에 연결하기</h3>
+          <ol class="mini-steps">
+            <li>Dashboard → Providers → <strong>Connect Kiro</strong> 클릭</li>
+            <li>AWS Builder ID 또는 Google/GitHub 선택 후 로그인</li>
+            <li>권한 허용 화면에서 <strong>Allow</strong> 클릭</li>
+            <li>완료되면 Claude Sonnet, Claude Haiku가 목록에 추가됨</li>
+          </ol>
+          <div class="quota-row"><span>무료 한도</span><span class="val">월 ~50 크레딧</span></div>
+        </div>
+      </div>
+    </li>
+
+    <li class="card" data-id="kimi">
+      <div class="card-marker"><span>3</span></div>
+      <div class="card-body">
+        <label class="card-head">
+          <input type="checkbox" class="card-check" data-id="kimi">
+          <span class="card-title">Kimi K2 (Qoder — 1번과 같은 계정)</span>
+          <span class="status-pill">대기</span>
+        </label>
+        <div class="tags"><span class="tag tag-be">백엔드</span><span class="tag tag-diff">난이도: 이미 연결됨</span></div>
+        <p class="why">여러 파일을 한 번에 참고해야 하는 큰 백엔드 작업(긴 컨텍스트)에 강함.</p>
+        <div class="subsection">
+          <h3>① 계정 만들기 / ② 연결하기</h3>
+          <ol class="mini-steps">
+            <li>1번에서 Qoder를 이미 연결했다면 별도 작업이 필요 없음</li>
+            <li>확인만: Dashboard → Providers → Qoder 항목 열어서 <code>kimi-k2</code> 모델이 체크돼 있는지 확인</li>
+          </ol>
+        </div>
+      </div>
+    </li>
+
+    <li class="card" data-id="deepseek">
+      <div class="card-marker"><span>4</span></div>
+      <div class="card-body">
+        <label class="card-head">
+          <input type="checkbox" class="card-check" data-id="deepseek">
+          <span class="card-title">DeepSeek V3.2</span>
+          <span class="status-pill">대기</span>
+        </label>
+        <div class="tags"><span class="tag tag-be">백엔드</span><span class="tag tag-diff">난이도: 보통 · API 키</span></div>
+        <p class="why">로직·알고리즘·추론이 필요한 백엔드 코딩에서 무료 모델 중 최상위권.</p>
+        <div class="subsection">
+          <h3>① API 키 만들기</h3>
+          <ol class="mini-steps">
+            <li><a href="https://platform.deepseek.com" target="_blank" rel="noopener">platform.deepseek.com</a> 접속 → 이메일로 회원가입</li>
+            <li>로그인 후 왼쪽 메뉴 <strong>API Keys</strong> 클릭</li>
+            <li><strong>Create API Key</strong> 클릭 → 이름은 아무거나 입력 → 생성</li>
+            <li><code>sk-</code>로 시작하는 긴 문자열이 뜨면 바로 복사 (다시 볼 수 없으니 꼭 지금 복사)</li>
+          </ol>
+          <h3>② OmniRoute에 연결하기</h3>
+          <ol class="mini-steps">
+            <li>Dashboard → Providers → <strong>Add Provider</strong></li>
+            <li>목록에서 <strong>DeepSeek</strong> 선택</li>
+            <li>복사한 키를 API Key 칸에 붙여넣기 → <strong>Save</strong></li>
+          </ol>
+          <div class="quota-row"><span>무료 한도</span><span class="val">월 ~5M 토큰</span></div>
+        </div>
+      </div>
+    </li>
+
+    <li class="card" data-id="gemini">
+      <div class="card-marker"><span>5</span></div>
+      <div class="card-body">
+        <label class="card-head">
+          <input type="checkbox" class="card-check" data-id="gemini">
+          <span class="card-title">Gemini 2.5 / 3 Flash</span>
+          <span class="status-pill">대기</span>
+        </label>
+        <div class="tags"><span class="tag tag-fe">프론트엔드</span><span class="tag tag-be">백엔드</span><span class="tag tag-diff">난이도: 쉬움 · OAuth</span></div>
+        <p class="why">무료 한도가 압도적으로 커서(월 약 6천만 토큰) 반복적인 대량 작업의 폴백으로 최적. 단, Flash 계열만 무료(Pro는 유료로 전환됨).</p>
+        <div class="subsection">
+          <h3>① 계정 만들기 / ② 연결하기</h3>
+          <ol class="mini-steps">
+            <li>Dashboard → Providers → <strong>Connect Gemini</strong> 클릭</li>
+            <li>평소 쓰는 구글 계정으로 로그인 → 권한 허용</li>
+            <li>완료</li>
+          </ol>
+          <div class="quota-row"><span>무료 한도</span><span class="val">월 ~60M 토큰</span></div>
+        </div>
+      </div>
+    </li>
+
+    <li class="card" data-id="mistral">
+      <div class="card-marker"><span>6</span></div>
+      <div class="card-body">
+        <label class="card-head">
+          <input type="checkbox" class="card-check" data-id="mistral">
+          <span class="card-title">Mistral</span>
+          <span class="status-pill">대기</span>
+        </label>
+        <div class="tags"><span class="tag tag-be">백엔드</span><span class="tag tag-diff">난이도: 보통 · API 키</span></div>
+        <p class="why">무료 풀 자체가 가장 커서(월 약 10억 토큰) 위 5개가 전부 소진돼도 쓸 수 있는 최후의 보루.</p>
+        <div class="subsection">
+          <h3>① API 키 만들기</h3>
+          <ol class="mini-steps">
+            <li><a href="https://console.mistral.ai" target="_blank" rel="noopener">console.mistral.ai</a> 접속 → 회원가입 (카드 등록 불필요)</li>
+            <li><strong>API Keys</strong> 메뉴 → <strong>Create new key</strong></li>
+            <li>생성된 키 복사</li>
+          </ol>
+          <h3>② OmniRoute에 연결하기</h3>
+          <ol class="mini-steps">
+            <li>Dashboard → Providers → <strong>Add Provider</strong> → <strong>Mistral</strong> 선택</li>
+            <li>복사한 키 붙여넣기 → <strong>Save</strong></li>
+          </ol>
+          <div class="quota-row"><span>무료 한도</span><span class="val">월 ~1.0B 토큰</span></div>
+        </div>
+      </div>
+    </li>
+
+    <li class="card" data-id="combo">
+      <div class="card-marker"><span>7</span></div>
+      <div class="card-body">
+        <label class="card-head">
+          <input type="checkbox" class="card-check" data-id="combo">
+          <span class="card-title">Combo(우선순위 체인) 만들기</span>
+          <span class="status-pill">대기</span>
+        </label>
+        <div class="tags"><span class="tag tag-diff">1~6단계 완료 후 진행</span></div>
+        <p class="why">6개를 각각 연결만 해서는 자동 전환이 안 됨 — 우선순위를 정해줘야 함.</p>
+        <div class="subsection">
+          <h3>연결하기</h3>
+          <ol class="mini-steps">
+            <li>Dashboard → <strong>Combos</strong> → <strong>Create New</strong></li>
+            <li>이름 예: <code>my-fallback</code></li>
+            <li>위 표의 화살표 순서 그대로 우선순위 등록: <code>glm-4.7 → claude-sonnet → kimi-k2 → deepseek-v3.2 → gemini-flash → mistral</code></li>
+            <li>Strategy는 <strong>Priority</strong> 선택 (1번이 막히면 자동으로 다음으로 넘어감)</li>
+          </ol>
+        </div>
+      </div>
+    </li>
+
+    <li class="card" data-id="cli">
+      <div class="card-marker"><span>8</span></div>
+      <div class="card-body">
+        <label class="card-head">
+          <input type="checkbox" class="card-check" data-id="cli">
+          <span class="card-title">Claude Code CLI에 연결</span>
+          <span class="status-pill">대기</span>
+        </label>
+        <div class="tags"><span class="tag tag-diff">마지막 단계</span></div>
+        <p class="why">지금까지는 OmniRoute 안에서만 준비된 상태 — Claude Code가 실제로 이걸 쓰게 하려면 마지막으로 연결.</p>
+        <div class="subsection">
+          <h3>방법 A — 간편 (추천)</h3>
+          <pre>omniroute run claude --model auto</pre>
+          <h3>방법 B — 수동 환경변수</h3>
+          <pre>export ANTHROPIC_BASE_URL=http://localhost:20128/v1
+export ANTHROPIC_API_KEY=&lt;Dashboard → Endpoints에서 복사&gt;</pre>
+        </div>
+      </div>
+    </li>
+
+  </ol>
+
+  <footer>진행 상태는 이 브라우저에만 저장됩니다 · 모델 성능 정보는 2026년 9월 기준</footer>
+</div>
+
+<script>
+(function () {
+  var STORAGE_KEY = 'omniroute-beginner-guide-progress';
+  var cards = Array.prototype.slice.call(document.querySelectorAll('.card'));
+  var fill = document.getElementById('progressFill');
+  var label = document.getElementById('progressLabel');
+
+  function loadState() {
+    try { var raw = localStorage.getItem(STORAGE_KEY); return raw ? JSON.parse(raw) : {}; }
+    catch (e) { return {}; }
+  }
+  function saveState(state) {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (e) {}
+  }
+
+  var state = loadState();
+
+  function applyCard(li, done) {
+    var checkbox = li.querySelector('.card-check');
+    var pill = li.querySelector('.status-pill');
+    checkbox.checked = done;
+    li.classList.toggle('done', done);
+    pill.textContent = done ? '완료' : '대기';
+  }
+
+  function updateProgress() {
+    var doneCount = cards.filter(function (li) { return li.classList.contains('done'); }).length;
+    var pct = Math.round((doneCount / cards.length) * 100);
+    fill.style.width = pct + '%';
+    label.textContent = doneCount + ' / ' + cards.length + ' 완료';
+  }
+
+  cards.forEach(function (li) {
+    var id = li.getAttribute('data-id');
+    var done = state.hasOwnProperty(id) ? !!state[id] : false;
+    applyCard(li, done);
+    var checkbox = li.querySelector('.card-check');
+    checkbox.addEventListener('change', function () {
+      applyCard(li, checkbox.checked);
+      state[id] = checkbox.checked;
+      saveState(state);
+      updateProgress();
+    });
+  });
+
+  updateProgress();
+})();
+</script>
