@@ -7,9 +7,9 @@
 ## Project Overview
 
 - Name: kdance (Android package `com.kdancex3`, product name K-DanceX3)
-- Stack: not yet chosen — project is in planning; no application source code exists yet
+- Stack: FastAPI + SQLAlchemy2 + Alembic + psycopg3 (backend, uv/Python 3.12) · React + Vite + TS (admin-web) · Expo SDK 57 + React Native + TS (mobile)
 - Description: dance studio booking/membership app (Android). See `docs/pricing-policy.md` and `docs/distribution-policy.md` for business decisions made so far.
-- Backend DB: PostgreSQL, local dev container `mobydick-db` (db name `mobydick`)
+- Backend DB: PostgreSQL 18 + pgvector, local dev container `kdance-db` (port 5433, db name `kdance`) — separate from the unrelated `mobydick-db` container on this machine
 
 ## Build, Test & Verify
 
@@ -21,8 +21,11 @@
 
 ## Architecture
 
-- `docs/` — planning notes and setup guides (pricing/distribution policy, OmniRoute setup guide)
-- No `src/` yet
+- `docs/` — planning notes and setup guides (pricing/distribution/genre-taxonomy policy, OmniRoute setup guide)
+- `backend/` — FastAPI API server (uv-managed)
+- `admin-web/` — React + Vite admin console for studio owners
+- `mobile/` — Expo consumer app
+- `infra/` — `docker-compose.yml` for local Postgres+pgvector and Redis
 
 ## Tools
 
