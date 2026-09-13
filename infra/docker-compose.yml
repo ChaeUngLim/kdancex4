@@ -1,0 +1,33 @@
+services:
+  db:
+    image: pgvector/pgvector:pg18
+    container_name: kdance-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: kdance
+      POSTGRES_PASSWORD: kdance
+      POSTGRES_DB: kdance
+    ports:
+      - "5433:5432"
+    volumes:
+      - kdance-db-data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U kdance -d kdance"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  redis:
+    image: redis:alpine
+    container_name: kdance-redis
+    restart: unless-stopped
+    ports:
+      - "6380:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+volumes:
+  kdance-db-data:
