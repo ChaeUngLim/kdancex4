@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SCH-02 왕초보 완벽분석가이드 — 도메인 모델 7개 + 초기 마이그레이션</title>
+<style>
+  :root {
+    --bg: #0f1115;
+    --card: #161a21;
+    --card-border: #262b35;
+    --text: #e8eaed;
+    --text-dim: #9aa4b2;
+    --accent-a: #4fc3f7;
+    --accent-b: #ffb74d;
+    --accent-good: #81c784;
+    --accent-warn: #e57373;
+    --code-bg: #0b0d11;
+  }
+  * { box-sizing: border-box; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+    line-height: 1.7;
+    margin: 0;
+    padding: 0 16px 80px;
+  }
+  .wrap { max-width: 880px; margin: 0 auto; }
+  header.hero {
+    padding: 48px 0 24px;
+    border-bottom: 1px solid var(--card-border);
+    margin-bottom: 32px;
+  }
+  header.hero h1 { font-size: 1.9rem; margin: 0 0 8px; }
+  header.hero p.sub { color: var(--text-dim); font-size: 1.05rem; margin: 0; }
+  nav.toc {
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin-bottom: 40px;
+  }
+  nav.toc h2 { font-size: 1rem; color: var(--text-dim); margin: 0 0 12px; text-transform: uppercase; letter-spacing: .04em; }
+  nav.toc ol { margin: 0; padding-left: 20px; columns: 2; column-gap: 24px; }
+  nav.toc li { margin-bottom: 6px; break-inside: avoid; }
+  nav.toc a { color: var(--accent-a); text-decoration: none; }
+  nav.toc a:hover { text-decoration: underline; }
+  section { margin-bottom: 56px; scroll-margin-top: 20px; }
+  h2 {
+    font-size: 1.5rem;
+    border-left: 4px solid var(--accent-a);
+    padding-left: 14px;
+    margin: 0 0 20px;
+  }
+  h3 { font-size: 1.15rem; color: var(--accent-a); margin: 28px 0 10px; scroll-margin-top: 20px; }
+  p { margin: 0 0 14px; }
+  .callout {
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-left: 4px solid var(--accent-a);
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin: 20px 0;
+  }
+  .callout.warn { border-left-color: var(--accent-warn); }
+  .callout.good { border-left-color: var(--accent-good); }
+  .callout-label { font-weight: 700; font-size: .85rem; text-transform: uppercase; letter-spacing: .04em; color: var(--text-dim); margin-bottom: 6px; }
+  table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: .95rem; }
+  th, td { border: 1px solid var(--card-border); padding: 10px 14px; text-align: left; vertical-align: top; }
+  th { background: var(--card); color: var(--accent-a); }
+  tr:nth-child(even) td { background: rgba(255,255,255,0.02); }
+  code {
+    background: var(--code-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 4px;
+    padding: 2px 6px;
+    font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    font-size: .9em;
+  }
+  pre {
+    background: var(--code-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 8px;
+    padding: 16px 18px;
+    overflow-x: auto;
+    margin: 16px 0;
+  }
+  pre code { border: none; padding: 0; background: none; }
+  .flow {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+    margin: 24px 0;
+    font-size: .92rem;
+  }
+  .flow .step {
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: 8px;
+    padding: 12px 16px;
+    flex: 1 1 140px;
+    min-width: 140px;
+  }
+  .flow .step b { display: block; color: var(--accent-a); margin-bottom: 4px; }
+  .flow .step.dim { opacity: .55; }
+  .flow .arrow { color: var(--text-dim); font-size: 1.2rem; }
+  .badge {
+    display: inline-block;
+    font-size: .75rem;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 999px;
+    margin-right: 6px;
+  }
+  .badge.a { background: rgba(79,195,247,.15); color: var(--accent-a); }
+  .badge.b { background: rgba(255,183,77,.15); color: var(--accent-b); }
+  .badge.done { background: rgba(129,199,132,.15); color: var(--accent-good); }
+  details {
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: 8px;
+    padding: 12px 18px;
+    margin: 10px 0;
+  }
+  details summary { cursor: pointer; font-weight: 600; color: var(--accent-a); }
+  details[open] summary { margin-bottom: 10px; }
+  .glossary dt { font-weight: 700; color: var(--accent-a); margin-top: 16px; }
+  .glossary dd { margin: 4px 0 0; color: var(--text); }
+  footer {
+    border-top: 1px solid var(--card-border);
+    margin-top: 60px;
+    padding-top: 24px;
+    color: var(--text-dim);
+    font-size: .9rem;
+  }
+  footer a { color: var(--accent-a); }
+  .doclink-list { display: flex; flex-direction: column; gap: 8px; }
+  .doclink-list a { color: var(--text); text-decoration: none; }
+  .doclink-list a:hover { color: var(--accent-a); }
+  .doclink-list .path { color: var(--text-dim); font-size: .85rem; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="hero">
+  <h1>🗂️ SCH-02 왕초보 완벽분석가이드 — 도메인 모델 7개 + 초기 마이그레이션</h1>
+  <p class="sub">이 프로젝트가 실제로 다루는 데이터(학원, 수업, 주문, 결제, 예약, 환불)를 처음으로 테이블로 정의합니다. <a href="SCH-01.html">SCH-01(기반 배선)</a>이 설명한 개념은 반복하지 않고 여기서는 새로 나오는 개념만 설명합니다.</p>
+</header>
+
+<nav class="toc">
+  <h2>목차</h2>
+  <ol>
+    <li><a href="#overview">1. 개요</a></li>
+    <li><a href="#concepts">2. 사전 개념</a></li>
+    <li><a href="#what-why">3. 무엇을, 왜 이렇게 만들었나</a></li>
+    <li><a href="#issues">4. 이슈 → 원인 파악 → 해결</a></li>
+    <li><a href="#tests">5. 테스트로 확인한 것</a></li>
+    <li><a href="#relations">6. 다른 SCH와의 연관관계</a></li>
+    <li><a href="#handoff">7. 다음 SCH로 이어지는 것</a></li>
+  </ol>
+</nav>
+
+<section id="overview">
+  <h2>1. 개요</h2>
+  <p>SCH-02(도메인 모델 7개 + 초기 마이그레이션)는 이 프로젝트의 <b>실제 데이터 모델 7개</b>(<code>Academy</code> 학원, <code>ClassSchedule</code> 수업 시간표, <code>Order</code> 주문, <code>Payment</code> 결제, <code>Reservation</code> 예약, <code>Refund</code> 환불, <code>RefundEvent</code> 환불 감사 로그)를 <a href="SCH-01.html">SCH-01(기반 배선)</a>이 만든 <code>Base</code> 위에 올리고, 이 7개 테이블을 실제 PostgreSQL에 만드는 <b>초기 마이그레이션 파일 1개</b>를 손으로 작성한 SCH입니다.</p>
+  <p>흥미로운 점은, 착수 시점에 이미 5개 모델(<code>Academy</code>, <code>ClassSchedule</code>, <code>Order</code>, <code>Payment</code>, <code>Reservation</code>)이 코드로 존재하고 있었다는 것입니다(이전 실행이 중단된 흔적으로 추정). SCH-02(도메인 모델 7개 + 초기 마이그레이션)가 실제로 새로 만든 것은 <code>Refund</code>·<code>RefundEvent</code> 2개 모델과, 7개 테이블 전체를 만드는 마이그레이션 파일입니다.</p>
+  <div class="callout good">
+    <div class="callout-label">한 줄 요약</div>
+    "돈이 걸린 테이블(환불)일수록 DB 자체가 규칙을 강제하게 만든다"가 이 SCH의 핵심 설계 방향입니다. 애플리케이션 코드가 실수해도 DB가 이중 환불이나 잘못된 상태값을 구조적으로 막아줍니다.
+  </div>
+</section>
+
+<section id="concepts">
+  <h2>2. 사전 개념</h2>
+  <p>ORM/<code>Base</code>/<code>TimestampMixin</code>/Alembic·<code>target_metadata</code> 기본 개념은 <a href="SCH-01.html#concept-base">SCH-01(기반 배선)에서 설명함</a>. 여기서는 SCH-02(도메인 모델 7개 + 초기 마이그레이션)에서 새로 나오는 개념만 설명합니다.</p>
+
+  <h3 id="concept-check">CHECK 제약이 뭔가요?</h3>
+  <p>컬럼에 들어갈 수 있는 값의 범위나 허용 목록을 <b>DB 스스로가</b> 강제하는 규칙입니다. 애플리케이션 코드가 검증을 깜빡하거나 버그가 있어도, DB가 마지막 방어선 역할을 합니다. 예를 들어 <code>refunds.status</code> 컬럼에는 이런 CHECK가 붙어 있습니다.</p>
+  <pre><code>CheckConstraint(
+    "status IN ('succeeded', 'pending', 'failed')",
+    name="ck_refunds_status",
+)</code></pre>
+  <p>이 제약 덕분에 <code>status</code>에 <code>'success'</code>(오타)나 <code>'done'</code> 같은 값을 넣으려고 하면, 애플리케이션 코드가 실수했더라도 DB가 INSERT/UPDATE 자체를 거부합니다. 참고로 이 프로젝트는 상태값에 PostgreSQL의 네이티브 ENUM 타입 대신 <b>VARCHAR + CHECK</b> 조합을 쓰기로 했는데, 그 이유는 네이티브 ENUM은 나중에 값을 하나 빼는 것이 사실상 불가능하고 alembic autogenerate가 ENUM 값 변경을 잘 감지하지 못하기 때문입니다. VARCHAR + CHECK는 나중에 값 집합을 바꿀 때 CHECK 제약만 바꾸는 마이그레이션 1건이면 충분합니다.</p>
+  <div class="callout warn">
+    <div class="callout-label">CHECK의 한계</div>
+    PostgreSQL의 CHECK 제약은 <b>같은 행(row) 안의 다른 컬럼끼리만</b>비교할 수 있고, <b>다른 테이블의 값을 참조할 수 없습니다.</b> 이 한계가 실제로 SCH-02(도메인 모델 7개 + 초기 마이그레이션)에서 문제가 됐던 부분입니다 — <a href="#issues">4.2절</a>에서 자세히 설명합니다.
+  </div>
+
+  <h3 id="concept-unique">UNIQUE 제약과 partial unique index(조건부 유니크 인덱스)가 뭔가요?</h3>
+  <p>일반 <code>UNIQUE</code> 제약은 "이 컬럼(또는 컬럼 조합) 값은 테이블 전체에서 절대 중복되면 안 된다"는 규칙입니다. 그런데 그냥 <code>UNIQUE(reservation_id)</code>를 걸면 문제가 생깁니다 — 환불이 한 번 실패하면 그 예약에 대한 환불 행이 영원히 1건으로 묶여서, 실패를 재시도할 새 행을 만들 수 없게 됩니다.</p>
+  <p>그래서 <code>Refund</code> 모델은 <b>partial unique index(조건부 유니크 인덱스)</b>를 씁니다.</p>
+  <pre><code>Index(
+    "uq_refunds_reservation_id_active",
+    "reservation_id",
+    unique=True,
+    postgresql_where=text("status <> 'failed'"),
+)</code></pre>
+  <p><code>postgresql_where</code> 조건이 붙으면 "그 조건을 만족하는 행끼리만" 유니크를 검사합니다. 여기서는 "<code>status</code>가 <code>'failed'</code>가 아닌 행끼리만" 유니크를 걸었기 때문에, 실패한 환불 건은 그대로 남겨두고 새 시도 행을 추가로 넣을 수 있습니다. 반면 진행중(<code>pending</code>)이나 성공(<code>succeeded</code>) 상태의 환불은 같은 예약에 대해 <b>최대 1건</b>으로 제한됩니다 — 이것이 이중 환불을 DB 차원에서 구조적으로 막는 지점입니다.</p>
+
+  <h3 id="concept-jsonb">JSONB 컬럼이 뭔가요?</h3>
+  <p>일반 컬럼은 값 하나에 타입 하나(문자열, 정수 등)가 고정되지만, <b>JSONB</b>는 JSON 형태의 임의 구조(중첩된 객체, 배열 등)를 그대로 저장할 수 있는 PostgreSQL 전용 컬럼 타입입니다. 이 프로젝트에서는 <code>academies.refund_policy_tiers</code>(학원마다 다른 환불 비율표, 배열 형태)와 <code>refund_events.payload</code>(이벤트 종류마다 다른 필드를 담는 자유 형식 데이터)에 씁니다. 미리 컬럼 구조를 딱딱하게 정해두기 애매한 데이터를 다룰 때 유용합니다.</p>
+
+  <h3 id="concept-fk">FK(외래키, Foreign Key)가 뭔가요?</h3>
+  <p>어떤 컬럼이 <b>다른 테이블의 실제로 존재하는 행</b>만 가리키도록 DB가 보장하는 제약입니다. 예를 들어 <code>refunds.reservation_id</code>는 <code>reservations.id</code>를 가리키는 FK입니다.</p>
+  <pre><code>reservation_id: Mapped[uuid.UUID] = mapped_column(
+    UUID(as_uuid=True),
+    ForeignKey("reservations.id", ondelete="CASCADE", name="fk_refunds_reservation_id"),
+    nullable=False,
+    index=True,
+)</code></pre>
+  <p>존재하지 않는 <code>reservation_id</code>로 환불 행을 만들려고 하면 DB가 거부합니다. <code>ondelete="CASCADE"</code>는 "그 예약 행이 삭제되면, 이 환불 행도 자동으로 같이 삭제해라"는 뜻입니다.</p>
+
+  <h3 id="concept-append-only">append-only(추가 전용) 감사 로그 패턴이 뭔가요?</h3>
+  <p>한 번 쓴 행을 절대 UPDATE·DELETE하지 않고, 상태가 바뀔 때마다 <b>새 행을 INSERT만</b> 하는 테이블 설계입니다. "언제 무슨 일이 있었는지" 이력을 그대로 남겨야 하는 감사 로그에 씁니다. <code>RefundEvent</code>가 이 패턴을 따릅니다 — 그리고 바로 이 이유로 <a href="SCH-01.html#concept-mixin">SCH-01(기반 배선)의 TimestampMixin</a>을 <b>일부러 상속하지 않습니다.</b></p>
+  <pre><code>class RefundEvent(Base):  # TimestampMixin을 쓰지 않음
+    ...
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False,
+    )</code></pre>
+  <p><code>TimestampMixin</code>은 <code>created_at</code>과 <code>updated_at</code>을 함께 주는데, <code>updated_at</code> 컬럼이 있으면 "이 행은 나중에 고쳐질 수도 있다"는 인상을 줍니다. 그래서 <code>RefundEvent</code>는 <code>updated_at</code> 없이 <code>created_at</code>만 직접 선언해서, 컬럼 목록만 봐도 "이 테이블은 append-only다"라는 설계 의도가 드러나게 만들었습니다.</p>
+
+  <h3 id="concept-revision">마이그레이션 리비전 파일 구조가 뭔가요?</h3>
+  <p>Alembic 자체의 개념(무엇이고 왜 쓰는지)은 <a href="SCH-01.html#concept-alembic">SCH-01(기반 배선)에서 설명함</a>. 여기서는 리비전 파일 <b>한 개</b>의 내부 구조를 설명합니다. <code>backend/alembic/versions/0001_initial_domain.py</code> 파일 상단은 이렇게 생겼습니다.</p>
+  <pre><code>revision: str = "0001_initial_domain"
+down_revision: str | None = None
+branch_labels: str | Sequence[str] | None = None
+depends_on: str | Sequence[str] | None = None</code></pre>
+  <p><code>revision</code>은 이 파일 자신을 가리키는 ID이고, <code>down_revision</code>은 "이 리비전이 적용되기 <b>직전</b>에 DB가 있어야 하는 리비전"입니다. Alembic은 모든 리비전 파일의 이 두 값을 이어서 체인(연결 리스트)을 만들고 그 순서대로 적용합니다. 이 파일은 <code>down_revision = None</code>이라 <b>체인의 첫 번째</b> 리비전입니다. 실제로 DB에 <code>CREATE TABLE</code> 같은 SQL(DDL)을 실행하는 곳은 파일 안의 <code>upgrade()</code>/<code>downgrade()</code> 두 함수뿐이고, 위 4개 변수는 Alembic이 "다음에 어느 리비전을 실행할지" 순서를 찾는 데만 쓰입니다.</p>
+  <div class="callout warn">
+    <div class="callout-label">보통은 손으로 안 씁니다</div>
+    보통 Alembic 리비전 파일은 <code>alembic revision --autogenerate</code> 명령이 모델과 DB의 차이를 비교해서 <b>자동 생성</b>합니다. 그런데 SCH-02(도메인 모델 7개 + 초기 마이그레이션)는 이 파일을 <b>손으로 직접 작성</b>했습니다 — 이유는 <a href="#issues">4절</a>에서 설명합니다.
+  </div>
+</section>
+
+<section id="what-why">
+  <h2>3. 무엇을, 왜 이렇게 만들었나</h2>
+  <table>
+    <tr><th>파일</th><th>구분</th><th>무엇을 왜</th></tr>
+    <tr>
+      <td><code>backend/app/models/refund.py</code></td>
+      <td>신규</td>
+      <td><code>Refund</code> 모델. <code>idempotency_key</code> UNIQUE(명명) + partial unique index로 이중 환불 방지 2겹, status/reason CHECK, 금액·basis point 범위 CHECK 4종, 환불계좌 3컬럼, PG 연동 필드.</td>
+    </tr>
+    <tr>
+      <td><code>backend/app/models/refund_event.py</code></td>
+      <td>신규</td>
+      <td><code>RefundEvent</code> append-only 감사 로그. <code>TimestampMixin</code>을 의도적으로 쓰지 않음(<a href="#concept-append-only">2절</a>). <code>payload</code> JSONB, 기본값 <code>{}</code>.</td>
+    </tr>
+    <tr>
+      <td><code>backend/app/models/__init__.py</code></td>
+      <td>수정</td>
+      <td>7개 모델 전부 re-export(<code>Academy</code>, <code>ClassSchedule</code>, <code>Order</code>, <code>Payment</code>, <code>Reservation</code>, <code>Refund</code>, <code>RefundEvent</code>) + <code>Base</code>/<code>TimestampMixin</code>.</td>
+    </tr>
+    <tr>
+      <td><code>backend/alembic/versions/0001_initial_domain.py</code></td>
+      <td>신규</td>
+      <td>손작성 초기 리비전. <code>down_revision=None</code>(체인의 첫 리비전). upgrade 17문(테이블 7개 + 인덱스 10개), downgrade는 정확히 역순 17문.</td>
+    </tr>
+  </table>
+
+  <h3>왜 이미 있던 모델 5개를 손대지 않았나</h3>
+  <p><code>academy.py</code>·<code>class_schedule.py</code>·<code>order.py</code>·<code>payment.py</code>·<code>reservation.py</code> 5개는 작업 착수 시점에 <b>이미 작성돼 있었습니다.</b> SCH-02(도메인 모델 7개 + 초기 마이그레이션)는 이 5개 파일을 전부 읽어서, 공유 계약(다른 SCH와 미리 합의한 값 집합·CHECK 제약·JSONB 기본값)과 정확히 일치하는지 확인했고, 일치했기 때문에 <b>수정하지 않았습니다.</b> 임의로 덮어쓰면 병렬로 진행 중이던 다른 작업의 산출물을 실수로 지울 위험이 있다고 판단한 것입니다. 이번 SCH가 실제로 새로 만든 것은 <code>refund.py</code>·<code>refund_event.py</code> 2개뿐입니다.</p>
+
+  <h3 id="constraint-naming">왜 <code>idempotency_key</code> UNIQUE에 이름을 직접 붙였나</h3>
+  <p><code>UniqueConstraint("idempotency_key", name="uq_refunds_idempotency_key")</code>처럼 이름을 명시했습니다. 만약 이름 없이 <code>mapped_column(..., unique=True)</code>로만 쓰면 PostgreSQL이 <code>refunds_idempotency_key_key</code> 같은 이름을 자동으로 붙이는데, 손작성 마이그레이션이 다른 이름을 쓰면 나중에 SCH-11(마이그레이션 up/autogenerate-빈diff/down 검증)의 "autogenerate 빈 diff" 완료 기준이 깨집니다(모델과 마이그레이션이 실질적으로 같은 제약이어도 이름이 다르면 alembic이 "차이가 있다"고 판단하기 때문). 반대로 <b>Primary Key에는 일부러 이름을 붙이지 않았습니다</b> — 모델도 PK를 명명하지 않으므로, 마이그레이션만 명명하면 <code>alembic upgrade</code>로 만든 스키마와 SCH-07(conftest + DB 통합 테스트 작성)의 conftest가 <code>Base.metadata.create_all()</code>로 만드는 스키마의 제약 이름이 서로 어긋나기 때문입니다.</p>
+</section>
+
+<section id="issues">
+  <h2>4. 이슈 → 원인 파악 → 해결</h2>
+
+  <h3>4.1 [수정함] 이름 없는 UNIQUE 제약이 autogenerate diff를 유발할 뻔했다</h3>
+  <p><b>현상:</b> 초안 코드는 <code>idempotency_key</code>에 <code>mapped_column(..., unique=True)</code>만 썼다.<br>
+  <b>원인:</b> 이렇게 쓰면 제약에 이름이 안 붙어서 PostgreSQL이 자동으로 <code>refunds_idempotency_key_key</code>라는 이름을 부여하는데, 손작성 마이그레이션 파일이 이와 다른 이름을 쓰면 "실제로는 같은 제약인데 이름이 달라서" autogenerate가 차이가 있다고 오판한다.<br>
+  <b>해결:</b> <code>UniqueConstraint("idempotency_key", name="uq_refunds_idempotency_key")</code>로 명시적으로 이름을 붙여 모델과 마이그레이션의 제약 이름을 일치시켰다(<a href="#constraint-naming">3절</a> 참고).</p>
+
+  <h3>4.2 [계획 한계 — 이번 SCH 범위에서 해결 안 함] "환불액이 결제액을 넘을 수 없다"는 CHECK만으로 완결할 수 없다</h3>
+  <p><b>현상:</b> 애초 계획은 "환불액 상한을 DB CHECK로도 건다"는 것이었다.<br>
+  <b>원인:</b> PostgreSQL의 CHECK 제약은 <b>다른 테이블(<code>payments.amount</code>)을 참조할 수 없다</b>(<a href="#concept-check">2절</a>에서 설명한 한계). <code>Refund</code> 테이블 안에서만 가능한 최대치, 즉 <code>CHECK (refunded_amount &lt;= requested_amount)</code>와 각 금액 <code>&gt;= 0</code>까지만 걸 수 있었다.<br>
+  <b>해결(이번 SCH 범위 밖):</b> 실제 결제액 대비 상한 검증은 <b>SCH-03(환불액 산정 순수 함수 + 단위테스트)의 환불액 산정 함수(clamp 로직)가 유일한 방어선</b>이다. "DB CHECK와 서비스 로직 이중 방어"라는 계획 서술은 절반만 성립하며, 완료 검증(Phase 9) 단계에서도 이 수용 기준은 "부분 가능"으로 기록됐다.</p>
+
+  <h3>4.3 [정보 — 문제 아님] <code>class_schedules</code>에 <code>ends_at</code>(종료 시각) 컬럼이 없다</h3>
+  <p><b>현상:</b> 원래 수용 기준은 "이미 시작했거나 <b>종료</b>된 수업의 취소는 거부한다"인데, 스키마에는 <code>starts_at</code>(시작 시각)만 있고 <code>ends_at</code>이 없다.<br>
+  <b>원인:</b> 이 스키마 구조는 계획 단계에서 이미 그렇게 정의됐다.<br>
+  <b>해결:</b> 실무상 "시작 시각이 이미 지났으면 거부"라는 기준이 종료된 수업까지 포함하므로 <b>기능적 구멍은 아니라고 판단</b>해 스키마를 바꾸지 않았다. 다만 이후 SCH가 "종료" 여부를 별도로 판정하려 하면 참조할 컬럼이 없다는 점은 기록해 둔다. <code>starts_at</code> 단일 기준으로 거부하는 것을 권장한다.</p>
+
+  <h3>4.4 [정보 — 문제 아님] 착수 시점에 모델 5개가 이미 존재했다</h3>
+  <p><b>현상:</b> 계획 문서는 7개 모델 전부를 [신규]로 표기했지만, 실제로는 2개(<code>Refund</code>, <code>RefundEvent</code>)만 신규였고 나머지 5개는 이미 작성돼 있었다.<br>
+  <b>원인:</b> 이전에 중단된 실행의 흔적으로 추정된다.<br>
+  <b>해결:</b> 기존 5개가 공유 계약과 정확히 일치함을 확인만 하고 <b>덮어쓰지 않았다</b> — 병렬로 진행 중이던 다른 작업의 산출물일 가능성을 배제할 수 없어 임의 수정을 피했다.</p>
+
+  <div class="callout good">
+    <div class="callout-label">정리</div>
+    4.1은 실제로 고친 문제, 4.2는 DB 기술 자체의 한계라 다음 SCH(SCH-03(환불액 산정 순수 함수 + 단위테스트))에 방어 책임을 넘긴 것, 4.3·4.4는 문제라기보다 "알아두면 좋은 정보"입니다. Phase 7(오류 수정)로 넘어간 항목, 백엔드 린터(ruff) 미설정은 이번 SCH 범위 밖이라 손대지 않았습니다.
+  </div>
+</section>
+
+<section id="tests">
+  <h2>5. 테스트로 확인한 것</h2>
+  <table>
+    <tr><th>확인한 것</th><th>결과</th><th>이게 실제로 증명하는 것</th></tr>
+    <tr>
+      <td><code>uv run python -c "from app.models import Base; print(sorted(Base.metadata.tables))"</code></td>
+      <td><code>['academies', 'class_schedules', 'orders', 'payments', 'refund_events', 'refunds', 'reservations']</code> (7개)</td>
+      <td>7개 모델이 전부 문법 오류 없이 import되고, <code>models/__init__.py</code>의 re-export가 정상 동작해 <code>Base.metadata</code>에 빠짐없이 등록됐다는 것.</td>
+    </tr>
+    <tr>
+      <td><code>uv run pytest -q</code></td>
+      <td><code>1 passed, 2 warnings</code></td>
+      <td>새 모델 2개와 <code>__init__.py</code> 수정이 기존 <code>test_health.py</code>를 깨뜨리지 않았다는 것(회귀 없음).</td>
+    </tr>
+    <tr>
+      <td><code>alembic upgrade head --sql</code> / <code>downgrade 0001_initial_domain:base --sql</code> (둘 다 오프라인, DB 불필요)</td>
+      <td>문법 오류 없이 SQL 생성 성공</td>
+      <td>손작성 마이그레이션 파일 자체에 문법 오류가 없다는 것. DB 연결 없이도 SQL을 미리 뽑아볼 수 있다는 <a href="SCH-01.html#concept-alembic">SCH-01(기반 배선)에서 설명한 offline 모드</a>를 실제로 활용한 것.</td>
+    </tr>
+    <tr>
+      <td>마이그레이션 DDL과 모델 DDL 문자 단위 대조</td>
+      <td>17문 vs 17문, 실질 불일치 0건 (차이 2건은 alembic 주석과 제약 나열 순서뿐, 의미는 동일)</td>
+      <td>손으로 작성한 마이그레이션이 <code>app/models/*</code>의 선언과 실제로 정확히 일치한다는 것 — "손작성이라 실수했을 위험"을 실측으로 지웠다.</td>
+    </tr>
+    <tr>
+      <td>downgrade 역순 완전성 확인</td>
+      <td>DROP INDEX 10 + DROP TABLE 7 = upgrade가 만든 전 객체</td>
+      <td><code>downgrade()</code>가 <code>upgrade()</code>가 만든 모든 것을 빠짐없이 되돌린다는 것. CHECK·FK·UNIQUE 제약은 테이블에 귀속되므로 <code>DROP TABLE</code>이 함께 제거한다.</td>
+    </tr>
+  </table>
+
+  <div class="callout warn">
+    <div class="callout-label">아직 검증 안 된 것 — 통과로 오해하면 안 됨</div>
+    위 검증은 전부 <b>"SQL을 생성해봤더니 문법과 내용이 맞다"</b>는 것까지입니다. <b>실제로 이 SQL을 진짜 PostgreSQL에 실행</b>해서 테이블이 만들어지는지, <code>alembic revision --autogenerate</code>가 정말로 "빈 diff"(추가 변경사항 없음)를 내는지, <code>downgrade base</code>까지 왕복이 실제로 되는지는 <b>이번 SCH에서 검증하지 못했습니다.</b> Docker(kdance-db)가 꺼져 있었기 때문입니다. 이 실행 검증은 <b>SCH-11(마이그레이션 up/autogenerate-빈diff/down 검증)</b>의 몫입니다.<br><br>
+    마찬가지로 CHECK 제약이 실제로 잘못된 값을 거부하는지, partial unique index가 실제로 중복 INSERT를 막는지 같은 <b>제약의 실동작</b>도 이번 SCH에서는 확인하지 못했습니다. 이건 <b>SCH-12</b>(DB 통합 테스트)에서만 실측 가능합니다.
+  </div>
+</section>
+
+<section id="relations">
+  <h2>6. 다른 SCH와의 연관관계</h2>
+  <div class="flow">
+    <div class="step dim"><b><a href="SCH-01.html" style="color:inherit;text-decoration:none">SCH-01</a></b>기반 배선<br><span class="badge done">완료</span></div>
+    <div class="arrow">→</div>
+    <div class="step"><b>SCH-02</b>도메인 모델 7개 + 마이그레이션 (이 문서)<br><span class="badge done">완료</span></div>
+    <div class="arrow">→</div>
+    <div class="step dim"><b>SCH-03</b>환불 산정 순수 함수<br><span class="badge done">완료</span></div>
+    <div class="arrow">→</div>
+    <div class="step dim"><b>SCH-04</b>어댑터 3종<br><span class="badge done">완료</span></div>
+  </div>
+  <div class="flow">
+    <div class="step dim"><b>SCH-05</b>취소 오케스트레이션<br><span class="badge done">완료</span></div>
+    <div class="arrow">→</div>
+    <div class="step dim"><b>SCH-06</b>스키마+라우터+main.py<br><span class="badge done">완료</span></div>
+    <div class="arrow">→</div>
+    <div class="step dim"><b>SCH-07</b>conftest+DB 통합테스트<br><span class="badge b">진행 중</span></div>
+    <div class="arrow">→</div>
+    <div class="step dim"><b>SCH-11 · SCH-12</b>마이그레이션 실적용 · DB 통합테스트<br><span class="badge b">Docker 대기</span></div>
+  </div>
+  <table>
+    <tr><th>관계</th><th>왜 이 순서/관계인가</th></tr>
+    <tr><td>SCH-01(기반 배선) → SCH-02(도메인 모델 7개 + 초기 마이그레이션) (선행)</td><td><code>Base</code>·<code>TimestampMixin</code>이 없으면 <code>Refund</code>·<code>RefundEvent</code> 클래스를 정의할 부모가 없다.</td></tr>
+    <tr><td>SCH-02(도메인 모델 7개 + 초기 마이그레이션) → SCH-03·04 (후속)</td><td>환불 산정 함수(SCH-03)와 어댑터(SCH-04)가 다루는 <code>Refund</code>·<code>Payment</code> 등 테이블 구조가 이 SCH에서 확정된다.</td></tr>
+    <tr><td>SCH-02(도메인 모델 7개 + 초기 마이그레이션) → SCH-05·06 (간접 후속)</td><td>취소 오케스트레이션 서비스(SCH-05)와 API 스키마·라우터(SCH-06)가 이 7개 모델을 직접 다룬다.</td></tr>
+    <tr><td>SCH-02(도메인 모델 7개 + 초기 마이그레이션) → SCH-11(마이그레이션 up/autogenerate-빈diff/down 검증) (직접 후속)</td><td>이 SCH가 손으로 작성한 마이그레이션이 실제 DB 위에서 진짜로 동작하는지(upgrade/autogenerate 빈 diff/downgrade)를 최종 확인하는 것이 SCH-11이다. <code>kdance.html</code>에도 "SCH-11 — SCH-02 선행 충족"으로 기록돼 있다.</td></tr>
+    <tr><td>SCH-02(도메인 모델 7개 + 초기 마이그레이션) → SCH-12(DB 통합 테스트 실행) (간접 후속)</td><td>CHECK·partial unique index 같은 제약의 <b>실동작</b> 검증은 실제 DB가 있어야 하는 SCH-12의 몫이다.</td></tr>
+  </table>
+</section>
+
+<section id="handoff">
+  <h2>7. 다음 SCH로 이어지는 것</h2>
+  <ul>
+    <li><b>SCH-03(환불 산정 함수)에게:</b> "환불액이 결제액을 넘을 수 없다"는 규칙은 DB CHECK가 <code>refunded_amount &lt;= requested_amount</code>까지만 강제하고, <b>결제액(<code>payments.amount</code>) 대비 상한은 CHECK로 표현할 수 없다</b>(4.2절). 산정 함수의 clamp 로직이 이 상한을 지키는 유일한 방어선이라는 점을 반드시 알아야 한다.</li>
+    <li><b>SCH-07(conftest)에게:</b> 마이그레이션의 Primary Key에는 이름을 붙이지 않았다(모델과 일치시키기 위해). <code>Base.metadata.create_all()</code>로 테스트 스키마를 만들 때 이 점이 <code>alembic upgrade</code> 결과와 제약 이름 수준까지 일치해야 한다.</li>
+    <li><b>SCH-11(마이그레이션 실적용)에게:</b> 이번 SCH는 SQL <b>생성</b>까지만 검증했다. <code>upgrade head</code> 실제 실행, <code>--autogenerate</code> 빈 diff 확인, <code>downgrade base</code> 왕복은 전부 SCH-11이 Docker를 켠 뒤 처음으로 실행해야 한다.</li>
+    <li><b>SCH-12(DB 통합 테스트)에게:</b> CHECK 제약 위반 시 실제로 INSERT가 거부되는지, partial unique index가 실제로 중복을 막는지는 이번 SCH에서 검증하지 못했다. 실제 DB를 띄운 뒤 이 제약들의 실동작을 처음 확인하는 것이 SCH-12다.</li>
+    <li><b>후속 SCH 전반에게:</b> <code>class_schedules</code>에는 <code>ends_at</code> 컬럼이 없다(4.3절). "종료" 여부를 별도로 판정해야 하는 로직이 필요하면 <code>starts_at</code> 단일 기준으로 처리해야 한다.</li>
+  </ul>
+</section>
+
+<footer>
+  작성 기준: <code>_workspace/05_implementer_TS-02_summary.md</code>, <code>backend/app/models/refund.py</code>, <code>backend/app/models/refund_event.py</code>, <code>backend/app/models/__init__.py</code>, <code>backend/alembic/versions/0001_initial_domain.py</code>의 학습 주석 · kdance 프로젝트 내부 문서 · 2026-09-15 작성.
+</footer>
+
+</div>
+</body>
+</html>

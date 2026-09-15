@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SCH-03 왕초보 완벽분석가이드 — 환불액 산정 순수 함수</title>
+<style>
+  :root {
+    --bg: #0f1115;
+    --card: #161a21;
+    --card-border: #262b35;
+    --text: #e8eaed;
+    --text-dim: #9aa4b2;
+    --accent-a: #4fc3f7;
+    --accent-b: #ffb74d;
+    --accent-good: #81c784;
+    --accent-warn: #e57373;
+    --code-bg: #0b0d11;
+  }
+  * { box-sizing: border-box; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+    line-height: 1.7;
+    margin: 0;
+    padding: 0 16px 80px;
+  }
+  .wrap { max-width: 880px; margin: 0 auto; }
+  header.hero {
+    padding: 48px 0 24px;
+    border-bottom: 1px solid var(--card-border);
+    margin-bottom: 32px;
+  }
+  header.hero h1 { font-size: 1.9rem; margin: 0 0 8px; }
+  header.hero p.sub { color: var(--text-dim); font-size: 1.05rem; margin: 0; }
+  nav.toc {
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin-bottom: 40px;
+  }
+  nav.toc h2 { font-size: 1rem; color: var(--text-dim); margin: 0 0 12px; text-transform: uppercase; letter-spacing: .04em; }
+  nav.toc ol { margin: 0; padding-left: 20px; columns: 2; column-gap: 24px; }
+  nav.toc li { margin-bottom: 6px; break-inside: avoid; }
+  nav.toc a { color: var(--accent-a); text-decoration: none; }
+  nav.toc a:hover { text-decoration: underline; }
+  section { margin-bottom: 56px; scroll-margin-top: 20px; }
+  h2 {
+    font-size: 1.5rem;
+    border-left: 4px solid var(--accent-a);
+    padding-left: 14px;
+    margin: 0 0 20px;
+  }
+  h3 { font-size: 1.15rem; color: var(--accent-a); margin: 28px 0 10px; scroll-margin-top: 20px; }
+  p { margin: 0 0 14px; }
+  .callout {
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-left: 4px solid var(--accent-a);
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin: 20px 0;
+  }
+  .callout.warn { border-left-color: var(--accent-warn); }
+  .callout.good { border-left-color: var(--accent-good); }
+  .callout-label { font-weight: 700; font-size: .85rem; text-transform: uppercase; letter-spacing: .04em; color: var(--text-dim); margin-bottom: 6px; }
+  table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: .95rem; }
+  th, td { border: 1px solid var(--card-border); padding: 10px 14px; text-align: left; vertical-align: top; }
+  th { background: var(--card); color: var(--accent-a); }
+  tr:nth-child(even) td { background: rgba(255,255,255,0.02); }
+  code {
+    background: var(--code-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 4px;
+    padding: 2px 6px;
+    font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    font-size: .9em;
+  }
+  pre {
+    background: var(--code-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 8px;
+    padding: 16px 18px;
+    overflow-x: auto;
+    margin: 16px 0;
+  }
+  pre code { border: none; padding: 0; background: none; }
+  .flow {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+    margin: 24px 0;
+    font-size: .92rem;
+  }
+  .flow .step {
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: 8px;
+    padding: 12px 16px;
+    flex: 1 1 140px;
+    min-width: 140px;
+  }
+  .flow .step b { display: block; color: var(--accent-a); margin-bottom: 4px; }
+  .flow .step.dim { opacity: .55; }
+  .flow .step.here { border-color: var(--accent-a); }
+  .flow .arrow { color: var(--text-dim); font-size: 1.2rem; }
+  .badge {
+    display: inline-block;
+    font-size: .75rem;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 999px;
+    margin-right: 6px;
+  }
+  .badge.a { background: rgba(79,195,247,.15); color: var(--accent-a); }
+  .badge.b { background: rgba(255,183,77,.15); color: var(--accent-b); }
+  .badge.done { background: rgba(129,199,132,.15); color: var(--accent-good); }
+  .badge.wait { background: rgba(154,164,178,.15); color: var(--text-dim); }
+  details {
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: 8px;
+    padding: 12px 18px;
+    margin: 10px 0;
+  }
+  details summary { cursor: pointer; font-weight: 600; color: var(--accent-a); }
+  details[open] summary { margin-bottom: 10px; }
+  .glossary dt { font-weight: 700; color: var(--accent-a); margin-top: 16px; }
+  .glossary dd { margin: 4px 0 0; color: var(--text); }
+  footer {
+    border-top: 1px solid var(--card-border);
+    margin-top: 60px;
+    padding-top: 24px;
+    color: var(--text-dim);
+    font-size: .9rem;
+  }
+  footer a { color: var(--accent-a); }
+  .doclink-list { display: flex; flex-direction: column; gap: 8px; }
+  .doclink-list a { color: var(--text); text-decoration: none; }
+  .doclink-list a:hover { color: var(--accent-a); }
+  .doclink-list .path { color: var(--text-dim); font-size: .85rem; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="hero">
+  <h1>🧮 SCH-03 왕초보 완벽분석가이드 — 환불액 산정 순수 함수</h1>
+  <p class="sub">"회원이 예약을 취소하면 얼마를 돌려줘야 하나"를 계산하는 코드 하나와, 그 계산을 50가지 상황으로 못박아 둔 테스트를 설명합니다. 코딩 경력 6개월 정도, 비전공자도 따라올 수 있게 씁니다.</p>
+</header>
+
+<nav class="toc">
+  <h2>목차</h2>
+  <ol>
+    <li><a href="#overview">1. 개요</a></li>
+    <li><a href="#concepts">2. 사전 개념</a></li>
+    <li><a href="#what-why">3. 무엇을, 왜 이렇게 만들었나</a></li>
+    <li><a href="#issues">4. 이슈 → 원인 파악 → 해결</a></li>
+    <li><a href="#tests">5. 테스트로 확인한 것</a></li>
+    <li><a href="#relations">6. 다른 SCH와의 연관관계</a></li>
+    <li><a href="#handoff">7. 다음 SCH로 이어지는 것</a></li>
+  </ol>
+</nav>
+
+<section id="overview">
+  <h2>1. 개요</h2>
+  <p>SCH-03은 <b>"예약을 취소하면 얼마를 돌려줄지 계산하는 함수"</b> 하나(<code>calculate_refund</code>)와, 그 계산이 지켜야 할 규칙을 50개의 구체적인 상황(테스트)으로 고정하는 작업입니다. "수업 시작 24시간 전"이라는 경계, 학원마다 다른 환불 비율표, 원 단위 반올림 방식처럼 돈이 걸린 세부 규칙을 코드로 정확히 옮기고, 그 규칙이 앞으로 절대 조용히 깨지지 않도록 테스트로 못박아 두는 것이 목표입니다.</p>
+  <p>이 함수는 <b>DB에도, 결제대행사(PG)에도, 심지어 SCH-02(도메인 모델 7개 + 초기 마이그레이션)가 만든 도메인 모델에도 의존하지 않습니다.</b> "결제액이 얼마고, 수업이 언제 시작하고, 지금이 언제고, 학원 비율표가 이렇다" — 이 네 가지 값만 받아서 "환불액은 얼마"라는 답 하나만 돌려줍니다. 이렇게 만든 이유는 <a href="#concepts">2절</a>에서 자세히 설명합니다.</p>
+  <div class="callout good">
+    <div class="callout-label">한 줄 요약</div>
+    "회원에게 얼마를 돌려줄지"를 결정하는 규칙을, DB나 외부 서비스 없이도 노트북에서 0.1초 만에 50가지 경우로 검증할 수 있는 함수 하나로 만들었습니다.
+  </div>
+</section>
+
+<section id="concepts">
+  <h2>2. 사전 개념</h2>
+  <p>이 SCH는 SCH-01·SCH-02(모델·설정·DB 배선)와는 결이 다른 개념이 필요합니다. <code>refund_policy.py</code>는 그 두 SCH가 만든 것을 <b>아예 import하지 않기</b> 때문에, 여기서는 새 개념 4가지만 설명합니다.</p>
+
+  <h3 id="concept-pure-function">순수 함수(pure function)가 뭔가요?</h3>
+  <p>"같은 입력을 넣으면 언제, 몇 번을 불러도 항상 같은 출력이 나오고, 함수가 실행되는 동안 DB에 뭔가를 쓰거나, 파일을 건드리거나, 화면에 출력하는 등 <b>바깥 세상에 아무 영향도 주지 않는</b>" 함수를 순수 함수라고 부릅니다. <code>calculate_refund(결제액, 수업시작시각, 지금시각, 비율표, 취소사유)</code>는 이 다섯 값만 보고 결과를 계산할 뿐, 어디에도 접속하지 않습니다.</p>
+  <p>여기서 눈여겨볼 점은 <b>"지금 몇 시인지"조차 함수가 스스로 알아내지 않는다</b>는 것입니다. 만약 함수 안에서 시스템 시계를 직접 읽었다면, "수업 시작 정확히 24시간 전"이라는 순간을 테스트에서 재현할 방법이 없습니다 — 테스트를 그 정확한 순간에 맞춰 실행할 수는 없으니까요. 대신 <code>now</code>라는 값을 호출하는 쪽에서 넣어주게 만들었습니다. 그러면 테스트는 "지금이 정확히 수업 시작 24시간 전이라고 치자"는 상황을 <code>now</code> 값 하나로 완벽하게 재현할 수 있습니다. 이런 함수는 테스트하기가 쉽고, 나중에 코드를 읽는 사람이 "이 함수가 뭘 더 건드리진 않을까"를 걱정할 필요가 없다는 것도 큰 장점입니다.</p>
+
+  <h3 id="concept-strenum">StrEnum이 뭔가요?</h3>
+  <p><code>CancellationReason</code>이라는 타입은 <code>StrEnum</code>으로 만들어졌습니다. 이름 그대로 <b>"문자열(String)이면서 동시에 열거형(Enum)"</b>인 타입입니다. 열거형은 "가능한 값이 미리 정해진 몇 개뿐"이라는 걸 코드로 표현하는 방법인데(예: 취소 사유는 현재 <code>member_request</code> 하나뿐), 보통 열거형은 문자열과 자동으로 호환되지 않아서 DB에 저장하거나 JSON으로 내보낼 때 변환 코드가 따로 필요합니다. <code>StrEnum</code>은 이 변환 과정 없이, 값 자체가 이미 문자열이라 <code>reason.value</code> 없이도 <code>"member_request"</code>처럼 그대로 쓸 수 있습니다. DB의 <code>refunds.reason</code> 컬럼 값과 한 글자도 다르지 않게 맞춰야 하는 이 프로젝트에는 잘 맞는 선택입니다.</p>
+
+  <h3 id="concept-ceil">왜 나눗셈을 정수로만 하나요?</h3>
+  <p>환불액은 "결제액 × 환불비율"로 계산하는데, 이 계산에서 나머지가 남으면 <b>회원에게 유리한 쪽으로 올림</b>합니다(1만원의 33.33%는 3,333.3원이 아니라 3,334원). 문제는 컴퓨터에서 소수(예: 0.3333...)를 다루는 실수 타입은 내부적으로 이진수로 근사해서 저장하기 때문에, 아주 드물게 사람이 손으로 계산한 값과 미세하게 다른 결과가 나올 수 있다는 점입니다. 원 단위까지 정확해야 하는 돈 계산에서는 이런 오차가 하나라도 있으면 안 됩니다.</p>
+  <p>그래서 이 모듈은 나눗셈을 <b>정수 바닥나눗셈(<code>//</code>, 나머지를 버리는 나눗셈)</b> 하나만 쓰고, "올림"이 필요할 때는 부호를 두 번 뒤집는 방식을 씁니다. 예를 들어 10을 3으로 나눠 올림하고 싶으면, 먼저 <code>-10</code>을 <code>3</code>으로 바닥나눗셈해서 <code>-4</code>를 얻은 뒤(파이썬은 음수 바닥나눗셈을 더 작은 쪽으로 내림하므로), 그 결과의 부호를 다시 뒤집어 <code>4</code>를 얻습니다. <code>-4</code>가 아니라 <code>4</code>가 정답인데, 이 두 번의 부호 뒤집기가 결과적으로 "올림"과 똑같은 값을 정수 연산만으로 만들어냅니다. 실제 코드는 이 트릭을 함수 하나(<code>_ceil_amount</code>)로 감싸서, 호출하는 쪽은 "왜 이렇게 계산하는지" 몰라도 안전하게 쓸 수 있게 해뒀습니다.</p>
+
+  <h3 id="concept-parametrize">pytest 파라미터라이즈 테스트가 뭔가요?</h3>
+  <p><code>@pytest.mark.parametrize</code>는 <b>같은 검증 로직을, 값만 바꿔가며 여러 번 반복 실행</b>하게 해주는 pytest 기능입니다. 예를 들어 "23시간 59분 59초 남음 / 정확히 24시간 남음 / 24시간 1초 남음, 이 세 경우 각각 환불율이 얼마여야 한다"를 검증하고 싶다면, 함수를 세 번 복사해서 쓰는 대신 값 세 묶음을 표(리스트)로 적어두고 함수 하나로 세 번 실행합니다.</p>
+  <pre><code>@pytest.mark.parametrize(
+    ("label", "before", "expected_rate_bp"),
+    [
+        ("23:59:59", timedelta(hours=23, minutes=59, seconds=59), 5_000),
+        ("24:00:00", timedelta(hours=24), 10_000),
+        ("24:00:01", timedelta(hours=24, seconds=1), 10_000),
+    ],
+)
+def test_24h_boundary_is_inclusive_of_full_refund(label, before, expected_rate_bp):
+    ...</code></pre>
+  <p>이렇게 하는 이유는 두 가지입니다. 첫째, 돈 계산처럼 "경계값 하나만 잘못돼도 사고"인 로직은 <b>비슷한 경우를 최대한 많이, 한눈에 비교되는 표로 모아두는 편이 회귀(regression, 예전엔 되던 게 나중에 깨지는 것)를 훨씬 잘 잡습니다.</b> 셋째 줄만 슬쩍 고쳤는데 둘째 줄 결과가 같이 바뀌면 바로 눈에 띕니다. 둘째, 실행 결과에 <code>test_24h_boundary_is_inclusive_of_full_refund[24:00:00]</code>처럼 각 케이스가 이름표를 달고 따로 나오기 때문에, 테스트가 실패했을 때 "어떤 조합이 깨졌는지"를 바로 알 수 있습니다. 이 파일은 함수 24개가 파라미터라이즈로 펼쳐져서 실제로는 <b>50개의 개별 검증</b>을 수행합니다.</p>
+</section>
+
+<section id="what-why">
+  <h2>3. 무엇을, 왜 이렇게 만들었나</h2>
+  <table>
+    <tr><th>파일</th><th>구분</th><th>무엇을 왜</th></tr>
+    <tr>
+      <td><code>backend/app/services/refund_policy.py</code></td>
+      <td>기존 파일 검증 + 주석 2곳만 수정</td>
+      <td>착수 시점에 이미 존재했다(<a href="#issues">4.1절</a> 참고). 명세와 한 줄씩 대조해 전수 검증했고, <b>계산 로직은 한 글자도 바꾸지 않았다.</b> <code>calculate_refund(paid_amount, starts_at, now, tiers, reason) -> RefundCalculation</code> 시그니처, 24시간 경계 규칙, 티어 해석 규칙, 올림·clamp 전부 명세대로였다.</td>
+    </tr>
+    <tr>
+      <td><code>backend/app/services/fee_policy.py</code></td>
+      <td>신규</td>
+      <td>플랫폼↔학원 정산 관련 확정값 4개(수수료 부담 주체, 플랫폼 수수료율, 베타 면제 여부, 정산 후 환불 회수 방식)를 상수로만 남겼다. <b>회원 환불액 계산에는 영향을 주지 않는다</b> — 정산 모듈 자체가 아직 없어서 이번 슬라이스에서 이 값을 읽는 코드가 없기 때문이다.</td>
+    </tr>
+    <tr>
+      <td><code>backend/tests/test_refund_policy.py</code></td>
+      <td>신규</td>
+      <td>함수 24개 → 파라미터라이즈로 펼쳐 <b>50개 케이스</b>. skip 0. <code>conftest.py</code>는 만들지 않았다 — 순수 함수만 검증해서 DB 픽스처가 필요 없다(테스트 하네스 전반은 다른 작업의 몫).</td>
+    </tr>
+  </table>
+
+  <h3>핵심 설계 판단 — 왜 이 규칙들인가</h3>
+  <ul>
+    <li><b>24시간 경계는 전액 환불 쪽에 포함.</b> 정확히 24시간 00분 00초 전에 취소하면, 학원 비율표에 그 시각의 환불율이 50%로 적혀 있어도 <b>플랫폼 고정 규칙(100%)이 이긴다.</b> 애매한 경계는 회원에게 유리하게 해석한다는 정책 결정(<code>docs/payment-method-policy.md</code>)을 그대로 코드로 옮긴 것이다.</li>
+    <li><b>티어 해석은 "남은 시간을 포함하는 티어 중 시간이 가장 짧은 것".</b> 비율표의 저장 순서에 의존하지 않는다 — admin 화면에서 행을 추가한 순서가 우연히 결과를 바꾸면 안 되기 때문이다.</li>
+    <li><b>반올림은 항상 올림, 항상 회원 쪽에 유리하게.</b> 그리고 그 계산은 정수 연산만 쓴다(<a href="#concept-ceil">2절</a>).</li>
+    <li><b>환불액은 결제액을 절대 넘지 않도록 이중으로 막는다(clamp).</b> 계산 단계에서 한 번 자르고, DB의 CHECK 제약이 다시 한번 막는다 — 돈이 오가는 계산이라 방어를 하나만 두지 않았다.</li>
+    <li><b>환불액 계산과 정산 계산을 파일 자체로 분리했다.</b> <code>fee_policy.py</code>의 상수는 "학원이 플랫폼에 내는 수수료"처럼 회원과 무관한 값인데, 같은 파일에 있었다면 나중에 누군가 무심코 환불 계산식에 끼워 넣기 쉽다. 파일을 나누고 각 상수에 "왜 반영하지 않는지"를 명시해 그 실수를 미리 막았다.</li>
+  </ul>
+</section>
+
+<section id="issues">
+  <h2>4. 이슈 → 원인 파악 → 해결</h2>
+  <p>SCH-03 작업 중 실제로 있었던 발견 사항 5가지입니다. <code>_workspace/05_implementer_TS-03_summary.md</code>의 기록을 그대로 옮깁니다.</p>
+
+  <h3>4.1 <code>refund_policy.py</code>가 착수 시점에 이미 존재했다</h3>
+  <p><b>현상:</b> SCH-03을 시작하려고 보니 <code>backend/app/services/refund_policy.py</code>가 이미 파일로 존재했다. 원래 이 SCH가 "신규로 만들" 파일로 배정돼 있었는데도 그랬다.<br>
+  <b>원인 파악:</b> 세션 시작 시점의 git 상태를 확인해보니 <code>backend/app/services/</code> 디렉터리 전체가 이미 untracked 상태로 잡혀 있었다 — 즉 <b>이번 작업 중 다른 작업이 동시에 만든 게 아니라, 그보다 더 이전에(이전 세션이나 부분 실행에서) 이미 만들어진 잔여물</b>이었다. 같은 시간대에 SCH-02(도메인 모델 7개 + 초기 마이그레이션)가 담당하는 모델 파일 몇 개도 함께 존재하고 있었다.<br>
+  <b>해결:</b> 배정된 파일이라고 무조건 새로 덮어쓰지 않고, <b>명세와 한 줄씩 대조해 전수 검증</b>하는 쪽을 택했다. 계산 로직이 요구사항과 정확히 일치했으므로 그대로 보존하고, 완료 기준을 깨뜨리던 주석 문구 2곳만 고쳤다(아래 콜아웃 참고). 다만 "이전에 부분적으로 실행된 흔적이 있다"는 사실 자체는 오케스트레이터가 다른 작업들의 진행 상태도 함께 점검해야 한다는 신호로 남겨뒀다.</p>
+
+  <div class="callout">
+    <div class="callout-label">주석 2곳을 고친 이유</div>
+    이 프로젝트는 "환불 계산에 부동 소수점이나 반올림 함수를 쓰지 않았는지"를 grep으로 자동 확인한다. 그런데 <code>_ceil_amount</code> 함수의 설명 글 안에 그 금지된 표현이 사람이 읽으라고 적어둔 수식이나 "이건 쓰면 안 된다"는 설명 형태로 그대로 들어 있어서, 자동 확인 스크립트가 실제 계산 코드가 아닌 <b>설명 문장</b>에 걸려 두 번 오탐(false positive)을 일으켰다. 계산 로직은 처음부터 끝까지 바뀌지 않았고, 설명을 다른 표현으로 바꿔서 해결했다.
+  </div>
+
+  <h3>4.2 <code>app/services/__init__.py</code>가 없다</h3>
+  <p><b>현상:</b> <code>app/models/</code>에는 <code>__init__.py</code>가 있는데 <code>app/services/</code>에는 없다.<br>
+  <b>원인:</b> 파이썬 3는 <code>__init__.py</code>가 없어도 "네임스페이스 패키지"로 동작하기 때문에 당장은 문제가 없다 — 실제로 <code>from app.services.refund_policy import ...</code>가 정상 동작하고 전 테스트가 통과했다.<br>
+  <b>해결(다음 작업으로 넘김):</b> SCH-03의 대상 파일 목록에 없는 파일이라 만들지 않았다. 같은 디렉터리에 취소 오케스트레이션 서비스를 추가하는 다음 작업이 패키지 일관성을 보고 판단하는 편이 맞다고 보고 넘겼다.</p>
+
+  <h3>4.3 <code>calculate_refund</code>가 잘못된 비율표에 예외를 던진다 — 호출하는 API 쪽에 500 에러 위험</h3>
+  <p><b>현상:</b> <code>calculate_refund</code>는 학원 비율표(JSONB로 저장된 자유 형식 데이터)의 구조나 범위가 잘못되면 <code>ValueError</code>를 던진다. 방어 자체는 타당하다 — 데이터베이스는 JSONB 안의 구조까지 검증해주지 않으므로, 잘못된 비율표로 엉뚱한 금액을 계산해 송금하느니 그 자리에서 멈추는 편이 낫기 때문이다.<br>
+  <b>원인 파악:</b> 문제는 <b>이 예외를 누가 잡아서 어떤 응답으로 바꿔주는지가 SCH-03 범위 밖</b>이라는 점이다. 취소 오케스트레이션 서비스나, 회원이 취소하기 전에 "환불액이 얼마인지 미리 보여주는" 조회 API가 이 함수를 그대로 호출하는데, 그 경로에 아직 예외를 잡아서 사용자 친화적인 오류로 바꿔주는 코드가 없다면 <b>500 서버 오류</b>가 그대로 사용자에게 노출된다.</p>
+  <div class="callout warn">
+    <div class="callout-label">이 시점(SCH-03)에는 경고만 남겼다</div>
+    이 문제를 SCH-03 자체가 해결하지는 않았다 — 순수 함수가 스스로 자신을 부르는 쪽의 에러 처리까지 책임지면 두 가지 역할이 한 함수에 섞이기 때문이다. 대신 "이 예외를 반드시 사람이 읽을 수 있는 오류로 바꿔야 한다"는 경고를 다음 작업들(취소 오케스트레이션 서비스, API 스키마·라우터 작업)에 명시적으로 남겨뒀다. 그 이후 작업들이 실제로 이 경고를 어떻게 처리했는지는 이 가이드를 쓰는 시점에는 아직 확인되지 않았다 — 해당 SCH의 가이드가 나오면 거기서 확인할 수 있다.
+  </div>
+
+  <h3>4.4 <code>RefundCalculation</code>이 명세보다 필드가 두 개 더 많다</h3>
+  <p><b>현상:</b> 계산 결과를 담는 그릇(<code>RefundCalculation</code>)에 애초 계획에 없던 <code>seconds_before_start</code>(남은 시간, 초 단위)와 <code>applied_tier_hours</code>(실제로 적용된 비율표 항목)가 추가돼 있다.<br>
+  <b>원인:</b> <code>hours_before_start</code>(시간 단위, 내림)만으로는 "23시간 59분"과 "23시간 0분"을 구분할 수 없어서, 나중에 "왜 이 금액이 나왔는지"를 되짚어볼 근거가 부족하다고 판단했다.<br>
+  <b>해결(정보 공유):</b> 계획 문서가 "이 필드까지만" 이라고 못 박아둔 게 아니라 서술을 열어뒀으므로 계약 위반은 아니다. 다만 취소 처리 시 감사 로그(누가 언제 얼마를 취소했는지 남기는 기록)에 이 두 값을 함께 남기면 나중에 문제가 생겼을 때 재현하기 쉬워진다는 권고를 다음 작업에 남겼다.</p>
+
+  <h3>4.5 명세에 없던 동작 2건을 테스트로 직접 결정했다</h3>
+  <p>요구사항 문서가 다루지 않았지만, 실제로 함수를 구현하려면 반드시 결정해야 했던 지점이 두 곳 있었다. 둘 다 "말이 안 나와서 아무렇게나 동작하게" 두지 않고, 테스트로 동작을 못박았다.</p>
+  <ul>
+    <li><b>학원 비율표에 같은 시간 값이 중복으로 들어오면?</b> → 앞에 나온 항목을 쓰기로 결정했다. 관리자 화면에서는 중복 입력을 막을 예정이지만, 이미 저장된 데이터가 나중에 잘못 들어올 가능성은 남아 있다. 조용히 뒤의 값을 쓰거나 예외를 던지는 대신, "앞의 것을 쓴다"는 동작을 확정하고 테스트로 고정했다.</li>
+    <li><b>이미 시작한 수업을 취소하려고 하면?</b> → 예외를 던지지 않고 환불율 0%를 돌려준다. "이미 시작한 수업은 취소할 수 없다"는 판단 자체는 이 함수의 책임이 아니라 취소를 처리하는 다른 계층의 몫이다. 만약 이 함수가 여기서 예외를 던지면, 회원에게 "취소하면 얼마 돌려받는지" 미리 보여주는 조회 화면이 그 순간 500 오류를 내게 된다.</li>
+  </ul>
+
+  <div class="callout good">
+    <div class="callout-label">정리</div>
+    위 5건 중 SCH-03 범위 안에서 "고쳐야 하는데 못 고친 버그"는 없습니다. 완료 기준 4개는 전부 실제 실행으로 통과했습니다. 4.2·4.3·4.4는 다음 작업이 받아야 할 정보이고, 4.1·4.5는 이번 SCH가 스스로 내린 판단입니다.
+  </div>
+</section>
+
+<section id="tests">
+  <h2>5. 테스트로 확인한 것</h2>
+  <table>
+    <tr><th>실행한 명령</th><th>결과</th><th>이게 실제로 증명하는 것</th></tr>
+    <tr>
+      <td><code>uv run pytest tests/test_refund_policy.py -v</code></td>
+      <td>50 passed, 0 skipped, 0 failed</td>
+      <td>24시간 경계, 티어 해석, 올림 계산, clamp, 입력 검증까지 이 SCH가 다루는 모든 계산 규칙이 명시적인 상황 50가지에서 정확히 명세대로 동작한다는 것.</td>
+    </tr>
+    <tr>
+      <td><code>test_exactly_24h_before_start_is_full_refund</code> 개별 확인</td>
+      <td>PASSED</td>
+      <td>"정확히 24시간 00분 00초 전은 전액 환불"이라는, 이번 SCH의 가장 핵심적인 결정이 <b>단정문(assert)으로 코드에 못박혀 있다</b>는 것. 나중에 누군가 실수로 이 규칙을 바꾸면 이 테스트가 바로 실패한다.</td>
+    </tr>
+    <tr>
+      <td><code>grep -n "float\|/ 100\|round(" app/services/refund_policy.py</code></td>
+      <td>히트 0건</td>
+      <td>계산 코드 어디에도 소수 타입이나 표준 반올림 함수의 흔적이 없다는 것 — "부동소수 미사용"이라는 요구사항이 문자 그대로 지켜졌다는 자동 확인.</td>
+    </tr>
+    <tr>
+      <td><code>uv run pytest</code> (백엔드 전체)</td>
+      <td>당시 51 passed(기존 <code>test_health.py</code> 1건 포함, 회귀 없음)</td>
+      <td>이번 SCH가 추가한 것이 기존에 통과하던 테스트를 하나도 깨뜨리지 않았다는 것.</td>
+    </tr>
+  </table>
+  <div class="callout good">
+    <div class="callout-label">이 가이드를 쓰면서 다시 확인한 것</div>
+    이번에 소스 코드에 학습 주석(이 가이드가 설명하는 개념들을 코드 안에도 요약해 둔 것)을 추가한 뒤, 위 명령을 전부 다시 실행했습니다. <code>tests/test_refund_policy.py</code>는 여전히 <b>50 passed</b>, grep 히트는 여전히 <b>0건</b>이었고, 그 사이 SCH-04~06이 추가한 테스트까지 합쳐 백엔드 전체는 <b>159 passed</b>로 초록이었습니다 — 주석만 추가했을 뿐 계산 로직은 한 글자도 바뀌지 않았다는 뜻입니다.
+  </div>
+  <p><code>fee_policy.py</code>는 상수 선언만 있는 파일이라 이번 슬라이스에서 이 값을 읽는 코드가 없다. 값 자체를 재확인하는 테스트는 "적어둔 값과 적어둔 값이 같다"는 동어반복이라 회귀를 잡지 못하므로, 의도적으로 테스트를 붙이지 않았다. 이 상수들의 실효는 정산 모듈이 생길 때 검증 대상이 된다.</p>
+</section>
+
+<section id="relations">
+  <h2>6. 다른 SCH와의 연관관계</h2>
+  <p>SCH-03은 SCH-01·SCH-02 <b>다음</b>에 실행됐지만, 실제로는 그 둘의 결과물(모델, DB 배선)을 <b>전혀 import하지 않습니다.</b> 순서상 뒤에 있을 뿐, 코드 상으로는 독립적입니다. 반대로 SCH-04(어댑터 3종: PG/알림/슬롯락) 이후의 여러 작업은 이 SCH-03의 계산 함수를 그대로 가져다 씁니다.</p>
+  <div class="flow">
+    <div class="step dim"><b><a href="SCH-01.html" style="color:inherit;text-decoration:none">SCH-01</a></b>기반 배선<br><span class="badge done">완료</span></div>
+    <div class="arrow">→</div>
+    <div class="step dim"><b><a href="SCH-02.html" style="color:inherit;text-decoration:none">SCH-02</a></b>도메인 모델 7개<br><span class="badge done">완료</span></div>
+    <div class="arrow">→</div>
+    <div class="step here"><b>SCH-03</b>환불액 산정 함수 (이 문서)<br><span class="badge done">완료</span></div>
+  </div>
+  <div class="flow">
+    <div class="step dim"><b>SCH-04</b>어댑터 3종(PG/알림/슬롯락)<br><span class="badge done">완료</span></div>
+    <div class="arrow">→</div>
+    <div class="step dim"><b>SCH-05</b>취소 오케스트레이션 서비스<br><span class="badge done">완료</span></div>
+    <div class="arrow">→</div>
+    <div class="step dim"><b>SCH-06</b>스키마+라우터+main.py<br><span class="badge done">완료</span></div>
+  </div>
+  <table>
+    <tr><th>관계</th><th>왜 이 순서인가</th></tr>
+    <tr><td>SCH-01·SCH-02 → SCH-03 (순서상 후행이지만 코드상 독립)</td><td>작업 순서는 뒤지만, <code>refund_policy.py</code>는 모델이나 DB 배선을 import하지 않는다. 그래서 이 가이드는 SCH-01·SCH-02 가이드가 설명한 개념(ORM, Base, Mixin 등)을 반복하지 않되, 억지로 연결 짓지도 않았다.</td></tr>
+    <tr><td>SCH-03 → SCH-05 (취소 오케스트레이션)</td><td>실제로 취소를 처리하는 서비스가 <code>calculate_refund</code>를 호출해 얼마를 돌려줄지 얻은 뒤, 그 값으로 PG 어댑터에 송금을 지시하고 감사 로그를 남긴다.</td></tr>
+    <tr><td>SCH-03 → SCH-06 (API 스키마·라우터)</td><td>회원이 취소하기 전에 "예상 환불액"을 미리 보여주는 조회 API도 같은 계산 함수를 쓴다 — 그래서 4.3절의 <code>ValueError</code> 경고가 SCH-06에도 그대로 전달됐다.</td></tr>
+  </table>
+</section>
+
+<section id="handoff">
+  <h2>7. 다음 SCH로 이어지는 것</h2>
+  <p>SCH-03이 이후 작업에 남긴 인터페이스와 주의사항입니다.</p>
+  <ul>
+    <li><b>SCH-05·SCH-06에게:</b> <code>calculate_refund</code>는 비율표가 구조나 범위를 벗어나면 <code>ValueError</code>를 던집니다(<a href="#issues">4.3절</a>). 이 예외를 잡아서 422 같은 명시적인 오류 응답으로 바꾸지 않으면, 취소·환불 미리보기 API가 500 오류를 그대로 노출할 위험이 있습니다.</li>
+    <li><b>SCH-05(취소 오케스트레이션 서비스 + deps.py)에게:</b> <code>app/services/__init__.py</code>를 추가할지 말지는 이 디렉터리에 취소 오케스트레이션 서비스를 넣게 될 작업이 패키지 구조 전체를 보고 판단하는 편이 맞습니다(4.2절).</li>
+    <li><b>SCH-05(취소 오케스트레이션 서비스 + deps.py)에게(권고):</b> 취소 처리 시 감사 로그에 <code>RefundCalculation</code>의 <code>seconds_before_start</code>·<code>applied_tier_hours</code>까지 함께 남기면, 나중에 "왜 이 금액이 나왔는지"를 초 단위로 재현할 수 있습니다(4.4절).</li>
+    <li><b>정산 모듈을 만들 작업에게:</b> <code>fee_policy.py</code>의 상수 4개(수수료 부담 주체, 플랫폼 수수료율, 베타 면제, 정산 후 환불 회수 방식)는 이미 확정된 값입니다. 재논의 없이 이 값을 그대로 따르면 됩니다.</li>
+  </ul>
+</section>
+
+<footer>
+  작성 기준: <code>_workspace/05_implementer_TS-03_summary.md</code>, <code>backend/app/services/refund_policy.py</code>·<code>fee_policy.py</code>·<code>backend/tests/test_refund_policy.py</code>의 학습 주석, <code>docs/payment-method-policy.md</code>, <code>_workspace/kdance.html</code> · kdance 프로젝트 내부 문서 · 2026-09-15 작성.
+</footer>
+
+</div>
+</body>
+</html>

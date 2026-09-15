@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SCH-05 왕초보 완벽분석가이드 — 취소 오케스트레이션 서비스 + deps.py</title>
+<style>
+  :root {
+    --bg: #0f1115;
+    --card: #161a21;
+    --card-border: #262b35;
+    --text: #e8eaed;
+    --text-dim: #9aa4b2;
+    --accent-a: #4fc3f7;
+    --accent-b: #ffb74d;
+    --accent-good: #81c784;
+    --accent-warn: #e57373;
+    --code-bg: #0b0d11;
+  }
+  * { box-sizing: border-box; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+    line-height: 1.7;
+    margin: 0;
+    padding: 0 16px 80px;
+  }
+  .wrap { max-width: 880px; margin: 0 auto; }
+  header.hero {
+    padding: 48px 0 24px;
+    border-bottom: 1px solid var(--card-border);
+    margin-bottom: 32px;
+  }
+  header.hero h1 { font-size: 1.9rem; margin: 0 0 8px; }
+  header.hero p.sub { color: var(--text-dim); font-size: 1.05rem; margin: 0; }
+  nav.toc {
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin-bottom: 40px;
+  }
+  nav.toc h2 { font-size: 1rem; color: var(--text-dim); margin: 0 0 12px; text-transform: uppercase; letter-spacing: .04em; }
+  nav.toc ol { margin: 0; padding-left: 20px; columns: 2; column-gap: 24px; }
+  nav.toc li { margin-bottom: 6px; break-inside: avoid; }
+  nav.toc a { color: var(--accent-a); text-decoration: none; }
+  nav.toc a:hover { text-decoration: underline; }
+  section { margin-bottom: 56px; scroll-margin-top: 20px; }
+  h2 {
+    font-size: 1.5rem;
+    border-left: 4px solid var(--accent-a);
+    padding-left: 14px;
+    margin: 0 0 20px;
+  }
+  h3 { font-size: 1.15rem; color: var(--accent-a); margin: 28px 0 10px; scroll-margin-top: 20px; }
+  p { margin: 0 0 14px; }
+  .callout {
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-left: 4px solid var(--accent-a);
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin: 20px 0;
+  }
+  .callout.warn { border-left-color: var(--accent-warn); }
+  .callout.good { border-left-color: var(--accent-good); }
+  .callout-label { font-weight: 700; font-size: .85rem; text-transform: uppercase; letter-spacing: .04em; color: var(--text-dim); margin-bottom: 6px; }
+  table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: .95rem; }
+  th, td { border: 1px solid var(--card-border); padding: 10px 14px; text-align: left; vertical-align: top; }
+  th { background: var(--card); color: var(--accent-a); }
+  tr:nth-child(even) td { background: rgba(255,255,255,0.02); }
+  code {
+    background: var(--code-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 4px;
+    padding: 2px 6px;
+    font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    font-size: .9em;
+  }
+  pre {
+    background: var(--code-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 8px;
+    padding: 16px 18px;
+    overflow-x: auto;
+    margin: 16px 0;
+  }
+  pre code { border: none; padding: 0; background: none; }
+  .flow {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+    margin: 24px 0;
+    font-size: .92rem;
+  }
+  .flow .step {
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: 8px;
+    padding: 12px 16px;
+    flex: 1 1 140px;
+    min-width: 140px;
+  }
+  .flow .step b { display: block; color: var(--accent-a); margin-bottom: 4px; }
+  .flow .step.dim { opacity: .55; }
+  .flow .step.here { border-color: var(--accent-a); }
+  .flow .arrow { color: var(--text-dim); font-size: 1.2rem; }
+  .badge {
+    display: inline-block;
+    font-size: .75rem;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 999px;
+    margin-right: 6px;
+  }
+  .badge.a { background: rgba(79,195,247,.15); color: var(--accent-a); }
+  .badge.b { background: rgba(255,183,77,.15); color: var(--accent-b); }
+  .badge.done { background: rgba(129,199,132,.15); color: var(--accent-good); }
+  .badge.wait { background: rgba(154,164,178,.15); color: var(--text-dim); }
+  details {
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: 8px;
+    padding: 12px 18px;
+    margin: 10px 0;
+  }
+  details summary { cursor: pointer; font-weight: 600; color: var(--accent-a); }
+  details[open] summary { margin-bottom: 10px; }
+  .glossary dt { font-weight: 700; color: var(--accent-a); margin-top: 16px; }
+  .glossary dd { margin: 4px 0 0; color: var(--text); }
+  footer {
+    border-top: 1px solid var(--card-border);
+    margin-top: 60px;
+    padding-top: 24px;
+    color: var(--text-dim);
+    font-size: .9rem;
+  }
+  footer a { color: var(--accent-a); }
+  .doclink-list { display: flex; flex-direction: column; gap: 8px; }
+  .doclink-list a { color: var(--text); text-decoration: none; }
+  .doclink-list a:hover { color: var(--accent-a); }
+  .doclink-list .path { color: var(--text-dim); font-size: .85rem; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="hero">
+  <h1>🧾 SCH-05 왕초보 완벽분석가이드 — 취소 오케스트레이션 서비스 + deps.py</h1>
+  <p class="sub">SCH-02(도메인 모델)·SCH-03(환불액 산정)·SCH-04(어댑터 3종: PG/알림/슬롯락)를 한 자리에 모아, 예약 취소 요청 1건이 들어왔을 때 실제로 "무엇을 몇 번째로" 하는지 정하는 서비스 계층을 설명합니다. 코딩 경력 6개월 정도, 비전공자도 따라올 수 있게 씁니다.</p>
+</header>
+
+<nav class="toc">
+  <h2>목차</h2>
+  <ol>
+    <li><a href="#overview">1. 개요</a></li>
+    <li><a href="#concepts">2. 사전 개념</a></li>
+    <li><a href="#what-why">3. 무엇을, 왜 이렇게 만들었나</a></li>
+    <li><a href="#issues">4. 이슈 → 원인 파악 → 해결</a></li>
+    <li><a href="#tests">5. 테스트로 확인한 것</a></li>
+    <li><a href="#relations">6. 다른 SCH와의 연관관계</a></li>
+    <li><a href="#handoff">7. 다음 SCH로 이어지는 것</a></li>
+  </ol>
+</nav>
+
+<section id="overview">
+  <h2>1. 개요</h2>
+  <p>SCH-05는 예약 취소 1건을 처음부터 끝까지 책임지는 <b><code>backend/app/services/cancellation.py</code></b>와, 그 함수가 필요로 하는 어댑터·인증을 실제로 꽂아 넣는 <b><code>backend/app/deps.py</code></b>를 만든 작업입니다. SCH-02(모델)·SCH-03(환불액 산정 순수 함수)·SCH-04(어댑터 3종: PG/알림/슬롯락)가 각자 만든 부품이 여기서 처음으로 한 함수 안에 모입니다.</p>
+  <p>이 SCH가 새로 계산하거나 새로 통신하는 것은 없습니다. "행 잠금 → 소유권 검증 → 중복 요청 검사 → 상태 검증 → 금액 계산(SCH-03) → 환불 기록 → PG 호출(SCH-04) → 결과 반영 → 감사 로그 → 커밋 → 락 해제·알림(SCH-04)"이라는 <b>순서와 경계</b>를 정하는 것이 이 파일의 유일한 책임입니다.</p>
+  <div class="callout good">
+    <div class="callout-label">한 줄 요약</div>
+    "같은 취소 요청이 두 번 와도 환불은 딱 한 번만 일어나야 하고, 환불이 실패해도 회원이 자리와 돈을 동시에 잃어서는 안 된다" — 이 두 가지를 지키기 위해 트랜잭션·행 잠금·SAVEPOINT·멱등 키를 조합한 서비스 함수 하나(<code>cancel_reservation</code>)를 만들었습니다.
+  </div>
+</section>
+
+<section id="concepts">
+  <h2>2. 사전 개념</h2>
+  <p>Protocol(구조적 타이핑)·Fake 객체·포트/어댑터 패턴·Redis 관련 개념은 <a href="SCH-04.html">SCH-04(어댑터 3종: PG/알림/슬롯락)</a>에서 이미 설명했으므로 반복하지 않습니다. ORM·CHECK/UNIQUE 제약·append-only 감사 로그는 <a href="SCH-01.html">SCH-01(기반 배선)</a>·<a href="SCH-02.html">SCH-02(도메인 모델 7개)</a> 가이드를 참고하세요. 이번 SCH에서 처음 등장하는 개념 5가지만 설명합니다.</p>
+
+  <h3 id="concept-tx">트랜잭션(transaction)이 뭔가요? — commit과 rollback</h3>
+  <p>취소 1건을 처리하려면 DB에 여러 번 손을 대야 합니다 — 환불 행을 만들고, 예약 상태를 <code>cancelled</code>로 바꾸고, 수업의 남은 정원을 1 늘리고, 감사 로그를 남기고... 이 여러 작업을 <b>"전부 성공하거나 전부 취소되거나" 둘 중 하나로만 끝나게 묶는 단위</b>가 트랜잭션입니다. <code>session.commit()</code>을 부르면 그 시점까지의 모든 변경이 DB에 확정되고, 그 전에 예외가 나서 세션이 굴러떨어지면(rollback) 지금까지 한 변경이 전부 없었던 일이 됩니다.</p>
+  <p>왜 이게 중요할까요? 만약 "환불 행은 만들었는데 예약 상태는 못 바꿨다" 같은 어중간한 상태가 DB에 남으면, 회원은 환불 진행 중인 예약을 여전히 "취소 안 됨"으로 보게 됩니다. <code>cancel_reservation()</code> 함수 전체가 사실상 하나의 큰 트랜잭션이고, 맨 끝(9~10단계)의 <code>session.commit()</code> 한 줄에서 그 모든 변경이 한꺼번에 확정됩니다.</p>
+
+  <h3 id="concept-lock">행 잠금(row lock, <code>SELECT ... FOR UPDATE</code>)이 뭔가요?</h3>
+  <p>회원이 같은 예약의 취소 버튼을 실수로 두 번 빠르게 누르거나, 앱이 네트워크 재시도로 같은 요청을 두 번 보낼 수 있습니다. 이 두 요청이 <b>동시에</b> DB에 도착하면, 둘 다 "아직 취소 안 됐네" 하고 판단해서 환불을 두 번 만들어버릴 위험이 있습니다.</p>
+  <p><code>SELECT ... FOR UPDATE</code>는 "이 행을 다 쓸 때까지 다른 트랜잭션은 이 행을 건드리지 말고 기다려라"라고 DB에 거는 잠금입니다. 두 취소 요청이 동시에 들어오면, 하나는 이 지점에서 실제로 <b>대기</b>합니다. 앞선 요청이 커밋을 마치고 잠금을 풀어줘야 뒤 요청이 비로소 그 예약 행을 읽을 수 있고, 이때는 이미 환불이 만들어져 있으므로 뒤 요청은 아래에서 설명할 "멱등 재생" 경로로 빠집니다.</p>
+
+  <h3 id="concept-idempotent">멱등성(idempotency)이 뭔가요?</h3>
+  <p>멱등성이란 <b>같은 요청을 한 번 보내든 열 번 보내든 결과가 똑같은 성질</b>을 말합니다. "같은 취소 요청을 실수로 두 번 보내도 안전해야 한다"는 요구가 있을 때, 두 번째 요청을 그냥 에러(409)로 튕겨내는 방법도 있고, <b>두 번째 요청에도 "이미 처리된 결과"를 그대로 성공(200)으로 돌려주는</b> 방법도 있습니다. 이 SCH는 후자를 택했습니다 — 수용 기준이 "환불이 한 번만 실행되는 것"이지 "두 번째 요청이 에러가 되는 것"이 아니기 때문입니다.</p>
+  <p>이걸 지탱하는 건 하나가 아니라 세 겹의 방어입니다: ① <code>refunds</code> 테이블의 부분 유니크 인덱스(같은 예약에 살아있는 환불은 최대 1건), ② <code>refunds.idempotency_key</code> 유니크 제약, ③ 위 행 잠금이 이 둘을 정상 경로에서는 아예 안 보이게 만들어 줍니다. 멱등 키 자체는 <code>Idempotency-Key</code> 헤더가 없으면 <code>sha256("cancel:" + 예약ID)</code>로 서버가 결정적으로 만들어내므로, 헤더를 안 보내는 클라이언트도 같은 예약이면 항상 같은 키를 받습니다.</p>
+
+  <h3 id="concept-savepoint">SAVEPOINT(중첩 트랜잭션)가 뭔가요?</h3>
+  <p>SAVEPOINT는 큰 트랜잭션 안에 심어두는 <b>작은 체크포인트</b>입니다. SQLAlchemy에서는 <code>session.begin_nested()</code>로 시작합니다. 이 블록 안에서만 실패(예: 유니크 제약 위반)해도, 트랜잭션 전체가 아니라 <b>이 체크포인트 지점까지만</b> 되돌아갑니다.</p>
+  <p>이게 왜 필요할까요? 이 SCH는 환불 행을 INSERT할 때 유니크 위반이 날 수 있다는 걸 압니다(경합에서 진 두 번째 요청). 만약 SAVEPOINT 없이 이 INSERT 실패로 <b>바깥 트랜잭션 전체</b>를 롤백해버리면, 맨 처음 1단계에서 걸어둔 행 잠금까지 함께 풀려버립니다. 그러면 애써 막아둔 경합 창구가 도로 열리는 셈입니다. <code>begin_nested()</code>로 감싸두면, INSERT가 실패해도 그 실패만 SAVEPOINT 선에서 흡수되고 바깥 트랜잭션(행 잠금 포함)은 멀쩡하게 남아서, 이어서 "이긴 쪽 행"을 조회해 그대로 돌려줄 수 있습니다.</p>
+
+  <h3 id="concept-depends">FastAPI 의존성 주입 <code>Depends()</code>가 실제로 뭘 하나요?</h3>
+  <p>라우터 함수의 파라미터에 <code>Annotated[T, Depends(f)]</code>라고 적어두면, 요청이 들어올 때마다 FastAPI가 <b>대신 <code>f()</code>를 호출해서 그 반환값을 그 파라미터 자리에 꽂아줍니다.</b> 호출하는 쪽(라우터)은 "누가 이 값을 만드는지" 몰라도 되고, 그 값을 만드는 함수(<code>deps.py</code>의 <code>get_payment_gateway</code> 등)만 바꾸면 전체 동작이 바뀝니다.</p>
+  <p>이게 왜 <a href="SCH-04.html">SCH-04(어댑터 3종: PG/알림/슬롯락)</a>의 Protocol과 곧바로 연결될까요? <code>deps.py</code>의 <code>get_payment_gateway()</code>는 반환 타입을 구상 클래스(<code>FakePaymentGateway</code>)가 아니라 <b>Protocol 타입(<code>PaymentGateway</code>)</b>으로 선언해둡니다. 그러면 <code>cancel_reservation()</code>은 "<code>PaymentGateway</code> Protocol을 만족하는 무언가"만 알면 되고, 실제로 무엇이 꽂히는지(지금은 Fake, 나중엔 실 PG 연동체)는 <code>deps.py</code> 한 곳만 바꾸면 됩니다. 테스트가 <code>app.dependency_overrides[get_payment_gateway] = ...</code>로 통째로 갈아끼울 수 있는 것도 같은 원리입니다 — <code>Depends()</code>가 "누가 만드는지"를 한 곳으로 몰아준 덕분입니다.</p>
+</section>
+
+<section id="what-why">
+  <h2>3. 무엇을, 왜 이렇게 만들었나</h2>
+  <table>
+    <tr><th>파일</th><th>구분</th><th>무엇을 왜</th></tr>
+    <tr>
+      <td><code>backend/app/services/cancellation.py</code></td>
+      <td>신규</td>
+      <td>취소 오케스트레이션 전체. <code>cancel_reservation()</code>(쓰기)과 <code>preview_cancellation()</code>(읽기 전용, 계획 밖 추가)을 담는다. 어댑터 3종은 <b>Protocol 타입으로만</b> 받는다.</td>
+    </tr>
+    <tr>
+      <td><code>backend/app/deps.py</code></td>
+      <td>신규</td>
+      <td><code>current_user_id</code>(임시 인증, F7)·<code>get_payment_gateway</code>·<code>get_notification_sender</code>·<code>get_slot_lock</code> 4개. 태스크가 지정한 것 이상은 추가하지 않았다(예: <code>Idempotency-Key</code> 헤더 의존성은 라우터 몫으로 남겼다).</td>
+    </tr>
+    <tr>
+      <td><code>backend/tests/test_cancellation_service.py</code></td>
+      <td>신규</td>
+      <td>DB 없이 검증 가능한 불변식 36건. 다른 태스크 소유 파일(<code>conftest.py</code>·<code>test_refund_policy.py</code>·<code>main.py</code>)은 전혀 건드리지 않았다.</td>
+    </tr>
+  </table>
+
+  <h3>취소 1건이 실제로 밟는 11단계</h3>
+  <div class="flow">
+    <div class="step"><b>1</b>행 잠금<br><span style="color:var(--text-dim)">FOR UPDATE</span></div>
+    <div class="arrow">→</div>
+    <div class="step"><b>2</b>소유권 검증<br><span style="color:var(--text-dim)">타인이면 403</span></div>
+    <div class="arrow">→</div>
+    <div class="step here"><b>3</b>멱등 재생 검사<br><span style="color:var(--text-dim)">있으면 200 반환</span></div>
+    <div class="arrow">→</div>
+    <div class="step here"><b>4</b>상태 전이 검증<br><span style="color:var(--text-dim)">409들</span></div>
+  </div>
+  <div class="flow">
+    <div class="step"><b>5</b>원거래 확인 + 금액 산정<br><span style="color:var(--text-dim)">SCH-03</span></div>
+    <div class="arrow">→</div>
+    <div class="step"><b>6</b>Refund INSERT<br><span style="color:var(--text-dim)">SAVEPOINT</span></div>
+    <div class="arrow">→</div>
+    <div class="step"><b>7</b>PG 환불 호출<br><span style="color:var(--text-dim)">SCH-04</span></div>
+    <div class="arrow">→</div>
+    <div class="step"><b>8</b>결과 반영<br><span style="color:var(--text-dim)">성공/대기/실패</span></div>
+  </div>
+  <div class="flow">
+    <div class="step"><b>9</b>감사 로그<br><span style="color:var(--text-dim)">append-only</span></div>
+    <div class="arrow">→</div>
+    <div class="step"><b>10</b>commit</div>
+    <div class="arrow">→</div>
+    <div class="step"><b>11</b>커밋 이후<br><span style="color:var(--text-dim)">락 해제 + 알림</span></div>
+  </div>
+
+  <div class="callout good">
+    <div class="callout-label">이 순서에서 가장 중요한 결정 — 3번을 4번보다 앞에 둔 이유</div>
+    "멱등 재생 검사"(3번)가 "상태 전이 검증"(4번)보다 <b>먼저</b> 옵니다. 순서가 반대라면 어떻게 될까요? 중복 요청이 들어왔을 때, 그 예약은 앞선 요청이 이미 <code>cancelled</code>로 바꿔놓은 뒤입니다. 4번을 먼저 검사하면 "이미 취소된 예약"이라는 이유로 <b>409 에러</b>가 나버립니다. 그런데 수용 기준은 "중복 요청엔 기존 결과를 200으로 돌려준다"는 것이었습니다. 3번을 먼저 두면, 상태가 무엇이든 상관없이 "이미 처리된 환불이 있는가"부터 확인하기 때문에 이 수용 기준이 정확히 지켜집니다. 순서 하나가 수용 기준의 성립 여부를 가르는 지점입니다.
+  </div>
+
+  <h3>왜 PG 환불이 실패해도 예약을 취소하지 않는가 (§5-2)</h3>
+  <p>계획 문서가 명시하지 않은 지점이라 이 SCH가 직접 판단해서 정한 규칙입니다. 만약 PG가 환불에 실패했는데도 예약을 <code>cancelled</code>로 바꾸고 좌석을 반납해버리면, 회원은 <b>자리도 잃고 돈도 못 돌려받는</b> 최악의 상태에 놓입니다. 그래서 이 서비스는 PG 실패 시:</p>
+  <ul>
+    <li><code>Refund</code> 행은 <code>failed</code> + 실패 사유를 남긴 채로 <b>커밋된다</b>(수용 기준: 실패 사유 기록).</li>
+    <li><code>reservations.status</code>·<code>class_schedules.reserved_count</code>·<code>orders.status</code>는 <b>손대지 않는다</b> — 예약은 그대로 살아있다.</li>
+    <li>서비스는 <b>예외를 던지지 않고</b> <code>CancellationOutcome(status=failed)</code>를 결과값으로 돌려준다 — 실패 사유를 남긴 커밋이 예외로 날아가면 안 되기 때문이다.</li>
+  </ul>
+  <p><code>failed</code> 상태는 부분 유니크 인덱스(<code>WHERE status &lt;&gt; 'failed'</code>) 밖에 있으므로, 회원은 같은 예약을 그대로 다시 취소 시도할 수 있습니다 — 재시도 창구가 열려 있는 셈입니다.</p>
+
+  <h3>왜 슬롯 락 해제 결과로 분기하지 않는가 (§3-3)</h3>
+  <p><code>_release_slot_lock()</code>은 <code>slot_lock.release()</code>의 반환값(<code>bool</code>)을 <b>의도적으로 버립니다.</b> 로그에만 남길 뿐, 이 값으로 취소 처리의 성공/실패를 가르지 않습니다. 이유는 두 가지입니다.</p>
+  <ul>
+    <li>이 호출 지점은 <code>session.commit()</code> <b>이후</b>입니다. 이미 돈이 움직이고 DB가 확정된 뒤라서, 되돌릴 트랜잭션 자체가 남아있지 않습니다.</li>
+    <li>Redis는 볼륨도 없는 단기 캐시이고(<a href="SCH-04.html">SCH-04(어댑터 3종: PG/알림/슬롯락)</a> 참고), 정원의 진짜 권위는 이미 8단계에서 갱신한 <code>class_schedules.reserved_count</code>입니다. 캐시 정리가 실패했다고 이미 끝난 금전 거래를 흔들 이유가 없습니다.</li>
+  </ul>
+  <p>심지어 어댑터 구현체가 Protocol 약속을 어기고 예외를 던져도 <code>try/except Exception</code>으로 통째로 삼킵니다. 테스트 <code>test_slot_lock_release_never_propagates</code>가 정상/실패/예외 3종 락으로 이걸 단정하고, <code>test_service_does_not_branch_on_slot_lock_result</code>는 <b>소스 코드 문자열 자체</b>를 검사해서 <code>if slot_lock.release</code> 같은 분기 패턴이 없다는 것과 "커밋 → 해제" 순서를 못박습니다. 같은 이유로 알림 발송 실패도 삼킵니다(한쪽 채널이 죽어도 다른 쪽은 시도합니다).</p>
+</section>
+
+<section id="issues">
+  <h2>4. 이슈 → 원인 파악 → 해결</h2>
+  <p>SCH-05 작업 중 실제로 발견된 사항입니다. <code>_workspace/05_implementer_TS-05_summary.md</code>의 §5(계획에 없던 결정)·§6(발견한 불일치/미해결 사항)을 그대로 옮깁니다 — 지어내지 않습니다.</p>
+
+  <h3>4.1 [계획 밖 추가] <code>preview_cancellation()</code>을 같은 파일에 추가했다 (§5-1)</h3>
+  <p><b>현상:</b> 다음 단계인 SCH-06(Pydantic 스키마 + 라우터 + main.py)이 <code>GET /reservations/{id}/cancellation-preview</code>를 만들어야 하는데, 계획 문서에는 그 엔드포인트가 쓸 서비스 함수가 없었다.<br>
+  <b>원인 파악:</b> 계획 시점에는 "취소 확정 전 예상 환불액을 사전 고지한다"는 수용 기준을 만족시킬 서비스 함수 자체가 누락돼 있었다. 없이 두면 SCH-06이 라우터에 DB 조회 코드를 직접 쓰거나, 서비스 파일을 새로 하나 더 만들게 된다.<br>
+  <b>해결:</b> <b>읽기 전용</b>이고 아무것도 쓰지 않는 <code>preview_cancellation()</code>을 이 파일에 함께 추가했다. 취소 불가 사유는 예외가 아니라 <code>cancellable=False</code> + <code>reason_code</code> <b>값</b>으로 돌려준다 — 화면이 "왜 취소가 안 되는지" 사유를 보여주면서 동시에 예상 환불액도 함께 받아야 버튼을 정확히 비활성화할 수 있기 때문이다. <code>_preview_block_reason()</code>의 판정 순서는 <code>cancel_reservation()</code>의 판정 순서와 <b>정확히 같아야 하고</b>, 파라미터라이즈 테스트 7건이 이 일치를 못박는다 — 어긋나면 화면은 "취소 가능"이라 보여줬는데 실제 취소 API는 거부하는 모순이 생긴다.</p>
+
+  <h3>4.2 [설계 판단] PG 환불 실패 시 예약을 취소하지 않는다 (§5-2)</h3>
+  <p>3절에서 이미 자세히 다뤘습니다 — 환불이 실패했는데 좌석까지 없애면 회원이 자리와 돈을 동시에 잃기 때문에, 계획이 명시하지 않은 이 지점을 이 SCH가 직접 판단해서 "예약은 유지, 환불만 실패로 기록"으로 정했습니다.</p>
+
+  <h3>4.3 [모델 공백] <code>class_schedules</code>에 종료 시각 컬럼이 없다 (§6-1)</h3>
+  <p><b>현상:</b> 수용 기준은 "이미 시작<b>/종료</b>된 수업은 취소 거부"인데, <code>ClassSchedule</code> 모델에는 <code>starts_at</code>만 있고 <code>ends_at</code>이나 <code>duration</code>이 없다.<br>
+  <b>원인 파악:</b> 계획 문서와 모델 어느 쪽에도 종료 시각이 정의돼 있지 않다. 임의로 컬럼을 새로 추가하는 것은 이 SCH의 권한 밖 결정이다(마이그레이션은 별도 SCH 소관).<br>
+  <b>해결:</b> "시작 시각이 지났으면 진행 중이든 끝났든 어차피 취소 대상이 아니다"라는 실용적 판단으로, <code>starts_at &lt;= now</code> <b>한 가지 판정</b>으로 "이미 시작"과 "이미 종료"를 묶었다. 대부분의 경우 결과가 동등하지만, "종료"를 별도로 정확히 판정해야 하는 요구가 나중에 생기면 <code>class_schedules</code>에 컬럼을 추가하는 마이그레이션이 필요하다.</p>
+
+  <h3>4.4 [실 연동 시 반드시 지켜야 할 계약] PG 어댑터가 예상 밖 예외를 던지면 감사 기록이 사라진다 (§6-2)</h3>
+  <div class="callout warn">
+    <div class="callout-label">경고 — 실제 PG를 붙이는 사람이 반드시 읽어야 하는 절</div>
+    <p><b>현상:</b> <a href="SCH-04.html">SCH-04(어댑터 3종: PG/알림/슬롯락)</a>의 <code>PaymentGateway</code> Protocol은 "<code>UnsupportedPaymentMethodError</code> 외의 예외는 던지지 않는 것을 지향한다"고 문서화돼 있을 뿐, 코드로 강제되지는 않는다. 만약 실 연동 어댑터가 이 약속을 어기고 (예: 네트워크 타임아웃) 예상 밖 예외를 던지면, <code>cancel_reservation()</code>의 트랜잭션이 커밋되지 못한 채 굴러떨어지고, 방금 만들려던 <code>pending</code> 환불 행도 감사 로그도 전부 사라진다.</p>
+    <p><b>가장 위험한 시나리오:</b> 요청이 PG에 실제로 도달한 뒤에 응답만 타임아웃난 경우다. 이때는 <b>환불이 실제로는 집행됐는데, 우리 DB에는 그 사실을 증명할 기록이 하나도 남지 않는 상태</b>가 된다.<br>
+    <b>이번 슬라이스에서 발생하지 않는 이유:</b> 지금은 <code>FakePaymentGateway</code>만 쓰고 있어서 이 경로 자체가 실행되지 않는다.<br>
+    <b>지켜야 할 계약(권고):</b> 실 연동 PG 어댑터를 붙일 때는 <b>모든 네트워크 예외를 <code>RefundStatus.failed</code> 결과로 변환</b>해서 돌려줘야 한다 — 예외로 새 나가게 두면 안 된다. Phase 8(코드 리뷰) 단계에서 이 제약을 어댑터 구현 계약으로 못박을 것을 권고한다.</p>
+  </div>
+
+  <h3>4.5 [조용한 기본값] 학원 행이 없으면 환불 비율표를 빈 표로 취급한다 (§6-3)</h3>
+  <p><b>현상:</b> <code>_academy_tiers()</code>는 <code>academies</code> 행이 없거나 <code>refund_policy_tiers</code>가 리스트가 아니면 빈 리스트를 돌려준다. 결과적으로 이 경우 "24시간 이내 취소는 0% 환불"과 똑같이 처리된다.<br>
+  <b>원인 파악:</b> FK 제약이 있어서 정상적인 데이터 흐름에서는 이 경로에 도달할 수 없다. 하지만 도달한다면 <b>금액이 걸린 조용한 기본값</b>이 된다 — 아무 에러도 없이 회원이 예상보다 적은 환불을 받게 될 수 있다.<br>
+  <b>해결(미해결로 남김):</b> FK로 방어되는 경로라 이번 SCH에서 예외로 바꾸지 않고 그대로 두었다. 예외로 바꾸는 편이 더 안전한지는 코드 리뷰(Phase 8)에서 판단하도록 넘겼다.</p>
+
+  <h3>4.6 [이중 방어] <code>Idempotency-Key</code> 헤더와 부분 유니크 인덱스의 관계 (§6-4)</h3>
+  <p><b>현상:</b> 클라이언트가 <code>Idempotency-Key</code> 헤더를 <b>매번 다른 값으로</b> 새로 보내면, "헤더가 없으면 결정적 키를 쓴다"는 방어가 무력해진다 — 서버는 헤더가 오면 그 값을 그대로 신뢰하기 때문이다.<br>
+  <b>원인 파악:</b> 결정적 키(<code>sha256("cancel:" + 예약ID)</code>)는 "헤더를 안 보내는 클라이언트"를 위한 방어일 뿐, 헤더 자체의 값을 검증하는 장치는 아니다.<br>
+  <b>해결:</b> 방어가 애초에 <b>2겹</b>이었다는 점이 여기서 드러난다. 결정적 키가 우회되더라도, <code>refunds</code> 테이블의 부분 유니크 인덱스(<code>UNIQUE (reservation_id) WHERE status &lt;&gt; 'failed'</code>)는 헤더 값과 무관하게 살아있으므로 <b>이중 환불은 여전히 불가능</b>하다. 다만 이 경로는 실제 DB가 있어야 실증되므로, "매번 다른 <code>Idempotency-Key</code>로 동시 2건 요청" 케이스를 <a href="#relations">SCH-12(DB 통합 테스트 실행)</a> 통합 테스트에 추가할 것을 권고했다 — 현재 SCH-07 테스트 목록에는 없는 케이스다.</p>
+
+  <h3>4.7 [검증 한계] 실행 경로 자체는 아직 미검증 — Docker 차단 (§6-5)</h3>
+  <div class="callout warn">
+    <div class="callout-label">경고 — 통과가 아니라 미검증이다</div>
+    신규 테스트 36건은 전부 <b>DB 없이 검증 가능한 불변식</b>만 다룬다. <code>FOR UPDATE</code> 실제 잠금 동작, <code>IntegrityError</code>가 실제로 나서 SAVEPOINT가 흡수하는 과정, <code>reserved_count</code>가 실제 DB에서 복구되는 것, 감사 로그가 실제로 INSERT되는 것 — 이 전부가 <b>SCH-07(conftest + DB 통합 테스트 작성)이 작성하고 SCH-12(DB 통합 테스트 실행)가 실행해야 실증된다.</b> 이번 SCH가 할 수 있었던 것은 SQL을 실제 DB 없이 PostgreSQL dialect로 컴파일 검증하는 것까지였다(<code>FOR UPDATE</code> 실제 생성 확인, <code>reserved_count</code> 감소 UPDATE·JSONB 조회·부분 인덱스 대상 조회 컴파일 성공).
+  </div>
+
+  <div class="callout good">
+    <div class="callout-label">정리</div>
+    4.1·4.2는 이 SCH가 계획 공백을 메우며 스스로 내린 설계 판단이고, 4.3~4.6은 발견했지만 이번 범위에서 완전히 해결하지 못하고 다음 단계에 넘긴 사항, 4.7은 이번 SCH의 검증 범위 자체의 한계입니다.
+  </div>
+</section>
+
+<section id="tests">
+  <h2>5. 테스트로 확인한 것</h2>
+  <table>
+    <tr><th>실행한 명령</th><th>결과</th><th>이게 실제로 증명하는 것</th></tr>
+    <tr>
+      <td><code>uv run pytest tests/test_cancellation_service.py -v</code></td>
+      <td>36 passed</td>
+      <td>멱등 키의 결정성, 슬롯 락 해제가 실패·예외 어느 쪽이든 밖으로 새지 않는 것, 알림이 회원·학원 관리자 양쪽에 나가고 한쪽이 실패해도 다른 쪽을 막지 않는 것, 서비스 코드에 구상 어댑터 클래스가 등장하지 않는 것(Protocol 경계), 임시 인증(F7)의 헤더 처리, 예외→HTTP 상태 코드 매핑, 사전 고지 차단 사유의 판정 순서 일치 — 이 전부가 <b>DB 없이</b> 검증된다.</td>
+    </tr>
+    <tr>
+      <td><code>cd backend && uv run pytest</code> (백엔드 전체)</td>
+      <td>120 passed (기존 84 + 신규 36)</td>
+      <td>이 SCH가 추가한 코드가 SCH-01~04가 이미 통과시켜 놓은 84개 테스트를 하나도 깨뜨리지 않았다는 것.</td>
+    </tr>
+  </table>
+  <div class="callout warn">
+    <div class="callout-label">이 테스트가 증명하지 못하는 것</div>
+    이 36개 테스트는 <b>실제 PostgreSQL에 한 번도 접속하지 않습니다.</b> SQL은 컴파일까지만 검증했습니다 — <code>FOR UPDATE</code>가 실제로 다른 트랜잭션을 대기시키는지, <code>IntegrityError</code>가 실제 유니크 위반 상황에서 정말로 나는지, <code>reserved_count</code>가 실제 UPDATE 이후 정확히 1 줄어드는지, 감사 로그 행이 실제로 INSERT되는지는 <b>전혀 확인되지 않았습니다.</b> 이 부분은 <a href="#relations">SCH-07(conftest + DB 통합 테스트 작성)</a>이 테스트를 쓰고 <a href="#relations">SCH-12(DB 통합 테스트 실행)</a>이 실행해야 비로소 실증됩니다(4.7절).
+  </div>
+</section>
+
+<section id="relations">
+  <h2>6. 다른 SCH와의 연관관계</h2>
+  <p>SCH-05는 <b>선행 4개 SCH의 산출물이 처음으로 한 함수 안에 합류하는 지점</b>입니다. 그 함수가 만들어내는 결과(<code>CancellationOutcome</code>/<code>CancellationPreview</code>)를 다음 SCH-06이 그대로 HTTP 응답으로 옮깁니다.</p>
+  <div class="flow">
+    <div class="step dim"><b><a href="SCH-01.html" style="color:inherit;text-decoration:none">SCH-01</a></b>기반 배선<br><span class="badge done">완료</span></div>
+    <div class="arrow">→</div>
+    <div class="step dim"><b><a href="SCH-02.html" style="color:inherit;text-decoration:none">SCH-02</a></b>도메인 모델 7개<br><span class="badge done">완료</span></div>
+    <div class="arrow">→</div>
+    <div class="step dim"><b><a href="SCH-03.html" style="color:inherit;text-decoration:none">SCH-03</a></b>환불액 산정 함수<br><span class="badge done">완료</span></div>
+    <div class="arrow">→</div>
+    <div class="step dim"><b><a href="SCH-04.html" style="color:inherit;text-decoration:none">SCH-04</a></b>어댑터 3종<br><span class="badge done">완료</span></div>
+    <div class="arrow">→</div>
+    <div class="step here"><b>SCH-05</b>취소 오케스트레이션 서비스 (이 문서)<br><span class="badge done">완료</span></div>
+  </div>
+  <div class="flow">
+    <div class="step here"><b>SCH-05</b>취소 오케스트레이션 서비스 (이 문서)<br><span class="badge done">완료</span></div>
+    <div class="arrow">→</div>
+    <div class="step dim"><b>SCH-06</b>Pydantic 스키마 + 라우터 + main.py</div>
+  </div>
+  <table>
+    <tr><th>관계</th><th>왜 이 순서/구조인가</th></tr>
+    <tr><td>SCH-02(도메인 모델) → SCH-05</td><td><code>Reservation</code>·<code>ClassSchedule</code>·<code>Order</code>·<code>Payment</code>·<code>Refund</code>·<code>RefundEvent</code>·<code>Academy</code> — 7개 모델 중 6개를 이 서비스가 직접 조회·수정한다.</td></tr>
+    <tr><td>SCH-03(환불액 산정) → SCH-05</td><td>금액 계산은 여전히 <code>calculate_refund()</code> 순수 함수의 몫이다. 이 서비스는 그 함수를 5단계에서 호출만 할 뿐, 금액 계산 로직을 다시 만들지 않는다.</td></tr>
+    <tr><td>SCH-04(어댑터 3종) → SCH-05</td><td>이 서비스는 <code>PaymentGateway</code>·<code>NotificationSender</code>·<code>SlotLock</code> Protocol만 알고, 구상 클래스는 <code>deps.py</code>가 주입한다. 서비스 코드에 <code>FakePaymentGateway</code>가 등장하면 이 SCH의 완료 기준 위반이다(테스트로 단정됨).</td></tr>
+    <tr><td>SCH-05 → SCH-06(Pydantic 스키마 + 라우터 + main.py)</td><td>SCH-06은 이 서비스가 이미 확정한 <code>CancellationOutcome</code>/<code>CancellationPreview</code>/<code>CancellationError.status_code</code>를 그대로 HTTP 응답·예외로 옮기기만 하면 된다 — 7절에서 자세히 다룬다.</td></tr>
+    <tr><td>SCH-05 → SCH-07(conftest + DB 통합 테스트 작성) / SCH-12(DB 통합 테스트 실행)</td><td>4.7절의 "미검증" 항목(행 잠금·SAVEPOINT·정원 복구·감사 로그의 실제 DB 동작)을 실제로 증명하는 것은 이 두 SCH의 몫이다.</td></tr>
+  </table>
+</section>
+
+<section id="handoff">
+  <h2>7. 다음 SCH로 이어지는 것</h2>
+  <p>SCH-05가 SCH-06(Pydantic 스키마 + 라우터 + main.py, 아직 가이드 없음)에 남긴 인터페이스와 반드시 지켜야 할 규칙입니다. <code>_workspace/05_implementer_TS-05_summary.md</code> §7을 그대로 옮깁니다.</p>
+  <ul>
+    <li><b>1. <code>Idempotency-Key</code> 헤더는 라우터가 읽는다.</b> <code>deps.py</code>에는 헤더 의존성을 두지 않았다(태스크가 지정한 4개 의존성만 구현했다). 라우터가 헤더 값을 읽어 <code>cancel_reservation(idempotency_key=...)</code>로 그대로 넘겨야 한다.</li>
+    <li><b>2. 예외 처리는 한 줄로 충분하다.</b> <code>except CancellationError as exc: raise HTTPException(exc.status_code, exc.message)</code> — 예외마다 <code>if/elif</code>를 쓸 필요가 없다(§5-3). <code>exc.code</code>는 클라이언트가 참고할 안정적인 식별자다.</li>
+    <li><b>3. <code>outcome.is_failed</code>가 True면 PG 환불 실패다.</b> 502를 권고한다 — 서비스는 이 경우 예외를 던지지 않으므로(4.2절) 라우터가 직접 판정해야 한다. 실패 사유는 <code>outcome.failure_code</code>에 있다.</li>
+    <li><b>4. <code>outcome.replayed</code>가 True면 중복 요청이다.</b> <b>409가 아니라 200으로 그대로 반환한다.</b></li>
+    <li><b>5. <code>preview_cancellation()</code>은 <code>CancellationPreview</code>를 돌려준다.</b> <code>cancellable=False</code>일 때 <code>reason_code</code>가 거부 사유다(4.1절).</li>
+    <li><b>6. 환불계좌("가상계좌면 필수") 검증은 스키마 계층 몫이다.</b> 서비스는 <code>refund_account=None</code>을 받아도 그대로 진행하고, 어댑터가 2차 방어로 <code>failed</code> 결과를 돌려준다.</li>
+  </ul>
+</section>
+
+<footer>
+  작성 기준: <code>_workspace/05_implementer_TS-05_summary.md</code>, <code>backend/app/services/cancellation.py</code>·<code>backend/app/deps.py</code>·<code>backend/tests/test_cancellation_service.py</code>의 학습 주석, <code>_workspace/kdance.html</code> · kdance 프로젝트 내부 문서 · 2026-09-15 작성.
+</footer>
+
+</div>
+</body>
+</html>

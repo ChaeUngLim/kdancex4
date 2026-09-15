@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SCH-04 왕초보 완벽분석가이드 — 어댑터 3종 (PG/알림/슬롯락)</title>
+<style>
+  :root {
+    --bg: #0f1115;
+    --card: #161a21;
+    --card-border: #262b35;
+    --text: #e8eaed;
+    --text-dim: #9aa4b2;
+    --accent-a: #4fc3f7;
+    --accent-b: #ffb74d;
+    --accent-good: #81c784;
+    --accent-warn: #e57373;
+    --code-bg: #0b0d11;
+  }
+  * { box-sizing: border-box; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+    line-height: 1.7;
+    margin: 0;
+    padding: 0 16px 80px;
+  }
+  .wrap { max-width: 880px; margin: 0 auto; }
+  header.hero {
+    padding: 48px 0 24px;
+    border-bottom: 1px solid var(--card-border);
+    margin-bottom: 32px;
+  }
+  header.hero h1 { font-size: 1.9rem; margin: 0 0 8px; }
+  header.hero p.sub { color: var(--text-dim); font-size: 1.05rem; margin: 0; }
+  nav.toc {
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin-bottom: 40px;
+  }
+  nav.toc h2 { font-size: 1rem; color: var(--text-dim); margin: 0 0 12px; text-transform: uppercase; letter-spacing: .04em; }
+  nav.toc ol { margin: 0; padding-left: 20px; columns: 2; column-gap: 24px; }
+  nav.toc li { margin-bottom: 6px; break-inside: avoid; }
+  nav.toc a { color: var(--accent-a); text-decoration: none; }
+  nav.toc a:hover { text-decoration: underline; }
+  section { margin-bottom: 56px; scroll-margin-top: 20px; }
+  h2 {
+    font-size: 1.5rem;
+    border-left: 4px solid var(--accent-a);
+    padding-left: 14px;
+    margin: 0 0 20px;
+  }
+  h3 { font-size: 1.15rem; color: var(--accent-a); margin: 28px 0 10px; scroll-margin-top: 20px; }
+  p { margin: 0 0 14px; }
+  .callout {
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-left: 4px solid var(--accent-a);
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin: 20px 0;
+  }
+  .callout.warn { border-left-color: var(--accent-warn); }
+  .callout.good { border-left-color: var(--accent-good); }
+  .callout-label { font-weight: 700; font-size: .85rem; text-transform: uppercase; letter-spacing: .04em; color: var(--text-dim); margin-bottom: 6px; }
+  table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: .95rem; }
+  th, td { border: 1px solid var(--card-border); padding: 10px 14px; text-align: left; vertical-align: top; }
+  th { background: var(--card); color: var(--accent-a); }
+  tr:nth-child(even) td { background: rgba(255,255,255,0.02); }
+  code {
+    background: var(--code-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 4px;
+    padding: 2px 6px;
+    font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    font-size: .9em;
+  }
+  pre {
+    background: var(--code-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 8px;
+    padding: 16px 18px;
+    overflow-x: auto;
+    margin: 16px 0;
+  }
+  pre code { border: none; padding: 0; background: none; }
+  .flow {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+    margin: 24px 0;
+    font-size: .92rem;
+  }
+  .flow .step {
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: 8px;
+    padding: 12px 16px;
+    flex: 1 1 140px;
+    min-width: 140px;
+  }
+  .flow .step b { display: block; color: var(--accent-a); margin-bottom: 4px; }
+  .flow .step.dim { opacity: .55; }
+  .flow .step.here { border-color: var(--accent-a); }
+  .flow .arrow { color: var(--text-dim); font-size: 1.2rem; }
+  .badge {
+    display: inline-block;
+    font-size: .75rem;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 999px;
+    margin-right: 6px;
+  }
+  .badge.a { background: rgba(79,195,247,.15); color: var(--accent-a); }
+  .badge.b { background: rgba(255,183,77,.15); color: var(--accent-b); }
+  .badge.done { background: rgba(129,199,132,.15); color: var(--accent-good); }
+  .badge.wait { background: rgba(154,164,178,.15); color: var(--text-dim); }
+  details {
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: 8px;
+    padding: 12px 18px;
+    margin: 10px 0;
+  }
+  details summary { cursor: pointer; font-weight: 600; color: var(--accent-a); }
+  details[open] summary { margin-bottom: 10px; }
+  .glossary dt { font-weight: 700; color: var(--accent-a); margin-top: 16px; }
+  .glossary dd { margin: 4px 0 0; color: var(--text); }
+  footer {
+    border-top: 1px solid var(--card-border);
+    margin-top: 60px;
+    padding-top: 24px;
+    color: var(--text-dim);
+    font-size: .9rem;
+  }
+  footer a { color: var(--accent-a); }
+  .doclink-list { display: flex; flex-direction: column; gap: 8px; }
+  .doclink-list a { color: var(--text); text-decoration: none; }
+  .doclink-list a:hover { color: var(--accent-a); }
+  .doclink-list .path { color: var(--text-dim); font-size: .85rem; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="hero">
+  <h1>🔌 SCH-04 왕초보 완벽분석가이드 — 어댑터 3종 (PG/알림/슬롯락)</h1>
+  <p class="sub">회원이 예약을 취소했을 때 실제로 돈을 돌려주고(PG), 회원과 학원 관리자에게 알리고(알림), 비어난 슬롯을 다시 예약 가능하게 만드는(슬롯 락) 세 가지 "외부 시스템 경계"를 설명합니다. 코딩 경력 6개월 정도, 비전공자도 따라올 수 있게 씁니다.</p>
+</header>
+
+<nav class="toc">
+  <h2>목차</h2>
+  <ol>
+    <li><a href="#overview">1. 개요</a></li>
+    <li><a href="#concepts">2. 사전 개념</a></li>
+    <li><a href="#what-why">3. 무엇을, 왜 이렇게 만들었나</a></li>
+    <li><a href="#issues">4. 이슈 → 원인 파악 → 해결</a></li>
+    <li><a href="#tests">5. 테스트로 확인한 것</a></li>
+    <li><a href="#relations">6. 다른 SCH와의 연관관계</a></li>
+    <li><a href="#handoff">7. 다음 SCH로 이어지는 것</a></li>
+  </ol>
+</nav>
+
+<section id="overview">
+  <h2>1. 개요</h2>
+  <p>SCH-04는 이 프로젝트가 <b>직접 통제할 수 없는 외부 시스템 3곳</b>과 맞닿는 경계를 코드로 정리한 작업입니다. 결제대행사(PG, 여기서는 포트원)에 환불을 요청하고, 회원과 학원 관리자에게 취소 결과를 알리고, 가상계좌 입금 대기 중이던 수업 슬롯의 락을 풀어주는 세 가지 어댑터(<code>payment_gateway.py</code>, <code>notification.py</code>, <code>slot_lock.py</code>)를 만들었습니다.</p>
+  <p>세 어댑터 모두 같은 모양을 하고 있습니다 — <b>"이 어댑터가 할 수 있어야 하는 일"을 정의하는 Protocol 하나</b>와, <b>진짜 외부 시스템 없이 테스트할 수 있는 Fake 구현체 하나</b>. 이렇게 만든 이유와 두 개념이 정확히 무엇인지는 <a href="#concepts">2절</a>에서 설명합니다.</p>
+  <div class="callout good">
+    <div class="callout-label">한 줄 요약</div>
+    "PG에 환불을 요청한다", "회원·관리자에게 알린다", "슬롯 락을 해제한다" — 이 세 가지를 서비스 코드가 실제 외부 시스템의 존재 여부와 무관하게 안전하게 호출할 수 있도록, Protocol(인터페이스)과 Fake(가짜 구현)로 감싸는 경계 계층을 만들었습니다.
+  </div>
+</section>
+
+<section id="concepts">
+  <h2>2. 사전 개념</h2>
+  <p>SCH-01~03이 다룬 ORM/Base/Mixin/설정/DB 세션/Alembic(SCH-01·SCH-02)이나 순수 함수/StrEnum/정수 연산/파라미터라이즈 테스트(SCH-03, <a href="SCH-03.html">SCH-03(환불액 산정 순수 함수) 가이드 참고</a>) 개념은 이 어댑터 계층이 거의 쓰지 않으므로 반복하지 않습니다. 대신 이번 SCH에서 처음 등장하는 개념 4가지를 설명합니다.</p>
+
+  <h3 id="concept-protocol">Protocol(구조적 타이핑)이 뭔가요?</h3>
+  <p>보통 "이 인터페이스를 구현한다"고 하면, 어떤 부모 클래스를 <b>상속</b>하고 그 부모가 요구하는 메서드를 채워 넣는 방식을 떠올립니다. 파이썬의 <code>Protocol</code>은 이것과 다른 방식으로 인터페이스를 정의합니다 — 상속 관계가 전혀 없어도, <b>"이 메서드들만 실제로 갖고 있으면" 그 타입으로 인정</b>하는 방식입니다. 이걸 구조적 타이핑(structural typing)이라고 부릅니다. "오리처럼 걷고 오리처럼 소리를 내면 오리로 취급한다"는 비유(덕 타이핑)의 파이썬 typing 버전이라고 보면 됩니다.</p>
+  <p>예를 들어 이 SCH가 만든 <code>PaymentGateway</code>는 <code>refund()</code> 메서드 하나만 요구하는 Protocol입니다. <code>FakePaymentGateway</code> 클래스는 <code>PaymentGateway</code>를 상속한다고 코드에 적지 않았는데도, <code>refund()</code> 메서드를 구현하고 있다는 사실 하나만으로 "PaymentGateway답게" 취급됩니다. 실제로 <code>isinstance(FakePaymentGateway(), PaymentGateway)</code>가 <code>True</code>를 돌려줍니다(<code>@runtime_checkable</code> 덕분입니다).</p>
+  <p>이게 왜 중요할까요? 취소를 실제로 처리하는 서비스 계층은 <code>FakePaymentGateway</code>도, 앞으로 만들어질 "진짜 포트원 연동 클래스"도 몰라야 합니다. 그저 <code>PaymentGateway</code> 타입 하나만 알고, "이 객체는 <code>refund()</code>를 호출하면 결과를 준다"는 약속만 믿고 코드를 짜면 됩니다. 그러면 테스트에서는 Fake를 끼워 넣고, 실제 운영에서는 진짜 구현체를 끼워 넣어도 서비스 코드는 <b>한 글자도 바뀌지 않습니다.</b> "구현체가 아니라 Protocol 타입만 안다"는 이 원칙은 이후 SCH-05(취소 오케스트레이션 서비스)가 지켜야 할 가장 중요한 규칙이기도 합니다.</p>
+
+  <h3 id="concept-fake">Fake 객체(테스트 더블)가 뭔가요?</h3>
+  <p>Fake 객체란 <b>진짜 외부 시스템 없이도 코드를 테스트하기 위해 만든 가짜 구현체</b>입니다. 이 SCH에는 세 개가 있습니다 — <code>FakePaymentGateway</code>, <code>FakeNotificationSender</code>, <code>NullSlotLock</code>. 셋 다 실제로 포트원 서버에 접속하지도, Expo Push를 보내지도, Redis에 접속하지도 않습니다. 대신 "무슨 요청이 몇 번 들어왔는지"를 메모리에 기록만 해두거나, 미리 정해둔 규칙(예: "이 결제 키는 실패로 처리해라")에 따라 결과를 그 자리에서 만들어 돌려줍니다.</p>
+  <p>Fake가 있으면 좋은 점은 명확합니다. 포트원 계정도, 진짜 돈도, 켜져 있는 Redis 서버도 없이 "PG가 실패를 돌려주면 서비스가 어떻게 반응하는가" 같은 시나리오를 노트북에서 0.1초 만에 반복 실행할 수 있습니다. 특히 <code>FakePaymentGateway</code>는 포트원 응답을 해석하는 진짜 프로덕션 함수(<code>parse_portone_cancel_response</code>)를 실 연동 코드와 <b>똑같이</b> 사용하도록 만들어져 있어서, "겉모습만 흉내 낸 가짜"가 아니라 "포트원 응답의 모양만 대신 만들어주고 해석은 진짜 로직에 맡기는 가짜"에 가깝습니다. 이 부분은 <a href="#issues">4절</a>에서 더 자세히 다룹니다.</p>
+
+  <h3 id="concept-port-adapter">왜 외부 API를 어댑터로 감싸나요? (포트/어댑터 패턴 맛보기)</h3>
+  <p>서비스 코드가 포트원의 API를 직접 호출하도록 짰다고 상상해봅시다. 나중에 PG사를 바꾸거나(포트원 → 토스페이먼츠), 로컬에서 인터넷 없이 개발하거나, 테스트를 돌리려고 할 때마다 서비스 코드 자체를 고쳐야 합니다. 포트/어댑터 패턴은 이 문제를 "경계를 하나 세워서" 해결합니다. 서비스 코드는 <b>포트</b>(이 프로젝트에서는 Protocol)라는 얇은 창구만 보고 말을 걸고, 그 뒤에서 실제로 포트원과 통신하든, 아무것도 안 하는 Fake가 응답하든 서비스 코드 입장에서는 알 방법이 없고 알 필요도 없습니다.</p>
+  <p>이렇게 하면 <b>PG사를 바꾸는 작업이 "어댑터 파일 하나를 바꿔치기하는" 수준으로 줄어듭니다</b> — 서비스 코드, 라우터, 스키마는 전혀 손댈 필요가 없습니다. 이 SCH의 <code>payment_gateway.py</code>는 심지어 그보다 더 좁혀뒀습니다 — 실 연동 시 바뀌는 부분은 "HTTP 호출 한 겹"뿐이고, 상태를 해석하는 로직(<code>parse_portone_cancel_response</code>)은 이미 Fake 기반 테스트로 검증된 채 그대로 남습니다.</p>
+
+  <h3 id="concept-redis">Redis, 느슨한 연결, 예외를 삼키는 방어적 설계가 뭔가요?</h3>
+  <p><b>Redis</b>는 데이터를 디스크가 아니라 메모리에 두고 아주 빠르게 읽고 쓰는 오픈소스 key-value 저장소입니다. 이 프로젝트는 "짧게만 유지되면 되는 상태"(가상계좌 입금 대기 중인 슬롯 락, 쿠폰 중복사용 방지)를 PostgreSQL 대신 Redis에 둡니다. <code>infra/docker-compose.yml</code>의 Redis 컨테이너에는 볼륨이 없어서 컨테이너를 재시작하면 데이터가 전부 사라집니다 — 즉 Redis는 "절대 잃어버리면 안 되는 진실"이 아니라 없어져도 그만인 단기 캐시로만 쓰입니다.</p>
+  <p><b>느슨한 연결(lazy connection)</b>이란, 객체를 만드는 시점(생성자)에는 아직 아무 접속도 시도하지 않고, 실제로 그 기능이 필요한 순간이 돼서야 비로소 접속을 시도하는 설계입니다. <code>RedisSlotLock</code>을 만드는 순간 바로 Redis에 접속하려고 하면, Redis가 꺼져 있는 로컬 개발 환경에서는 "이 클래스를 만드는 것"(즉 서비스에 의존성을 주입하는 것) 자체가 실패해버립니다. 접속 시도를 <code>release()</code>가 처음 호출되는 순간까지 미뤄두면, Redis가 없어도 앱을 켜고 나머지 기능을 정상적으로 테스트할 수 있습니다.</p>
+  <p><b>예외를 삼키는 방어적 설계</b>란, Redis 쪽에서 무슨 오류가 나든(연결 실패, 타임아웃, 알 수 없는 예외 등) 그 오류를 호출한 쪽으로 그대로 전달하지 않고, 그 자리에서 잡아 삼킨 뒤 <code>False</code>만 돌려주는 설계입니다. 왜 이렇게까지 방어적이어야 할까요? 슬롯 락 해제는 환불 처리 트랜잭션이 <b>이미 끝난 뒤에</b> 하는 부가 정리 작업입니다. 만약 여기서 예외가 새 나가면, 이미 회원 계좌로 돈이 움직인 환불 처리 전체가 "캐시 서버 하나가 잠깐 죽었다"는 이유만으로 롤백될 위험이 생깁니다. 돈이 오간 트랜잭션을 지키는 것이 캐시 정리 작업을 지키는 것보다 훨씬 중요하기 때문에, 이 모듈은 예외를 조용히 삼키되(대신 경고 로그는 반드시 남겨서) <code>False</code> 반환으로만 실패를 표현합니다.</p>
+</section>
+
+<section id="what-why">
+  <h2>3. 무엇을, 왜 이렇게 만들었나</h2>
+  <table>
+    <tr><th>파일</th><th>구분</th><th>무엇을 왜</th></tr>
+    <tr>
+      <td><code>backend/app/adapters/__init__.py</code></td>
+      <td>신규</td>
+      <td>3개 모듈의 공개 심볼을 한곳으로 재수출(re-export)한다. "서비스는 Protocol만 import하고 구상체는 <code>deps.py</code>가 주입한다"는 계층 규칙을 모듈독스트링에 명시해뒀다.</td>
+    </tr>
+    <tr>
+      <td><code>backend/app/adapters/payment_gateway.py</code></td>
+      <td>신규</td>
+      <td><code>RefundStatus</code>·<code>PaymentMethod</code>·<code>RefundAccount</code>·<code>RefundRequest</code>·<code>RefundResult</code>·<code>PaymentGateway</code> Protocol(메서드 1개)·<code>parse_portone_cancel_response()</code>·<code>FakePaymentGateway</code>·<code>UnsupportedPaymentMethodError</code>. 포트원 V2 실제 스키마에 1:1로 맞춰 만들었다(아래 참고).</td>
+    </tr>
+    <tr>
+      <td><code>backend/app/adapters/notification.py</code></td>
+      <td>신규</td>
+      <td><code>NotificationAudience</code>·<code>NotificationEvent</code>·<code>SentNotification</code>·<code>NotificationSender</code> Protocol(메서드 2개: 회원/학원관리자)·<code>FakeNotificationSender</code>.</td>
+    </tr>
+    <tr>
+      <td><code>backend/app/adapters/slot_lock.py</code></td>
+      <td>신규</td>
+      <td><code>SLOT_LOCK_KEY_NAMESPACE="kdance:slot"</code>·<code>slot_lock_key()</code>·<code>SlotLock</code> Protocol·<code>RedisSlotLock</code>(느슨한 연결 + 예외를 전면 삼키는 방어적 설계)·<code>NullSlotLock</code>.</td>
+    </tr>
+    <tr>
+      <td><code>backend/tests/test_adapters.py</code></td>
+      <td>신규 <b>(계획에 없던 파일)</b></td>
+      <td>33개 단위 테스트. DB·Redis 접속 없이 전부 통과한다. <a href="#issues">4.1절</a> 참고.</td>
+    </tr>
+  </table>
+
+  <h3>포트원 V2 스키마를 실제로 조회한 경위</h3>
+  <p>이 SCH를 계획한 문서(Phase 3)는 "메서드를 카드/가상계좌로 쪼개지 않는 이유"를 <b>"PG사가 아직 미선정"</b>이라고 적어뒀다. 그런데 구현 시점에는 <code>docs/payment-method-policy.md</code>가 이미 <b>포트원 확정</b>을 선언하고 "가짜 어댑터를 쓰더라도 포트원 응답 스키마를 흉내 낼 것"을 요구하는 상태였다 — 계획과 실제 정책 문서가 어긋난 상황이다.</p>
+  <p>결론(Protocol을 쪼개지 않는다)은 그대로 유지하되, <b>근거를 바꿨다.</b> 원래 논리는 "PG사를 몰라서 안 쪼갠다"(정보 부족)였는데, 실제로는 "포트원 취소 API 자체가 하나이고 결제수단에 따라 <code>refundAccount</code> 유무만 갈린다"(사실 확인)는 더 강한 근거로 바뀌었다. 이걸 확인하려고 <code>mcp__context7__query-docs</code>로 포트원 공식 문서 리포지토리(<code>/portone-io/developers.portone.io</code>, 특히 <code>src/schema/v2.openapi.yml</code>)를 2회 조회했다 — 기억에 의존하지 않고 실제 스키마를 확인한 것이다.</p>
+  <p>확인한 핵심 사실: 요청은 <code>POST /payments/{paymentId}/cancel</code> 하나뿐이고, <code>reason</code>이 필수 문자열이며, 가상계좌 환불에는 <code>refundAccount</code>(스마트로 계열은 <code>holderPhoneNumber</code>까지 필수)를 함께 보낸다. 응답의 <code>cancellation.status</code>는 <code>SUCCEEDED</code>/<code>REQUESTED</code>/<code>FAILED</code> 세 가지로 나뉘고, 공식 SDK에 <code>isUnrecognizedPaymentCancellation()</code>이 존재한다 — 즉 포트원이 나중에 상태 변종을 추가할 수 있다는 것이 공식 전제다.</p>
+
+  <table>
+    <tr><th>포트원 V2 필드</th><th>이 모듈의 이름</th></tr>
+    <tr><td><code>paymentId</code></td><td><code>RefundRequest.payment_key</code></td></tr>
+    <tr><td><code>reason</code>(필수)</td><td><code>RefundRequest.reason</code> (기본값 "회원 요청 취소")</td></tr>
+    <tr><td><code>refundAccount.bank/.number/.holderName/.holderPhoneNumber</code></td><td><code>RefundAccount</code>의 4개 필드</td></tr>
+    <tr><td><code>cancellation.status</code> = <code>SUCCEEDED</code></td><td><code>RefundStatus.succeeded</code></td></tr>
+    <tr><td><code>cancellation.status</code> = <b><code>REQUESTED</code></b></td><td><b><code>RefundStatus.pending</code></b> — 가장 틀리기 쉬운 지점</td></tr>
+    <tr><td><code>cancellation.status</code> = <code>FAILED</code></td><td><code>RefundStatus.failed</code></td></tr>
+    <tr><td>(전체 원문 페이로드)</td><td><code>RefundResult.raw_response</code> — 감사 로그용</td></tr>
+  </table>
+
+  <h3>핵심 설계 판단 — 왜 이렇게 만들었나</h3>
+  <ul>
+    <li><b><code>RefundStatus</code>는 포트원 표기(<code>SUCCEEDED</code>/<code>REQUESTED</code>/<code>FAILED</code>)를 그대로 쓰지 않고, 소문자 도메인 값(<code>succeeded</code>/<code>pending</code>/<code>failed</code>)을 그대로 유지했다.</b> 이 값들은 <code>refunds.status</code> DB CHECK 제약, 그리고 <code>WHERE status &lt;&gt; 'failed'</code> 조건의 부분 유니크 인덱스와 문자 단위로 정확히 일치해야 하는 협상 불가 고정값이다. 포트원 표기를 DB까지 끌고 들어가면, 나중에 PG사를 바꿀 때마다 DB 마이그레이션이 필요해진다. 번역 지점을 파서(<code>PORTONE_CANCELLATION_STATUS_MAP</code>) 한 곳으로 고정하는 편이 안전하다.</li>
+    <li><b>포트원 응답 파서(<code>parse_portone_cancel_response</code>)를 프로덕션 코드로 분리했다.</b> 실 연동 어댑터(이번 슬라이스에는 아직 없다)와 <code>FakePaymentGateway</code>가 이 함수를 <b>같이</b> 쓴다. 그래서 Fake 기반 테스트만으로도 "<code>REQUESTED</code> → <code>pending</code> 매핑"처럼 실제로 틀리기 가장 쉬운 지점이 검증되고, 나중에 PG를 실제로 붙일 때 바뀌는 건 "HTTP 호출 한 겹"뿐이다.</li>
+    <li><b>카드 결제는 예외로 막고, 환불계좌 누락은 예외 대신 실패 결과로 돌려준다 — 겉보기엔 비슷하지만 의도적으로 다르게 처리했다.</b> 이 판단의 이유는 <a href="#issues">4.4절</a>에서 자세히 다룬다(이번 가이드의 핵심 교훈 중 하나).</li>
+    <li><b>알림 Protocol의 메서드는 2개(<code>notify_member</code>/<code>notify_academy_admin</code>), PG Protocol의 메서드는 1개(<code>refund</code>) — 같은 원칙의 서로 다른 결론이다.</b> 알림은 회원(Expo Push)과 관리자(관리자 웹 채널)의 <b>전달 수단이 실제로 다르기 때문에</b> 메서드를 나눴다. PG는 반대로 포트원의 취소 API 자체가 하나이기 때문에 메서드를 합쳤다. 둘 다 "실제 경계의 모양을 그대로 따른다"는 같은 원칙에서 나온 결정이라 일관성 위반이 아니다.</li>
+    <li><b>슬롯 락은 이번 슬라이스에서 <code>release()</code>만 있고 <code>acquire()</code>가 없다.</b> 락을 거는 쪽(예약/결제 생성 경로)이 이번 슬라이스 범위 밖이기 때문이다. 쓰이지도 않을 API의 시그니처를 추측해서 미리 고정하지 않기로 했다 — <a href="#issues">4.7절</a> 참고.</li>
+  </ul>
+</section>
+
+<section id="issues">
+  <h2>4. 이슈 → 원인 파악 → 해결</h2>
+  <p>SCH-04 작업 중 실제로 있었던 발견 사항입니다. <code>_workspace/05_implementer_TS-04_summary.md</code>의 기록을 그대로 옮깁니다.</p>
+
+  <h3>4.1 [계획 공백] 테스트 파일 소유자가 지정되지 않았다 — <code>tests/test_adapters.py</code> 신설</h3>
+  <p><b>현상:</b> Phase 4의 "파일 충돌 검증"은 <code>backend/tests/</code>를 다른 두 작업(<code>test_refund_policy.py</code>·<code>conftest.py</code> 담당)이 나눠 갖는 것으로 정리해뒀는데, SCH-04의 완료 기준 3개가 전부 단위 테스트 통과를 요구한다. 그런데 그 테스트를 담을 파일이 어느 작업에도 배정돼 있지 않았다.<br>
+  <b>원인 파악:</b> 계획 단계에서 "어댑터 계층에 별도 단위 테스트 파일이 필요하다"는 사실 자체가 누락돼 있었다.<br>
+  <b>해결:</b> <code>tests/test_adapters.py</code>를 새로 만들었다. 다른 두 작업이 소유한 파일과 이름이 겹치지 않고, <code>conftest.py</code>도 만들지 않았다(어댑터 테스트는 DB·Redis 픽스처가 필요 없는 순수 단위 테스트라서). 이후 다른 작업이 <code>conftest.py</code>에 DB 미가용 skip 훅을 추가할 때도, 이 파일의 테스트는 그런 마커가 없으므로 영향을 받지 않는다.</p>
+
+  <h3>4.2~4.3 [계획보다 필드가 늘었다] <code>RefundRequest.reason</code>, <code>RefundAccount.holder_phone_number</code></h3>
+  <p><b>현상:</b> Phase 3 계획의 필드 목록에는 없던 <code>reason</code>(취소 사유)과 <code>holder_phone_number</code>(환불 수취인 전화번호)를 추가했다.<br>
+  <b>원인 파악:</b> 앞서 확인한 포트원 V2 스키마가 <code>reason</code>을 필수 문자열로 요구하고, 가상계좌 취소(특히 스마트로 계열)에는 <code>holderPhoneNumber</code>가 필수다. 넣지 않으면 실 연동을 붙이는 순간 이 파일의 시그니처를 바꿔야 한다.<br>
+  <b>해결:</b> 둘 다 기본값(<code>reason</code>은 <code>"회원 요청 취소"</code>, <code>holder_phone_number</code>는 <code>None</code>)을 둬서, 계획 문서를 그대로 따라 호출하는 코드도 깨지지 않게 했다. 다음 작업(스키마·라우터 담당)에게는 "지금 스키마에 <code>holder_phone_number</code>를 넣지 않아도 당장은 동작하지만, 실제 PG 계약사가 스마트로 계열이면 나중에 필수가 된다"는 정보를 남겨뒀다.</p>
+
+  <h3>4.4 [설계 판단] 환불계좌 누락은 예외가 아니라 <code>failed</code> 결과로 돌려준다 — 카드 예외 처리와의 결정적 차이</h3>
+  <p><b>현상:</b> <code>method == virtual_account</code>인데 <code>refund_account</code>가 없으면, <code>UnsupportedPaymentMethodError</code>(카드 결제일 때 던지는 것과 같은 종류의 예외)를 던지지 않고, <code>RefundStatus.failed</code> + <code>failure_code="REFUND_ACCOUNT_REQUIRED"</code>라는 <b>결과값</b>을 돌려준다.</p>
+  <p><b>원인 파악 — 왜 다르게 처리해야 하는가:</b> 둘 다 "잘못된 입력"처럼 보이지만 성격이 다르다. 카드 결제로 취소 요청이 들어오는 것은 <b>"이 코드 경로가 애초에 존재하면 안 되는" 프로그래밍 오류</b>다 — 이번 슬라이스는 카드 승인취소를 아예 지원하지 않기로 확정했으므로, 이 요청이 여기까지 왔다는 것 자체가 상위 계층의 버그다. 반면 환불계좌 누락은 <b>"PG가 실제로 거절할 수 있는 런타임 실패"</b>다 — 정상 경로에서는 스키마 계층이 422로 미리 막지만, 여기까지 왔다는 건 스키마를 우회한 내부 호출일 수 있다는 뜻이고, 그런 경우에도 서비스가 실패 사유를 감사 로그(<code>refund_events</code>)에 남기고 회원에게 실패 사유를 보여줄 수 있어야 한다. 예외를 던지면 조용히 죽어버려서 그 사유가 기록되지 않는다.</p>
+  <div class="callout good">
+    <div class="callout-label">이 SCH에서 가장 중요한 교훈</div>
+    "잘못된 입력"을 전부 같은 방식(예외 아니면 실패값)으로 처리하지 않는다. <b>이 코드 경로가 존재하면 안 되는 프로그래밍 오류는 예외로 시끄럽게</b> 막아 로그 한 줄로 덮이지 않게 하고, <b>PG가 실제로 거절할 수 있는 런타임 실패는 결과값으로</b> 돌려줘서 감사 로그에 흔적이 남게 한다. 겉보기에 비슷한 두 실패를 구분해서 처리하는 것 자체가 설계 판단이다.
+  </div>
+
+  <h3>4.5 [설계 판단] <code>FakePaymentGateway</code>는 실패 건을 원장에 확정하지 않는다</h3>
+  <p><b>현상:</b> Fake 내부의 <code>ledger</code>(멱등키 → 결과 매핑)는 <code>succeeded</code>·<code>pending</code>은 저장하지만 <code>failed</code>는 저장하지 않는다.<br>
+  <b>원인:</b> <code>refunds</code> 테이블의 부분 유니크 인덱스가 <code>WHERE status &lt;&gt; 'failed'</code>라서, 도메인상 실패 건의 재시도가 허용된다. 만약 <code>failed</code>도 원장에 못박으면, 실패를 유발한 조건(<code>fail_on</code>)을 나중에 풀어도 Fake는 계속 예전 실패 결과만 돌려주게 되어 "PG 실패 후 재시도가 성공하는" 시나리오를 테스트할 방법이 없어진다.<br>
+  <b>해결:</b> <code>failed</code>는 원장에 남기지 않는다. <code>test_fake_gateway_does_not_pin_failures_in_ledger</code>가 이 동작을 못박는다.</p>
+
+  <h3>4.6 [의도적 설계] <code>slot_lock.release()</code>가 <code>Exception</code>을 통째로 삼킨다</h3>
+  <p><b>현상:</b> <code>RedisSlotLock.release()</code>는 예외 종류를 좁혀서 잡지 않고 <code>Exception</code> 전체를 잡는다. 보통 이런 광범위한 예외 포착은 코드 리뷰에서 지적 대상이 되는 안티패턴이다.<br>
+  <b>원인 파악:</b> redis-py 라이브러리는 연결 문제 하나만 놓고도 <code>ConnectionError</code>·<code>TimeoutError</code>·<code>OSError</code>·<code>ValueError</code>를 상황에 따라 던진다. 이 중 하나라도 잡지 못하고 새 나가면, <b>이미 회원 계좌로 돈이 움직인 환불 트랜잭션이 캐시 서버 장애 하나 때문에 롤백된다.</b> 그건 슬롯 락 해제 실패보다 훨씬 심각한 사고다.<br>
+  <b>해결:</b> 예외 종류를 가리지 않고 전부 삼키되, 조용히 묻히지 않도록 <code>exc_info=True</code>로 스택 트레이스를 WARNING 로그에 남긴다. 이 결정은 태스크 명세가 명시적으로 요구한 동작이라, 코드 리뷰(Phase 8) 단계에서도 "지적 대상이 아니라 의도된 설계"임을 미리 밝혀뒀다.</p>
+
+  <h3>4.7 [미해결 — 이번 범위 밖] 슬롯 락 <code>acquire()</code>가 없다</h3>
+  <p><b>현상:</b> <code>SlotLock</code> Protocol에는 <code>release()</code>만 있고 락을 거는 <code>acquire()</code>가 없다.<br>
+  <b>원인:</b> 락을 거는 쪽은 예약/결제 생성 경로인데, 그 경로 자체가 이번 슬라이스에 아직 없다(결제 생성 경로 없음 — 살아있는 미해결 플래그로 남아 있다). 지금 <code>acquire</code> 시그니처를 추측해서 만들면, 실제로 쓰이지도 않는 API 모양을 미리 고정해버리는 위험이 있다.<br>
+  <b>해결(다음 SCH로 넘김):</b> 만들지 않고 모듈 독스트링에 사유를 남겼다. 이 때문에 이번 슬라이스에서는 <code>RedisSlotLock.release()</code>가 지우는 키를 실제로 만드는 코드가 아예 없다 — 통합 테스트로도 "키가 실제로 지워졌다"까지는 확인할 수 없고, 기껏해야 "해제가 호출됐다"(<code>NullSlotLock.released</code>)까지만 확인할 수 있다. 수용 기준 "슬롯 정원 복구"의 실체는 DB의 <code>class_schedules.reserved_count</code> 감소(취소 오케스트레이션 서비스 소관)이고, Redis 락 해제는 그 뒤에 따라오는 부가 정리 작업일 뿐이라는 점을 다음 단계가 혼동하지 않아야 한다.</p>
+
+  <h3>4.8~4.9 [범위 재확인] 알림은 Fake까지만, Protocol 메서드를 2개로 나눈 이유</h3>
+  <p><code>FakeNotificationSender</code>는 호출 기록만 남기고 실제로는 아무것도 보내지 않는다. 실제 Expo Push 발송과 관리자 웹 알림 채널(폴링/WebSocket/SSE 중 무엇을 쓸지는 정책 문서상 아직 미정)은 이번 범위 밖이다 — "회원·학원 관리자 알림"이라는 수용 기준은 <b>Fake 호출 기록까지만</b> 검증된 것이지, 실제 발송 동작이 확인된 것이 아니다. 또한 <code>NotificationEvent</code>에 <code>REFUND_PENDING</code>을 <code>REFUND_FAILED</code>와 별도로 둔 이유는, <code>pending</code>을 실패로 뭉뚱그리면 회원이 "돈을 못 받는다"고 오해하기 때문이다.</p>
+
+  <div class="callout good">
+    <div class="callout-label">정리</div>
+    이번 SCH의 완료 기준 4개(Redis 미기동 시 예외 없음, Fake로 succeeded/pending/failed 3종 생성, 카드 결제 예외, 전체 테스트 초록)는 모두 실제 실행으로 통과했다. 4.1~4.3은 계획과 실제 요구사항(포트원 스키마) 사이의 공백을 메운 것이고, 4.4~4.6은 이번 SCH가 스스로 내린 설계 판단, 4.7~4.9는 다음 단계가 알아야 할 미해결/범위 경계다.
+  </div>
+</section>
+
+<section id="tests">
+  <h2>5. 테스트로 확인한 것</h2>
+  <table>
+    <tr><th>실행한 명령</th><th>결과</th><th>이게 실제로 증명하는 것</th></tr>
+    <tr>
+      <td><code>uv run pytest tests/test_adapters.py -v</code></td>
+      <td>33 passed, 0 skipped, 0 failed</td>
+      <td>포트원 응답 파서의 상태 매핑(특히 <code>REQUESTED</code>→<code>pending</code>), Fake PG의 succeeded/pending/failed 3종 생성과 멱등성, 카드 결제 거부, 알림 2방향 기록, Redis 미기동 시 예외 없는 슬롯 락 해제까지 — 이 SCH가 다루는 동작 전부가 DB·Redis 접속 없이 검증된다는 것.</td>
+    </tr>
+    <tr>
+      <td><code>test_redis_slot_lock_release_returns_false_when_redis_is_down</code> 개별 확인</td>
+      <td>PASSED</td>
+      <td>실제로 아무것도 떠 있지 않은 포트(6399)로 접속을 시도했을 때, <b>예외가 밖으로 새 나가지 않고</b> <code>False</code> 반환 + 경고 로그로만 실패가 표현된다는 것 — "예외를 삼키는 방어적 설계"가 말뿐이 아니라 실제로 그렇게 동작함을 확인한다.</td>
+    </tr>
+    <tr>
+      <td><code>uv run pytest</code> (백엔드 전체)</td>
+      <td>159 passed, 0 failed</td>
+      <td>SCH-01(1)+SCH-03(50)+SCH-04(33)+SCH-05(36)+SCH-06(39) 누적分이 전부 통과 — 이 SCH가 추가한 것이 기존에 통과하던 다른 SCH의 테스트를 하나도 깨뜨리지 않았다는 것.</td>
+    </tr>
+  </table>
+  <div class="callout warn">
+    <div class="callout-label">이 테스트가 증명하지 못하는 것</div>
+    이 33개 테스트는 실제 Redis 서버·실제 포트원 서버·실제 Expo Push 서버 어디에도 접속하지 않는다. "Redis가 켜져 있을 때 슬롯 락 키가 실제로 지워지는가", "포트원 서버가 실제로 이 요청을 받아주는가"는 이 SCH의 완료 기준에 애초에 포함돼 있지 않다(<a href="#issues">4.7절</a>). Docker로 Redis를 띄운 뒤의 통합 검증은 별도 SCH(DB/인프라 통합 테스트 SCH)의 몫이다.
+  </div>
+</section>
+
+<section id="relations">
+  <h2>6. 다른 SCH와의 연관관계</h2>
+  <p>SCH-04는 SCH-01·SCH-02·SCH-03이 만든 것을 <b>거의 import하지 않는 독립적인 계층</b>입니다. 대신 이 SCH가 만든 세 어댑터의 Protocol 타입은, 뒤이은 SCH-05(취소 오케스트레이션 서비스)가 직접 가져다 씁니다.</p>
+  <div class="flow">
+    <div class="step dim"><b><a href="SCH-01.html" style="color:inherit;text-decoration:none">SCH-01</a></b>기반 배선<br><span class="badge done">완료</span></div>
+    <div class="arrow">→</div>
+    <div class="step dim"><b><a href="SCH-02.html" style="color:inherit;text-decoration:none">SCH-02</a></b>도메인 모델 7개<br><span class="badge done">완료</span></div>
+    <div class="arrow">→</div>
+    <div class="step dim"><b><a href="SCH-03.html" style="color:inherit;text-decoration:none">SCH-03</a></b>환불액 산정 함수<br><span class="badge done">완료</span></div>
+    <div class="arrow">→</div>
+    <div class="step here"><b>SCH-04</b>어댑터 3종 (이 문서)<br><span class="badge done">완료</span></div>
+  </div>
+  <div class="flow">
+    <div class="step here"><b>SCH-04</b>어댑터 3종 (이 문서)<br><span class="badge done">완료</span></div>
+    <div class="arrow">→</div>
+    <div class="step dim"><b>SCH-05</b>취소 오케스트레이션 서비스 + deps.py</div>
+    <div class="arrow">→</div>
+    <div class="step dim"><b>SCH-06</b>Pydantic 스키마 + 라우터 + main.py</div>
+  </div>
+  <table>
+    <tr><th>관계</th><th>왜 이 순서/구조인가</th></tr>
+    <tr><td>SCH-01·SCH-02·SCH-03 → SCH-04 (순서상 후행이지만 코드상 거의 독립)</td><td>어댑터 계층은 모델(ORM)이나 환불액 계산 함수를 직접 import하지 않는다. 이 가이드가 ORM/Base/Mixin, 순수 함수/StrEnum 같은 선행 개념을 반복 설명하지 않은 이유가 이것이다.</td></tr>
+    <tr><td>SCH-04 → SCH-05(취소 오케스트레이션 서비스 + deps.py)</td><td>취소를 실제로 처리하는 서비스는 이 SCH가 만든 <code>PaymentGateway</code>·<code>NotificationSender</code>·<code>SlotLock</code> Protocol만 알고, 실제 구현체를 무엇으로 주입할지는 SCH-05의 <code>deps.py</code>가 결정한다. 서비스 코드에 <code>FakePaymentGateway</code>가 등장하면 SCH-05의 완료 기준 위반이다.</td></tr>
+    <tr><td>SCH-04 → SCH-06(스키마+라우터)</td><td>SCH-06의 <code>CancelRequest</code> 스키마가 받는 필드(<code>bank_code</code>/<code>account_number</code>/<code>holder_name</code>)는 이 SCH의 <code>RefundAccount</code> 필드와 이름을 맞춰뒀다 — <code>holder_phone_number</code>는 스키마에 아직 없어도 기본값 덕분에 호환된다(4.3절).</td></tr>
+  </table>
+</section>
+
+<section id="handoff">
+  <h2>7. 다음 SCH로 이어지는 것</h2>
+  <p>SCH-04가 이후 작업(SCH-05)에 남긴 인터페이스와 반드시 지켜야 할 규칙입니다.</p>
+  <pre><code>from app.adapters import (
+    PaymentGateway, RefundRequest, RefundAccount, RefundResult, RefundStatus,
+    UnsupportedPaymentMethodError,
+    NotificationSender, NotificationEvent,
+    SlotLock,
+)
+
+result: RefundResult = gateway.refund(RefundRequest(
+    payment_key=payment.gateway_payment_key,
+    method=payment.method,
+    amount=calculation.refund_amount,
+    idempotency_key=idempotency_key,
+    refund_account=RefundAccount(bank_code=..., account_number=..., holder_name=...),
+))
+# result.status ∈ {succeeded, pending, failed} — refunds.status에 그대로 넣는다
+
+sender.notify_member(member_id, NotificationEvent.RESERVATION_CANCELLED, {...})
+sender.notify_academy_admin(academy_id, NotificationEvent.RESERVATION_CANCELLED, {...})
+
+slot_lock.release(schedule_id)   # 예외 없음. False 반환은 무시하고 진행할 것</code></pre>
+  <ul>
+    <li><b>SCH-05에게(필수):</b> <code>gateway.refund()</code>는 <code>UnsupportedPaymentMethodError</code>를 던질 수 있다. 카드 결제건 취소 요청은 이 예외를 잡아 HTTP 400/422로 변환해야 한다 — 500으로 새 나가면 안 된다.</li>
+    <li><b>SCH-05에게(필수):</b> <code>result.status is RefundStatus.PENDING</code>은 <b>정상 경로</b>다. 실패로 처리하면 안 된다(<a href="#concepts">2절</a>·<a href="#issues">4절</a>의 핵심).</li>
+    <li><b>SCH-05에게(필수):</b> <code>slot_lock.release()</code>의 반환값을 검사해서 분기하면 안 된다. <code>False</code>여도 트랜잭션을 계속 진행해야 한다(4.6절의 방어적 설계를 서비스 쪽에서도 존중해야 한다는 뜻).</li>
+    <li><b>SCH-05에게(필수):</b> <code>deps.py</code>는 반드시 Protocol 타입으로 주입해야 한다. <code>cancellation.py</code>에 <code>FakePaymentGateway</code>가 직접 등장하면 완료 기준 위반이다.</li>
+    <li><b>다음 단계 전체에게:</b> 슬롯 락 <code>acquire()</code>가 아직 없다(4.7절) — 예약/결제 생성 경로를 만드는 작업이 이 API를 새로 설계해야 한다.</li>
+  </ul>
+</section>
+
+<footer>
+  작성 기준: <code>_workspace/05_implementer_TS-04_summary.md</code>, <code>backend/app/adapters/</code>·<code>backend/tests/test_adapters.py</code>의 학습 주석, <code>docs/payment-method-policy.md</code>, <code>_workspace/kdance.html</code> · kdance 프로젝트 내부 문서 · 2026-09-15 작성.
+</footer>
+
+</div>
+</body>
+</html>

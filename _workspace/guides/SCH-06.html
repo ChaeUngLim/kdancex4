@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SCH-06 왕초보 완벽분석가이드 — Pydantic 스키마 + 라우터 + main.py</title>
+<style>
+  :root {
+    --bg: #0f1115;
+    --card: #161a21;
+    --card-border: #262b35;
+    --text: #e8eaed;
+    --text-dim: #9aa4b2;
+    --accent-a: #4fc3f7;
+    --accent-b: #ffb74d;
+    --accent-good: #81c784;
+    --accent-warn: #e57373;
+    --code-bg: #0b0d11;
+  }
+  * { box-sizing: border-box; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+    line-height: 1.7;
+    margin: 0;
+    padding: 0 16px 80px;
+  }
+  .wrap { max-width: 880px; margin: 0 auto; }
+  header.hero {
+    padding: 48px 0 24px;
+    border-bottom: 1px solid var(--card-border);
+    margin-bottom: 32px;
+  }
+  header.hero h1 { font-size: 1.9rem; margin: 0 0 8px; }
+  header.hero p.sub { color: var(--text-dim); font-size: 1.05rem; margin: 0; }
+  nav.toc {
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin-bottom: 40px;
+  }
+  nav.toc h2 { font-size: 1rem; color: var(--text-dim); margin: 0 0 12px; text-transform: uppercase; letter-spacing: .04em; }
+  nav.toc ol { margin: 0; padding-left: 20px; columns: 2; column-gap: 24px; }
+  nav.toc li { margin-bottom: 6px; break-inside: avoid; }
+  nav.toc a { color: var(--accent-a); text-decoration: none; }
+  nav.toc a:hover { text-decoration: underline; }
+  section { margin-bottom: 56px; scroll-margin-top: 20px; }
+  h2 {
+    font-size: 1.5rem;
+    border-left: 4px solid var(--accent-a);
+    padding-left: 14px;
+    margin: 0 0 20px;
+  }
+  h3 { font-size: 1.15rem; color: var(--accent-a); margin: 28px 0 10px; scroll-margin-top: 20px; }
+  p { margin: 0 0 14px; }
+  .callout {
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-left: 4px solid var(--accent-a);
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin: 20px 0;
+  }
+  .callout.warn { border-left-color: var(--accent-warn); }
+  .callout.good { border-left-color: var(--accent-good); }
+  .callout-label { font-weight: 700; font-size: .85rem; text-transform: uppercase; letter-spacing: .04em; color: var(--text-dim); margin-bottom: 6px; }
+  table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: .95rem; }
+  th, td { border: 1px solid var(--card-border); padding: 10px 14px; text-align: left; vertical-align: top; }
+  th { background: var(--card); color: var(--accent-a); }
+  tr:nth-child(even) td { background: rgba(255,255,255,0.02); }
+  code {
+    background: var(--code-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 4px;
+    padding: 2px 6px;
+    font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    font-size: .9em;
+  }
+  pre {
+    background: var(--code-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 8px;
+    padding: 16px 18px;
+    overflow-x: auto;
+    margin: 16px 0;
+  }
+  pre code { border: none; padding: 0; background: none; }
+  .flow {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+    margin: 24px 0;
+    font-size: .92rem;
+  }
+  .flow .step {
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: 8px;
+    padding: 12px 16px;
+    flex: 1 1 140px;
+    min-width: 140px;
+  }
+  .flow .step b { display: block; color: var(--accent-a); margin-bottom: 4px; }
+  .flow .step.dim { opacity: .55; }
+  .flow .step.here { border-color: var(--accent-a); }
+  .flow .arrow { color: var(--text-dim); font-size: 1.2rem; }
+  .badge {
+    display: inline-block;
+    font-size: .75rem;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 999px;
+    margin-right: 6px;
+  }
+  .badge.a { background: rgba(79,195,247,.15); color: var(--accent-a); }
+  .badge.b { background: rgba(255,183,77,.15); color: var(--accent-b); }
+  .badge.done { background: rgba(129,199,132,.15); color: var(--accent-good); }
+  .badge.wait { background: rgba(154,164,178,.15); color: var(--text-dim); }
+  details {
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: 8px;
+    padding: 12px 18px;
+    margin: 10px 0;
+  }
+  details summary { cursor: pointer; font-weight: 600; color: var(--accent-a); }
+  details[open] summary { margin-bottom: 10px; }
+  .glossary dt { font-weight: 700; color: var(--accent-a); margin-top: 16px; }
+  .glossary dd { margin: 4px 0 0; color: var(--text); }
+  footer {
+    border-top: 1px solid var(--card-border);
+    margin-top: 60px;
+    padding-top: 24px;
+    color: var(--text-dim);
+    font-size: .9rem;
+  }
+  footer a { color: var(--accent-a); }
+  .doclink-list { display: flex; flex-direction: column; gap: 8px; }
+  .doclink-list a { color: var(--text); text-decoration: none; }
+  .doclink-list a:hover { color: var(--accent-a); }
+  .doclink-list .path { color: var(--text-dim); font-size: .85rem; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="hero">
+  <h1>🔌 SCH-06 왕초보 완벽분석가이드 — Pydantic 스키마 + 라우터 + main.py</h1>
+  <p class="sub">SCH-05(취소 오케스트레이션 서비스 + deps.py)가 만들어낸 결과값(dataclass)을 실제 HTTP 요청/응답으로 옮기는 경계층 — Pydantic 스키마·FastAPI 라우터·CORS·앱 조립을 설명합니다. 코딩 경력 6개월 정도, 비전공자도 따라올 수 있게 씁니다.</p>
+</header>
+
+<nav class="toc">
+  <h2>목차</h2>
+  <ol>
+    <li><a href="#overview">1. 개요</a></li>
+    <li><a href="#concepts">2. 사전 개념</a></li>
+    <li><a href="#what-why">3. 무엇을, 왜 이렇게 만들었나</a></li>
+    <li><a href="#issues">4. 이슈 → 원인 파악 → 해결</a></li>
+    <li><a href="#tests">5. 테스트로 확인한 것</a></li>
+    <li><a href="#relations">6. 다른 SCH와의 연관관계</a></li>
+    <li><a href="#handoff">7. 다음 SCH로 이어지는 것</a></li>
+  </ol>
+</nav>
+
+<section id="overview">
+  <h2>1. 개요</h2>
+  <p>SCH-06은 예약 취소 기능이 실제로 앱 밖에서 "HTTP API"로 보이게 만드는 마지막 조각입니다. <b><code>backend/app/schemas/</code></b>가 요청·응답 데이터의 형태를 검증하는 Pydantic 클래스들을, <b><code>backend/app/routers/</code></b>가 그 데이터를 받아 SCH-05(취소 오케스트레이션 서비스 + deps.py)의 서비스 함수로 옮기는 엔드포인트 4개를, <b><code>backend/app/main.py</code></b>가 그 라우터들과 CORS 설정을 하나의 FastAPI 앱으로 조립하는 코드를 담당합니다.</p>
+  <p>이 SCH가 새로 계산하거나 새로 판단하는 것은 <b>거의 없습니다.</b> 금액 계산은 SCH-03(환불액 산정), 취소 순서와 예외는 SCH-05가 이미 끝내 두었습니다. SCH-06의 일은 "그 결과를 회원 스마트폰과 학원 관리자 브라우저가 이해할 수 있는 JSON 모양으로 바꾸는 것" — 즉 <b>경계 검증과 형태 변환</b>입니다.</p>
+  <div class="callout good">
+    <div class="callout-label">한 줄 요약</div>
+    "잘못된 모양의 요청은 서비스 코드에 닿기도 전에 걸러내고, 서비스가 이미 정해둔 상태 코드(<code>CancellationError.status_code</code>)는 그대로 꺼내 쓴다" — 새 로직을 만들지 않고 <b>연결만</b> 하는 것이 이 SCH의 원칙입니다.
+  </div>
+</section>
+
+<section id="concepts">
+  <h2>2. 사전 개념</h2>
+  <p>Protocol·Fake·포트-어댑터·Redis는 <a href="SCH-04.html">SCH-04(어댑터 3종: PG/알림/슬롯락)</a>, 트랜잭션·행 잠금·멱등성·SAVEPOINT·<code>Depends()</code>는 <a href="SCH-05.html">SCH-05(취소 오케스트레이션 서비스 + deps.py)</a>에서 이미 설명했으므로 반복하지 않습니다. ORM·CHECK/UNIQUE 제약은 <a href="SCH-01.html">SCH-01(기반 배선)</a>·<a href="SCH-02.html">SCH-02(도메인 모델 7개)</a> 가이드를 참고하세요. 이번 SCH에서 처음 등장하는 개념 5가지만 설명합니다.</p>
+
+  <h3 id="concept-pydantic">Pydantic 스키마가 뭔가요?</h3>
+  <p>파이썬 클래스로 "요청/응답 데이터가 이런 모양이어야 한다"를 선언해 두면, FastAPI가 요청이 들어올 때마다 그 클래스로 값을 실제로 만들어 보면서 자동으로 검증합니다. 형태가 안 맞으면(필수값 누락, 타입 불일치, 범위 초과 등) 엔드포인트 함수 본문이 <b>실행되기도 전에</b> 422 에러가 나갑니다. 개발자가 "이 값이 문자열인지, 20자를 넘지 않는지"를 엔드포인트마다 손으로 <code>if</code>문으로 확인하지 않아도 되는 이유입니다.</p>
+  <p>이 프로젝트는 서비스 계층의 결과값을 <code>dataclass</code>로, HTTP 경계의 요청/응답을 Pydantic <code>BaseModel</code>로 <b>의도적으로 분리</b>합니다. 서비스는 HTTP를 몰라야 단위 테스트가 가볍고, 스키마는 DB를 몰라야 요청 형태가 바뀔 때 서비스까지 흔들리지 않습니다. 라우터가 이 둘 사이를 옮기는 역할을 합니다.</p>
+  <p><code>model_validator(mode="after")</code>는 필드 하나하나의 형식 검증이 끝난 뒤 "필드들 사이의 관계"를 검증할 때 씁니다. 예를 들어 <code>CancelRequest</code>에서 "결제수단이 가상계좌인데 환불 계좌가 없다"는 조합은 필드 각각은 유효해도 전체로는 무효입니다. <code>StrictInt</code>는 반대로 필드 하나를 더 엄격하게 만드는 도구입니다 — 보통 Pydantic의 <code>int</code>는 <code>"24"</code>(문자열)·<code>24.0</code>(실수)·<code>True</code>(bool)까지 너그럽게 받아주는데, <code>StrictInt</code>는 이 변환을 끄고 진짜 <code>int</code>만 받습니다. 환불 비율표(<code>RefundPolicyTier</code>)가 이걸 쓰는 이유는, 여기서 느슨하게 받으면 저장은 성공하고 <b>취소 시점에</b> 환불 계산 함수가 같은 값을 거부해서 터지기 때문입니다.</p>
+
+  <h3 id="concept-router">FastAPI 라우터(<code>APIRouter</code>)가 뭔가요?</h3>
+  <p>모든 엔드포인트를 <code>app</code> 객체 하나에 직접 등록하면 파일 하나가 끝없이 길어집니다. <code>APIRouter</code>는 "이 모듈이 담당하는 엔드포인트들"을 하나로 묶어두는 그릇이고(<code>prefix="/reservations"</code> 같은 공통 경로도 여기서 지정합니다), <code>app/main.py</code>가 <code>app.include_router(router)</code>로 이 그릇들을 최종적으로 하나의 앱에 조립합니다. 각 라우터 모듈은 자기 몫의 경로만 신경 쓰면 되고, "전체 API가 어떻게 구성되는지"는 <code>main.py</code> 한 곳만 보면 알 수 있습니다.</p>
+
+  <h3 id="concept-exception-mapping">예외 → HTTP 상태 코드 매핑 패턴</h3>
+  <p><a href="SCH-05.html">SCH-05(취소 오케스트레이션 서비스 + deps.py)</a>가 만든 <code>CancellationError</code>는 <code>status_code</code>를 <b>값으로 들고 다닙니다</b>(404/403/409/422). 그래서 라우터에는 예외 타입별 <code>if/elif</code> 사다리가 없습니다 — <code>raise HTTPException(status_code=exc.status_code, detail=exc.message)</code> 한 줄이 전부입니다. 취소 거부 사유가 하나 늘어도(예: 새로운 <code>CancellationError</code> 서브클래스) 이 라우터 코드는 바뀌지 않습니다. 이건 SCH-05가 "예외 자신이 HTTP 지식을 갖게 하자"고 미리 설계해 둔 덕분입니다.</p>
+
+  <h3 id="concept-cors">CORS가 뭔가요?</h3>
+  <p>브라우저는 기본적으로 "이 페이지를 내려준 출처(origin)와 다른 출처의 API"로 보낸 요청의 <b>응답을 스크립트가 읽지 못하게</b> 막습니다(보안 기본값). admin-web(Next.js, <code>localhost:3000</code>)이 backend API를 호출하려면, 서버가 "이 출처는 허용한다"고 응답 헤더에 명시적으로 적어줘야 합니다. 그 설정을 담당하는 것이 <code>app/main.py</code>의 <code>CORSMiddleware</code>입니다. 모바일(Expo) 앱은 브라우저가 아니므로 이 규칙 자체와 무관합니다.</p>
+
+  <h3 id="concept-openapi">OpenAPI 스키마(<code>app.openapi()</code>)가 뭔가요?</h3>
+  <p>FastAPI가 등록된 라우트와 스키마를 훑어서 자동으로 만들어내는 API 명세(JSON)입니다. <code>/docs</code> 화면도 이 정보로 그려집니다. <code>app.routes</code>를 직접 읽는 대신 <code>app.openapi()["paths"]</code>를 보면, FastAPI 내부에서 라우터를 감싸는 방식이 버전마다 바뀌어도 "실제로 클라이언트가 호출할 수 있는 경로 목록"을 안정적으로 얻을 수 있습니다 — 이 SCH의 I-1 이슈(아래 4절)가 바로 이 차이 때문에 생겼습니다.</p>
+</section>
+
+<section id="what-why">
+  <h2>3. 무엇을, 왜 이렇게 만들었나</h2>
+  <table>
+    <tr><th>파일</th><th>구분</th><th>무엇을 왜</th></tr>
+    <tr><td><code>backend/app/schemas/__init__.py</code></td><td>신규</td><td>패키지 docstring만. 하위 모듈을 import하지 않는다 — 모델과 달리 <code>Base.metadata</code> 같은 등록 이유가 없다.</td></tr>
+    <tr><td><code>backend/app/schemas/cancellation.py</code></td><td>신규</td><td><code>RefundAccountIn</code>(+<code>to_domain()</code>)·<code>CancelRequest</code>(<code>model_validator</code>)·<code>CancelResponse</code>(+<code>from_outcome</code>)·<code>CancellationPreviewResponse</code>(+<code>from_preview</code>).</td></tr>
+    <tr><td><code>backend/app/schemas/academy.py</code></td><td>신규</td><td><code>RefundPolicyTier</code>(<code>StrictInt</code>, 1~720시간 / 0~10000bp)·<code>RefundPolicyUpdate</code>(내림차순·중복·개수 검증 + <code>to_jsonb()</code>)·<code>RefundPolicyResponse</code>.</td></tr>
+    <tr><td><code>backend/app/routers/__init__.py</code></td><td>신규</td><td>패키지 docstring만.</td></tr>
+    <tr><td><code>backend/app/routers/reservations.py</code></td><td>신규</td><td><code>POST /reservations/{id}/cancel</code>, <code>GET /reservations/{id}/cancellation-preview</code>. 예외 → HTTP 매핑(<code>exc.status_code</code> 그대로 + <code>ValueError</code> → 422).</td></tr>
+    <tr><td><code>backend/app/routers/admin_academies.py</code></td><td>신규</td><td><code>GET</code>·<code>PUT /admin/academies/{id}/refund-policy</code>.</td></tr>
+    <tr><td><code>backend/app/main.py</code></td><td>수정</td><td><code>include_router</code> 2줄 + CORS(5173·3000). 기존 <code>GET /health</code> 데코레이터는 손대지 않았다.</td></tr>
+    <tr><td><code>backend/app/services/cancellation.py</code></td><td>수정 (2줄 + 주석)</td><td><code>CancellationPreview</code> dataclass에 <code>payment_method: str | None</code> 추가 — 아래 표 참고.</td></tr>
+    <tr><td><code>backend/tests/test_schemas.py</code></td><td>신규</td><td>DB 없이 도는 검증 39건(스키마 경계 + 라우터 배선 + 예외 매핑 + CORS).</td></tr>
+  </table>
+
+  <h3>오케스트레이터가 지시한 요구사항 4건 — 반영 위치</h3>
+  <table>
+    <tr><th>지시</th><th>반영</th></tr>
+    <tr><td><code>calculate_refund</code>의 <code>ValueError</code> → 422</td><td><code>reservations.py</code>의 <code>_invalid_policy_error()</code>. preview·cancel 양쪽 모두에 걸었다. 원본 메시지는 <code>logger.warning</code>에만 남기고 응답에는 정형화된 문구만 보낸다 — 내부 값(예: <code>refund_rate_bp=99999</code>)이 회원 화면에 노출되지 않게.</td></tr>
+    <tr><td><code>preview_cancellation()</code>을 그대로 사용</td><td><code>GET /cancellation-preview</code>는 이 함수 하나만 부른다. 조회 로직을 새로 쓰지 않았다. <code>cancellable=False</code>도 <b>200으로</b> 돌려준다 — 4xx면 클라이언트가 사유를 파싱하는 대신 "조회 실패"만 띄우게 된다.</td></tr>
+    <tr><td><code>UnsupportedRefundMethodError</code> → HTTP 매핑만</td><td>예외 타입별 <code>if/elif</code> 사다리를 만들지 않았다. <code>_http_error()</code> 한 줄이 전부다(위 "예외 → HTTP 매핑 패턴" 참고).</td></tr>
+    <tr><td>mobile이 요구한 <code>payment_method</code> + <code>paid_amount</code></td><td><code>CancellationPreviewResponse</code>에 둘 다 포함. <code>paid_amount</code>는 서비스에 이미 있었지만 <code>payment_method</code>는 없어서, <code>app/services/cancellation.py</code>의 <code>CancellationPreview</code> dataclass에 정확히 2줄(+주석)을 추가했다 — 대안(라우터가 <code>Payment</code>를 직접 조회)은 "가장 최근 입금 건" 규칙이 라우터에 복제될 위험이 있어 택하지 않았다.</td></tr>
+  </table>
+
+  <h3>계획에서 벗어난 판단 (근거 포함)</h3>
+  <table>
+    <tr><th>항목</th><th>계획</th><th>실제</th><th>이유</th></tr>
+    <tr><td>preview 응답 클래스명</td><td><code>CancellationPreview</code></td><td><code>CancellationPreviewResponse</code></td><td>서비스 dataclass와 이름이 겹친다. JSON 필드명은 계약 그대로라 클라이언트 영향은 없다.</td></tr>
+    <tr><td><code>CancelRequest.method</code></td><td>명시 없음</td><td>선택값</td><td>필수로 하면 mobile(<code>{refund_account}</code>만 전송)이 즉시 깨진다. 결제수단의 권위는 <code>payments.method</code>이고 클라이언트 값은 참고 정보다.</td></tr>
+    <tr><td>CORS 출처</td><td><code>localhost:5173</code></td><td>5173 + <b>3000</b></td><td>admin-web이 Next.js로 옮겨졌다. 와일드카드는 쓰지 않았다 — <code>X-User-Id</code> 하나로 신원을 주장하는 상태(F7)에서 <code>*</code>는 임시 인증의 구멍을 브라우저로 그대로 연다.</td></tr>
+    <tr><td>취소 사유(<code>reason</code>) 입력</td><td>언급 없음</td><td>받지 않음</td><td>값 집합이 <code>member_request</code> 하나뿐이다. 받아도 신뢰할 수 없는 입력이 하나 느는 것뿐이다.</td></tr>
+    <tr><td>PG 실패 시 응답 코드</td><td>명시 없음</td><td>200 + <code>status="failed"</code></td><td>비-2xx면 실패 사유가 담긴 본문이 클라이언트 에러 처리로 빨려 들어가 회원에게 이유를 못 보여준다.</td></tr>
+    <tr><td>에러 본문 형태</td><td>명시 없음</td><td><code>{"detail": "&lt;문장&gt;"}</code></td><td>admin-web의 <code>extractMessage()</code>가 문자열 <code>detail</code>과 pydantic의 <code>[{msg}]</code>만 해석한다. dict로 주면 admin-web이 메시지를 못 뽑는다.</td></tr>
+  </table>
+</section>
+
+<section id="issues">
+  <h2>4. 이슈 → 원인 파악 → 해결</h2>
+  <p>SCH-06 작업 중 실제로 발견된 사항입니다. <code>_workspace/05_implementer_TS-06_summary.md</code>의 §4(구현 중 발견한 이슈)를 그대로 옮깁니다 — 지어내지 않습니다.</p>
+
+  <h3>4.1 완료 기준의 검증 명령이 이 FastAPI 버전에서 깨진다 (I-1)</h3>
+  <p><b>현상:</b> 계획이 지정한 <code>uv run python -c "from app.main import app; print([r.path for r in app.routes])"</code>는 <code>AttributeError</code>로 죽는다.<br>
+  <b>원인 파악:</b> FastAPI 0.141.1은 <code>include_router</code>로 붙인 라우터를 <code>_IncludedRouter</code>라는 래퍼로 <code>app.routes</code>에 넣는데, 이 객체에는 <code>.path</code>가 없다. 계획 작성 시점의 구버전 동작을 전제한 명령이었다.<br>
+  <b>해결:</b> 대신 <code>app.openapi()["paths"]</code>를 본다 — 위 "사전 개념" 절의 OpenAPI 스키마 설명 참고. 결과: <code>['/admin/academies/{academy_id}/refund-policy', '/health', '/reservations/{reservation_id}/cancel', '/reservations/{reservation_id}/cancellation-preview']</code>. <code>test_all_routes_are_mounted</code>도 같은 이유로 이 방식을 쓴다.</p>
+
+  <h3>4.2 admin 경로에 인증도 권한 검사도 없다 (I-2)</h3>
+  <div class="callout warn">
+    <div class="callout-label">경고 — 배포 전 반드시 고쳐야 하는 진짜 위험</div>
+    <p><b>현상:</b> <code>GET</code>·<code>PUT /admin/academies/{id}/refund-policy</code>는 <b>학원 ID만 알면 누구나 그 학원의 환불 비율표를 바꿀 수 있다.</b> 비율표를 0%로 바꿔 두면 이후 모든 취소가 무환불이 되므로, 영향은 "설정이 틀렸다"가 아니라 <b>회원 돈이 걸린 사고</b>다.</p>
+    <p><b>원인 파악:</b> 이번 슬라이스에 "이 사람이 이 학원의 관리자인가"를 판정할 모델 자체가 없다(인증·회원·권한 체계 부재). 예약 취소 쪽은 <code>X-User-Id</code> 헤더라는 임시 인증(F7)이라도 있지만, admin 쪽은 그 헤더를 요구해도 아무 UUID나 넣으면 통과하므로 검증 흉내만 내는 셈이다.</p>
+    <p><b>해결(이번 SCH 범위):</b> <code>X-User-Id</code>를 요구하지 <b>않기로</b> 했다 — <b>있는 척하는 검사보다 없는 게 낫다</b>고 판단했다. 대신 <code>admin_academies.py</code> 모듈 docstring 최상단에 경고와 붙일 자리(<code>dependencies=[Depends(require_academy_admin)]</code>)를 명시해 두었다.</p>
+    <p><b>지금 상태:</b> 이 경로는 <b>프로덕션에 노출하면 안 된다.</b> TS-08의 admin-web은 <code>userId</code>를 선택값으로 보내므로 지금 구성 그대로 동작은 하지만, 그건 "동작한다"이지 "안전하다"가 아니다.</p>
+  </div>
+
+  <h3>4.3 mobile이 <code>preview.cancellable</code> / <code>reason_code</code>를 보지 않는다 (I-3)</h3>
+  <p><b>현상:</b> <code>mobile/App.tsx</code>의 <code>CancellationPreview</code> 타입에 두 필드가 없고 <code>canSubmit</code>도 확인하지 않는다. 이미 시작한 수업에서도 취소 확정 버튼이 열리고, 눌러야 비로소 409를 받는다.<br>
+  <b>원인 파악:</b> preview API를 만든 이유의 절반은 "미리 버튼을 막아 회원이 헛수고하지 않게 하는 것"이었는데, mobile 쪽이 아직 그 값을 안 쓴다.<br>
+  <b>해결(범위 밖):</b> <b>서버는 올바르게 막는다</b>(금전 사고는 아니다) — 결국 409로 거부되므로 안전은 지켜진다. 다만 사용자 경험이 나쁘므로 mobile 쪽 3줄 수정을 권고했을 뿐, TS-06 범위 밖이라 손대지 않았다.</p>
+
+  <h3>4.4 <code>cancel</code> 경로의 <code>ValueError</code> 포괄 catch는 메시지가 약간 넓다 (I-4)</h3>
+  <p><b>현상:</b> <code>cancel_reservation()</code>을 감싼 <code>except ValueError</code>는 비율표 오류 외의 <code>ValueError</code>(예: DB에 들어간 알 수 없는 <code>refunds.status</code> 값을 <code>RefundStatus()</code>로 변환할 때 나는 것)도 같은 422로 접는다.<br>
+  <b>원인 파악:</b> 두 경우 모두 "데이터가 계약을 어겼다"는 같은 부류라 422 자체는 맞지만, 응답 문구는 항상 비율표를 가리키므로 다소 부정확하다.<br>
+  <b>해결(범위 밖으로 남김):</b> 원인은 항상 <code>logger.warning</code>에 남으므로 운영 추적은 된다. 더 좁히려면 서비스(SCH-05)가 전용 예외를 던지도록 그 파일을 바꿔야 하는데, 그건 이번 SCH의 실질적 변경 범위를 넘어서 하지 않았다.</p>
+
+  <h3>4.5 <code>RefundPolicyResponse</code> 생성 실패를 500이 아니라 422로 바꿨다 (I-5)</h3>
+  <p><b>현상:</b> 이 API가 생기기 전에 들어갔거나 SQL로 직접 넣은 값이 응답 스키마를 위반할 수 있다.<br>
+  <b>원인 파악:</b> <code>GET</code>이 그대로 500을 내면 관리자는 "화면이 고장났다"만 보고 고칠 방법을 찾지 못한다.<br>
+  <b>해결:</b> 422 + "다시 저장하면 복구됩니다"로 바꿨다. <code>PUT</code>은 조회 결과에 의존하지 않으므로 실제로 그 방법으로 복구된다.</p>
+
+  <div class="callout good">
+    <div class="callout-label">정리</div>
+    I-1은 계획과 실제 FastAPI 버전의 불일치, I-2는 이번 슬라이스의 구조적 공백(인증 모델 부재)이 만든 배포 차단 사유, I-3은 다음 계층(mobile)의 미흡한 활용, I-4·I-5는 이번 SCH가 스스로 내린 절충(범위를 넘는 수정 대신 로그·문구로 완화)입니다.
+  </div>
+</section>
+
+<section id="tests">
+  <h2>5. 테스트로 확인한 것</h2>
+  <table>
+    <tr><th>실행한 명령</th><th>결과</th><th>이게 실제로 증명하는 것</th></tr>
+    <tr>
+      <td><code>uv run pytest tests/test_schemas.py -v</code></td>
+      <td>39 passed</td>
+      <td>가상계좌 환불에 계좌가 없으면 422가 나는 것, 오타 필드가 조용히 무시되지 않는 것, 망가진 환불 비율표(범위 밖·정렬 위반·중복·bool/문자열/소수 값)가 전부 저장 경로에서 거부되는 것, 신규 경로 4개 + 기존 <code>/health</code>가 실제로 앱에 등록된 것, CORS가 admin-web 출처만 허용하고 와일드카드가 아닌 것, 도메인 예외의 <code>status_code</code>가 그대로 HTTP 상태가 되는 것, <code>calculate_refund</code>의 <code>ValueError</code>가 500이 아니라 422로 바뀌는 것 — 이 전부가 <b>DB 없이</b> 검증된다.</td>
+    </tr>
+    <tr>
+      <td><code>cd backend && uv run pytest</code> (백엔드 전체)</td>
+      <td>159 passed (기존 120 + 신규 39)</td>
+      <td>이 SCH가 추가한 코드가 SCH-01~05가 이미 통과시켜 놓은 120개 테스트를 하나도 깨뜨리지 않았다는 것. error 0, skip 0.</td>
+    </tr>
+  </table>
+  <div class="callout warn">
+    <div class="callout-label">이 테스트가 증명하지 못하는 것</div>
+    39개 테스트는 전부 <b>실제 PostgreSQL에 접속하지 않는다.</b> 라우터가 DB 세션을 받아 실제 취소 트랜잭션을 끝까지 실행하는 것, 인증 헤더가 실제 회원 데이터와 맞물리는 것, admin API로 저장한 값이 실제 취소 계산에 반영되는 것은 <b>전혀 확인되지 않았다.</b> 이 환경에서는 <code>localhost:5433</code> 연결이 거부되어(WSL에 docker CLI 없음) 실제 DB를 붙인 검증 자체를 할 수 없었다. 이 부분은 <b>SCH-07(conftest + DB 통합 테스트 작성)</b>이 테스트를 쓰고 <b>SCH-12(DB 통합 테스트 실행)</b>가 실행해야 비로소 실증된다.
+  </div>
+</section>
+
+<section id="relations">
+  <h2>6. 다른 SCH와의 연관관계</h2>
+  <p>SCH-06은 <b>SCH-05가 확정한 결과값이 처음으로 HTTP 응답이 되는 지점</b>입니다. 새 판단을 만들지 않고, 이미 정해진 값(상태 코드·필드)을 옮기기만 합니다.</p>
+  <div class="flow">
+    <div class="step dim"><b><a href="SCH-01.html" style="color:inherit;text-decoration:none">SCH-01</a></b>기반 배선<br><span class="badge done">완료</span></div>
+    <div class="arrow">→</div>
+    <div class="step dim"><b><a href="SCH-02.html" style="color:inherit;text-decoration:none">SCH-02</a></b>도메인 모델 7개<br><span class="badge done">완료</span></div>
+    <div class="arrow">→</div>
+    <div class="step dim"><b><a href="SCH-03.html" style="color:inherit;text-decoration:none">SCH-03</a></b>환불액 산정 함수<br><span class="badge done">완료</span></div>
+    <div class="arrow">→</div>
+    <div class="step dim"><b><a href="SCH-04.html" style="color:inherit;text-decoration:none">SCH-04</a></b>어댑터 3종<br><span class="badge done">완료</span></div>
+  </div>
+  <div class="flow">
+    <div class="step dim"><b><a href="SCH-05.html" style="color:inherit;text-decoration:none">SCH-05</a></b>취소 오케스트레이션 서비스<br><span class="badge done">완료</span></div>
+    <div class="arrow">→</div>
+    <div class="step here"><b>SCH-06</b>Pydantic 스키마 + 라우터 + main.py (이 문서)<br><span class="badge done">완료</span></div>
+    <div class="arrow">→</div>
+    <div class="step dim"><b>SCH-07</b>conftest + DB 통합 테스트 작성</div>
+  </div>
+  <table>
+    <tr><th>관계</th><th>왜 이 순서/구조인가</th></tr>
+    <tr><td>SCH-05(취소 오케스트레이션 서비스 + deps.py) → SCH-06</td><td>SCH-05가 이미 확정한 <code>CancellationOutcome</code>/<code>CancellationPreview</code>/<code>CancellationError.status_code</code>를 이 SCH가 그대로 HTTP 응답·예외로 옮기기만 한다. 새 판정이 필요했다면(예: <code>payment_method</code> 필드) SCH-05 파일에 최소 변경만 요청했다(3절 참고).</td></tr>
+    <tr><td>SCH-03(환불액 산정) → SCH-06</td><td><code>calculate_refund</code>의 <code>ValueError</code>를 어떻게 HTTP로 바꿀지가 이 SCH의 몫이다(I-1과는 다른, TS-03이 미리 경고해 둔 사항) — 라우터가 422로 접고 원인은 로그로 돌린다.</td></tr>
+    <tr><td>SCH-06 → SCH-07(conftest + DB 통합 테스트 작성) / SCH-12(DB 통합 테스트 실행)</td><td>5절의 "미검증" 항목(실제 DB를 붙인 취소 정상 경로·403·409·admin 저장 반영)을 실제로 증명하는 것은 이 두 SCH의 몫이다.</td></tr>
+  </table>
+</section>
+
+<section id="handoff">
+  <h2>7. 다음 SCH로 이어지는 것</h2>
+  <p>SCH-06이 SCH-07(conftest + DB 통합 테스트 작성, 아직 가이드 없음)과 그 이후 단계에 남긴 인터페이스·주의사항입니다. <code>_workspace/05_implementer_TS-06_summary.md</code> §6(미해결/인계)을 그대로 옮깁니다.</p>
+  <ul>
+    <li><b>1. 실DB 통합 미검증.</b> <code>localhost:5433</code> 연결 거부(이 환경에 docker CLI 없음)로, 취소 정상 경로·403·409·멱등 재생은 <b>코드상으로만</b> 맞춰져 있다. SCH-07이 테스트를 작성하고 SCH-12가 실행해야 한다. 특히 <code>routers/reservations.py</code>의 예외 매핑과 <code>schemas/academy.py</code>의 JSONB 문지기 역할이 DB 없이 검증 가능했던 지점이자, 실 DB로도 반드시 재확인해야 할 지점이다.</li>
+    <li><b>2. (후속 권고, I-2) admin 인증 — 배포 전 필수.</b> <code>dependencies=[Depends(require_academy_admin)]</code>를 붙일 자리는 마련해 두었지만, 그 의존성 자체(인증·회원·권한 모델)는 아직 없다. 이 API를 외부에 노출하기 전에 반드시 채워야 한다.</li>
+    <li><b>3. (후속 권고, I-3) mobile이 <code>cancellable</code>/<code>reason_code</code>를 무시한다.</b> <code>mobile/App.tsx</code>의 <code>CancellationPreview</code> 타입에 두 필드를 추가하고 취소 버튼을 <code>canSubmit</code> 기준으로 막는 3줄 수정이 필요하다.</li>
+    <li><b>4. (후속 권고, I-4) 에러 문구 정밀화.</b> <code>cancel</code> 경로의 <code>except ValueError</code>가 비율표 오류 외의 데이터 오류까지 같은 문구로 접는다. 서비스(SCH-05)가 전용 예외를 던지도록 바뀌면 이 라우터도 그때 함께 좁힐 수 있다.</li>
+    <li><b>5. Phase 7(자체 오류 수정) 불필요했다.</b> 빌드/문법 오류 0, 전체 테스트 초록 — TS-06 자체 수정으로 해소해야 할 항목은 남지 않았다.</li>
+  </ul>
+</section>
+
+<footer>
+  작성 기준: <code>_workspace/05_implementer_TS-06_summary.md</code>, <code>backend/app/schemas/</code>·<code>backend/app/routers/</code>·<code>backend/app/main.py</code>·<code>backend/app/services/cancellation.py</code>·<code>backend/tests/test_schemas.py</code>의 학습 주석, <code>_workspace/kdance.html</code> · kdance 프로젝트 내부 문서 · 2026-09-15 작성.
+</footer>
+
+</div>
+</body>
+</html>

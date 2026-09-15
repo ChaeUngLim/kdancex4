@@ -19,3 +19,10 @@ dist/
 
 # Subagent-driven-development scratch workspace
 .superpowers/
+
+# kdance-dev-harness scratch workspace (intermediate phase artifacts — req/plan/task/summary docs)
+# 단, SCH 스케줄표(kdance.html)와 왕초보 완벽분석가이드(guides/)는 학습 자료로 저장소에 포함한다
+_workspace/00_input/
+_workspace/0[1-9]_*.md
+_workspace_*/
+_workspace/mobydick-v2-schedule.html
