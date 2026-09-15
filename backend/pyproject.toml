@@ -11,7 +11,9 @@ dependencies = [
     "alembic>=1.20.0",
     "fastapi>=0.141.1",
     "psycopg[binary]>=3.3.5",
+    "pydantic-settings>=2.7.0",
     "python-dotenv>=1.2.3",
+    "redis>=5.2.0",
     "sqlalchemy>=2",
 ]
 
@@ -19,4 +21,11 @@ dependencies = [
 dev = [
     "httpx>=0.28.1",
     "pytest>=9.1.1",
+    "uvicorn>=0.34.0",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = [
+    "requires_db: DB 연결이 필요한 테스트",
 ]

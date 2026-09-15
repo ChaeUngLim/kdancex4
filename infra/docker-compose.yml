@@ -4,9 +4,9 @@ services:
     container_name: kdance-db
     restart: unless-stopped
     environment:
-      POSTGRES_USER: kdance
-      POSTGRES_PASSWORD: kdance
-      POSTGRES_DB: kdance
+      POSTGRES_USER: brad
+      POSTGRES_PASSWORD: 2131
+      POSTGRES_DB: kdance_DB
     ports:
       - "5433:5432"
     volumes:
