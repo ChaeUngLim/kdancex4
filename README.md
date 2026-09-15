@@ -1,6 +1,6 @@
 # kdance (K-DanceX3 / k-dancex4)
 
-댄스 스튜디오 예약·멤버십 앱. FastAPI + SQLAlchemy2(backend) · Next.js(admin-web) · Expo(mobile).
+K-Social Dance 수업·행사·파티 멀티 에이전트 검색·예약·결제 시스템. FastAPI + SQLAlchemy2(backend) · Next.js(admin-web) · Expo(mobile).
 
 ## 이 저장소를 처음 보신다면 (학습 진입점)
 
