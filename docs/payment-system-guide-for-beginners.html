@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>kdance 결제시스템 완벽분석가이드 (왕초보용)</title>
+<style>
+  :root {
+    --bg: #0f1115;
+    --card: #161a21;
+    --card-border: #262b35;
+    --text: #e8eaed;
+    --text-dim: #9aa4b2;
+    --accent-a: #4fc3f7;
+    --accent-b: #ffb74d;
+    --accent-good: #81c784;
+    --accent-warn: #e57373;
+    --code-bg: #0b0d11;
+  }
+  * { box-sizing: border-box; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+    line-height: 1.7;
+    margin: 0;
+    padding: 0 16px 80px;
+  }
+  .wrap { max-width: 880px; margin: 0 auto; }
+  header.hero {
+    padding: 48px 0 24px;
+    border-bottom: 1px solid var(--card-border);
+    margin-bottom: 32px;
+  }
+  header.hero h1 { font-size: 1.9rem; margin: 0 0 8px; }
+  header.hero p.sub { color: var(--text-dim); font-size: 1.05rem; margin: 0; }
+  nav.toc {
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin-bottom: 40px;
+  }
+  nav.toc h2 { font-size: 1rem; color: var(--text-dim); margin: 0 0 12px; text-transform: uppercase; letter-spacing: .04em; }
+  nav.toc ol { margin: 0; padding-left: 20px; columns: 2; column-gap: 24px; }
+  nav.toc li { margin-bottom: 6px; break-inside: avoid; }
+  nav.toc a { color: var(--accent-a); text-decoration: none; }
+  nav.toc a:hover { text-decoration: underline; }
+  section { margin-bottom: 56px; scroll-margin-top: 20px; }
+  h2 {
+    font-size: 1.5rem;
+    border-left: 4px solid var(--accent-a);
+    padding-left: 14px;
+    margin: 0 0 20px;
+  }
+  h3 { font-size: 1.15rem; color: var(--accent-a); margin: 28px 0 10px; }
+  p { margin: 0 0 14px; }
+  .callout {
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-left: 4px solid var(--accent-a);
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin: 20px 0;
+  }
+  .callout.warn { border-left-color: var(--accent-warn); }
+  .callout.good { border-left-color: var(--accent-good); }
+  .callout-label { font-weight: 700; font-size: .85rem; text-transform: uppercase; letter-spacing: .04em; color: var(--text-dim); margin-bottom: 6px; }
+  table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: .95rem; }
+  th, td { border: 1px solid var(--card-border); padding: 10px 14px; text-align: left; vertical-align: top; }
+  th { background: var(--card); color: var(--accent-a); }
+  tr:nth-child(even) td { background: rgba(255,255,255,0.02); }
+  code {
+    background: var(--code-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 4px;
+    padding: 2px 6px;
+    font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    font-size: .9em;
+  }
+  pre {
+    background: var(--code-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 8px;
+    padding: 16px 18px;
+    overflow-x: auto;
+    margin: 16px 0;
+  }
+  pre code { border: none; padding: 0; background: none; }
+  .flow {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+    margin: 24px 0;
+    font-size: .92rem;
+  }
+  .flow .step {
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: 8px;
+    padding: 12px 16px;
+    flex: 1 1 140px;
+    min-width: 140px;
+  }
+  .flow .step b { display: block; color: var(--accent-a); margin-bottom: 4px; }
+  .flow .arrow { color: var(--text-dim); font-size: 1.2rem; }
+  .badge {
+    display: inline-block;
+    font-size: .75rem;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 999px;
+    margin-right: 6px;
+  }
+  .badge.a { background: rgba(79,195,247,.15); color: var(--accent-a); }
+  .badge.b { background: rgba(255,183,77,.15); color: var(--accent-b); }
+  details {
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: 8px;
+    padding: 12px 18px;
+    margin: 10px 0;
+  }
+  details summary { cursor: pointer; font-weight: 600; color: var(--accent-a); }
+  details[open] summary { margin-bottom: 10px; }
+  .glossary dt { font-weight: 700; color: var(--accent-a); margin-top: 16px; }
+  .glossary dd { margin: 4px 0 0; color: var(--text); }
+  footer {
+    border-top: 1px solid var(--card-border);
+    margin-top: 60px;
+    padding-top: 24px;
+    color: var(--text-dim);
+    font-size: .9rem;
+  }
+  footer a { color: var(--accent-a); }
+  .doclink-list { display: flex; flex-direction: column; gap: 8px; }
+  .doclink-list a { color: var(--text); text-decoration: none; }
+  .doclink-list a:hover { color: var(--accent-a); }
+  .doclink-list .path { color: var(--text-dim); font-size: .85rem; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="hero">
+  <h1>💳 kdance 결제시스템 완벽분석가이드</h1>
+  <p class="sub">코딩을 몰라도 이해할 수 있게 쓴 왕초보용 가이드 — "왜 이렇게 설계했는지"부터 설명합니다.</p>
+</header>
+
+<nav class="toc">
+  <h2>목차</h2>
+  <ol>
+    <li><a href="#big-picture">1. 큰 그림 — 우리 앱은 결제를 어떻게 처리하나</a></li>
+    <li><a href="#glossary">2. 시작 전에 — 꼭 알아야 할 용어 5개</a></li>
+    <li><a href="#routing">3. 방식 A vs 방식 B — 왜 2가지로 나눴나</a></li>
+    <li><a href="#way-a">4. 방식 A 완전분석 — 딥링크 송금</a></li>
+    <li><a href="#way-b">5. 방식 B 완전분석 — 포트원 PG</a></li>
+    <li><a href="#subscription">6. 월 구독 결제 — 카드 정기결제</a></li>
+    <li><a href="#refund">7. 예약 취소·환불은 어떻게 되나</a></li>
+    <li><a href="#risks">8. 솔직히 말하는 리스크·미해결 사항</a></li>
+    <li><a href="#faq">9. 자주 묻는 질문</a></li>
+    <li><a href="#docs">10. 더 자세히 알고 싶다면 — 관련 문서</a></li>
+  </ol>
+</nav>
+
+<section id="big-picture">
+  <h2>1. 큰 그림 — 우리 앱은 결제를 어떻게 처리하나</h2>
+  <p>kdance는 <b>돈이 오가는 방식을 상품 가격에 따라 2갈래로 나눕니다.</b> 비싸고 중요한 결제는 안전하고 검증된 방식(PG사)으로, 싸고 가끔 발생하는 결제는 개발자가 직접 구현하기 쉬운 방식(딥링크)으로 처리합니다. 이렇게 하면 개발 초기 비용은 줄이면서도, 큰돈이 걸린 결제는 신뢰도를 지킬 수 있습니다.</p>
+
+  <div class="flow">
+    <div class="step"><b>① 사용자</b>수업을 예약하거나 신청</div>
+    <div class="arrow">→</div>
+    <div class="step"><b>② 시스템</b>가격을 보고 방식 A/B 중 선택</div>
+    <div class="arrow">→</div>
+    <div class="step"><b>③ 결제</b>딥링크 또는 PG 결제창</div>
+    <div class="arrow">→</div>
+    <div class="step"><b>④ 확인</b>입금/결제 완료 감지</div>
+    <div class="arrow">→</div>
+    <div class="step"><b>⑤ 확정</b>예약 확정 + 알림 발송</div>
+  </div>
+
+  <div class="callout good">
+    <div class="callout-label">한 줄 요약</div>
+    "돈을 받는 방법"과 "받았는지 확인하는 방법"은 서로 다른 문제입니다. 이 가이드는 이 둘을 계속 구분해서 설명합니다 — 처음 배울 때 가장 헷갈리는 부분이라서요.
+  </div>
+</section>
+
+<section id="glossary">
+  <h2>2. 시작 전에 — 꼭 알아야 할 용어 5개</h2>
+  <dl class="glossary">
+    <dt>PG (Payment Gateway, 결제대행사)</dt>
+    <dd>온라인 결제를 대신 처리해주는 회사(예: 포트원, 토스페이먼츠). 카드사·은행과 직접 계약하지 않아도, PG사 하나와만 계약하면 다양한 결제수단을 받을 수 있게 해줍니다. 대신 결제 금액의 일부를 수수료로 가져갑니다.</dd>
+
+    <dt>가상계좌</dt>
+    <dd>주문 1건마다 PG사가 임시로 발급해주는 1회용 계좌번호. 사용자가 그 계좌로 돈을 보내면 PG사가 "입금됐다"고 우리 시스템에 알려줍니다. 카드보다 수수료가 훨씬 저렴하지만, 사용자가 직접 계좌번호를 복사해서 이체해야 하는 번거로움이 있습니다.</dd>
+
+    <dt>딥링크(Deep Link)</dt>
+    <dd>클릭하면 특정 앱의 특정 화면을 바로 열어주는 특수한 링크. 예를 들어 <code>supertoss://send?...</code>를 누르면 토스 앱이 실행되면서 "송금하기" 화면이 계좌번호·금액까지 미리 채워진 채로 열립니다. 웹페이지 링크(<code>https://...</code>)와 달리 스마트폰에 설치된 앱을 직접 실행합니다.</dd>
+
+    <dt>웹훅(Webhook)</dt>
+    <dd>"어떤 일이 일어나면 자동으로 알려주는 전화" 같은 것입니다. PG사가 "결제가 완료됐어요"라는 신호를 우리 서버로 즉시 보내주는 방식이 웹훅입니다. 반대로 우리가 "결제됐나요?"라고 계속 물어봐야 하는 방식은 <b>폴링(Polling)</b>이라고 합니다.</dd>
+
+    <dt>오픈뱅킹 API</dt>
+    <dd>은행 계좌의 입출금 내역을 조회할 수 있게 해주는 서비스(예: 팝빌). PG사를 거치지 않고 "이 계좌에 얼마가 들어왔는지"를 직접 확인할 때 씁니다. 방식 A(딥링크)는 웹훅이 없기 때문에 이 오픈뱅킹 API로 입금 여부를 <b>직접 조회(폴링)</b>해야 합니다.</dd>
+  </dl>
+</section>
+
+<section id="routing">
+  <h2>3. 방식 A vs 방식 B — 왜 2가지로 나눴나</h2>
+  <p>한 가지 결제 방식만 쓰면 개발은 단순해지지만, 그러면 손해를 봅니다. <b>딥링크</b>는 거의 공짜지만 결제 확인이 번거롭고, <b>PG 결제</b>는 확인이 간편하지만 결제마다 수수료가 나갑니다. 그래서 1인 개발 초기 단계에 맞게 <b>금액 기준으로 갈라서 각자의 장점만 취하기로</b> 했습니다.</p>
+
+  <table>
+    <tr>
+      <th>구분</th>
+      <th><span class="badge a">방식 A</span>딥링크 송금</th>
+      <th><span class="badge b">방식 B</span>포트원 PG</th>
+    </tr>
+    <tr>
+      <td>적용 대상</td>
+      <td>체험형·원데이 클래스, 이벤트·파티·대회 등<br><b>1~9만원 이하</b> · 간헐적 비용</td>
+      <td><b>일반 수강</b> 및 <b>10만원 이상</b> 수업</td>
+    </tr>
+    <tr>
+      <td>결제 수수료</td>
+      <td>거의 0원 (대신 알림 발송·조회 API 건당 비용)</td>
+      <td>약 1.5% 내외 또는 건당 약 150원</td>
+    </tr>
+    <tr>
+      <td>결제 완료 확인</td>
+      <td>직접 주기적으로 조회(폴링) — 느리고 손이 감</td>
+      <td>PG사가 자동으로 알려줌(웹훅) — 빠르고 신뢰도 높음</td>
+    </tr>
+    <tr>
+      <td>개발 난이도</td>
+      <td>낮음 (PG 계약 불필요, 2~3시간이면 뼈대 완성)</td>
+      <td>높음 (PG 가입·심사·연동 테스트 필요)</td>
+    </tr>
+    <tr>
+      <td>왜 이 가격 기준?</td>
+      <td>금액이 작을수록 "확인이 좀 느려도 되는" 리스크가 작음</td>
+      <td>금액이 클수록 "확실하게 확인해야 하는" 필요성이 큼</td>
+    </tr>
+  </table>
+
+  <div class="callout warn">
+    <div class="callout-label">솔직한 트레이드오프</div>
+    방식 A는 "돈은 아끼지만 확인은 불완전한" 방식입니다. 입금자명이 다르거나, 금액을 잘못 보내거나, 확인 전에 사용자가 문의하는 등 예외 상황을 개발자가 직접 챙겨야 합니다. 그래서 상대적으로 금액이 작고 발생 빈도가 낮은 상품에만 쓰기로 했습니다 — 만에 하나 문제가 생겨도 피해 규모가 작기 때문입니다.
+  </div>
+</section>
+
+<section id="way-a">
+  <h2>4. 방식 A 완전분석 — 딥링크 송금</h2>
+  <p>사용자 입장에서는 버튼 하나만 누르면 되는 가장 쉬운 결제입니다. 개발자 입장에서 복잡한 건 "그 버튼 뒤에서" 벌어지는 일입니다.</p>
+
+  <h3>사용자가 보는 화면 (4단계)</h3>
+  <div class="flow">
+    <div class="step"><b>1. 예약</b>앱에서 "예약하기" 클릭</div>
+    <div class="arrow">→</div>
+    <div class="step"><b>2. 알림 수신</b>카카오톡으로 결제 링크 도착</div>
+    <div class="arrow">→</div>
+    <div class="step"><b>3. 앱 실행</b>토스/카카오페이 송금 화면이 자동으로 열림 (계좌·금액 이미 입력됨)</div>
+    <div class="arrow">→</div>
+    <div class="step"><b>4. 인증</b>지문/FaceID만 찍으면 끝</div>
+  </div>
+
+  <h3>뒤에서 벌어지는 일 (개발자가 만드는 부분)</h3>
+  <table>
+    <tr><th>단계</th><th>무슨 일이 일어나나</th><th>왜 필요한가</th></tr>
+    <tr>
+      <td>딥링크 생성</td>
+      <td>주문 정보(계좌, 금액)를 <code>supertoss://send?...</code> 같은 특수 링크 문자열로 조립</td>
+      <td>이 링크가 있어야 토스 앱을 원하는 화면으로 바로 열 수 있음</td>
+    </tr>
+    <tr>
+      <td>중간 다리(브릿지) 페이지</td>
+      <td>딥링크를 카카오톡 버튼에 바로 넣지 않고, 우리 서버의 웹페이지를 하나 거쳐서 연결</td>
+      <td>카카오 심사 규정상 커스텀 링크(<code>supertoss://</code>)를 버튼에 직접 못 넣는 경우가 있어서, 일반 웹주소로 한 번 감싸줌</td>
+    </tr>
+    <tr>
+      <td>알림톡 발송</td>
+      <td>카카오톡 "알림톡"이라는 정식 채널로 메시지+버튼 전송 (SOLAPI 같은 중개 서비스 이용)</td>
+      <td>문자(SMS)보다 저렴하고, 카카오톡 안에서 자연스럽게 버튼이 보임</td>
+    </tr>
+    <tr>
+      <td>입금 확인 (폴링)</td>
+      <td>1~5분마다 "그 계좌에 그 금액이 들어왔는지" 자동으로 확인</td>
+      <td>토스 송금은 우리 시스템에 자동으로 알려주지 않기 때문에, 직접 확인하는 수밖에 없음</td>
+    </tr>
+    <tr>
+      <td>예약 확정</td>
+      <td>입금이 확인되면 예약 상태를 "결제완료"로 바꾸고 자리를 확정</td>
+      <td>입금 전까지는 자리를 다른 사람이 예약할 수 있어야 하므로, 확인 전후를 명확히 구분</td>
+    </tr>
+  </table>
+
+  <details>
+    <summary>더 깊이: 실제 딥링크는 어떻게 생겼나 (개발자용)</summary>
+    <pre><code>supertoss://send?bank=기업은행&accountNo=1234567890&amount=100000&msg=주문번호102</code></pre>
+    <p>토스, 카카오페이, 네이버페이 각각 스킴(앞부분 주소 형식)이 다릅니다. 실제 파이썬 코드 예시는 <code>docs/payment-deeplink-reference.md</code> 문서에 정리돼 있습니다.</p>
+  </details>
+</section>
+
+<section id="way-b">
+  <h2>5. 방식 B 완전분석 — 포트원 PG</h2>
+  <p>일반 수강료나 10만원 이상 결제처럼 <b>실수가 용납되기 어려운 금액</b>은, 검증된 결제대행사(포트원)를 통해 처리합니다.</p>
+
+  <div class="flow">
+    <div class="step"><b>1. 결제 요청</b>포트원 API로 결제 URL 생성</div>
+    <div class="arrow">→</div>
+    <div class="step"><b>2. 결제 진행</b>사용자가 PG 결제창에서 계좌이체 진행</div>
+    <div class="arrow">→</div>
+    <div class="step"><b>3. 웹훅 수신</b>결제 완료 즉시 포트원이 우리 서버에 자동 통보</div>
+    <div class="arrow">→</div>
+    <div class="step"><b>4. 예약 확정</b>웹훅 받는 즉시 바로 확정 (폴링 불필요)</div>
+  </div>
+
+  <div class="callout good">
+    <div class="callout-label">방식 A와 가장 다른 점</div>
+    방식 A는 "확인했나 안 했나 계속 물어봐야" 하지만(폴링), 방식 B는 "결제되면 PG사가 먼저 전화를 걸어줍니다"(웹훅). 그만큼 신뢰도와 처리 속도가 좋아지는 대신, PG사에 수수료를 지불합니다.
+  </div>
+
+  <p>단점은 가입 절차입니다. PG사와 계약하려면 사업자 심사, API 키 발급, 테스트 계정 세팅 등을 거쳐야 하고, 결제 성공/실패 판정 로직도 보안(서명 검증)까지 챙겨야 합니다. 그래서 "이 정도 수고를 들일 가치가 있는" 고가·정기 상품에만 적용합니다.</p>
+</section>
+
+<section id="subscription">
+  <h2>6. 월 구독 결제 — 카드 정기결제</h2>
+  <p>매달 자동으로 결제되는 구독 상품은 위 방식 A/B와는 또 다른 이야기입니다. 자동 청구(빌링)가 가능한 유일한 수단이 <b>카드</b>이기 때문에, 구독은 항상 카드 정기결제로 처리합니다. 계좌이체(딥링크)나 가상계좌는 "매달 자동으로" 빠져나가게 만들 수 없어서 구독에는 쓸 수 없습니다.</p>
+</section>
+
+<section id="refund">
+  <h2>7. 예약 취소·환불은 어떻게 되나</h2>
+  <p>이 부분은 <b>현재 진행 중인 작업</b>입니다(kdance-dev-harness로 계획 수립 완료, 실제 코드 작성은 아직). 확정된 내용만 요약합니다.</p>
+  <table>
+    <tr><th>상황</th><th>환불 규칙</th></tr>
+    <tr><td>수업 시작 24시간 <b>초과</b> 전 취소</td><td>전액 환불 (플랫폼 고정 규칙)</td></tr>
+    <tr><td>수업 시작 24시간 <b>이내</b> 취소</td><td>학원마다 직접 설정한 환불 비율표를 따름</td></tr>
+    <tr><td>환불 승인</td><td>사람이 승인하지 않고 <b>시스템이 자동으로 즉시 처리</b></td></tr>
+    <tr><td>가상계좌로 결제한 건의 환불</td><td>원래 계좌로 자동 취소가 안 돼서, 사용자의 환불받을 계좌를 새로 입력받아 별도로 송금</td></tr>
+  </table>
+  <div class="callout warn">
+    <div class="callout-label">아직 안 풀린 것</div>
+    환불 시 플랫폼 수수료·쿠폰을 어떻게 되돌릴지, 부분 취소를 지원할지는 아직 결정되지 않았습니다. 이 가이드가 갱신되기 전에는 <code>docs/plan-summary.md</code>·진행 중인 작업 기록을 확인하세요.
+  </div>
+</section>
+
+<section id="risks">
+  <h2>8. 솔직히 말하는 리스크·미해결 사항</h2>
+  <p>초보자를 위한 가이드라고 좋은 말만 하면 나중에 발등을 찍습니다. 지금 시점에 알려진 위험 요소를 그대로 적습니다.</p>
+  <ul>
+    <li><b>방식 A는 완전 자동이 아닙니다.</b> 입금자명이 다르거나, 폴링 주기(1~5분) 동안 사용자가 "왜 확정이 안 되냐"고 문의할 수 있습니다.</li>
+    <li><b>알림톡·오픈뱅킹 조회 API는 무료가 아닙니다.</b> 이 프로젝트는 원래 "무료 API 우선 원칙"을 갖고 있었는데, 방식 A를 위해 새로 유료 API 2개(SOLAPI 알림톡, Popbill 계좌조회)를 도입하기로 했습니다 — 이 부분은 원칙에 대한 명시적 예외로 기록돼 있습니다.</li>
+    <li><b>외부 승인 절차가 남아있습니다.</b> SOLAPI 가입, 카카오 비즈니스 채널 개설, 알림톡 템플릿 심사(수 영업일 소요), Popbill 가입 — 전부 아직 시작 전입니다.</li>
+    <li><b>가격 경계값이 애매합니다.</b> "1~9만원"과 "10만원 이상" 사이, 정확히 9만원 초과 10만원 미만인 상품을 어느 방식으로 보낼지 아직 정하지 않았습니다.</li>
+    <li><b>개발 환경 자체가 아직 안 갖춰져 있습니다.</b> 로컬 데이터베이스(kdance-db)가 꺼져 있어서, Docker 설정을 먼저 켜야 실제 결제 코드를 테스트할 수 있습니다.</li>
+  </ul>
+</section>
+
+<section id="faq">
+  <h2>9. 자주 묻는 질문</h2>
+
+  <details>
+    <summary>Q. 사용자가 토스나 카카오페이 앱이 없으면 어떻게 되나요?</summary>
+    <p>딥링크가 실행되지 않으므로, 대신 계좌번호를 직접 보여주는 화면으로 안내하도록 설계돼 있습니다(2초 안에 앱이 안 열리면 대체 화면 표시).</p>
+  </details>
+  <details>
+    <summary>Q. 방식 A로 결제했는데 다른 사람이 대신 입금하면 어떻게 확인하나요?</summary>
+    <p>입금자명이 시스템이 기대한 이름과 다르면 자동 매칭에 실패합니다. 이런 예외 케이스를 처리하는 구체적인 로직은 아직 설계 중입니다.</p>
+  </details>
+  <details>
+    <summary>Q. 왜 처음부터 포트원(PG) 하나로 통일하지 않았나요?</summary>
+    <p>PG 결제는 건당 수수료가 계속 나갑니다. 1인 개발·초기 베타 단계에서는 수수료 부담을 줄이는 것이 중요해서, 저가·간헐적 상품은 수수료가 거의 없는 딥링크 방식을 쓰기로 했습니다.</p>
+  </details>
+  <details>
+    <summary>Q. "왕초보 가이드"인데 왜 이렇게 자세한가요?</summary>
+    <p>결제는 실수하면 실제 돈 문제로 이어지는 영역이라, 겉핥기 설명보다 "왜 이렇게 만들었는지"까지 이해하는 편이 나중에 버그를 마주쳤을 때 훨씬 도움이 됩니다.</p>
+  </details>
+</section>
+
+<section id="docs">
+  <h2>10. 더 자세히 알고 싶다면 — 관련 문서</h2>
+  <div class="doclink-list">
+    <div><a href="./payment-method-policy.md">결제수단 정책 (payment-method-policy.md)</a><div class="path">방식 A/B 라우팅 결정, 무료 API 원칙, 오픈 이슈</div></div>
+    <div><a href="./payment-deeplink-reference.md">딥링크 구현 레퍼런스 (payment-deeplink-reference.md)</a><div class="path">토스/카카오페이/네이버페이 딥링크·브릿지 페이지·알림톡 발송 코드</div></div>
+    <div><a href="./sch-payment-deeplink-implementation.md">방식 A 구현 스케줄 (sch-payment-deeplink-implementation.md)</a><div class="path">T1~T8 태스크, 의존관계, 착수 전 확인사항</div></div>
+    <div><a href="./pricing-policy.md">가격 정책 (pricing-policy.md)</a></div>
+    <div><a href="./distribution-policy.md">배포 정책 (distribution-policy.md)</a></div>
+    <div><a href="./requirements-analysis.md">요구사항 분석 (requirements-analysis.md)</a></div>
+  </div>
+</section>
+
+<footer>
+  작성일 2026-09-14 · kdance 프로젝트 내부 문서 · 이 가이드는 스냅샷입니다 — 정책이 바뀌면 위 원본 문서가 먼저 갱신되고, 이 파일은 그 뒤에 따라 갱신됩니다.
+</footer>
+
+</div>
+</body>
+</html>
