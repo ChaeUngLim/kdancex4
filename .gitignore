@@ -17,6 +17,9 @@ dist/
 # OS
 .DS_Store
 
+# graphify 지식 그래프 산출물 (재생성 가능한 캐시/AST — graphify update . 로 재생성)
+graphify-out/
+
 # Subagent-driven-development scratch workspace
 .superpowers/
 
