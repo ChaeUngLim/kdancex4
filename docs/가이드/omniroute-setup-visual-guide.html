@@ -193,6 +193,7 @@
       <li><a href="#s7">7. 콤보 만들기</a></li>
       <li><a href="#s8">8. 테스트와 오류 수정</a></li>
       <li><a href="#s9">9. 남은 단계</a></li>
+      <li><a href="#s10">10. Docker — 뭘 켜야 하나</a></li>
       <li><a href="#appendix">부록 — 제외된 모델</a></li>
     </ol>
   </nav>
@@ -944,6 +945,67 @@ claude</code></pre>
         <p style="margin-bottom:0"><code>auto</code>는 <b>OmniRoute 자체의 내장 자동 라우터</b>를 쓰는 옵션이라, 우리가 만든 <code>Free-fallback</code> 콤보를 타지 않습니다.
         실제로 <code>/v1/models</code> 목록에도 <code>auto/best-free</code>, <code>auto/coding:free</code> 같은 별도 항목으로 존재합니다 —
         이름이 비슷해 헷갈리지만 우리가 정한 우선순위와 무관한 다른 체계입니다.</p>
+      </div>
+    </section>
+
+    <section id="s10">
+      <div class="sec-head"><span class="sec-n">10</span><h2>Docker — 매번 뭘 켜야 하나</h2></div>
+      <p class="sec-sub">결론부터: <b>Docker Desktop만 켜면 됩니다.</b> 명령어를 칠 필요가 없습니다.</p>
+
+      <div class="box note">
+        <span class="lbl">먼저 — 컨테이너가 뭔가요</span>
+        <p>OmniRoute는 여러분 PC에 직접 설치된 프로그램이 아니라 <b>컨테이너</b>로 돌아갑니다.
+        프로그램 하나와 그게 필요로 하는 모든 것(라이브러리·설정·파일)을 상자 하나에 통째로 담아
+        격리해서 돌리는 방식입니다. 상자째 옮기면 어느 PC에서든 똑같이 동작하고,
+        지울 때도 상자만 버리면 되니 PC가 지저분해지지 않습니다.
+        그 상자를 관리하는 프로그램이 <b>Docker</b>이고, Windows에서 쓰는 형태가 <b>Docker Desktop</b>입니다.</p>
+        <p style="margin-bottom:0">즉 <b>Docker Desktop이 꺼져 있으면 상자도 전부 멈춰 있습니다.</b>
+        OmniRoute가 응답하지 않는 원인은 거의 항상 이겁니다.</p>
+      </div>
+
+      <div class="box fix">
+        <span class="lbl">✓ 그런데 왜 켜기만 하면 되나 — <code>restart=unless-stopped</code></span>
+        <p>각 상자에는 "언제 자동으로 켤지"를 정하는 옵션이 붙어 있습니다.
+        이 프로젝트의 상자 4개는 전부 <code>unless-stopped</code>로 걸려 있습니다.
+        말 그대로 풀면 <b>"내가 직접 멈춘 게 아니라면(unless stopped) 알아서 다시 켜라"</b>입니다.</p>
+        <p>그래서 Docker Desktop이 뜨는 순간 상자 4개가 같이 올라옵니다.
+        <code>docker start omniroute</code> 같은 명령을 따로 칠 필요가 없습니다.</p>
+        <div class="tw">
+          <table>
+            <tr><th>상자 이름</th><th>하는 일</th><th>자동 기동</th></tr>
+            <tr><td><code>omniroute</code></td><td>무료 모델 게이트웨이</td><td class="ok">O</td></tr>
+            <tr><td><code>kdance-db</code></td><td>PostgreSQL 데이터베이스 (5433번 문)</td><td class="ok">O</td></tr>
+            <tr><td><code>kdance-redis</code></td><td>Redis 캐시 (6380번 문)</td><td class="ok">O</td></tr>
+            <tr><td><code>ollama</code></td><td>로컬 AI 모델 실행기</td><td class="ok">O</td></tr>
+          </table>
+        </div>
+        <p style="margin-bottom:0">직접 확인하려면 <code>docker ps</code>를 쳐보세요.
+        네 개가 <code>healthy</code>로 떠 있으면 정상입니다.</p>
+      </div>
+
+      <h3>순서대로 하면</h3>
+      <pre><code>1. Docker Desktop 실행
+2. 작업표시줄 고래 아이콘이 초록색이 될 때까지 대기 (보통 30~90초)
+3. cd ~/kdance &amp;&amp; ai        # ai 는 claude-free.sh 의 별칭</code></pre>
+
+      <div class="box trap">
+        <span class="lbl">그래도 OmniRoute가 응답하지 않으면</span>
+        <p>예전에 그 상자를 <b>손으로 멈춰둔</b> 경우입니다.
+        <code>unless-stopped</code>는 사람이 의도적으로 멈춘 상자는 일부러 켜지 않습니다
+        — 그게 옵션 이름의 "unless-stopped" 부분이 뜻하는 바입니다.
+        이때만 수동으로 켭니다.</p>
+        <pre style="margin-bottom:0"><code>docker start omniroute   # 이 경우에만 필요
+docker ps                # omniroute 가 healthy 로 뜨는지 확인
+curl -s http://localhost:20128/api/health   # 응답이 오면 준비 완료</code></pre>
+      </div>
+
+      <div class="box note">
+        <span class="lbl">WSL에서 <code>docker</code> 명령이 없다고 나올 때</span>
+        <p style="margin-bottom:0">Docker Desktop이 꺼져 있다는 뜻입니다.
+        Docker Desktop은 실행될 때 WSL 안에 <code>docker</code> 명령을 넣어주는데(WSL 통합),
+        꺼져 있으면 그 명령이 사라집니다.
+        <code>"The command 'docker' could not be found in this WSL 2 distro"</code> 메시지가 뜨면
+        설정이 잘못된 게 아니라 <b>그냥 Docker Desktop을 켜면 해결됩니다.</b></p>
       </div>
     </section>
 
