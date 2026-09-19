@@ -6,26 +6,30 @@ kdance에서 쓰는 Claude Code 스킬을 **언제 켜고 언제 끌지** 정리
 
 ---
 
-## 1. 끌 것 — 14종 · 1,301토큰
+## 1. 끄기 진행 상황
 
-`/plugin` 화면 순서대로다. 위에서 아래로 내려가며 이 14줄에서만 토글한다.
+### 이미 끈 것 (2026-09-20)
 
-| # | 스킬 | 토큰 | 왜 끄나 | 다시 켤 시점 |
-|---|------|-----|--------|------------|
-| 1 | `ai-image-creator` | 138 | 이미지 생성. kdance에 용도 없음 | 로고·배너·아이콘을 AI로 만들 때 |
-| 2 | `anthropic-skills:docs` | 250 | claude.ai 문서 커넥터 전용. 이 CLI엔 커넥터가 없어 발동 불가 | 데스크톱·웹에서 문서 커넥터를 붙였을 때 |
-| 3 | `anthropic-skills:import-memory` | 43 | 타 AI 메모리 이관. 1회성 | 다른 AI에서 메모리를 옮겨올 때 |
-| 4 | `anthropic-skills:morning` | 91 | 아침 브리핑. 프로젝트 무관 | 개인 일정 브리핑을 쓸 때 |
-| 5 | `anthropic-skills:setup-writing-style` | 123 | 개인 문체 학습. 한국어 윤문은 `humanize-korean`이 맡는다 | 영어 글을 본인 문체로 쓸 때 |
-| 6 | `audit-session-metrics` | 150 | 비용 낭비 감사 | 비용 점검 회차 |
-| 7 | `security:test-examples:test-advanced-injection` | 21 | 프롬프트 인젝션 **테스트용 공격 샘플**. 도구가 아니다 | `secure-prompts` 분석기를 검증할 때 |
-| 8 | `security:test-examples:test-authority-claims` | 18 | 〃 | 〃 |
-| 9 | `security:test-examples:test-basic-role-override` | 18 | 〃 | 〃 |
-| 10 | `security:test-examples:test-css-hiding` | 16 | 〃 | 〃 |
-| 11 | `security:test-examples:test-encoding-attacks` | 18 | 〃 | 〃 |
-| 12 | `security:test-examples:test-invisible-chars` | 19 | 〃 | 〃 |
-| 13 | `session-metrics` | 204 | 세션 토큰·비용 집계 | 비용 점검 회차 |
-| 14 | `task-breakdown` | 192 | 세션을 작업 단위로 묶어 가치 판정 | 비용 점검 회차 |
+| 대상 | 토큰 | 왜 껐나 |
+|------|-----|--------|
+| `computer-use` · `built-in-browser` · `chrome-browser` | 2,512 | 데스크톱 앱·Chrome 확장 전용. 이 CLI에서 **호출 자체가 불가능** |
+| `deep-research` | 570 | `ecc:deep-research`와 중복 |
+| `anthropic-skills:docs` | 250 | claude.ai 문서 커넥터 전용. 커넥터가 없어 발동 불가 |
+| `anthropic-skills:morning` | 91 | 아침 브리핑. 프로젝트 무관 |
+| `anthropic-skills:setup-writing-style` | 123 | 개인 문체 학습. 한국어 윤문은 `humanize-korean`이 맡는다 |
+| `security:test-examples:*` 6종 | 110 | 프롬프트 인젝션 **테스트용 공격 샘플**. 도구가 아니다 |
+| `anthropic-skills:docx` · `pdf` · `pptx` | 620 | 사용자 판단으로 추가 정리. `xlsx`만 남겼다 |
+
+**주의** — pptx를 껐으므로 `docs/가이드/`의 pptx 2개(`kdance_화면명세서`, `소셜댄스_입점설명회`)를 읽거나 고칠 수 없다. 필요하면 다시 켠다.
+
+### 아직 안 끈 것
+
+| 우선순위 | 대상 | 토큰 | 판단 |
+|---|------|-----|------|
+| **높음** | `harness` 플러그인 | 110 | **토큰이 아니라 안전 문제.** 아래 표 참조 |
+| 낮음 | `ai-image-creator` | 138 | 로고·배너를 AI로 만들 일이 생기면 유지 |
+| 낮음 | `anthropic-skills:import-memory` | 43 | 43토큰이라 꺼도 체감 없음 |
+| 낮음 | `audit-session-metrics` · `session-metrics` · `task-breakdown` | 546 | 비용 점검 때만. 자주 안 쓰면 끄는 쪽이 낫다 |
 
 ### 같이 끌 것 — 플러그인 1개
 
@@ -34,9 +38,6 @@ kdance에서 쓰는 Claude Code 스킬을 **언제 켜고 언제 끌지** 정리
 | `harness` (harness-marketplace) | 110 | **범용 하네스 생성 메타스킬**이다. `core-rules.md`가 *"범용 `harness:harness`를 호출하지 말라"*고 명시한 바로 그 도구다 — "하네스 점검해줘" 같은 말에 트리거되어, Phase 9.5(학습 주석 재구성·SCH 가이드 생성)나 SCH 표기 규칙 같은 kdance 전용 커스터마이징을 자기 템플릿으로 갈아엎을 수 있다. 끄면 규칙을 지킬 필요 없이 구조적으로 막힌다 |
 
 **혼동 주의** — 프로젝트 스킬 `kdance-dev-harness`(100토큰)와 다른 물건이다. 그쪽이 `core-rules.md`가 말하는 진짜 Harness이고 **상시 켜둔다**.
-
-**이미 끈 것 (2026-09-20)** — `computer-use` · `built-in-browser` · `chrome-browser` · `deep-research`.
-앞 3종은 데스크톱 앱·Chrome 확장 전용이라 이 CLI에서 **호출 자체가 불가능**하다. `deep-research`는 `ecc:deep-research`와 중복이다.
 
 ---
 
@@ -87,6 +88,73 @@ kdance에서 쓰는 Claude Code 스킬을 **언제 켜고 언제 끌지** 정리
 | **다이어그램** | `diagram-this` | 반복 작업이면 이쪽. mindpilot UI가 꼭 필요할 때만 MCP를 쓴다 |
 | **보안 점검** | `security:security-audit` · `secure-prompts` | 분석기를 **검증**할 때만 `test-examples:` 6종을 켠다 |
 | **라이브러리 사용법** | `claude-docs-consultant` + `mcp__context7` | 학습 데이터 대신 실제 문서를 본다 |
+
+---
+
+## 3-1. 개발 단계별 on/off
+
+현재 상태(2026-09-20 기준)에서 **바꿔야 할 것만** 적는다. 표에 없는 것은 그대로 둔다.
+
+### 구현 단계 — 백엔드 (SCH-13~20 방식 A 딥링크)
+
+| | 대상 | 비고 |
+|---|---|---|
+| **켠다** | (없음) | 지금 구성으로 충분하다 |
+| **끈다** | (없음) | |
+| **쓰는 것** | `kdance-dev-harness` · `ecc` · `graphify` · `humanize-korean` | 하네스가 ECC를 알아서 부른다 |
+| **MCP** | `postgres-kdance` · `context7` | DB 확인과 라이브러리 문서 |
+
+ECC 쪽에서 실제로 불릴 것: `ecc:fastapi-patterns` · `ecc:python-testing` · `ecc:tdd-workflow` · `ecc:postgres-patterns` · `ecc:database-migrations`, 에이전트 `fastapi-reviewer` · `database-reviewer` · `security-reviewer` · `tdd-guide`.
+
+**결제·예약 코드는 `security-reviewer`를 반드시 거친다** — `core-rules.md`가 이 프로젝트에서 보안을 특히 강조한 이유다.
+
+### 프론트엔드 단계 — admin-web · mobile
+
+| | 대상 | 비고 |
+|---|---|---|
+| **켠다** | (없음 — 이미 켜져 있음) | `frontend-design` · `ui-ux-pro-max` |
+| **끈다** | (없음) | |
+| **MCP** | `playwright` 추가로 사용 | 화면을 눈으로 확인 |
+
+순서는 ① `frontend-design`으로 미적 방향(색·폰트·인상) → ② `ui-ux-pro-max` 상위 스킬로 설계+구현.
+
+**`ui-ux-pro-max:ui-styling` 하위 스킬은 직접 부르지 않는다.** Tailwind+shadcn 고정이라 admin-web의 순수 CSS(`app/globals.css`, CSS 변수 30개, `className` 미사용)와 충돌한다. 상위 스킬은 `package.json`을 읽어 스택을 감지하므로 안전하다.
+
+ECC 쪽: `/ecc:react-review` · `/ecc:react-test` · `ecc:frontend-a11y` · `ecc:react-native-patterns`(mobile), 에이전트 `react-reviewer`.
+
+**첫 화면 작업 때 검증할 것** — `ui-ux-pro-max`가 정말 순수 CSS로 내놓는지 확인한다. Tailwind 코드가 나오면 감지가 실패한 것이므로 그때 조정한다.
+
+### QA 단계 — 테스트·리뷰·E2E
+
+| | 대상 | 토큰 | 비고 |
+|---|---|---|---|
+| **켠다** | `security:test-examples:*` 6종 | 110 | **`secure-prompts` 분석기를 검증할 때만.** 끝나면 다시 끈다 |
+| **끈다** | (없음) | | |
+| **MCP** | `playwright` · `chrome-devtools` · `postgres-kdance` | | E2E · 성능 · DB 통합 테스트 |
+
+ECC 쪽: `/ecc:code-review` · `/ecc:test-coverage` · `/ecc:security-scan` · `ecc:e2e-testing` · `ecc:browser-qa`, 에이전트 `code-reviewer` · `e2e-runner` · `pr-test-analyzer`.
+
+**E2E 실행은 Playwright가 한다** — ECC는 품질 기준만 제시한다(`core-rules.md`의 역할 분리).
+
+**SCH-11(마이그레이션 검증)·SCH-12(DB 통합 테스트 실행)은 Docker 기동이 전제다.** Docker Desktop을 먼저 켠다.
+
+### 비용 점검 회차 (분기 1회 정도)
+
+| | 대상 | 토큰 |
+|---|---|---|
+| **켠다** | `session-metrics` → `task-breakdown` → `audit-session-metrics` | 546 |
+| **끝나면 끈다** | 위 3종 | |
+
+현재 셋 다 켜져 있다. 자주 안 쓸 것 같으면 지금 끄고 필요할 때 켜는 쪽이 낫다.
+
+### 문서·자료 만들 때
+
+| 상황 | 켤 것 |
+|---|---|
+| pptx 편집·읽기 | `anthropic-skills:pptx` — **현재 off**. `docs/가이드/`의 pptx 2개를 다루려면 켠다 |
+| pdf 작업 | `anthropic-skills:pdf` — **현재 off** |
+| docx 작업 | `anthropic-skills:docx` — **현재 off** |
+| 로고·배너 생성 | `ai-image-creator` |
 
 ---
 
