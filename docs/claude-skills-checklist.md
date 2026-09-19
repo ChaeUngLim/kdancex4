@@ -2,7 +2,9 @@
 
 kdance에서 쓰는 Claude Code 스킬을 **언제 켜고 언제 끌지** 정리한 문서다.
 
-**이 문서가 유일한 기록이다.** 스킬 on/off 상태는 `settings.json`에도 `~/.claude.json`에도 저장되지 않는다(2026-09-20 확인 — 설정 백업 3개를 대조해도 캐시 값만 바뀌었다). `/plugin`에서 누른 결과가 어디 남는지 알 수 없으므로, 무엇을 왜 껐는지는 여기 적어둔다.
+**on/off 상태는 `.claude/settings.local.json`의 `skillOverrides`에 저장된다** (2026-09-20 재확인 — 이전에 "어디에도 저장되지 않는다"고 적었던 것은 틀렸다. `settings.json`과 `~/.claude.json`만 뒤져서 못 찾았던 것이고, 실제로는 프로젝트 쪽 `settings.local.json`에 18개가 들어 있다). 경로 기반이라 계정을 바꿔도 남는다.
+
+다만 그 파일은 `~/.config/git/ignore`의 `**/.claude/settings.local.json` 규칙에 걸려 git 에 올라가지 않는다. 그래서 사본을 `docs/handoff/settings.project.local.json`에 둔다. **무엇을 왜 껐는지**는 기계가 읽는 그 JSON 에 안 남으므로 여기 적어둔다.
 
 ---
 
@@ -18,7 +20,8 @@ kdance에서 쓰는 Claude Code 스킬을 **언제 켜고 언제 끌지** 정리
 | `anthropic-skills:morning` | 91 | 아침 브리핑. 프로젝트 무관 |
 | `anthropic-skills:setup-writing-style` | 123 | 개인 문체 학습. 한국어 윤문은 `humanize-korean`이 맡는다 |
 | `security:test-examples:*` 6종 | 110 | 프롬프트 인젝션 **테스트용 공격 샘플**. 도구가 아니다 |
-| `anthropic-skills:docx` · `pdf` · `pptx` | 620 | 사용자 판단으로 추가 정리. `xlsx`만 남겼다 |
+| `anthropic-skills:docx` · `pdf` · `pptx` · `xlsx` | 620 | 사용자 판단으로 추가 정리 |
+| `ai-image-creator` | 138 | 로고·배너를 AI로 만들 일이 생기면 다시 켠다 |
 
 **주의** — pptx를 껐으므로 `docs/가이드/`의 pptx 2개(`kdance_화면명세서`, `소셜댄스_입점설명회`)를 읽거나 고칠 수 없다. 필요하면 다시 켠다.
 
@@ -27,7 +30,6 @@ kdance에서 쓰는 Claude Code 스킬을 **언제 켜고 언제 끌지** 정리
 | 우선순위 | 대상 | 토큰 | 판단 |
 |---|------|-----|------|
 | **높음** | `harness` 플러그인 | 110 | **토큰이 아니라 안전 문제.** 아래 표 참조 |
-| 낮음 | `ai-image-creator` | 138 | 로고·배너를 AI로 만들 일이 생기면 유지 |
 | 낮음 | `anthropic-skills:import-memory` | 43 | 43토큰이라 꺼도 체감 없음 |
 | 낮음 | `audit-session-metrics` · `session-metrics` · `task-breakdown` | 546 | 비용 점검 때만. 자주 안 쓰면 끄는 쪽이 낫다 |
 
@@ -178,7 +180,7 @@ ECC 쪽: `/ecc:code-review` · `/ecc:test-coverage` · `/ecc:security-scan` · `
 
 1. **대화 중에는 못 바꾼다.** 스킬 설명문은 세션이 시작될 때 시스템 프롬프트에 한 번 박힌다. 작업 도중 켜도 그 세션에는 반영되지 않고 다음 세션부터 걸린다.
 2. **CLI로 못 한다.** `claude plugin disable`은 **플러그인 단위**만 받아서 스킬 하나를 지정할 수 없다.
-3. **파일로 못 쓴다.** 끄기 상태를 저장하는 설정 파일을 찾지 못했다. 그래서 자동화도 안 되고, 이 문서가 기록을 대신한다.
+3. **파일로 쓸 수 있다.** `.claude/settings.local.json`의 `skillOverrides`에 `"스킬명": "off"`를 직접 넣어도 된다. 다음 세션부터 걸린다(1번 제약은 그대로다). 다만 **왜 껐는지**는 JSON 에 안 남으므로 이 문서를 같이 고친다.
 
 ---
 
