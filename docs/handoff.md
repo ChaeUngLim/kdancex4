@@ -2,7 +2,7 @@
 
 이 프로젝트를 **다른 Claude Code 계정**이나 **다른 PC**에서 이어받을 때 필요한 것을 정리했다.
 
-작성 2026-09-20 · 기준 커밋 `72921c5`
+작성 2026-09-20 · 기준 커밋 `7d4843a`
 
 ---
 
@@ -36,6 +36,7 @@ cd kdancex4
 | 스킬 on/off 판단 | `docs/claude-skills-checklist.md` |
 | SCH 스케줄표 | `_workspace/kdance.html` |
 | SCH별 왕초보 가이드 | `_workspace/guides/SCH-XX(기능명).html` |
+| 하네스 작업 기록 14개 | `_workspace/01_`~`05_*.md` — `Q1~Q5`(요구사항 결정 근거)·`D1~D4`(설계 결정)의 **유일한 출처** |
 
 ---
 
@@ -45,7 +46,6 @@ cd kdancex4
 
 | 무엇 | 위치 | 왜 필요한가 |
 |------|------|------------|
-| 하네스 작업 기록 15개 | `_workspace/01_`~`05_*.md` | `Q1~Q5`(요구사항 결정 근거)·`D1~D4`(설계 결정)의 **유일한 출처**. 없으면 "왜 이렇게 결정했지"를 되짚을 수 없다 |
 | 로컬 환경 설정 | `.claude/settings.local.json` | 프로젝트별 권한·훅 |
 | 백엔드 비밀값 | `backend/.env` | **절대 git 에 올리지 않는다.** 따로 전달한다 |
 
@@ -74,7 +74,7 @@ cd kdancex4
 ## 4. 이어받은 뒤 확인할 것
 
 ```bash
-git log --oneline -5                  # 72921c5 가 보이면 최신
+git log --oneline -5                  # 7d4843a 가 보이면 최신
 git status                            # 깨끗해야 정상
 docker ps                             # 컨테이너 4개가 healthy
 curl -s localhost:20128/api/health    # OmniRoute 게이트웨이
