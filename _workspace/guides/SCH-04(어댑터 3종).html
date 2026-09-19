@@ -177,7 +177,7 @@
 
 <section id="concepts">
   <h2>2. 사전 개념</h2>
-  <p>SCH-01~03이 다룬 ORM/Base/Mixin/설정/DB 세션/Alembic(SCH-01·SCH-02)이나 순수 함수/StrEnum/정수 연산/파라미터라이즈 테스트(SCH-03, <a href="SCH-03.html">SCH-03(환불액 산정 순수 함수) 가이드 참고</a>) 개념은 이 어댑터 계층이 거의 쓰지 않으므로 반복하지 않습니다. 대신 이번 SCH에서 처음 등장하는 개념 4가지를 설명합니다.</p>
+  <p>SCH-01~03이 다룬 ORM/Base/Mixin/설정/DB 세션/Alembic(SCH-01·SCH-02)이나 순수 함수/StrEnum/정수 연산/파라미터라이즈 테스트(SCH-03, <a href="SCH-03(환불액 산정).html">SCH-03(환불액 산정 순수 함수) 가이드 참고</a>) 개념은 이 어댑터 계층이 거의 쓰지 않으므로 반복하지 않습니다. 대신 이번 SCH에서 처음 등장하는 개념 4가지를 설명합니다.</p>
 
   <h3 id="concept-protocol">Protocol(구조적 타이핑)이 뭔가요?</h3>
   <p>보통 "이 인터페이스를 구현한다"고 하면, 어떤 부모 클래스를 <b>상속</b>하고 그 부모가 요구하는 메서드를 채워 넣는 방식을 떠올립니다. 파이썬의 <code>Protocol</code>은 이것과 다른 방식으로 인터페이스를 정의합니다 — 상속 관계가 전혀 없어도, <b>"이 메서드들만 실제로 갖고 있으면" 그 타입으로 인정</b>하는 방식입니다. 이걸 구조적 타이핑(structural typing)이라고 부릅니다. "오리처럼 걷고 오리처럼 소리를 내면 오리로 취급한다"는 비유(덕 타이핑)의 파이썬 typing 버전이라고 보면 됩니다.</p>
@@ -331,11 +331,11 @@
   <h2>6. 다른 SCH와의 연관관계</h2>
   <p>SCH-04는 SCH-01·SCH-02·SCH-03이 만든 것을 <b>거의 import하지 않는 독립적인 계층</b>입니다. 대신 이 SCH가 만든 세 어댑터의 Protocol 타입은, 뒤이은 SCH-05(취소 오케스트레이션 서비스)가 직접 가져다 씁니다.</p>
   <div class="flow">
-    <div class="step dim"><b><a href="SCH-01.html" style="color:inherit;text-decoration:none">SCH-01</a></b>기반 배선<br><span class="badge done">완료</span></div>
+    <div class="step dim"><b><a href="SCH-01(기반 배선).html" style="color:inherit;text-decoration:none">SCH-01</a></b>기반 배선<br><span class="badge done">완료</span></div>
     <div class="arrow">→</div>
-    <div class="step dim"><b><a href="SCH-02.html" style="color:inherit;text-decoration:none">SCH-02</a></b>도메인 모델 7개<br><span class="badge done">완료</span></div>
+    <div class="step dim"><b><a href="SCH-02(도메인 모델).html" style="color:inherit;text-decoration:none">SCH-02</a></b>도메인 모델 7개<br><span class="badge done">완료</span></div>
     <div class="arrow">→</div>
-    <div class="step dim"><b><a href="SCH-03.html" style="color:inherit;text-decoration:none">SCH-03</a></b>환불액 산정 함수<br><span class="badge done">완료</span></div>
+    <div class="step dim"><b><a href="SCH-03(환불액 산정).html" style="color:inherit;text-decoration:none">SCH-03</a></b>환불액 산정 함수<br><span class="badge done">완료</span></div>
     <div class="arrow">→</div>
     <div class="step here"><b>SCH-04</b>어댑터 3종 (이 문서)<br><span class="badge done">완료</span></div>
   </div>

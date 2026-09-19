@@ -177,7 +177,7 @@
 
 <section id="concepts">
   <h2>2. 사전 개념</h2>
-  <p>Protocol(구조적 타이핑)·Fake 객체·포트/어댑터 패턴·Redis 관련 개념은 <a href="SCH-04.html">SCH-04(어댑터 3종: PG/알림/슬롯락)</a>에서 이미 설명했으므로 반복하지 않습니다. ORM·CHECK/UNIQUE 제약·append-only 감사 로그는 <a href="SCH-01.html">SCH-01(기반 배선)</a>·<a href="SCH-02.html">SCH-02(도메인 모델 7개)</a> 가이드를 참고하세요. 이번 SCH에서 처음 등장하는 개념 5가지만 설명합니다.</p>
+  <p>Protocol(구조적 타이핑)·Fake 객체·포트/어댑터 패턴·Redis 관련 개념은 <a href="SCH-04(어댑터 3종).html">SCH-04(어댑터 3종: PG/알림/슬롯락)</a>에서 이미 설명했으므로 반복하지 않습니다. ORM·CHECK/UNIQUE 제약·append-only 감사 로그는 <a href="SCH-01(기반 배선).html">SCH-01(기반 배선)</a>·<a href="SCH-02(도메인 모델).html">SCH-02(도메인 모델 7개)</a> 가이드를 참고하세요. 이번 SCH에서 처음 등장하는 개념 5가지만 설명합니다.</p>
 
   <h3 id="concept-tx">트랜잭션(transaction)이 뭔가요? — commit과 rollback</h3>
   <p>취소 1건을 처리하려면 DB에 여러 번 손을 대야 합니다 — 환불 행을 만들고, 예약 상태를 <code>cancelled</code>로 바꾸고, 수업의 남은 정원을 1 늘리고, 감사 로그를 남기고... 이 여러 작업을 <b>"전부 성공하거나 전부 취소되거나" 둘 중 하나로만 끝나게 묶는 단위</b>가 트랜잭션입니다. <code>session.commit()</code>을 부르면 그 시점까지의 모든 변경이 DB에 확정되고, 그 전에 예외가 나서 세션이 굴러떨어지면(rollback) 지금까지 한 변경이 전부 없었던 일이 됩니다.</p>
@@ -197,7 +197,7 @@
 
   <h3 id="concept-depends">FastAPI 의존성 주입 <code>Depends()</code>가 실제로 뭘 하나요?</h3>
   <p>라우터 함수의 파라미터에 <code>Annotated[T, Depends(f)]</code>라고 적어두면, 요청이 들어올 때마다 FastAPI가 <b>대신 <code>f()</code>를 호출해서 그 반환값을 그 파라미터 자리에 꽂아줍니다.</b> 호출하는 쪽(라우터)은 "누가 이 값을 만드는지" 몰라도 되고, 그 값을 만드는 함수(<code>deps.py</code>의 <code>get_payment_gateway</code> 등)만 바꾸면 전체 동작이 바뀝니다.</p>
-  <p>이게 왜 <a href="SCH-04.html">SCH-04(어댑터 3종: PG/알림/슬롯락)</a>의 Protocol과 곧바로 연결될까요? <code>deps.py</code>의 <code>get_payment_gateway()</code>는 반환 타입을 구상 클래스(<code>FakePaymentGateway</code>)가 아니라 <b>Protocol 타입(<code>PaymentGateway</code>)</b>으로 선언해둡니다. 그러면 <code>cancel_reservation()</code>은 "<code>PaymentGateway</code> Protocol을 만족하는 무언가"만 알면 되고, 실제로 무엇이 꽂히는지(지금은 Fake, 나중엔 실 PG 연동체)는 <code>deps.py</code> 한 곳만 바꾸면 됩니다. 테스트가 <code>app.dependency_overrides[get_payment_gateway] = ...</code>로 통째로 갈아끼울 수 있는 것도 같은 원리입니다 — <code>Depends()</code>가 "누가 만드는지"를 한 곳으로 몰아준 덕분입니다.</p>
+  <p>이게 왜 <a href="SCH-04(어댑터 3종).html">SCH-04(어댑터 3종: PG/알림/슬롯락)</a>의 Protocol과 곧바로 연결될까요? <code>deps.py</code>의 <code>get_payment_gateway()</code>는 반환 타입을 구상 클래스(<code>FakePaymentGateway</code>)가 아니라 <b>Protocol 타입(<code>PaymentGateway</code>)</b>으로 선언해둡니다. 그러면 <code>cancel_reservation()</code>은 "<code>PaymentGateway</code> Protocol을 만족하는 무언가"만 알면 되고, 실제로 무엇이 꽂히는지(지금은 Fake, 나중엔 실 PG 연동체)는 <code>deps.py</code> 한 곳만 바꾸면 됩니다. 테스트가 <code>app.dependency_overrides[get_payment_gateway] = ...</code>로 통째로 갈아끼울 수 있는 것도 같은 원리입니다 — <code>Depends()</code>가 "누가 만드는지"를 한 곳으로 몰아준 덕분입니다.</p>
 </section>
 
 <section id="what-why">
@@ -266,7 +266,7 @@
   <p><code>_release_slot_lock()</code>은 <code>slot_lock.release()</code>의 반환값(<code>bool</code>)을 <b>의도적으로 버립니다.</b> 로그에만 남길 뿐, 이 값으로 취소 처리의 성공/실패를 가르지 않습니다. 이유는 두 가지입니다.</p>
   <ul>
     <li>이 호출 지점은 <code>session.commit()</code> <b>이후</b>입니다. 이미 돈이 움직이고 DB가 확정된 뒤라서, 되돌릴 트랜잭션 자체가 남아있지 않습니다.</li>
-    <li>Redis는 볼륨도 없는 단기 캐시이고(<a href="SCH-04.html">SCH-04(어댑터 3종: PG/알림/슬롯락)</a> 참고), 정원의 진짜 권위는 이미 8단계에서 갱신한 <code>class_schedules.reserved_count</code>입니다. 캐시 정리가 실패했다고 이미 끝난 금전 거래를 흔들 이유가 없습니다.</li>
+    <li>Redis는 볼륨도 없는 단기 캐시이고(<a href="SCH-04(어댑터 3종).html">SCH-04(어댑터 3종: PG/알림/슬롯락)</a> 참고), 정원의 진짜 권위는 이미 8단계에서 갱신한 <code>class_schedules.reserved_count</code>입니다. 캐시 정리가 실패했다고 이미 끝난 금전 거래를 흔들 이유가 없습니다.</li>
   </ul>
   <p>심지어 어댑터 구현체가 Protocol 약속을 어기고 예외를 던져도 <code>try/except Exception</code>으로 통째로 삼킵니다. 테스트 <code>test_slot_lock_release_never_propagates</code>가 정상/실패/예외 3종 락으로 이걸 단정하고, <code>test_service_does_not_branch_on_slot_lock_result</code>는 <b>소스 코드 문자열 자체</b>를 검사해서 <code>if slot_lock.release</code> 같은 분기 패턴이 없다는 것과 "커밋 → 해제" 순서를 못박습니다. 같은 이유로 알림 발송 실패도 삼킵니다(한쪽 채널이 죽어도 다른 쪽은 시도합니다).</p>
 </section>
@@ -291,7 +291,7 @@
   <h3>4.4 [실 연동 시 반드시 지켜야 할 계약] PG 어댑터가 예상 밖 예외를 던지면 감사 기록이 사라진다 (§6-2)</h3>
   <div class="callout warn">
     <div class="callout-label">경고 — 실제 PG를 붙이는 사람이 반드시 읽어야 하는 절</div>
-    <p><b>현상:</b> <a href="SCH-04.html">SCH-04(어댑터 3종: PG/알림/슬롯락)</a>의 <code>PaymentGateway</code> Protocol은 "<code>UnsupportedPaymentMethodError</code> 외의 예외는 던지지 않는 것을 지향한다"고 문서화돼 있을 뿐, 코드로 강제되지는 않는다. 만약 실 연동 어댑터가 이 약속을 어기고 (예: 네트워크 타임아웃) 예상 밖 예외를 던지면, <code>cancel_reservation()</code>의 트랜잭션이 커밋되지 못한 채 굴러떨어지고, 방금 만들려던 <code>pending</code> 환불 행도 감사 로그도 전부 사라진다.</p>
+    <p><b>현상:</b> <a href="SCH-04(어댑터 3종).html">SCH-04(어댑터 3종: PG/알림/슬롯락)</a>의 <code>PaymentGateway</code> Protocol은 "<code>UnsupportedPaymentMethodError</code> 외의 예외는 던지지 않는 것을 지향한다"고 문서화돼 있을 뿐, 코드로 강제되지는 않는다. 만약 실 연동 어댑터가 이 약속을 어기고 (예: 네트워크 타임아웃) 예상 밖 예외를 던지면, <code>cancel_reservation()</code>의 트랜잭션이 커밋되지 못한 채 굴러떨어지고, 방금 만들려던 <code>pending</code> 환불 행도 감사 로그도 전부 사라진다.</p>
     <p><b>가장 위험한 시나리오:</b> 요청이 PG에 실제로 도달한 뒤에 응답만 타임아웃난 경우다. 이때는 <b>환불이 실제로는 집행됐는데, 우리 DB에는 그 사실을 증명할 기록이 하나도 남지 않는 상태</b>가 된다.<br>
     <b>이번 슬라이스에서 발생하지 않는 이유:</b> 지금은 <code>FakePaymentGateway</code>만 쓰고 있어서 이 경로 자체가 실행되지 않는다.<br>
     <b>지켜야 할 계약(권고):</b> 실 연동 PG 어댑터를 붙일 때는 <b>모든 네트워크 예외를 <code>RefundStatus.failed</code> 결과로 변환</b>해서 돌려줘야 한다 — 예외로 새 나가게 두면 안 된다. Phase 8(코드 리뷰) 단계에서 이 제약을 어댑터 구현 계약으로 못박을 것을 권고한다.</p>
@@ -344,13 +344,13 @@
   <h2>6. 다른 SCH와의 연관관계</h2>
   <p>SCH-05는 <b>선행 4개 SCH의 산출물이 처음으로 한 함수 안에 합류하는 지점</b>입니다. 그 함수가 만들어내는 결과(<code>CancellationOutcome</code>/<code>CancellationPreview</code>)를 다음 SCH-06이 그대로 HTTP 응답으로 옮깁니다.</p>
   <div class="flow">
-    <div class="step dim"><b><a href="SCH-01.html" style="color:inherit;text-decoration:none">SCH-01</a></b>기반 배선<br><span class="badge done">완료</span></div>
+    <div class="step dim"><b><a href="SCH-01(기반 배선).html" style="color:inherit;text-decoration:none">SCH-01</a></b>기반 배선<br><span class="badge done">완료</span></div>
     <div class="arrow">→</div>
-    <div class="step dim"><b><a href="SCH-02.html" style="color:inherit;text-decoration:none">SCH-02</a></b>도메인 모델 7개<br><span class="badge done">완료</span></div>
+    <div class="step dim"><b><a href="SCH-02(도메인 모델).html" style="color:inherit;text-decoration:none">SCH-02</a></b>도메인 모델 7개<br><span class="badge done">완료</span></div>
     <div class="arrow">→</div>
-    <div class="step dim"><b><a href="SCH-03.html" style="color:inherit;text-decoration:none">SCH-03</a></b>환불액 산정 함수<br><span class="badge done">완료</span></div>
+    <div class="step dim"><b><a href="SCH-03(환불액 산정).html" style="color:inherit;text-decoration:none">SCH-03</a></b>환불액 산정 함수<br><span class="badge done">완료</span></div>
     <div class="arrow">→</div>
-    <div class="step dim"><b><a href="SCH-04.html" style="color:inherit;text-decoration:none">SCH-04</a></b>어댑터 3종<br><span class="badge done">완료</span></div>
+    <div class="step dim"><b><a href="SCH-04(어댑터 3종).html" style="color:inherit;text-decoration:none">SCH-04</a></b>어댑터 3종<br><span class="badge done">완료</span></div>
     <div class="arrow">→</div>
     <div class="step here"><b>SCH-05</b>취소 오케스트레이션 서비스 (이 문서)<br><span class="badge done">완료</span></div>
   </div>

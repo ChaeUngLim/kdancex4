@@ -23,7 +23,7 @@
 
 ## 저장 위치 / 네이밍
 
-- `_workspace/guides/SCH-{번호}.html` (예: `_workspace/guides/SCH-05.html`)
+- `_workspace/guides/SCH-{번호}({기능명}).html` (예: `_workspace/guides/SCH-05.html`)
 - `_workspace/kdance.html`의 해당 SCH `.item` 블록에 `가이드 보기` 링크를 추가해 연결한다
   (`<a class="guide-link" href="guides/SCH-05.html">가이드 보기 →</a>`).
 - 시각 스타일은 기존 `docs/payment-system-guide-for-beginners.html`의 다크 테마 CSS를
@@ -74,7 +74,7 @@
 Phase 9.5 안에서 `beginner-comment-style.md` 기반 소스 재구성과 **같은 호출**로 처리한다:
 
 1. `kdance-implementer`를 "주석 재구성" 태스크로 재호출할 때, 이 문서 경로도 함께 입력으로
-   전달하고 `_workspace/guides/SCH-{번호}.html` 생성까지 같은 태스크에 포함한다.
+   전달하고 `_workspace/guides/SCH-{번호}({기능명}).html` 생성까지 같은 태스크에 포함한다.
 2. 생성 후 `_workspace/kdance.html`의 해당 SCH `.item`에 가이드 링크를 추가한다(SCH 완료
    갱신과 같은 시점).
 3. SCH 대응 관계를 알 수 없는 작업은 `beginner-comment-style.md`와 동일하게 이 단계를

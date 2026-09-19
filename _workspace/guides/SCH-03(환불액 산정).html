@@ -317,9 +317,9 @@ def test_24h_boundary_is_inclusive_of_full_refund(label, before, expected_rate_b
   <h2>6. 다른 SCH와의 연관관계</h2>
   <p>SCH-03은 SCH-01·SCH-02 <b>다음</b>에 실행됐지만, 실제로는 그 둘의 결과물(모델, DB 배선)을 <b>전혀 import하지 않습니다.</b> 순서상 뒤에 있을 뿐, 코드 상으로는 독립적입니다. 반대로 SCH-04(어댑터 3종: PG/알림/슬롯락) 이후의 여러 작업은 이 SCH-03의 계산 함수를 그대로 가져다 씁니다.</p>
   <div class="flow">
-    <div class="step dim"><b><a href="SCH-01.html" style="color:inherit;text-decoration:none">SCH-01</a></b>기반 배선<br><span class="badge done">완료</span></div>
+    <div class="step dim"><b><a href="SCH-01(기반 배선).html" style="color:inherit;text-decoration:none">SCH-01</a></b>기반 배선<br><span class="badge done">완료</span></div>
     <div class="arrow">→</div>
-    <div class="step dim"><b><a href="SCH-02.html" style="color:inherit;text-decoration:none">SCH-02</a></b>도메인 모델 7개<br><span class="badge done">완료</span></div>
+    <div class="step dim"><b><a href="SCH-02(도메인 모델).html" style="color:inherit;text-decoration:none">SCH-02</a></b>도메인 모델 7개<br><span class="badge done">완료</span></div>
     <div class="arrow">→</div>
     <div class="step here"><b>SCH-03</b>환불액 산정 함수 (이 문서)<br><span class="badge done">완료</span></div>
   </div>

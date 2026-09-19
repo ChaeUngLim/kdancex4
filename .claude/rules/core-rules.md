@@ -15,7 +15,7 @@
 
 **적용 대상**
 - `docs/*.md` · `docs/가이드/*.html` 등 프로젝트 설명 문서
-- `_workspace/guides/SCH-XX.html` 왕초보 완벽분석가이드
+- `_workspace/guides/SCH-XX(기능명).html` 왕초보 완벽분석가이드
 - README, 기획/정책 문서
 - 커밋 메시지 본문 · PR 설명 (상세는 「Git 커밋 / PR 설명」 절)
 - 분량 있는 학습 주석 블록(`beginner-comment-style.md` 기준으로 쓴 문단급 주석)
@@ -161,7 +161,7 @@ Harness(WORKFLOW)와 ECC(QUALITY) 둘 다 아래 MCP를 호출해 실제 작업�
 >    - **프론트엔드 3개는 폴백이 아니라 역할별 직접 호출**: 화면 구조·상태관리 등 판단이 필요한 작업 → `kiro/claude-sonnet-4.5`(월 50회 한도라 아무 데나 먼저 쓰지 않음); 실제 컴포넌트/UI 코드 작성 **및 비슷한 화면 다수·일괄 스타일 같은 대량 반복** → `zai/glm-4.7-flash`(기본값 겸 물량 담당 — 만료 없는 영구 무료라 프론트엔드에서 볼륨을 받아낼 수 있는 유일한 모델); `gemini/gemini-3.8-flash`는 **예비(비상용)** — 하루 20건뿐이라 대량 작업에 쓸 수 없고 GLM이 막혔을 때 중요한 몇 건에만 쓴다. 지정한 모델의 한도가 막혔을 때만 안전망 Combo `fe-fallback`(`kiro/claude-sonnet-4.5 → zai/glm-4.7-flash → gemini/gemini-3.8-flash`, Priority, 아직 미생성)으로 대체한다.
 >    - 3개월마다(다음: 2026-12-18) 클라우드 루틴이 이 구성의 최신성을 재검증한다 — 결과는 보고서만 남기고 자동 반영은 안 하므로, 다음 세션에서 사람이 확인 후 직접 반영한다.
 
-**전체 4계층**: 1) 핵심 조합 — Harness + ECC  2) 도구 계층 — 위 MCP 6종  3) UI 계층 — `frontend-design` + `ui-ux-pro-max` 스킬군(admin-web·mobile 화면 작업)  4) 왕초보 설명 계층 — SCH별 학습 주석(`beginner-comment-style.md`) + 왕초보 완벽분석가이드(`sch-guide-template.md`, `_workspace/guides/SCH-XX.html`) + MindPilot.
+**전체 4계층**: 1) 핵심 조합 — Harness + ECC  2) 도구 계층 — 위 MCP 6종  3) UI 계층 — `frontend-design` + `ui-ux-pro-max` 스킬군(admin-web·mobile 화면 작업)  4) 왕초보 설명 계층 — SCH별 학습 주석(`beginner-comment-style.md`) + 왕초보 완벽분석가이드(`sch-guide-template.md`, `_workspace/guides/SCH-XX(기능명).html`) + MindPilot.
 
 4번(왕초보 설명 계층)은 1~3번이 끝난 결과를 설명만 할 뿐, 의사결정에 관여하지 않는다 — Visual Guide Skill과 MindPilot은 Harness/ECC와 경쟁·대체 관계가 아니라 그 위에 얹는 부가 계층이다.
 
@@ -176,7 +176,7 @@ Harness(WORKFLOW)와 ECC(QUALITY) 둘 다 아래 MCP를 호출해 실제 작업�
   1. **무엇을, 왜** — 전문 용어는 처음 등장할 때 괄호로 짧게 풀이. "왜 이 방식을 택했는지"의 핵심 판단 1가지를 반드시 포함(면접담당자가 가장 궁금해하는 부분).
   2. **SCH 참조** (있다면) — 번호만 쓰지 않고 `SCH-04(어댑터 3종: PG/알림/슬롯락)`처럼 기능명을 붙인다(`beginner-comment-style.md`의 "SCH 표기 규칙"과 동일 기조).
   3. **검증** — 실행한 테스트와 결과를 한 줄로(예: `pytest 159 passed`). 알려진 제한/미해결이 있다면 과장 없이 한 줄로.
-  4. **가이드 링크** (있다면) — 해당 SCH의 왕초보 가이드(`_workspace/guides/SCH-XX.html`) 경로.
+  4. **가이드 링크** (있다면) — 해당 SCH의 왕초보 가이드(`_workspace/guides/SCH-XX(기능명).html`) 경로.
 - **커밋·푸시 전에 본문을 윤문한다 — 「AI 티 제거」 절의 필수 단계가 커밋 메시지·PR 설명에도 그대로 적용된다.** 위 4항목을 갖춰 초안을 쓰고, 스킬에 통과시킨 결과를 최종본으로 쓴다. 스킬이 내용 앵커를 보존하므로 4항목의 정보는 그대로 남는다.
   - **제목 줄은 윤문 대상이 아니다** — conventional commit 형식이 고정돼 있다.
   - 본문이 3문장 이상일 때만 적용한다. 한 줄 커밋은 생략.

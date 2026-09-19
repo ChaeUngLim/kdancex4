@@ -171,7 +171,7 @@
 
 <section id="concepts">
   <h2>2. 사전 개념</h2>
-  <p>트랜잭션·행 잠금(<code>SELECT ... FOR UPDATE</code>)·멱등성·SAVEPOINT·<code>Depends()</code>는 <a href="SCH-05.html">SCH-05(취소 오케스트레이션 서비스 + deps.py)</a>에서, JSONB는 <a href="SCH-02.html">SCH-02(도메인 모델 7개)</a>에서, Pydantic 스키마 검증은 <a href="SCH-06.html">SCH-06(Pydantic 스키마 + 라우터 + main.py)</a>에서 이미 설명했으므로 반복하지 않습니다. 이번 SCH에서 처음 나오는 개념 4가지만 설명합니다.</p>
+  <p>트랜잭션·행 잠금(<code>SELECT ... FOR UPDATE</code>)·멱등성·SAVEPOINT·<code>Depends()</code>는 <a href="SCH-05(취소 오케스트레이션).html">SCH-05(취소 오케스트레이션 서비스 + deps.py)</a>에서, JSONB는 <a href="SCH-02(도메인 모델).html">SCH-02(도메인 모델 7개)</a>에서, Pydantic 스키마 검증은 <a href="SCH-06(스키마·라우터).html">SCH-06(Pydantic 스키마 + 라우터 + main.py)</a>에서 이미 설명했으므로 반복하지 않습니다. 이번 SCH에서 처음 나오는 개념 4가지만 설명합니다.</p>
 
   <h3 id="concept-fixture">pytest fixture(픽스처)가 뭔가요?</h3>
   <p>테스트 함수가 필요로 하는 "준비물"(DB 세션, API 클라이언트 등)을 함수 인자 이름으로 자동으로 받는 pytest의 기능입니다. <code>scope="session"</code>이면 테스트 전체에서 딱 한 번만 만들고(예: <code>db_engine</code> — DB 연결 자체는 비싸니까), <code>scope="function"</code>이면 테스트마다 새로 만듭니다(예: <code>db_session</code> — 각 테스트가 서로의 데이터를 보지 못하게 독립된 트랜잭션을 가져야 하니까).</p>
@@ -242,18 +242,18 @@
   <h2>6. 다른 SCH와의 연관관계</h2>
   <p>SCH-07은 <b>SCH-01~06이 쌓아온 모든 계층을 처음으로 한 번에 실행 경로로 묶어서 검증할 준비</b>를 하는 지점입니다. 새 기능이 아니라 "검증 도구"입니다.</p>
   <div class="flow">
-    <div class="step dim"><b><a href="SCH-01.html" style="color:inherit;text-decoration:none">SCH-01</a></b>기반 배선<br><span class="badge done">완료</span></div>
+    <div class="step dim"><b><a href="SCH-01(기반 배선).html" style="color:inherit;text-decoration:none">SCH-01</a></b>기반 배선<br><span class="badge done">완료</span></div>
     <div class="arrow">→</div>
-    <div class="step dim"><b><a href="SCH-02.html" style="color:inherit;text-decoration:none">SCH-02</a></b>도메인 모델 7개<br><span class="badge done">완료</span></div>
+    <div class="step dim"><b><a href="SCH-02(도메인 모델).html" style="color:inherit;text-decoration:none">SCH-02</a></b>도메인 모델 7개<br><span class="badge done">완료</span></div>
     <div class="arrow">→</div>
-    <div class="step dim"><b><a href="SCH-03.html" style="color:inherit;text-decoration:none">SCH-03</a></b>환불액 산정 함수<br><span class="badge done">완료</span></div>
+    <div class="step dim"><b><a href="SCH-03(환불액 산정).html" style="color:inherit;text-decoration:none">SCH-03</a></b>환불액 산정 함수<br><span class="badge done">완료</span></div>
     <div class="arrow">→</div>
-    <div class="step dim"><b><a href="SCH-04.html" style="color:inherit;text-decoration:none">SCH-04</a></b>어댑터 3종<br><span class="badge done">완료</span></div>
+    <div class="step dim"><b><a href="SCH-04(어댑터 3종).html" style="color:inherit;text-decoration:none">SCH-04</a></b>어댑터 3종<br><span class="badge done">완료</span></div>
   </div>
   <div class="flow">
-    <div class="step dim"><b><a href="SCH-05.html" style="color:inherit;text-decoration:none">SCH-05</a></b>취소 오케스트레이션 서비스<br><span class="badge done">완료</span></div>
+    <div class="step dim"><b><a href="SCH-05(취소 오케스트레이션).html" style="color:inherit;text-decoration:none">SCH-05</a></b>취소 오케스트레이션 서비스<br><span class="badge done">완료</span></div>
     <div class="arrow">→</div>
-    <div class="step dim"><b><a href="SCH-06.html" style="color:inherit;text-decoration:none">SCH-06</a></b>스키마 + 라우터<br><span class="badge done">완료</span></div>
+    <div class="step dim"><b><a href="SCH-06(스키마·라우터).html" style="color:inherit;text-decoration:none">SCH-06</a></b>스키마 + 라우터<br><span class="badge done">완료</span></div>
     <div class="arrow">→</div>
     <div class="step here"><b>SCH-07</b>conftest + DB 통합 테스트 작성 (이 문서)<br><span class="badge done">완료</span></div>
     <div class="arrow">→</div>

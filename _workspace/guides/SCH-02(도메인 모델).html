@@ -147,7 +147,7 @@
 
 <header class="hero">
   <h1>🗂️ SCH-02 왕초보 완벽분석가이드 — 도메인 모델 7개 + 초기 마이그레이션</h1>
-  <p class="sub">이 프로젝트가 실제로 다루는 데이터(학원, 수업, 주문, 결제, 예약, 환불)를 처음으로 테이블로 정의합니다. <a href="SCH-01.html">SCH-01(기반 배선)</a>이 설명한 개념은 반복하지 않고 여기서는 새로 나오는 개념만 설명합니다.</p>
+  <p class="sub">이 프로젝트가 실제로 다루는 데이터(학원, 수업, 주문, 결제, 예약, 환불)를 처음으로 테이블로 정의합니다. <a href="SCH-01(기반 배선).html">SCH-01(기반 배선)</a>이 설명한 개념은 반복하지 않고 여기서는 새로 나오는 개념만 설명합니다.</p>
 </header>
 
 <nav class="toc">
@@ -165,7 +165,7 @@
 
 <section id="overview">
   <h2>1. 개요</h2>
-  <p>SCH-02(도메인 모델 7개 + 초기 마이그레이션)는 이 프로젝트의 <b>실제 데이터 모델 7개</b>(<code>Academy</code> 학원, <code>ClassSchedule</code> 수업 시간표, <code>Order</code> 주문, <code>Payment</code> 결제, <code>Reservation</code> 예약, <code>Refund</code> 환불, <code>RefundEvent</code> 환불 감사 로그)를 <a href="SCH-01.html">SCH-01(기반 배선)</a>이 만든 <code>Base</code> 위에 올리고, 이 7개 테이블을 실제 PostgreSQL에 만드는 <b>초기 마이그레이션 파일 1개</b>를 손으로 작성한 SCH입니다.</p>
+  <p>SCH-02(도메인 모델 7개 + 초기 마이그레이션)는 이 프로젝트의 <b>실제 데이터 모델 7개</b>(<code>Academy</code> 학원, <code>ClassSchedule</code> 수업 시간표, <code>Order</code> 주문, <code>Payment</code> 결제, <code>Reservation</code> 예약, <code>Refund</code> 환불, <code>RefundEvent</code> 환불 감사 로그)를 <a href="SCH-01(기반 배선).html">SCH-01(기반 배선)</a>이 만든 <code>Base</code> 위에 올리고, 이 7개 테이블을 실제 PostgreSQL에 만드는 <b>초기 마이그레이션 파일 1개</b>를 손으로 작성한 SCH입니다.</p>
   <p>흥미로운 점은, 착수 시점에 이미 5개 모델(<code>Academy</code>, <code>ClassSchedule</code>, <code>Order</code>, <code>Payment</code>, <code>Reservation</code>)이 코드로 존재하고 있었다는 것입니다(이전 실행이 중단된 흔적으로 추정). SCH-02(도메인 모델 7개 + 초기 마이그레이션)가 실제로 새로 만든 것은 <code>Refund</code>·<code>RefundEvent</code> 2개 모델과, 7개 테이블 전체를 만드는 마이그레이션 파일입니다.</p>
   <div class="callout good">
     <div class="callout-label">한 줄 요약</div>
@@ -338,7 +338,7 @@ depends_on: str | Sequence[str] | None = None</code></pre>
 <section id="relations">
   <h2>6. 다른 SCH와의 연관관계</h2>
   <div class="flow">
-    <div class="step dim"><b><a href="SCH-01.html" style="color:inherit;text-decoration:none">SCH-01</a></b>기반 배선<br><span class="badge done">완료</span></div>
+    <div class="step dim"><b><a href="SCH-01(기반 배선).html" style="color:inherit;text-decoration:none">SCH-01</a></b>기반 배선<br><span class="badge done">완료</span></div>
     <div class="arrow">→</div>
     <div class="step"><b>SCH-02</b>도메인 모델 7개 + 마이그레이션 (이 문서)<br><span class="badge done">완료</span></div>
     <div class="arrow">→</div>
