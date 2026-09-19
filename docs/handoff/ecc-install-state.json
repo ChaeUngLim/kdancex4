@@ -1,0 +1,27 @@
+{
+  "schemaVersion": "ecc.install.v1",
+  "installedAt": "2026-09-15T06:34:43.434Z",
+  "request": {
+    "profile": null,
+    "modules": [
+      "rules-core"
+    ],
+    "includeComponents": [],
+    "excludeComponents": [],
+    "legacyLanguages": [],
+    "legacyMode": false,
+    "hookConsent": null
+  },
+  "resolution": {
+    "selectedModules": [
+      "rules-core"
+    ],
+    "skippedModules": []
+  },
+  "source": {
+    "repoVersion": "2.2.1",
+    "repoCommit": "8321021c54d670126ce3b2969d5deb880b4b0c2a",
+    "manifestVersion": 1
+  },
+  "target_root": "/home/user/.claude"
+}

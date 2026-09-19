@@ -1,0 +1,83 @@
+{
+  "includeCoAuthoredBy": false,
+  "model": "opus",
+  "enabledPlugins": {
+    "ecc@ecc": true,
+    "frontend-design@claude-plugins-official": true,
+    "harness@harness-marketplace": true,
+    "ui-ux-pro-max@ui-ux-pro-max-skill": true,
+    "humanize-korean@im-not-ai": true
+  },
+  "extraKnownMarketplaces": {
+    "harness-marketplace": {
+      "source": {
+        "source": "github",
+        "repo": "revfactory/harness"
+      }
+    },
+    "humanizer": {
+      "source": {
+        "source": "github",
+        "repo": "blader/humanizer"
+      }
+    },
+    "ui-ux-pro-max-skill": {
+      "source": {
+        "source": "github",
+        "repo": "nextlevelbuilder/ui-ux-pro-max-skill"
+      }
+    },
+    "im-not-ai": {
+      "source": {
+        "source": "github",
+        "repo": "epoko77-ai/im-not-ai"
+      }
+    },
+    "ecc": {
+      "source": {
+        "source": "git",
+        "url": "https://github.com/affaan-m/everything-claude-code.git"
+      }
+    }
+  },
+  "theme": "dark",
+  "agentPushNotifEnabled": true,
+  "autoMode": {
+    "allow": [
+      "$defaults",
+      "Bash(uv run:*)"
+    ],
+    "soft_deny": [
+      "$defaults",
+      "Bash(uv run alembic downgrade:*)",
+      "Bash(docker compose down:*)"
+    ],
+    "environment": [
+      "### Org-wide",
+      "**Organization**: None configured — 개인 GitHub 계정 ChaeUngLim. kdance(K-DanceX3 / 작업명 k-dancex4)는 댄스 스튜디오 예약·회원 관리 앱이고 1인 개발 + 포트폴리오 겸용이다",
+      "**Cloud provider(s)**: None configured",
+      "**Repository visibility**: private (github.com/ChaeUngLim/kdancex4)",
+      "**Internal sharing / snippet hosting**: None configured — 공개 paste·gist 는 신뢰 경계 밖이다",
+      "**Secrets management**: backend/.env 와 mobile/.env 가 비밀값의 출처다. .gitignore 가 .env 를 막고 .env.example 만 커밋한다. .env 자체는 읽지도 공유하지도 않는다 (admin-web 은 아직 .env.example 만 있다)",
+      "**Default / protected branches**: 기본 브랜치 main. 보호 규칙은 없다 — 무료 플랜이라 설정 자체가 막혀 있다",
+      "**CI/CD deploy targets**: None configured — .github/workflows 가 없다. 검증선은 로컬 pytest 와 admin-web 의 next build 뿐이다 (npm run lint 는 eslint-config-next 16 × eslint 9 순환 설정 버그로 깨져 있다)",
+      "**Network posture**: None configured",
+      "**Host containment**: WSL2 위 개인 개발 머신(i7-13700H / 32GB / RTX 4060). 호스팅 계층의 자격증명은 작업 자격증명이 아니다",
+      "**Source control**: 신뢰 저장소와 그 remote 뿐 — github.com/ChaeUngLim/kdancex4",
+      "**Trusted internal domains**: None configured",
+      "**Trusted cloud buckets**: None configured",
+      "**Key internal services**: 전부 localhost — OmniRoute LLM 게이트웨이 http://localhost:20128(컨테이너 omniroute), PostgreSQL 18+pgvector localhost:5433(kdance-db, DB명 kdance), Redis localhost:6380(kdance-redis), Ollama localhost:11434",
+      "**Internal package registry**: None configured — Python 은 uv(uv.lock), JS 는 npm(package-lock.json). 둘 다 공개 레지스트리를 쓴다",
+      "**Sensitive data locations & audiences**: backend/.env · mobile/.env — PG(결제)·알림 연동 키가 들어갈 자리다. 저장소가 private 이어도 개인정보와 위탁 데이터는 넣지 않는다",
+      "**Data retention / declassification**: None configured",
+      "**Sensitive remote targets**: 이름이나 태그에 prod 또는 production 이 단어 단위로 들어가는 모든 대상",
+      "**Protected deployment namespaces / environments**: None configured — 위 Sensitive remote targets 기준을 따른다",
+      "**Protected IaC scopes**: infra/docker-compose.yml 이 로컬 인프라 기준선이다(kdance-db · kdance-redis). IAM·RBAC·네트워킹·쿼터 자원과 prod 계열 이름을 가진 것 전부",
+      "### User-specific",
+      "**Primary use of Claude Code**: 소프트웨어 개발 — kdance-dev-harness 9단계 파이프라인(요구사항 → 구조 확인 → 계획 → Task 분리 → 구현 → 테스트 → 수정 → 리뷰 → 완료 검증, 그리고 Phase 9.5 학습 주석·SCH 가이드)을 지휘한다. 스택은 FastAPI + SQLAlchemy2 + Alembic + psycopg3(uv / Python 3.12), Next.js App Router, Expo SDK 57",
+      "**Trusted repo**: /home/user/kdance 와 그 remote origin(github.com/ChaeUngLim/kdancex4, private)",
+      "**Org-specific CLIs**: uv(backend 툴체인·pytest·alembic), npm/npx(admin-web·mobile), docker / docker compose(infra), gh, graphify(지식 그래프 — PreToolUse 훅 hook-guard 가 이 CLI 를 부른다), explorer.exe(WSL 에서 HTML 열기). Makefile 은 없다",
+      "**Routine under this repo**: 하네스 산출물은 _workspace/ 에 쓴다 — 01_~05_*.md 14개와 guides/*.html, kdance.html 은 git 이 추적하고 나머지 중간물은 .gitignore 가 막는다. 커밋·푸시는 사용자가 명시적으로 요청할 때만 한다"
+    ]
+  }
+}

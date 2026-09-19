@@ -1,0 +1,22 @@
+{
+  "skillOverrides": {
+    "anthropic-skills:built-in-browser": "off",
+    "anthropic-skills:deep-research": "off",
+    "anthropic-skills:chrome-browser": "off",
+    "anthropic-skills:computer-use": "off",
+    "anthropic-skills:docs": "off",
+    "anthropic-skills:morning": "off",
+    "anthropic-skills:docx": "off",
+    "anthropic-skills:pdf": "off",
+    "security:test-examples:test-advanced-injection": "off",
+    "security:test-examples:test-authority-claims": "off",
+    "security:test-examples:test-basic-role-override": "off",
+    "security:test-examples:test-css-hiding": "off",
+    "security:test-examples:test-encoding-attacks": "off",
+    "security:test-examples:test-invisible-chars": "off",
+    "anthropic-skills:setup-writing-style": "off",
+    "anthropic-skills:pptx": "off",
+    "anthropic-skills:xlsx": "off",
+    "ai-image-creator": "off"
+  }
+}

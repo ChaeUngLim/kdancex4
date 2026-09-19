@@ -1,0 +1,94 @@
+{
+  "_주의": "값에 비밀키는 없다. github/context7 인증은 ~/.claude/.credentials.json(OAuth)에 있고 이 파일은 절대 복사·커밋하지 않는다.",
+  "user_scope": {
+    "omniroute": {
+      "type": "http",
+      "url": "http://localhost:20128/api/mcp/stream",
+      "headers": {
+        "Authorization": "Bearer 9c9883515262a4e6589e8d230171a519c85c3e6f1dfc194b107f1bd51ec97fc0"
+      }
+    },
+    "agent-reach": {
+      "command": "/home/user/.local/bin/uv",
+      "args": [
+        "run",
+        "--directory",
+        "/home/user/tools/Agent-Reach",
+        "--with",
+        "mcp[cli]<2",
+        "python",
+        "-m",
+        "agent_reach.integrations.mcp_server"
+      ]
+    },
+    "memory": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-memory"
+      ],
+      "env": {
+        "MEMORY_FILE_PATH": "/home/user/.claude/external/mcp-memory/memory.json"
+      }
+    },
+    "mindpilot": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "@mindpilot/mcp@latest"
+      ],
+      "env": {}
+    },
+    "context7": {
+      "type": "http",
+      "url": "https://mcp.context7.com/mcp"
+    },
+    "github": {
+      "type": "http",
+      "url": "https://api.githubcopilot.com/mcp",
+      "headers": {
+        "Authorization": "Bearer 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"
+      }
+    },
+    "playwright": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@playwright/mcp@latest",
+        "--headless",
+        "--browser",
+        "chromium",
+        "--isolated",
+        "--storage-state",
+        "/home/user/.cache/kdance-playwright-auth/state.json"
+      ],
+      "env": {}
+    }
+  },
+  "project_scope": {
+    "/home/user/kdance": {
+      "postgres-kdance": {
+        "type": "stdio",
+        "command": "npx",
+        "args": [
+          "-y",
+          "@modelcontextprotocol/server-postgres",
+          "postgresql://kdance:kdance@localhost:5433/kdance"
+        ],
+        "env": {}
+      }
+    }
+  },
+  "plugin_scope": {
+    "chrome-devtools": {
+      "_출처": "ecc 플러그인이 제공한다 (.mcp.json). 플러그인을 깔면 따라온다 — 직접 등록하지 않는다.",
+      "command": "npx",
+      "args": [
+        "-y",
+        "chrome-devtools-mcp@latest"
+      ]
+    }
+  }
+}
