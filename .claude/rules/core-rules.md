@@ -14,7 +14,7 @@
 **산출하는 모든 한국어 글은 초안을 쓴 뒤 `humanize-korean` 스킬(im-not-ai 플러그인)로 한 번 윤문하고, 그 결과를 최종본으로 쓴다.** 한국어로 쓰라는 위 규칙만으로는 부족하다 — 규칙을 지켜 써도 번역투("~에 있어서", "~에 의해"), 피동 남발("~되고 있다", "~것으로 확인되었다"), 지시대명사 직역("그것은"), 결산 공식("결론적으로, ~라고 할 수 있다") 같은 AI 티가 남는다. 이건 읽는 사람이 가장 먼저 감지하는 신호이고, 면접담당자에게는 특히 그렇다.
 
 **적용 대상**
-- `docs/*.md` · `docs/가이드/*.html` 등 프로젝트 설명 문서
+- `docs/*.md` · `docs/guides/*.html` 등 프로젝트 설명 문서
 - `_workspace/guides/SCH-XX.html` 왕초보 완벽분석가이드
 - README, 기획/정책 문서
 - 커밋 메시지 본문 · PR 설명 (상세는 「Git 커밋 / PR 설명」 절)
@@ -165,7 +165,7 @@ Harness(WORKFLOW)와 ECC(QUALITY) 둘 다 아래 MCP를 호출해 실제 작업�
 
 4번(왕초보 설명 계층)은 1~3번이 끝난 결과를 설명만 할 뿐, 의사결정에 관여하지 않는다 — Visual Guide Skill과 MindPilot은 Harness/ECC와 경쟁·대체 관계가 아니라 그 위에 얹는 부가 계층이다.
 
-전체 그림(다이어그램 중심 설명)은 `docs/가이드/harness-ecc-guide.html` 참고.
+전체 그림(다이어그램 중심 설명)은 `docs/guides/harness-ecc-guide.html` 참고.
 
 **설치된 범용 `harness:harness` 메타스킬(harness-marketplace 플러그인)과 절대 혼동하지 않는다.** 이 메타스킬은 새 도메인에 처음부터 하네스를 만들어주는 범용 도구이고, "하네스 점검/감사/현황/에이전트-스킬 동기화" 같은 문구에 트리거된다. kdance는 이미 `kdance-dev-harness`가 만들어져 있고 Phase 9.5·SCH 표기 규칙·beginner-comment-style.md 등 이 프로젝트 전용으로 커스터마이징돼 있다 — 범용 메타스킬은 이 커스터마이징을 모른 채 자기 템플릿으로 재구성하려 들 수 있으므로, kdance에서 하네스를 점검·수정·확장할 때는 **범용 `harness:harness`를 호출하지 말고 `.claude/skills/kdance-dev-harness/`와 `.claude/agents/kdance-*.md`를 직접 Read/Edit한다.**
 
