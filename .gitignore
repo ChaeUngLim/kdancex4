@@ -23,10 +23,13 @@ graphify-out/
 # Subagent-driven-development scratch workspace
 .superpowers/
 
-# kdance-dev-harness scratch workspace (intermediate phase artifacts — req/plan/task/summary docs)
-# 단, SCH 스케줄표(kdance.html)와 왕초보 완벽분석가이드(guides/)는 학습 자료로 저장소에 포함한다
+# kdance-dev-harness scratch workspace
+# 저장소에 포함하는 것 — 인수인계에 필요한 기록이다:
+#   kdance.html        SCH 스케줄표
+#   guides/            왕초보 완벽분석가이드
+#   01_~05_*.md        Q1~Q5(요구사항)·D1~D4(설계 결정) 정의의 유일한 출처
+# 제외하는 것 — 재생성 가능한 중간 산출물:
 _workspace/00_input/
-_workspace/0[1-9]_*.md
 _workspace_*/
 _workspace/mobydick-v2-schedule.html
 .diagrams/

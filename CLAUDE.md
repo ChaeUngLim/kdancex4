@@ -55,7 +55,7 @@ This template requires `.claude/rules/core-rules.md` for behavioral rules. If `.
 |------|----------|------|------|
 | 2026-09-14 | 초기 구성 — 9-phase 파이프라인 오케스트레이터 + 8개 신규 에이전트(Phase 2는 기존 code-searcher 재사용) | `.claude/skills/kdance-dev-harness/`, `.claude/agents/kdance-*.md` | 사용자 요청 — Harness가 SDLC 흐름을, ECC가 실제 실행을 담당하는 역할 분리 구조 |
 | 2026-09-15 | Phase 9.5(학습 주석 재구성) 추가 — SCH 항목이 `_workspace/kdance.html`에서 완료로 표시될 때 kdance-implementer를 재사용해 6개월차 비전공자 대상 "지도바둑식" 학습 주석(사전 개념 요약 + 전체 구성 내 위치 설명)으로 재구성 | `.claude/skills/kdance-dev-harness/SKILL.md`, `.claude/skills/kdance-dev-harness/references/beginner-comment-style.md`(신규), `.claude/agents/kdance-implementer.md` | 사용자 요청 — 비전공자가 완료된 소스만 보고도 아키텍처 맥락과 배경 개념을 따라갈 수 있게 하기 위함 |
-| 2026-09-15 | Phase 9.5 확장 — SCH 완료 시 소스 학습 주석과 같은 호출에서 `_workspace/guides/SCH-{번호}.html` 왕초보 완벽분석가이드(이슈→원인파악→해결, 테스트 결과, 다른 SCH와의 연관관계)도 생성하도록 추가 | `.claude/skills/kdance-dev-harness/SKILL.md`, `.claude/skills/kdance-dev-harness/references/sch-guide-template.md`(신규), `.claude/agents/kdance-implementer.md` | 사용자 요청 — 소스 내 주석만으로는 부족한 "작업 과정 전체(이슈·해결·테스트·SCH 간 연관관계)"를 별도 HTML로 남기기 위함 |
+| 2026-09-15 | Phase 9.5(학습 주석 재구성·SCH 가이드 생성) 확장 — SCH 완료 시 소스 학습 주석과 같은 호출에서 `_workspace/guides/SCH-{번호}.html` 왕초보 완벽분석가이드(이슈→원인파악→해결, 테스트 결과, 다른 SCH와의 연관관계)도 생성하도록 추가 | `.claude/skills/kdance-dev-harness/SKILL.md`, `.claude/skills/kdance-dev-harness/references/sch-guide-template.md`(신규), `.claude/agents/kdance-implementer.md` | 사용자 요청 — 소스 내 주석만으로는 부족한 "작업 과정 전체(이슈·해결·테스트·SCH 간 연관관계)"를 별도 HTML로 남기기 위함 |
 | 2026-09-15 | SCH 표기 규칙 추가(번호 단독 금지, `SCH-04(기능명)` 형식 강제) + Git 커밋/PR 설명도 왕초보 기준 문체 규칙 추가 | `.claude/skills/kdance-dev-harness/references/beginner-comment-style.md`, `references/sch-guide-template.md`, `.claude/rules/core-rules.md`, `.claude/skills/kdance-dev-harness/SKILL.md` | 사용자 요청 — 번호만으로는 어떤 SCH인지 알 수 없음 + GitHub push(커밋/PR)에도 동일한 왕초보 이해 기준을 적용 |
 
 ---
@@ -83,7 +83,11 @@ This project uses a dual-memory architecture:
 | memory/architecture.md | CLAUDE-decisions.md | Survives CLAUDE.md reset |
 | memory/build.md | Build, Test & Verify section | Survives CLAUDE.md reset |
 
-All optional — check existence first. Exclude CLAUDE.md and CLAUDE-*.md from commits.
+All optional — check existence first.
+
+**CLAUDE.md 는 git 으로 추적하고 변경 시 커밋한다** (2026-09-20 변경). 이전 규칙은 커밋에서 제외였는데, 파일은 이미 추적 중이라 git 버전만 뒤처지고 있었다. 다른 PC·다른 계정으로 이어받을 때 옛 버전이 넘어가는 문제가 있어 바꿨다. 인수인계 절차는 `docs/handoff.md` 참고.
+
+`CLAUDE-*.md` 메모리 뱅크 파일은 아직 만들지 않았다 — 만들면 같은 기조로 추적한다.
 
 <!-- BACKUP TIP: Create a private git repo for memory bank backups:
      rsync -av ./CLAUDE.md ./CLAUDE-*.md ./.claude/ ~/my-project-memory-backup/
