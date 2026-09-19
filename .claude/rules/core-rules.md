@@ -94,7 +94,15 @@ Harness(WORKFLOW)와 ECC(QUALITY) 둘 다 아래 MCP를 호출해 실제 작업�
 
 > **`mcp__mindpilot__*`는 다이어그램·아키텍처·구조도 시각화 요청의 실행 도구로 명시한다.** "다이어그램 보여줘", "구조도 그려줘", "mindpilot UI로 보여줘" 같은 요청에는 mindpilot-mcp를 우선 실행 도구로 사용한다(연결 여부는 아래 절차로 먼저 확인). 안정성이 더 중요한 반복 작업이면 `diagram-this` 스킬로 대체한다(절차 5번).
 
-> **mindpilot-mcp 사용 절차(2026-09-16 확인, WSL 환경).** 근본 원인: `mindpilot-mcp`는 stdio 전송만 지원하는 패키지이고(HTTP/SSE 모드 없음, `bin`이 `dist/mcp/server.js` 하나뿐), 세션 안에서 도구 호출마다 연결이 간헐적으로 끊긴다. Claude Code 공식 문서상 stdio MCP는 세션 내내 연결이 유지되는 게 정상이라 이건 하네스 쪽 이상 동작이며, mindpilot 패키지·이 프로젝트 설정 어느 쪽에도 고칠 수 있는 옵션이 없다(이미 확인 완료, 재조사 불필요). **그러니 "왜 끊기는지"를 다시 진단하려 하지 말고 바로 아래 절차를 따른다:**
+> **mindpilot-mcp 사용 절차(2026-09-19 원인 규명, WSL 환경).** 근본 원인은 **패키지 버그**다 — 재조사할 필요 없다. `@mindpilot/mcp` 0.5.1은 UI를 Electron 앱(`dist/electron/main.js`)으로 띄우는데, `electron`이 `package.json`의 **devDependencies**에 들어 있다. `npx`로 설치하면 devDependencies는 안 깔리므로 `node_modules/.bin/electron`이 비어 있고, `open_ui` 호출이 `spawn ... ENOENT`로 실패하면서 그 예외가 MCP 서버 프로세스를 통째로 죽인다. 이것이 "간헐적으로 끊긴다"고 기록해 둔 현상의 정체다(2026-09-16자 기록은 stdio 전송 문제로 오진했다 — 그 진단은 폐기).
+>
+> **우회 수단이 있다.** 같은 패키지 안에 Electron 없이 도는 웹서버 진입점이 들어 있다. 이걸 직접 띄우면 `localhost:4000` UI가 그대로 열린다:
+> ```bash
+> node ~/.npm/_npx/*/node_modules/@mindpilot/mcp/dist/http/server.js
+> ```
+> 다만 이 웹서버는 MCP 연결과 별개라, UI는 보여도 `render_mermaid` 도구 호출은 MCP가 붙어 있어야 한다. 근본 해결은 해당 패키지 디렉터리에서 `npm i electron`(150MB+, WSLg 필요)을 한 번 깔아 주는 것이다.
+>
+> **아래 절차를 따른다:**
 >
 > 1. mindpilot 도구 호출 전 `ToolSearch("select:mcp__mindpilot__render_mermaid,mcp__mindpilot__open_ui")`로 연결 확인.
 > 2. 안 잡히면 사용자에게 **이 터미널에서** `/mcp` 재연결을 요청한다(다른 터미널/세션에서 재연결해도 이 세션에는 반영 안 됨 — 반드시 같은 터미널).
@@ -116,7 +124,7 @@ Harness(WORKFLOW)와 ECC(QUALITY) 둘 다 아래 MCP를 호출해 실제 작업�
 
 4번(왕초보 설명 계층)은 1~3번이 끝난 결과를 설명만 할 뿐, 의사결정에 관여하지 않는다 — Visual Guide Skill과 MindPilot은 Harness/ECC와 경쟁·대체 관계가 아니라 그 위에 얹는 부가 계층이다.
 
-전체 그림(다이어그램 중심 설명)은 `docs/harness-ecc-guide.html` 참고.
+전체 그림(다이어그램 중심 설명)은 `docs/가이드/harness-ecc-guide.html` 참고.
 
 **설치된 범용 `harness:harness` 메타스킬(harness-marketplace 플러그인)과 절대 혼동하지 않는다.** 이 메타스킬은 새 도메인에 처음부터 하네스를 만들어주는 범용 도구이고, "하네스 점검/감사/현황/에이전트-스킬 동기화" 같은 문구에 트리거된다. kdance는 이미 `kdance-dev-harness`가 만들어져 있고 Phase 9.5·SCH 표기 규칙·beginner-comment-style.md 등 이 프로젝트 전용으로 커스터마이징돼 있다 — 범용 메타스킬은 이 커스터마이징을 모른 채 자기 템플릿으로 재구성하려 들 수 있으므로, kdance에서 하네스를 점검·수정·확장할 때는 **범용 `harness:harness`를 호출하지 말고 `.claude/skills/kdance-dev-harness/`와 `.claude/agents/kdance-*.md`를 직접 Read/Edit한다.**
 
