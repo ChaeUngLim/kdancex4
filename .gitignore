@@ -29,3 +29,17 @@ _workspace/00_input/
 _workspace/0[1-9]_*.md
 _workspace_*/
 _workspace/mobydick-v2-schedule.html
+.diagrams/
+
+# Playwright MCP 세션 캐시 (재생성 가능)
+.playwright-mcp/
+
+# IDE 설정
+.idea/
+
+# 작업 중 스크린샷 (저장소 루트에 임시로 떨어지는 것들)
+/admin-web-home.png
+/playwright-mcp-test.png
+
+# humanize-korean 스킬 run 디렉터리 (YYYY-MM-DD-NNN 형식 — 윤문 중간 산출물)
+_workspace/20[0-9][0-9]-[0-1][0-9]-[0-3][0-9]-[0-9][0-9][0-9]/
