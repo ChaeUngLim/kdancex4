@@ -16,15 +16,15 @@ kdance 프로젝트의 코드 변경 작업을 9단계 파이프라인으로 조
 | Phase | 에이전트 | subagent_type | ECC 실행 리소스(핵심) | 출력 |
 |---|---|---|---|---|
 | 1 요구사항 분석 | kdance-req-analyst | `kdance-req-analyst` | AskUserQuestion, docs/*.md | `01_req-analyst_requirements.md` |
-| 2 기존 코드 구조 확인 | code-searcher (기존 재사용) | `code-searcher` | `ecc:codebase-onboarding`, `mcp__postgres-kdance` | `02_code-searcher_structure.md` |
-| 3 구현 계획 | kdance-impl-planner | `kdance-impl-planner` | `ecc:architect`, `ecc:code-architect`, `ecc:architecture-decision-records` | `03_impl-planner_plan.md` |
+| 2 기존 코드 구조 확인 | code-searcher (기존 재사용) | `code-searcher` | `ecc:codebase-onboarding`, `mcp__postgres-kdance`, 구조 시각화 필요시 `mcp__mindpilot__*`(절차는 core-rules.md) | `02_code-searcher_structure.md` |
+| 3 구현 계획 | kdance-impl-planner | `kdance-impl-planner` | `ecc:architect`, `ecc:code-architect`, `ecc:architecture-decision-records`, 구조 시각화 필요시 `mcp__mindpilot__*`(절차는 core-rules.md) | `03_impl-planner_plan.md` |
 | 4 Task 분리 | kdance-task-splitter | `kdance-task-splitter` | `TaskCreate` | `04_task-splitter_tasks.md` |
 | 5 구현 (팬아웃 가능) | kdance-implementer × N | `kdance-implementer` | `ecc:fastapi-patterns`/`python-patterns`/`react-patterns`/`react-native-patterns`/`postgres-patterns`, `mcp__postgres-kdance`, `mcp__context7` (코드 탐색·파일 수정·의존성 확인) | `05_implementer_{task-id}_summary.md` |
 | 6 테스트 | kdance-test-runner | `kdance-test-runner` | `ecc:python-testing`, `ecc:react-testing`, `ecc:test-coverage` (테스트 실행) | `06_test-runner_results.md` |
 | 7 오류 수정 | kdance-bug-fixer | `kdance-bug-fixer` | `ecc:build-fix`, `ecc:react-build-resolver` (디버깅) | `07_bug-fixer_fixes.md` |
 | 8 코드 리뷰 | kdance-code-reviewer | `kdance-code-reviewer` | `code-review`, `ecc:fastapi-reviewer`/`react-reviewer`/`typescript-reviewer`/`database-reviewer`/`security-reviewer` | `08_code-reviewer_review.md` |
 | 9 완료 검증 | kdance-completion-verifier | `kdance-completion-verifier` | `run`, `ecc:verification-loop` | `09_completion-verifier_report.md` |
-| 9.5 학습 주석 재구성 + SCH 가이드 생성 (SCH 완료 시) | kdance-implementer (재사용) | `kdance-implementer` | `references/beginner-comment-style.md`, `references/sch-guide-template.md` | 변경 파일에 학습 주석 반영 + `_workspace/guides/SCH-{번호}.html` 신규 + `kdance.html` SCH 완료·가이드 링크 갱신 |
+| 9.5 학습 주석 재구성 + SCH 가이드 생성 (SCH 완료 시) | kdance-implementer (재사용) | `kdance-implementer` | `references/beginner-comment-style.md`, `references/sch-guide-template.md`, "다른 SCH와의 연관관계" 절에 플로우 다이어그램이 필요하면 `mcp__mindpilot__*`(절차는 core-rules.md) | 변경 파일에 학습 주석 반영 + `_workspace/guides/SCH-{번호}.html` 신규 + `kdance.html` SCH 완료·가이드 링크 갱신 |
 
 Git 작업(커밋/브랜치)은 오케스트레이터(리더)가 사용자 승인 후 직접 수행한다(core-rules.md: 공유 상태 변경은 확인 후) — `ecc:git-workflow` 스킬 참고. 리팩터링은 Phase 8 지적을 Phase 7이 반영하거나, 범위가 크면 사용자에게 별도 `ecc:refactor-clean` 실행 여부를 확인한다.
 

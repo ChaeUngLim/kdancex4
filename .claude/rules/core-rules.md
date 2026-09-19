@@ -90,7 +90,27 @@ kdance는 예약 취소/환불 슬라이스를 넘어 수업·결제·캘린더�
 
 ### MCP 도구 계층 + 전체 4계층 구조
 Harness(WORKFLOW)와 ECC(QUALITY) 둘 다 아래 MCP를 호출해 실제 작업을 한다 — MCP를 직접 고르지 않고 Harness/ECC 어느 쪽 일이냐로 자동으로 정해진다:
-- `mcp__context7__*` 문서 · `mcp__postgres-kdance__*` DB 작업 · `mcp__playwright__*` E2E · `mcp__mindpilot__*` 구조도 · `mcp__plugin_ecc_chrome-devtools__*` 브라우저 · `mcp__memory__*` 세션 간 기억(지식 그래프)
+- `mcp__context7__*` 문서 · `mcp__postgres-kdance__*` DB 작업 · `mcp__playwright__*` E2E · `mcp__mindpilot__*` 구조도 시각화 **실행 도구** · `mcp__plugin_ecc_chrome-devtools__*` 브라우저 · `mcp__memory__*` 세션 간 기억(지식 그래프)
+
+> **`mcp__mindpilot__*`는 다이어그램·아키텍처·구조도 시각화 요청의 실행 도구로 명시한다.** "다이어그램 보여줘", "구조도 그려줘", "mindpilot UI로 보여줘" 같은 요청에는 mindpilot-mcp를 우선 실행 도구로 사용한다(연결 여부는 아래 절차로 먼저 확인). 안정성이 더 중요한 반복 작업이면 `diagram-this` 스킬로 대체한다(절차 5번).
+
+> **mindpilot-mcp 사용 절차(2026-09-16 확인, WSL 환경).** 근본 원인: `mindpilot-mcp`는 stdio 전송만 지원하는 패키지이고(HTTP/SSE 모드 없음, `bin`이 `dist/mcp/server.js` 하나뿐), 세션 안에서 도구 호출마다 연결이 간헐적으로 끊긴다. Claude Code 공식 문서상 stdio MCP는 세션 내내 연결이 유지되는 게 정상이라 이건 하네스 쪽 이상 동작이며, mindpilot 패키지·이 프로젝트 설정 어느 쪽에도 고칠 수 있는 옵션이 없다(이미 확인 완료, 재조사 불필요). **그러니 "왜 끊기는지"를 다시 진단하려 하지 말고 바로 아래 절차를 따른다:**
+>
+> 1. mindpilot 도구 호출 전 `ToolSearch("select:mcp__mindpilot__render_mermaid,mcp__mindpilot__open_ui")`로 연결 확인.
+> 2. 안 잡히면 사용자에게 **이 터미널에서** `/mcp` 재연결을 요청한다(다른 터미널/세션에서 재연결해도 이 세션에는 반영 안 됨 — 반드시 같은 터미널).
+> 3. 재연결 직후에는 여러 호출이 자동으로 잘 이어지는 구간이 있다(로그상 확인됨) — **그 요청에 필요한 mindpilot 호출을 한 번에 몰아서 실행**하고, 다음 사용자 메시지를 기다리며 시간을 끌지 않는다.
+> 4. UI는 기본 `localhost:4000` 공유 웹서버이고, `open_ui`의 자동 브라우저 열기가 이 WSL 환경에서 안 먹거나 빈 화면으로 뜰 수 있다 — 그럴 땐 `explorer.exe`로 `http://localhost:4000`을 직접 열게 안내한다.
+> 5. 안정성이 우선인 요청(반복 작업, 여러 다이어그램)이면 먼저 `diagram-this` 스킬(설치됨, 서버 연결 없이 mermaid.js를 정적 HTML로 구워 `explorer.exe`로 여는 방식 — `.diagrams/<하위폴더>/`에 저장)을 기본으로 제안하고, mindpilot은 사용자가 명시적으로 mindpilot UI를 요청할 때만 쓴다.
+
+> **OmniRoute 무료 모델 사용 정책(프론트엔드 개발, 2026-09-18 확정).** OmniRoute는 로컬 LLM 게이트웨이로 무료/오픈 모델까지 라우팅할 수 있지만, 에이전틱 코딩(멀티파일 수정·도구 호출·긴 컨텍스트 유지)에서는 무료 모델이 아직 Claude Opus 5.0급을 못 따라간다 — 특히 "지시를 정확히 따르고 스스로 검증하는" 능력 차이가 커서, 무료 모델 산출물은 검증·리뷰 부담이 늘어난다. 그래서 다음 하이브리드 원칙을 따른다(전면 전환 금지):
+> 1. **Opus 5.0 토큰이 남아있는 동안**은 구조 설계·복잡한 로직·컴포넌트 아키텍처를 Opus로 진행한다.
+> 2. **Opus 토큰 소진 후에만** 반복적·저위험 작업(단순 CRUD 폼, 스타일링, 보일러플레이트)에 한해 OmniRoute 무료 모델로 전환한다.
+> 3. 어느 모델로 만들었든 결과물은 `ecc:code-reviewer`/`ecc:react-review`로 반드시 재검증한다 — 무료 모델 산출물이라고 리뷰를 생략하지 않는다.
+> 4. OmniRoute 무료 모델은 어디까지나 "비용 절감용 보조 채널"이며 기본 개발 채널을 대체하지 않는다.
+> 5. **OmniRoute 무료 모델 폴백 구성(영구 무료 + 최신 세대 + 용도에 맞는 카테고리만, 체험판/가입크레딧/구형/성격 안 맞는 모델은 전부 제외 — 상세는 `docs/omniroute-setup.html`).** 위 2번 조건(Opus 소진)이 실제로 발동됐을 때 아래 구성을 따른다:
+>    - **백엔드 4개는 순차 폴백 Combo**(`Free-fallback`, Strategy: Priority, 2026-09-18 실제 등록·테스트 완료): `kiro/claude-sonnet-4.5 → groq/qwen/qwen3.8-27b → gemini/gemini-3.8-flash → mistral/codestral-latest`. 작업 성격이 비슷해서 "제일 좋은 것부터, 막히면 다음"이 자연스럽다. (Kimi는 2026-09-18 재검토로 제외 — Groq가 서빙하던 Kimi K2 계열이 2026-03-23부로 지원 종료(deprecated)되어 `openai/gpt-oss-120b`로 대체된 것으로 확인돼, Groq 경유 접근 근거 자체가 무효화됨. Gemini 3.8 Flash는 공식 문서 기준 무료지만 하루 20건·분당 10건으로 한도가 매우 작음 — 순서는 유지하되 대량 작업 폴백으로는 기대하지 말 것)
+>    - **프론트엔드 3개는 폴백이 아니라 역할별 직접 호출**: 화면 구조·상태관리 등 판단이 필요한 작업 → `kiro/claude-sonnet-4.5`(월 50회 한도라 아무 데나 먼저 쓰지 않음); 실제 컴포넌트/UI 코드 작성 **및 비슷한 화면 다수·일괄 스타일 같은 대량 반복** → `zai/glm-4.7-flash`(기본값 겸 물량 담당 — 만료 없는 영구 무료라 프론트엔드에서 볼륨을 받아낼 수 있는 유일한 모델); `gemini/gemini-3.8-flash`는 **예비(비상용)** — 하루 20건뿐이라 대량 작업에 쓸 수 없고 GLM이 막혔을 때 중요한 몇 건에만 쓴다. 지정한 모델의 한도가 막혔을 때만 안전망 Combo `fe-fallback`(`kiro/claude-sonnet-4.5 → zai/glm-4.7-flash → gemini/gemini-3.8-flash`, Priority, 아직 미생성)으로 대체한다.
+>    - 3개월마다(다음: 2026-12-18) 클라우드 루틴이 이 구성의 최신성을 재검증한다 — 결과는 보고서만 남기고 자동 반영은 안 하므로, 다음 세션에서 사람이 확인 후 직접 반영한다.
 
 **전체 4계층**: 1) 핵심 조합 — Harness + ECC  2) 도구 계층 — 위 MCP 6종  3) UI 계층 — `frontend-design` + `ui-ux-pro-max` 스킬군(admin-web·mobile 화면 작업)  4) 왕초보 설명 계층 — SCH별 학습 주석(`beginner-comment-style.md`) + 왕초보 완벽분석가이드(`sch-guide-template.md`, `_workspace/guides/SCH-XX.html`) + MindPilot.
 
