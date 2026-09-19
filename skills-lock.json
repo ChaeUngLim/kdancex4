@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "skills": {
+    "diagram-this": {
+      "source": "abrinsmead/skills",
+      "sourceType": "github",
+      "skillPath": "diagram-this/SKILL.md",
+      "computedHash": "625ef78344bd05e523d327f4fd92dc3f92e82b992bdc6cb83164d0bae1e856a7"
+    }
+  }
+}
