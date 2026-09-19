@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>kdance 예약취소·환불 아키텍처 다이어그램 모음</title>
+<style>
+  :root {
+    --bg: #0f1115;
+    --card: #161a21;
+    --card-border: #262b35;
+    --text: #e8eaed;
+    --text-dim: #9aa4b2;
+    --accent-a: #4fc3f7;
+    --accent-b: #ffb74d;
+    --code-bg: #0b0d11;
+  }
+  * { box-sizing: border-box; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+    line-height: 1.7;
+    margin: 0;
+    padding: 0 16px 80px;
+  }
+  .wrap { max-width: 960px; margin: 0 auto; }
+  header.hero { padding: 48px 0 24px; border-bottom: 1px solid var(--card-border); margin-bottom: 32px; }
+  header.hero h1 { font-size: 1.9rem; margin: 0 0 8px; }
+  header.hero p.sub { color: var(--text-dim); font-size: 1.05rem; margin: 0; }
+  nav.toc { background: var(--card); border: 1px solid var(--card-border); border-radius: 12px; padding: 20px 24px; margin-bottom: 40px; }
+  nav.toc h2 { font-size: 1rem; color: var(--text-dim); margin: 0 0 12px; text-transform: uppercase; letter-spacing: .04em; }
+  nav.toc ol { margin: 0; padding-left: 20px; }
+  nav.toc li { margin-bottom: 6px; }
+  nav.toc a { color: var(--accent-a); text-decoration: none; }
+  nav.toc a:hover { text-decoration: underline; }
+  section { margin-bottom: 56px; scroll-margin-top: 20px; }
+  h2 { font-size: 1.4rem; border-left: 4px solid var(--accent-a); padding-left: 14px; margin: 0 0 12px; }
+  p { margin: 0 0 14px; color: var(--text-dim); }
+  code { background: var(--code-bg); border: 1px solid var(--card-border); border-radius: 4px; padding: 2px 6px; font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace; font-size: .9em; color: var(--text); }
+  .diagram-card { background: var(--code-bg); border: 1px solid var(--card-border); border-radius: 10px; padding: 18px; margin: 16px 0; overflow-x: auto; }
+  .diagram-card .mermaid { display: flex; justify-content: center; }
+  footer { border-top: 1px solid var(--card-border); margin-top: 60px; padding-top: 24px; color: var(--text-dim); font-size: .9rem; }
+  footer a { color: var(--accent-a); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="hero">
+  <h1>🧭 kdance 예약취소·환불 아키텍처 다이어그램 모음</h1>
+  <p class="sub">"예약 취소·환불 + 결제수단 라우팅" 슬라이스(kdance 전체가 아니라 지금 활성화된 이 슬라이스 하나)의 아키텍처 6개를 빠르게 훑어보기 위한 전용 페이지입니다. 같은 내용이 설명과 함께 <code>docs/payment-system-guide-for-beginners.html</code>에도 녹아 있습니다 — 이 페이지는 그림만 빠르게 보고 싶을 때 씁니다.</p>
+</header>
+
+<nav class="toc">
+  <h2>목차</h2>
+  <ol>
+    <li><a href="#master">1. 전체 구성(마스터)</a></li>
+    <li><a href="#erd">2. 서브1. 도메인 데이터 모델</a></li>
+    <li><a href="#ports">3. 서브2. 포트/어댑터 계층 구조</a></li>
+    <li><a href="#routing">4. 서브3. 방식 A/B 라우팅 분기</a></li>
+    <li><a href="#deeplink">5. 서브4. 방식 A 딥링크 전체 플로우</a></li>
+    <li><a href="#pipeline">6. 파이프라인. 예약취소·환불 11단계</a></li>
+  </ol>
+</nav>
+
+<section id="master">
+  <h2>1. 전체 구성(마스터)</h2>
+  <p>클라이언트(모바일·관리자 웹)부터 백엔드 계층, 외부 결제·알림 시스템까지 이 슬라이스 전체를 한 장에 담았습니다. 초록색은 완료, 노란 점선은 예정입니다.</p>
+  <div class="diagram-card"><pre class="mermaid">
+graph TB
+  subgraph CLIENT["1.클라이언트 계층 Client Layer"]
+    MOBILE["모바일 앱<br/>Expo / React Native<br/>회원용 - 예약,취소 화면<br/>SCH-09 완료"]
+    ADMIN["관리자 웹<br/>Next.js admin-web<br/>학원 관리자용 - 환불 비율표 설정<br/>SCH-08 완료"]
+  end
+
+  subgraph BACKEND["2.백엔드 계층 Backend, FastAPI"]
+    ROUTER["라우터 Router<br/>HTTP 요청을 서비스로 옮기기만 함<br/>판정 로직 없음, SCH-06"]
+    SERVICE["서비스 Service<br/>취소 오케스트레이션<br/>순서 및 트랜잭션 담당, SCH-05"]
+    PORTS["포트 Port=Protocol<br/>PaymentGateway / NotificationSender / SlotLock<br/>서비스는 구현체를 모른 채 이것만 안다"]
+  end
+
+  subgraph ADAPTERS["3.어댑터 계층 Adapter, 외부 연동 구현체"]
+    A_PG["PG 어댑터<br/>payment_gateway.py<br/>완료 SCH-04"]
+    A_NOTI["알림 어댑터<br/>notification.py<br/>완료(Fake) SCH-04"]
+    A_LOCK["슬롯락 어댑터<br/>slot_lock.py<br/>완료 SCH-04"]
+    A_LINK["딥링크 어댑터<br/>deeplink.py<br/>예정 SCH-14"]
+    A_TALK["알림톡 어댑터<br/>alimtalk.py<br/>예정 SCH-16"]
+    A_POLL["입금폴링 어댑터<br/>deposit_polling.py<br/>예정 SCH-17"]
+  end
+
+  subgraph DATA["4.데이터 계층 Data"]
+    PGDB[("PostgreSQL<br/>kdance-db<br/>예약,결제,환불 원장")]
+    REDIS[("Redis<br/>슬롯락 캐시<br/>진실의 원천 아님")]
+  end
+
+  subgraph EXTERNAL["5.외부 시스템 External"]
+    PORTONE["포트원 PortOne<br/>방식 B PG<br/>완료"]
+    TOSS["토스/카카오페이/네이버페이<br/>송금 앱 딥링크<br/>예정"]
+    SOLAPI["SOLAPI<br/>알림톡 발송<br/>예정"]
+    POPBILL["Popbill<br/>계좌입금조회<br/>예정"]
+    EXPO["Expo Push<br/>회원 알림<br/>완료(Fake)"]
+  end
+
+  MOBILE -->|"예약 취소 요청"| ROUTER
+  ADMIN -->|"환불 비율표 조회,저장"| ROUTER
+  ROUTER --> SERVICE
+  SERVICE --> PORTS
+  PORTS --> A_PG
+  PORTS --> A_NOTI
+  PORTS --> A_LOCK
+  PORTS -.-> A_LINK
+  PORTS -.-> A_TALK
+  PORTS -.-> A_POLL
+  SERVICE -->|"행 잠금 + 커밋"| PGDB
+  A_PG -->|"환불 실행 API"| PORTONE
+  A_NOTI -->|"알림 발송(Fake)"| EXPO
+  A_LOCK -->|"락 해제"| REDIS
+  A_LINK -.->|"딥링크 생성(예정)"| TOSS
+  A_TALK -.->|"알림톡 발송(예정)"| SOLAPI
+  A_POLL -.->|"입금 조회(예정)"| POPBILL
+
+  classDef done fill:#51cf66,stroke:#2f9e44,color:#000
+  classDef planned fill:#ffd43b,stroke:#fab005,color:#000,stroke-dasharray: 5 5
+  classDef data fill:#74c0fc,stroke:#339af0,color:#000
+
+  class MOBILE,ADMIN,ROUTER,SERVICE,PORTS,A_PG,A_NOTI,A_LOCK,PORTONE,EXPO done
+  class A_LINK,A_TALK,A_POLL,TOSS,SOLAPI,POPBILL planned
+  class PGDB,REDIS data
+  </pre></div>
+</section>
+
+<section id="erd">
+  <h2>2. 서브1. 도메인 데이터 모델</h2>
+  <p>예약·결제·환불이 DB에서 어떻게 연결돼 있는지 7개 테이블 관계도입니다. <code>REFUND_EVENT</code>는 append-only 감사 로그입니다.</p>
+  <div class="diagram-card"><pre class="mermaid">
+graph TD
+  ACADEMY["ACADEMY 학원<br/>id PK<br/>name<br/>refund_policy_tiers jsonb"]
+  CLASS_SCHEDULE["CLASS_SCHEDULE 수업일정<br/>id PK<br/>academy_id FK<br/>starts_at<br/>capacity / reserved_count"]
+  ORDER["ORDER 주문<br/>id PK<br/>user_id<br/>status"]
+  PAYMENT["PAYMENT 결제<br/>id PK<br/>order_id FK<br/>method / amount"]
+  RESERVATION["RESERVATION 예약<br/>id PK<br/>order_id FK<br/>class_schedule_id FK<br/>status"]
+  REFUND["REFUND 환불<br/>id PK<br/>reservation_id FK<br/>payment_id FK<br/>status / refund_rate_bp"]
+  REFUND_EVENT["REFUND_EVENT 감사로그<br/>id PK<br/>refund_id FK<br/>event_type / payload"]
+
+  ACADEMY -->|"1:N 운영한다"| CLASS_SCHEDULE
+  CLASS_SCHEDULE -->|"1:N 예약된다"| RESERVATION
+  ORDER -->|"1:N 포함한다"| RESERVATION
+  ORDER -->|"1:N 결제된다"| PAYMENT
+  RESERVATION -->|"1:0..1 취소 시 생성"| REFUND
+  PAYMENT -->|"1:0..1 환불 대상"| REFUND
+  REFUND -->|"1:N append-only"| REFUND_EVENT
+
+  classDef done fill:#51cf66,stroke:#2f9e44,color:#000
+  class ACADEMY,CLASS_SCHEDULE,ORDER,PAYMENT,RESERVATION,REFUND,REFUND_EVENT done
+  </pre></div>
+</section>
+
+<section id="ports">
+  <h2>3. 서브2. 포트/어댑터 계층 구조</h2>
+  <p>서비스(Service)가 왜 실제 구현체(PG사 등)를 몰라도 되게 짰는지 — <code>Protocol</code>(포트)을 사이에 끼운 이유입니다.</p>
+  <div class="diagram-card"><pre class="mermaid">
+graph TD
+  R["라우터 Router<br/>reservations.py<br/>HTTP를 서비스 호출로 바꾸기만 함"]
+  S["서비스 Service<br/>cancellation.py<br/>순서,트랜잭션 오케스트레이션"]
+  D["의존성 주입 deps.py<br/>Depends, 무엇을 꽂을지 여기서만 결정"]
+  P1["포트: PaymentGateway<br/>Protocol - 메서드 1개 refund"]
+  P2["포트: NotificationSender<br/>Protocol - 메서드 2개 회원/관리자"]
+  P3["포트: SlotLock<br/>Protocol - 메서드 1개 release"]
+  A1F["FakePaymentGateway<br/>완료 - 포트원 응답 스키마 흉내"]
+  A1R["실 포트원 연동<br/>미구현 - 자리만 있음"]
+  A2F["FakeNotificationSender<br/>완료 - 호출 기록만 남김"]
+  A3["RedisSlotLock<br/>완료 - release만, 예외 안 던짐"]
+
+  R -->|"1.호출"| S
+  D -->|"2.주입 Dependency Injection"| S
+  S -->|"3.타입으로만 안다"| P1
+  S -->|"3.타입으로만 안다"| P2
+  S -->|"3.타입으로만 안다"| P3
+  D -.->|"4.실제 구현체 결정"| A1F
+  D -.->|"4.실제 구현체 결정"| A2F
+  D -.->|"4.실제 구현체 결정"| A3
+  P1 -.->|"구현"| A1F
+  P1 -.->|"구현(예정)"| A1R
+  P2 -.->|"구현"| A2F
+  P3 -.->|"구현"| A3
+
+  classDef svc fill:#4c6ef5,stroke:#364fc7,color:#fff
+  classDef port fill:#845ef7,stroke:#5f3dc4,color:#fff
+  classDef done fill:#51cf66,stroke:#2f9e44,color:#000
+  classDef planned fill:#ffd43b,stroke:#fab005,color:#000,stroke-dasharray: 5 5
+
+  class R,S,D svc
+  class P1,P2,P3 port
+  class A1F,A2F,A3 done
+  class A1R planned
+  </pre></div>
+</section>
+
+<section id="routing">
+  <h2>4. 서브3. 방식 A/B 라우팅 분기</h2>
+  <p>금액 기준으로 결제 흐름이 두 갈래로 갈라집니다. 아직 안 정해진 가격 구간(O1)도 표시했습니다.</p>
+  <div class="diagram-card"><pre class="mermaid">
+flowchart TD
+  START(["주문 생성 Order Created"]) --> CHECK{"금액 얼마? 가격 기준 라우팅, SCH-19 예정"}
+  CHECK -->|"1~9만원 이하 · 체험,이벤트,파티"| A["방식 A: 딥링크 Deep Link · 구현 빠름, PG 계약 불필요"]
+  CHECK -->|"10만원 이상 · 일반 수강"| B["방식 B: 포트원 PG · 간편 계좌이체, 완료"]
+  CHECK -->|"9만원 초과~10만원 미만 · O1 아직 미확정"| OPEN["열린 결정 O1 · 아직 못 정함"]
+  A --> ADEEP["딥링크 생성 SCH-14 · 토스,카카오,네이버"]
+  ADEEP --> ANOTI["알림톡 발송 SCH-16 SOLAPI · 원클릭 송금하기 버튼"]
+  ANOTI --> APOLL["오픈뱅킹 폴링 SCH-17 Popbill · 1~5분 간격 입금 확인"]
+  APOLL --> ACONFIRM["예약 확정 PAID"]
+  B --> BWEBHOOK["포트원 웹훅 수신 · payment.completed"]
+  BWEBHOOK --> BCONFIRM["예약 확정 PAID"]
+
+  classDef done fill:#51cf66,stroke:#2f9e44,color:#000
+  classDef planned fill:#ffd43b,stroke:#fab005,color:#000,stroke-dasharray: 5 5
+  classDef open fill:#ff6b6b,stroke:#c92a2a,color:#fff
+
+  class B,BWEBHOOK,BCONFIRM done
+  class A,ADEEP,ANOTI,APOLL,ACONFIRM planned
+  class OPEN open
+  </pre></div>
+</section>
+
+<section id="deeplink">
+  <h2>5. 서브4. 방식 A 딥링크 전체 플로우</h2>
+  <p>아직 구현 전인 SCH-13~20의 목표 흐름 — 예약부터 오픈뱅킹 폴링까지.</p>
+  <div class="diagram-card"><pre class="mermaid">
+sequenceDiagram
+  participant U as 회원(모바일 앱)
+  participant BE as 백엔드(FastAPI)
+  participant SOLAPI as SOLAPI(알림톡)
+  participant TOSS as 토스/카카오/네이버(송금앱)
+  participant POPBILL as Popbill(오픈뱅킹조회)
+  participant DB as PostgreSQL
+
+  U->>BE: 예약/신청 버튼
+  BE->>DB: 주문 Order 생성 status=pending
+  BE->>SOLAPI: 알림톡 발송 요청 SCH-16, 브릿지 URL 포함
+  SOLAPI-->>U: 알림톡 도착, 원클릭 송금하기 버튼
+  U->>BE: 브릿지 페이지 진입 SCH-15
+  BE-->>U: provider 화이트리스트 검증 후 딥링크로 리다이렉트 SCH-14
+  U->>TOSS: 딥링크로 송금 앱 진입, 계좌 금액 자동 입력
+  TOSS-->>U: 지문/FaceID 인증 후 송금 완료
+  Note over BE,POPBILL: 백엔드는 송금 완료를 직접 모른다, 반드시 폴링으로 확인
+  loop 1~5분 간격 SCH-17
+    BE->>POPBILL: 계좌입금조회 요청
+    POPBILL-->>BE: 입금 내역 응답
+  end
+  BE->>DB: 입금자명 매칭 성공, 주문 status=paid, 슬롯 확정
+  BE-->>U: 예약 확정 알림 Expo Push
+  </pre></div>
+</section>
+
+<section id="pipeline">
+  <h2>6. 파이프라인. 예약취소·환불 11단계</h2>
+  <p>실제로 구현된 <code>backend/app/services/cancellation.py</code>의 처리 순서입니다.</p>
+  <div class="diagram-card"><pre class="mermaid">
+sequenceDiagram
+  participant M as 모바일 앱
+  participant R as 라우터(reservations.py)
+  participant S as 서비스(cancellation.py)
+  participant DB as PostgreSQL
+  participant PG as 포트원(PG 어댑터)
+  participant RD as Redis(슬롯락)
+  participant N as 알림(Expo Push)
+
+  M->>R: POST /reservations/id/cancel
+  R->>S: cancel_reservation 호출
+  S->>DB: 1.행 잠금 SELECT FOR UPDATE
+  S->>S: 2.소유권 검증 본인 예약인가
+  S->>DB: 3.멱등 재생 검사 이미 처리됐나
+  alt 이미 처리된 요청
+    S-->>R: 기존 결과 그대로 반환 200 replayed true
+  else 새 요청
+    S->>S: 4.상태 전이 검증 취소 가능한가
+    S->>S: 5.환불액 산정 calculate_refund 순수함수
+    S->>DB: 6.Refund INSERT SAVEPOINT로 멱등 보호
+    S->>PG: 7.PG 환불 호출
+    alt 실패
+      PG-->>S: failed
+      S->>DB: 실패 사유 기록, 예약은 그대로 유지
+    else 성공 또는 대기
+      PG-->>S: succeeded 또는 pending
+      S->>DB: 8.예약 취소 확정 + 정원 -1 + 주문 상태 변경
+    end
+    S->>DB: 9.refund_events INSERT 감사 로그
+    S->>DB: 10.COMMIT 여기서 확정
+    S->>RD: 11a.슬롯 락 해제 커밋 이후 best-effort
+    S->>N: 11b.회원+학원관리자 알림 커밋 이후
+  end
+  S-->>R: CancellationOutcome
+  R-->>M: 200 응답 성공/대기/실패 전부 200
+  </pre></div>
+</section>
+
+<footer>
+  근거: <code>backend/app</code>(라우터·서비스·어댑터·모델), <code>docs/payment-method-policy.md</code>, <code>docs/sch-payment-deeplink-implementation.md</code>. 설명이 포함된 버전은 <a href="./payment-system-guide-for-beginners.html">payment-system-guide-for-beginners.html</a> 참고.
+</footer>
+
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<script>
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: "base",
+    themeVariables: {
+      background: "#161a21",
+      primaryColor: "#1c2330",
+      primaryTextColor: "#e8eaed",
+      primaryBorderColor: "#4fc3f7",
+      lineColor: "#9aa4b2",
+      secondaryColor: "#20242d",
+      tertiaryColor: "#0b0d11",
+      fontFamily: "inherit"
+    }
+  });
+</script>
+</body>
+</html>
