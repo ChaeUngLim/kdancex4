@@ -1,0 +1,569 @@
+<title>소셜댄스 입점 설명회</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gothic+A1:wght@400;500;700;800;900&family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+  :root{
+    --bg:#FBF8FB; --surface:#FFFFFF; --surface-2:#F3EDF5;
+    --border:rgba(31,23,41,0.10); --text:#1F1729; --text-dim:#5C5266; --text-faint:#948AA0;
+    --accent:#D8452F; --accent-soft:#FBE2DC; --gold:#B8801A; --gold-soft:#F5E7C4;
+    --ok:#2E7D5B; --ok-bg:#E5F3EB; --line:rgba(31,23,41,0.14);
+    --tango:#D8452F; --ballroom:#3D4C9E; --salsa:#DB7B1E; --bachata:#C13A72; --swing:#B8801A;
+    --shadow: 0 1px 2px rgba(31,23,41,0.08), 0 18px 40px -18px rgba(31,23,41,0.28);
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#15111C; --surface:#1F1928; --surface-2:#271F31; --border:rgba(245,241,247,0.10);
+      --text:#F5F1F7; --text-dim:#C2B8CC; --text-faint:#877D95;
+      --accent:#FF6F59; --accent-soft:#3A241F; --gold:#FFC857; --gold-soft:#3A2F16;
+      --ok:#7FD8AE; --ok-bg:#173427; --line:rgba(245,241,247,0.14);
+      --tango:#FF6F59; --ballroom:#8C9CF0; --salsa:#F5A84E; --bachata:#F27DB0; --swing:#FFC857;
+      --shadow: 0 1px 2px rgba(0,0,0,0.5), 0 18px 44px -18px rgba(0,0,0,0.7);
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#15111C; --surface:#1F1928; --surface-2:#271F31; --border:rgba(245,241,247,0.10);
+    --text:#F5F1F7; --text-dim:#C2B8CC; --text-faint:#877D95;
+    --accent:#FF6F59; --accent-soft:#3A241F; --gold:#FFC857; --gold-soft:#3A2F16;
+    --ok:#7FD8AE; --ok-bg:#173427; --line:rgba(245,241,247,0.14);
+    --tango:#FF6F59; --ballroom:#8C9CF0; --salsa:#F5A84E; --bachata:#F27DB0; --swing:#FFC857;
+    --shadow: 0 1px 2px rgba(0,0,0,0.5), 0 18px 44px -18px rgba(0,0,0,0.7);
+  }
+
+  *{box-sizing:border-box;}
+  body{background:var(--bg); color:var(--text); font-family:"IBM Plex Sans KR",-apple-system,sans-serif; padding:0 20px;}
+  .deck{max-width:1120px; margin:0 auto; padding-block:0 60px;}
+  h1,h2,h3{font-family:"Gothic A1",sans-serif; text-wrap:balance; letter-spacing:-0.01em; margin:0;}
+  .mono{font-family:"IBM Plex Mono",monospace; font-variant-numeric:tabular-nums;}
+
+  .slide{position:relative; padding-block:56px; border-bottom:1px solid var(--border);}
+  .slide:last-of-type{border-bottom:none;}
+  .slide-no{font-family:"IBM Plex Mono",monospace; font-size:0.76rem; color:var(--text-faint); letter-spacing:0.08em; margin-bottom:16px; display:flex; align-items:center; gap:10px;}
+  .slide-no .bar{width:36px; height:2px; background:var(--accent);}
+  .slide-kicker{display:inline-block; font-size:0.78rem; font-weight:700; color:var(--accent); background:var(--accent-soft); padding:4px 12px; border-radius:999px; margin-bottom:16px;}
+
+  /* ---- Cover ---- */
+  .cover{padding-block:72px 56px;}
+  .cover h1{font-size:clamp(2.1rem,5vw,3.2rem); font-weight:900; line-height:1.18; margin-bottom:18px;}
+  .cover .sub{font-size:1.1rem; color:var(--text-dim); max-width:56ch; margin-bottom:30px;}
+  .genre-row{display:flex; flex-wrap:wrap; gap:10px; margin-bottom:34px;}
+  .genre-chip{display:inline-flex; align-items:center; gap:8px; padding:7px 14px 7px 10px; border-radius:999px; background:var(--surface); border:1px solid var(--border); font-size:0.86rem; color:var(--text-dim); box-shadow:var(--shadow);}
+  .genre-dot{width:10px; height:10px; border-radius:50%; flex:none;}
+  .cover-meta{display:flex; flex-wrap:wrap; gap:28px; font-size:0.86rem; color:var(--text-faint);}
+  .cover-meta b{color:var(--text-dim); font-weight:700;}
+
+  /* ---- stat cards ---- */
+  .stat-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:18px;}
+  @media (max-width:700px){.stat-grid{grid-template-columns:1fr;}}
+  .stat-card{background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:24px; box-shadow:var(--shadow);}
+  .stat-card .num{font-family:"Gothic A1",sans-serif; font-weight:900; font-size:2.2rem; color:var(--accent); line-height:1;}
+  .stat-card .num small{font-size:1rem; font-weight:700; margin-left:2px;}
+  .stat-card h3{font-size:0.98rem; margin:12px 0 6px;}
+  .stat-card p{font-size:0.86rem; color:var(--text-dim); margin:0;}
+
+  /* ---- 3화면 갤러리 ---- */
+  .trio{display:flex; gap:34px; flex-wrap:wrap; margin-top:8px;}
+  .trio-item{width:230px;}
+  .cap-num{font-family:"IBM Plex Mono",monospace; font-size:0.72rem; font-weight:700; color:var(--accent);}
+  .cap-title{font-weight:700; font-size:0.95rem; margin:4px 0 4px;}
+  .cap-desc{font-size:0.84rem; color:var(--text-dim); line-height:1.45;}
+
+  /* ================= PHONE MOCKUP ================= */
+  .phone{width:230px; height:468px; border-radius:34px; background:#1F1729; padding:10px; box-shadow:var(--shadow); position:relative;}
+  .notch{position:absolute; top:10px; left:50%; transform:translateX(-50%); width:70px; height:17px; background:#1F1729; border-radius:0 0 12px 12px; z-index:2;}
+  .screen{width:100%; height:100%; background:#fff; border-radius:24px; overflow:hidden; position:relative; color:#1F1729; font-family:"IBM Plex Sans KR",sans-serif; display:flex; flex-direction:column;}
+  .status{display:flex; justify-content:space-between; padding:9px 15px 3px; font-size:0.6rem; font-weight:600; color:#1F1729;}
+  .app-header{padding:5px 14px 10px; border-bottom:1px solid #EEE6F0; display:flex; align-items:center; justify-content:space-between;}
+  .app-header .title{font-family:"Gothic A1",sans-serif; font-weight:800; font-size:0.9rem;}
+  .app-header .back{font-size:0.9rem; color:#1F1729;}
+  .app-body{padding:10px 14px; flex:1; overflow:hidden; background:#FBF8FB;}
+  .hero-photo{height:100px; background:linear-gradient(135deg,#E9E4ED,#D9D0E0); border-radius:16px; margin-bottom:9px; display:flex; align-items:flex-end; padding:8px; position:relative;}
+  .hero-photo .ph-badge{font-size:0.56rem; font-weight:700; background:rgba(255,255,255,0.85); color:#1F1729; padding:2px 7px; border-radius:6px;}
+
+  .search-bar{display:flex; align-items:center; gap:6px; background:#F3EDF5; border-radius:10px; padding:8px 10px; font-size:0.68rem; color:#5C5266; margin-bottom:9px;}
+  .chip-row{display:flex; gap:5px; margin-bottom:10px; flex-wrap:wrap;}
+  .mini-chip{font-size:0.58rem; font-weight:700; padding:3px 8px; border-radius:999px; color:#fff;}
+  .mini-chip.outline{background:#fff; border:1px solid #DDD3E2; color:#5C5266;}
+  .studio-card{background:#fff; border:1px solid #EEE6F0; border-radius:16px; padding:9px 10px; margin-bottom:7px; box-shadow:0 1px 2px rgba(0,0,0,0.04);}
+  .studio-card .name{font-weight:700; font-size:0.74rem; display:flex; justify-content:space-between;}
+  .studio-card .meta{font-size:0.6rem; color:#8A8194; margin-top:2px;}
+  .badge-50{display:inline-block; font-size:0.54rem; font-weight:700; background:#FBE2DC; color:#D8452F; padding:2px 6px; border-radius:5px; margin-top:4px;}
+
+  .field{margin-bottom:9px;}
+  .field .flabel{font-size:0.6rem; color:#8A8194; margin-bottom:2px;}
+  .field .fval{font-size:0.76rem; font-weight:700;}
+  .divider{height:1px; background:#EEE6F0; margin:9px 0;}
+  .price-row{display:flex; justify-content:space-between; font-size:0.68rem; padding:3px 0; color:#5C5266;}
+  .price-row.total{font-weight:800; font-size:0.86rem; color:#1F1729; border-top:1px solid #EEE6F0; margin-top:5px; padding-top:7px;}
+  .price-row.discount{color:#2E7D5B;}
+  .pay-opt{display:flex; align-items:center; gap:7px; border:1px solid #EEE6F0; border-radius:12px; padding:8px 10px; font-size:0.7rem; font-weight:600; margin-bottom:6px;}
+  .pay-opt.sel{border-color:#1F1729; background:#F8F6FA;}
+  .radio{width:13px; height:13px; border-radius:50%; border:1.6px solid #C9BFD1; flex:none;}
+  .radio.sel{border-color:#1F1729; background:radial-gradient(#1F1729 0 40%, transparent 42%);}
+  .agree-line{display:flex; align-items:center; gap:6px; font-size:0.6rem; color:#8A8194; margin-top:8px;}
+  .check{width:11px; height:11px; border-radius:3px; border:1.5px solid #C9BFD1; flex:none;}
+
+  .cal-grid{display:grid; grid-template-columns:repeat(7,1fr); gap:3px; margin-bottom:9px;}
+  .cal-cell{aspect-ratio:1; display:flex; align-items:center; justify-content:center; font-size:0.56rem; color:#5C5266; border-radius:5px; position:relative;}
+  .cal-cell.active{background:#1F1729; color:#fff; font-weight:700;}
+  .cal-dot{position:absolute; bottom:2px; width:3.5px; height:3.5px; border-radius:50%;}
+  .agenda-card{background:#fff; border:1px solid #EEE6F0; border-left:3px solid var(--tango); border-radius:14px; padding:8px 10px; font-size:0.66rem;}
+  .agenda-card .t{font-weight:700; margin-bottom:2px;}
+  .agenda-card .s{color:#8A8194; font-size:0.6rem;}
+
+  .map-box{background:#E9E4ED; border-radius:12px; height:150px; position:relative; overflow:hidden; margin-bottom:9px;}
+  .route-card{background:#fff; border:1px solid #EEE6F0; border-radius:16px; padding:8px 10px;}
+  .route-card .line{display:flex; justify-content:space-between; font-size:0.66rem; margin-bottom:3px;}
+
+  .settle-card{background:linear-gradient(135deg,#1F1729,#3D4C9E); color:#fff; border-radius:20px; padding:14px; margin-bottom:9px;}
+  .settle-card .lbl{font-size:0.6rem; opacity:0.75;}
+  .settle-card .amt{font-family:"Gothic A1",sans-serif; font-weight:900; font-size:1.28rem; margin:3px 0 8px;}
+  .settle-row{display:flex; justify-content:space-between; font-size:0.62rem; padding:2px 0; border-top:1px solid rgba(255,255,255,0.18);}
+  .status-pill{display:inline-flex; align-items:center; gap:4px; font-size:0.6rem; font-weight:700; color:#2E7D5B; background:#E5F3EB; padding:3px 8px; border-radius:999px; margin-bottom:8px;}
+  .dot2{width:5px; height:5px; border-radius:50%; background:#2E7D5B;}
+  .mini-row{display:flex; justify-content:space-between; font-size:0.62rem; padding:5px 0; border-bottom:1px solid #F0EAF2;}
+
+  .feed-card{background:#fff; border:1px solid #EEE6F0; border-radius:16px; overflow:hidden; margin-bottom:8px;}
+  .feed-photo{height:60px; background:linear-gradient(135deg,#E9E4ED,#D9D0E0);}
+  .feed-body{padding:7px 10px;}
+  .feed-tag{display:inline-block; font-size:0.52rem; font-weight:700; padding:2px 6px; border-radius:5px; margin-bottom:4px; color:#fff;}
+  .feed-title{font-size:0.7rem; font-weight:700;}
+  .feed-meta{font-size:0.58rem; color:#8A8194; margin-top:2px;}
+
+  .notice-row{border-bottom:1px solid #F0EAF2; padding:8px 2px;}
+  .notice-row.pin{background:#FBF0DC;}
+  .notice-title{font-size:0.7rem; font-weight:700; display:flex; gap:5px; align-items:center;}
+  .pin-tag{font-size:0.5rem; font-weight:700; color:#8A5A12; background:#F5E7C4; padding:1px 5px; border-radius:4px;}
+  .notice-meta{font-size:0.58rem; color:#8A8194; margin-top:2px;}
+
+  .sub-card{background:linear-gradient(135deg,#D8452F,#B8801A); border-radius:20px; padding:14px; color:#fff; margin-bottom:9px;}
+  .sub-card .lbl{font-size:0.6rem; opacity:0.85;}
+  .sub-card .big{font-family:"Gothic A1",sans-serif; font-weight:900; font-size:1.02rem; margin:3px 0;}
+  .coupon-card{border:1.4px dashed #D8452F; border-radius:14px; padding:9px 10px; font-size:0.66rem; margin-bottom:7px; display:flex; justify-content:space-between; align-items:center;}
+  .coupon-card b{display:block; font-size:0.72rem;}
+  .coupon-d{font-size:0.56rem; color:#D8452F; font-weight:700;}
+
+  .upload-box{border:1.6px dashed #C9BFD1; border-radius:16px; padding:18px 10px; text-align:center; margin-bottom:10px;}
+  .upload-box .ic{font-size:1.3rem;}
+  .upload-box .t{font-size:0.68rem; font-weight:700; margin-top:4px;}
+  .upload-box .s{font-size:0.58rem; color:#8A8194; margin-top:2px;}
+  .review-field{border:1px solid #EEE6F0; border-radius:10px; padding:6px 9px; margin-bottom:6px;}
+  .review-field.low{border-color:#D8452F; border-width:1.4px;}
+  .review-field .rl{font-size:0.56rem; color:#8A8194;}
+  .review-field .rv{font-size:0.72rem; font-weight:700; display:flex; justify-content:space-between; align-items:center;}
+  .low-tag{font-size:0.5rem; color:#D8452F; font-weight:700;}
+
+  .cta-fixed{padding:9px 14px 12px; border-top:1px solid #EEE6F0; background:#fff;}
+  .btn-pill{background:#1F1729; color:#fff; text-align:center; font-size:0.72rem; font-weight:700; padding:10px; border-radius:999px;}
+
+  /* 탭바 — mobydick 실사용 패턴 참고: 배경 강조 없이 색·굵기로만 활성 표시 */
+  .tab-ic{width:16px; height:16px; fill:none; stroke:#B6ACC0; stroke-width:1.7; stroke-linecap:round; stroke-linejoin:round;}
+  .nav-tab{display:flex; justify-content:space-around; align-items:center; padding:8px 0 11px; border-top:1px solid #EEE6F0; margin-top:auto;}
+  .nav-tab a{display:flex; flex-direction:column; align-items:center; gap:2px;}
+  .tab-lbl{font-size:0.48rem; color:#B6ACC0; font-weight:500;}
+  .nav-tab a.on .tab-ic{stroke:var(--accent); stroke-width:2.2;}
+  .nav-tab a.on .tab-lbl{color:var(--accent); font-weight:700;}
+
+  /* ---- table ---- */
+  .table-wrap{overflow-x:auto; border:1px solid var(--border); border-radius:14px; background:var(--surface); box-shadow:var(--shadow);}
+  table{border-collapse:collapse; width:100%; font-size:0.9rem; min-width:520px;}
+  thead th{text-align:left; font-size:0.72rem; letter-spacing:0.06em; text-transform:uppercase; color:var(--text-faint); padding:14px 18px; border-bottom:1px solid var(--border); background:var(--surface-2);}
+  tbody td{padding:14px 18px; border-bottom:1px solid var(--border); color:var(--text-dim);}
+  tbody tr:last-child td{border-bottom:none;}
+  td.k{color:var(--text); font-weight:700;}
+  .num-cell{font-family:"IBM Plex Mono",monospace; font-variant-numeric:tabular-nums; color:var(--text);}
+
+  /* ---- steps ---- */
+  .steps{display:grid; grid-template-columns:repeat(3,1fr); gap:20px; margin-top:8px;}
+  @media (max-width:760px){.steps{grid-template-columns:1fr;}}
+  .step{background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:22px; box-shadow:var(--shadow);}
+  .step .n{font-family:"Gothic A1",sans-serif; font-weight:900; font-size:1.6rem; color:var(--gold);}
+  .step h3{font-size:0.98rem; margin:8px 0 6px;}
+  .step p{font-size:0.85rem; color:var(--text-dim); margin:0;}
+
+  .cta-box{background:var(--surface-2); border:1px solid var(--border); border-radius:16px; padding:32px; margin-top:32px; text-align:center;}
+  .cta-box h3{font-size:1.3rem; margin-bottom:8px;}
+  .cta-box p{color:var(--text-dim); margin:0 0 4px;}
+
+  footer{padding-top:36px; font-size:0.8rem; color:var(--text-faint);}
+</style>
+
+<div class="deck">
+
+  <!-- ===== 01 Cover ===== -->
+  <div class="slide cover">
+    <div class="slide-no"><span class="bar"></span>01 / 09 · 입점 설명회</div>
+    <h1>춤출 곳을 못 찾아서<br>안 오는 회원은, 없앱니다.</h1>
+    <p class="sub">검색 → 예약 → 결제 → 정산까지 한 앱에서 끝나는 소셜댄스 전문
+    플랫폼. 시간표는 <b>쓰시던 포스터 사진 한 장만 올리면 자동으로 등록</b>됩니다 —
+    원장님은 수업만 준비하시면 됩니다, 나머지는 저희가 대신합니다.</p>
+    <div class="genre-row">
+      <span class="genre-chip"><span class="genre-dot" style="background:var(--ballroom)"></span>댄스스포츠</span>
+      <span class="genre-chip"><span class="genre-dot" style="background:var(--tango)"></span>아르헨티나 탱고</span>
+      <span class="genre-chip"><span class="genre-dot" style="background:var(--swing)"></span>스윙댄스</span>
+      <span class="genre-chip"><span class="genre-dot" style="background:var(--salsa)"></span>살사</span>
+      <span class="genre-chip"><span class="genre-dot" style="background:var(--bachata)"></span>바차타</span>
+    </div>
+    <div class="cover-meta">
+      <span><b>대상</b> 입점 검토 중인 댄스 학원 원장님</span>
+      <span><b>형식</b> 실제 구현 화면 12개 기준 설명</span>
+    </div>
+  </div>
+
+  <!-- ===== 02 문제 제기 ===== -->
+  <div class="slide">
+    <div class="slide-no"><span class="bar"></span>02 / 09</div>
+    <span class="slide-kicker">지금 학원이 겪는 일</span>
+    <h2 style="font-size:1.7rem; margin-bottom:26px; max-width:36ch;">숫자로 보면, 문제는 셋뿐입니다.</h2>
+    <div class="stat-grid">
+      <div class="stat-card">
+        <div class="num">67<small>%</small></div>
+        <h3>신규 문의가 "검색"에서 옴</h3>
+        <p>블로그·SNS로는 장르별 취향까지 걸러진 사람을 찾기 어렵습니다.
+        "살사, 강남, 평일 저녁"처럼 구체적으로 찾는 사람을 놓칩니다.</p>
+      </div>
+      <div class="stat-card">
+        <div class="num">1/5</div>
+        <h3>수업의 노쇼·지각</h3>
+        <p>예약 확인 전화, 알람 문자를 원장님이 직접 보내는 학원이 대부분입니다.</p>
+      </div>
+      <div class="stat-card">
+        <div class="num">월 6<small>시간</small></div>
+        <h3>수기 장부·정산 정리</h3>
+        <p>현금·계좌이체·카드가 섞인 결제 내역을 매달 손으로 맞추는 시간입니다.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 03 회원 화면 1/3 ===== -->
+  <div class="slide">
+    <div class="slide-no"><span class="bar"></span>03 / 09 · 회원 화면 1/3</div>
+    <span class="slide-kicker">가입 → 검색 → 상세</span>
+    <h2 style="font-size:1.5rem; margin-bottom:22px;">가입 장벽을 낮춰서, 검색까지 바로 갑니다</h2>
+    <div class="trio">
+
+      <div class="trio-item">
+        <div class="phone"><div class="notch"></div><div class="screen">
+          <div class="status"><span>9:41</span><span>●●●</span></div>
+          <div class="app-header"><div class="title">회원가입</div></div>
+          <div class="app-body">
+            <div class="field"><div class="flabel">휴대폰 번호</div><div class="fval">010-••••-5521 · 인증완료</div></div>
+            <div class="field"><div class="flabel">관심 장르</div></div>
+            <div class="chip-row">
+              <span class="mini-chip" style="background:var(--ballroom)">댄스스포츠</span>
+              <span class="mini-chip" style="background:var(--tango)">탱고</span>
+              <span class="mini-chip outline">살사</span>
+            </div>
+            <div class="divider"></div>
+            <div class="studio-card"><div class="name">🎓 대학생이신가요?</div>
+              <div class="meta">학교 이메일 인증 시 3개월 요금제</div></div>
+          </div>
+          <div class="cta-fixed"><div class="btn-pill">다음</div></div>
+        </div></div>
+        <div class="cap-num">01</div><div class="cap-title">회원가입 3초</div>
+        <div class="cap-desc">본인인증만 하면 바로 시작 — 이탈 없이 검색으로 넘어갑니다.</div>
+      </div>
+
+      <div class="trio-item">
+        <div class="phone"><div class="notch"></div><div class="screen">
+          <div class="status"><span>9:41</span><span>●●●</span></div>
+          <div class="app-header"><div class="title">학원 찾기</div></div>
+          <div class="app-body">
+            <div class="search-bar">🔍 강남 · 살사 · 평일 저녁</div>
+            <div class="chip-row">
+              <span class="mini-chip" style="background:var(--salsa)">살사</span>
+              <span class="mini-chip" style="background:var(--bachata)">바차타</span>
+            </div>
+            <div class="studio-card"><div class="name">라 클라베 스튜디오 <span>★4.9</span></div>
+              <div class="meta">강남역 3번 출구 · 도보 5분</div><span class="badge-50">첫달 무료(대학생)</span></div>
+            <div class="studio-card"><div class="name">소셜살사 강남점 <span>★4.7</span></div>
+              <div class="meta">역삼역 1번 출구 · 도보 9분</div></div>
+          </div>
+          <div class="nav-tab">
+            <a class="on"><svg class="tab-ic" viewBox="0 0 24 24"><path d="M4 12 12 5l8 7M6 11v8h5v-5h2v5h5v-8"/></svg><span class="tab-lbl">홈</span></a>
+            <a><svg class="tab-ic" viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 9h16M8 3v4M16 3v4"/></svg><span class="tab-lbl">캘린더</span></a>
+            <a><svg class="tab-ic" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h11"/></svg><span class="tab-lbl">피드</span></a>
+            <a><svg class="tab-ic" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.4"/><path d="M5 20c0-4 3-6 7-6s7 2 7 6"/></svg><span class="tab-lbl">마이</span></a>
+          </div>
+        </div></div>
+        <div class="cap-num">02</div><div class="cap-title">취향까지 걸러서 검색</div>
+        <div class="cap-desc">장르·지역·시간대로 좁힌 사람이 학원 앞까지 옵니다.</div>
+      </div>
+
+      <div class="trio-item">
+        <div class="phone"><div class="notch"></div><div class="screen">
+          <div class="status"><span>9:41</span><span>●●●</span></div>
+          <div class="app-header"><span class="back">‹</span><div class="title">학원 상세</div><span></span></div>
+          <div class="app-body">
+            <div class="hero-photo"><span class="ph-badge">사진 6장</span></div>
+            <div style="font-weight:800; font-size:0.9rem;">라 클라베 댄스 스튜디오</div>
+            <div style="font-size:0.62rem; color:#8A8194; margin:2px 0 8px;">★4.9 (212) · 도보 5분</div>
+            <div class="studio-card"><div class="name">살사 중급반 <span>45,000원</span></div>
+              <div class="meta">화·목 20:00 · 8/12</div></div>
+          </div>
+          <div class="cta-fixed"><div class="btn-pill">수업 선택하고 예약하기</div></div>
+        </div></div>
+        <div class="cap-num">03</div><div class="cap-title">전화 문의가 줄어듭니다</div>
+        <div class="cap-desc">사진·시간표·정원까지 한 화면 — 물어볼 게 없어집니다.</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ===== 04 회원 화면 2/3 ===== -->
+  <div class="slide">
+    <div class="slide-no"><span class="bar"></span>04 / 09 · 회원 화면 2/3</div>
+    <span class="slide-kicker">결제 → 일정 → 길찾기</span>
+    <h2 style="font-size:1.5rem; margin-bottom:22px;">결제부터 방문까지, 이탈 없이 이어집니다</h2>
+    <div class="trio">
+
+      <div class="trio-item">
+        <div class="phone"><div class="notch"></div><div class="screen">
+          <div class="status"><span>9:41</span><span>●●●</span></div>
+          <div class="app-header"><span class="back">‹</span><div class="title">결제하기</div><span></span></div>
+          <div class="app-body">
+            <div class="field"><div class="flabel">수업</div><div class="fval">살사 중급반 · 화 20:00</div></div>
+            <div class="divider"></div>
+            <div class="price-row"><span>수업료 (1개월)</span><span>180,000원</span></div>
+            <div class="price-row discount"><span>대학생 2개월차 반값</span><span>-90,000원</span></div>
+            <div class="price-row discount"><span>분기 1+1 쿠폰</span><span>적용됨</span></div>
+            <div class="price-row total"><span>총 결제금액</span><span>90,000원</span></div>
+            <div class="divider"></div>
+            <div class="pay-opt sel"><span class="radio sel"></span>신용·체크카드</div>
+            <div class="agree-line"><span class="check"></span>취소·환불 정책에 동의합니다</div>
+          </div>
+          <div class="cta-fixed"><div class="btn-pill">90,000원 결제하기</div></div>
+        </div></div>
+        <div class="cap-num">04</div><div class="cap-title">투명한 결제 화면</div>
+        <div class="cap-desc">할인·쿠폰이 항목별로 보여서 결제 중 이탈이 없습니다.</div>
+      </div>
+
+      <div class="trio-item">
+        <div class="phone"><div class="notch"></div><div class="screen">
+          <div class="status"><span>9:41</span><span>●●●</span></div>
+          <div class="app-header"><div class="title">내 일정</div></div>
+          <div class="app-body">
+            <div class="cal-grid">
+              <div class="cal-cell">일</div><div class="cal-cell">월</div><div class="cal-cell">화</div>
+              <div class="cal-cell">수</div><div class="cal-cell">목</div><div class="cal-cell">금</div><div class="cal-cell">토</div>
+              <div class="cal-cell">1</div><div class="cal-cell">2</div>
+              <div class="cal-cell active">3<span class="cal-dot" style="background:var(--salsa)"></span></div>
+              <div class="cal-cell">4</div><div class="cal-cell">5<span class="cal-dot" style="background:var(--bachata)"></span></div>
+              <div class="cal-cell">6</div><div class="cal-cell">7</div>
+            </div>
+            <div class="agenda-card"><div class="t">🔔 살사 중급반</div><div class="s">오늘 저녁 8:00 · 30분 전 알람</div></div>
+          </div>
+          <div class="nav-tab">
+            <a><svg class="tab-ic" viewBox="0 0 24 24"><path d="M4 12 12 5l8 7M6 11v8h5v-5h2v5h5v-8"/></svg><span class="tab-lbl">홈</span></a>
+            <a class="on"><svg class="tab-ic" viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 9h16M8 3v4M16 3v4"/></svg><span class="tab-lbl">캘린더</span></a>
+            <a><svg class="tab-ic" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h11"/></svg><span class="tab-lbl">피드</span></a>
+            <a><svg class="tab-ic" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.4"/><path d="M5 20c0-4 3-6 7-6s7 2 7 6"/></svg><span class="tab-lbl">마이</span></a>
+          </div>
+        </div></div>
+        <div class="cap-num">05</div><div class="cap-title">노쇼가 줄어듭니다</div>
+        <div class="cap-desc">결제 즉시 캘린더 등록, 수업 30분 전 자동 알람.</div>
+      </div>
+
+      <div class="trio-item">
+        <div class="phone"><div class="notch"></div><div class="screen">
+          <div class="status"><span>9:41</span><span>●●●</span></div>
+          <div class="app-header"><div class="title">길찾기</div></div>
+          <div class="app-body">
+            <div class="map-box">
+              <svg width="100%" height="100%" viewBox="0 0 220 150">
+                <rect width="220" height="150" fill="#E9E4ED"/>
+                <path d="M0,50 H220" stroke="#D5CBD9" stroke-width="5"/>
+                <path d="M40,0 V150" stroke="#D5CBD9" stroke-width="5"/>
+                <path d="M40,110 Q90,60 150,45" fill="none" stroke="#D8452F" stroke-width="2.5" stroke-dasharray="6 5"/>
+                <circle cx="40" cy="110" r="5" fill="#1F1729"/><circle cx="150" cy="45" r="6" fill="#D8452F"/>
+              </svg>
+            </div>
+            <div class="route-card"><div class="line"><span>🚶 도보</span><b>12분 · 850m</b></div>
+            <div class="line"><span>🚇 강남역</span><b>3번 출구</b></div></div>
+          </div>
+          <div class="nav-tab">
+            <a><svg class="tab-ic" viewBox="0 0 24 24"><path d="M4 12 12 5l8 7M6 11v8h5v-5h2v5h5v-8"/></svg><span class="tab-lbl">홈</span></a>
+            <a><svg class="tab-ic" viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 9h16M8 3v4M16 3v4"/></svg><span class="tab-lbl">캘린더</span></a>
+            <a class="on"><svg class="tab-ic" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h11"/></svg><span class="tab-lbl">피드</span></a>
+            <a><svg class="tab-ic" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.4"/><path d="M5 20c0-4 3-6 7-6s7 2 7 6"/></svg><span class="tab-lbl">마이</span></a>
+          </div>
+        </div></div>
+        <div class="cap-num">06</div><div class="cap-title">첫 방문 포기를 막습니다</div>
+        <div class="cap-desc">예약 확인 화면에서 바로 경로 안내로 이어집니다.</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ===== 05 회원 화면 3/3 ===== -->
+  <div class="slide">
+    <div class="slide-no"><span class="bar"></span>05 / 09 · 회원 화면 3/3</div>
+    <span class="slide-kicker">피드 → 공지 → 마이</span>
+    <h2 style="font-size:1.5rem; margin-bottom:22px;">재방문과 노출까지 앱이 대신합니다</h2>
+    <div class="trio">
+
+      <div class="trio-item">
+        <div class="phone"><div class="notch"></div><div class="screen">
+          <div class="status"><span>9:41</span><span>●●●</span></div>
+          <div class="app-header"><div class="title">피드</div></div>
+          <div class="app-body">
+            <div class="feed-card"><div class="feed-photo"></div><div class="feed-body">
+              <span class="feed-tag" style="background:var(--bachata)">파티</span>
+              <div class="feed-title">강남 바차타 소셜파티</div></div></div>
+            <div class="feed-card"><div class="feed-photo"></div><div class="feed-body">
+              <span class="feed-tag" style="background:var(--ballroom)">대회</span>
+              <div class="feed-title">2026 전국 챔피언십</div></div></div>
+          </div>
+          <div class="nav-tab">
+            <a><svg class="tab-ic" viewBox="0 0 24 24"><path d="M4 12 12 5l8 7M6 11v8h5v-5h2v5h5v-8"/></svg><span class="tab-lbl">홈</span></a>
+            <a><svg class="tab-ic" viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 9h16M8 3v4M16 3v4"/></svg><span class="tab-lbl">캘린더</span></a>
+            <a class="on"><svg class="tab-ic" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h11"/></svg><span class="tab-lbl">피드</span></a>
+            <a><svg class="tab-ic" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.4"/><path d="M5 20c0-4 3-6 7-6s7 2 7 6"/></svg><span class="tab-lbl">마이</span></a>
+          </div>
+        </div></div>
+        <div class="cap-num">07</div><div class="cap-title">다른 학원 회원에게도 노출</div>
+        <div class="cap-desc">우리 학원 파티·공연이 전체 뉴스피드에 올라갑니다.</div>
+      </div>
+
+      <div class="trio-item">
+        <div class="phone"><div class="notch"></div><div class="screen">
+          <div class="status"><span>9:41</span><span>●●●</span></div>
+          <div class="app-header"><span class="back">‹</span><div class="title">라 클라베 공지</div><span></span></div>
+          <div class="app-body">
+            <div class="notice-row pin"><div class="notice-title"><span class="pin-tag">고정</span>추석 연휴 휴강 안내</div>
+              <div class="notice-meta">9/16 게시</div></div>
+            <div class="notice-row"><div class="notice-title">10월 정기 발표회 신청 시작</div>
+              <div class="notice-meta">9/12 게시</div></div>
+          </div>
+          <div class="nav-tab">
+            <a><svg class="tab-ic" viewBox="0 0 24 24"><path d="M4 12 12 5l8 7M6 11v8h5v-5h2v5h5v-8"/></svg><span class="tab-lbl">홈</span></a>
+            <a><svg class="tab-ic" viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 9h16M8 3v4M16 3v4"/></svg><span class="tab-lbl">캘린더</span></a>
+            <a class="on"><svg class="tab-ic" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h11"/></svg><span class="tab-lbl">피드</span></a>
+            <a><svg class="tab-ic" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.4"/><path d="M5 20c0-4 3-6 7-6s7 2 7 6"/></svg><span class="tab-lbl">마이</span></a>
+          </div>
+        </div></div>
+        <div class="cap-num">08</div><div class="cap-title">전화 대신 공지 하나로</div>
+        <div class="cap-desc">휴강·이벤트를 텍스트로 바로 올립니다 — OCR도 필요 없습니다.</div>
+      </div>
+
+      <div class="trio-item">
+        <div class="phone"><div class="notch"></div><div class="screen">
+          <div class="status"><span>9:41</span><span>●●●</span></div>
+          <div class="app-header"><div class="title">마이</div></div>
+          <div class="app-body">
+            <div class="sub-card"><div class="lbl">월 구독 중</div><div class="big">다음 결제 10/13 · 15,000원</div></div>
+            <div class="coupon-card"><div><b>🎟 이번 분기 1+1 수강권</b><span class="coupon-d">D-18 소멸</span></div>사용가능</div>
+            <div class="mini-row"><span>예약 내역</span><span>›</span></div>
+          </div>
+          <div class="nav-tab">
+            <a><svg class="tab-ic" viewBox="0 0 24 24"><path d="M4 12 12 5l8 7M6 11v8h5v-5h2v5h5v-8"/></svg><span class="tab-lbl">홈</span></a>
+            <a><svg class="tab-ic" viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 9h16M8 3v4M16 3v4"/></svg><span class="tab-lbl">캘린더</span></a>
+            <a><svg class="tab-ic" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h11"/></svg><span class="tab-lbl">피드</span></a>
+            <a class="on"><svg class="tab-ic" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.4"/><path d="M5 20c0-4 3-6 7-6s7 2 7 6"/></svg><span class="tab-lbl">마이</span></a>
+          </div>
+        </div></div>
+        <div class="cap-num">09</div><div class="cap-title">예측 가능한 매출</div>
+        <div class="cap-desc">구독 회원은 매달 자동 결제됩니다.</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ===== 06 관리자 3화면 ===== -->
+  <div class="slide">
+    <div class="slide-no"><span class="bar"></span>06 / 09 · 원장님 화면</div>
+    <span class="slide-kicker">업로드 → 검토 → 정산</span>
+    <h2 style="font-size:1.5rem; margin-bottom:22px;">업로드 한 장이면, 나머지는 저희가 합니다</h2>
+    <div class="trio">
+
+      <div class="trio-item">
+        <div class="phone"><div class="notch"></div><div class="screen">
+          <div class="status"><span>9:41</span><span>●●●</span></div>
+          <div class="app-header"><div class="title">포스터 업로드</div></div>
+          <div class="app-body">
+            <div class="upload-box"><div class="ic">📎</div><div class="t">포스터 · PDF · 인스타 캡처</div>
+            <div class="s">끌어다 놓거나 눌러서 선택</div></div>
+            <div class="studio-card"><div class="name">10월_시간표.jpg <span>처리중</span></div>
+              <div class="meta">업로드 09:41</div></div>
+          </div>
+          <div class="cta-fixed"><div class="btn-pill">업로드</div></div>
+        </div></div>
+        <div class="cap-num">10</div><div class="cap-title">타이핑 없이 업로드</div>
+        <div class="cap-desc">쓰던 포스터·전단지 사진 그대로 올리면 끝.</div>
+      </div>
+
+      <div class="trio-item">
+        <div class="phone"><div class="notch"></div><div class="screen">
+          <div class="status"><span>9:41</span><span>●●●</span></div>
+          <div class="app-header"><div class="title">추출 결과 검토</div></div>
+          <div class="app-body">
+            <div class="hero-photo" style="height:70px;"><span class="ph-badge">원본 보기</span></div>
+            <div class="review-field"><div class="rl">장르</div><div class="rv">살사 중급반</div></div>
+            <div class="review-field low"><div class="rl">시간</div><div class="rv">화 20:00–21:00 <span class="low-tag">확인필요</span></div></div>
+            <div class="review-field low"><div class="rl">가격</div><div class="rv">45,000원 <span class="low-tag">확인필요</span></div></div>
+          </div>
+          <div class="cta-fixed"><div class="btn-pill">확인하고 게시</div></div>
+        </div></div>
+        <div class="cap-num">11</div><div class="cap-title">확인만 하면 됩니다</div>
+        <div class="cap-desc">자동으로 채워진 내용을 한 번 보고 게시 버튼만 누르시면 됩니다.</div>
+      </div>
+
+      <div class="trio-item">
+        <div class="phone"><div class="notch"></div><div class="screen">
+          <div class="status"><span>9:41</span><span>●●●</span></div>
+          <div class="app-header"><div class="title">이번 달 정산</div></div>
+          <div class="app-body">
+            <span class="status-pill"><span class="dot2"></span>정산 완료 · 9/5 입금</span>
+            <div class="settle-card"><div class="lbl">실지급액</div><div class="amt">3,214,000원</div>
+              <div class="settle-row"><span>총 결제액</span><b>3,490,000원</b></div>
+              <div class="settle-row"><span>플랫폼 수수료 (8%)</span><b>-276,000원</b></div></div>
+            <div class="mini-row"><span>신규 회원</span><b>14명</b></div>
+          </div>
+        </div></div>
+        <div class="cap-num">12</div><div class="cap-title">장부 정리가 사라집니다</div>
+        <div class="cap-desc">카드·현금·계좌이체 결제가 한 화면에 자동으로 정리됩니다.</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ===== 07 할인 구조 표 ===== -->
+  <div class="slide">
+    <div class="slide-no"><span class="bar"></span>07 / 09</div>
+    <span class="slide-kicker">자주 묻는 질문</span>
+    <h2 style="font-size:1.6rem; margin-bottom:10px;">"할인·쿠폰, 저희가 부담하나요?"</h2>
+    <p style="color:var(--text-dim); max-width:60ch; margin-bottom:26px;">네, 할인·쿠폰의
+    차액은 학원이 부담합니다. 대신 그 고객을 실제로 데려오는 검색·추천·자동등록·결제
+    인프라는 플랫폼이 전부 무료로 제공합니다 — 신규 고객 한 명당 비용을 학원이 직접
+    정하고 통제할 수 있는 구조입니다.</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>항목</th><th>부담 주체</th><th>학원 정산 기준</th></tr></thead>
+        <tbody>
+          <tr><td class="k">대학생 전용 · 1개월차</td><td>학원(업주)</td><td class="num-cell">무료 — 학원 정산 0원 (결제 자체 없음)</td></tr>
+          <tr><td class="k">대학생 전용 · 2개월차</td><td>학원(업주)</td><td class="num-cell">반값 결제액 기준 정산, 수수료 8% 적용</td></tr>
+          <tr><td class="k">대학생 전용 · 3개월차부터</td><td>학생 본인</td><td class="num-cell">정상가, 수수료 8% 적용</td></tr>
+          <tr><td class="k">월 구독 · 분기 1+1 수강권</td><td>학원 (좌석 1개 무료 제공)</td><td class="num-cell">결제된 1건엔 정상 수수료 8% 적용</td></tr>
+          <tr><td class="k">일반 결제 수수료</td><td>학원 (수수료 8%)</td><td class="num-cell">결제액의 92% 지급</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ===== 08 입점 절차 ===== -->
+  <div class="slide">
+    <div class="slide-no"><span class="bar"></span>08 / 09</div>
+    <span class="slide-kicker">입점 절차</span>
+    <h2 style="font-size:1.7rem; margin-bottom:26px;">서류 없이, 3단계면 됩니다.</h2>
+    <div class="steps">
+      <div class="step"><div class="n">1</div><h3>계좌·사업자 등록</h3><p>정산받을 계좌와 사업자등록증만 준비하시면 됩니다.</p></div>
+      <div class="step"><div class="n">2</div><h3>포스터 한 장만 업로드</h3><p>쓰시던 포스터·전단지 사진을 올리면 장르·시간표·가격이 자동으로 채워집니다. 확인만 하고 게시 버튼 한 번.</p></div>
+      <div class="step"><div class="n">3</div><h3>베타 오픈</h3><p>베타서비스 6개월은 수수료 없이 운영하고, 7개월차부터 정상 수수료를 청구합니다.</p></div>
+    </div>
+    <div class="cta-box">
+      <h3>지금 시작하면, 첫 6개월은 수수료가 없습니다.</h3>
+      <p>베타서비스 6개월 동안은 정산 수수료를 전액 면제하고, 이후 정상 수수료를 청구합니다.</p>
+    </div>
+  </div>
+
+  <footer><div class="slide-no" style="margin-top:0;"><span class="bar"></span>09 / 09 · 소셜댄스 입점 설명회 (화면 12개 전체 기준)</div></footer>
+
+</div>

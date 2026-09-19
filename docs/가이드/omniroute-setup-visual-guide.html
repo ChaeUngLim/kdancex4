@@ -1,0 +1,1150 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OmniRoute 무료 모델 게이트웨이 — 왕초보 완벽분석가이드</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+KR:wght@400;500;600;700&display=swap');
+
+  :root {
+    --bg: #F4F7F6;
+    --surface: #FFFFFF;
+    --surface-2: #EDF2F0;
+    --ink: #14211E;
+    --ink-soft: #3D504B;
+    --muted: #6B7F79;
+    --border: #DBE4E0;
+    --accent: #0E8074;
+    --accent-bg: #E2F3F0;
+    --ok: #237B45;
+    --ok-bg: #E3F4E9;
+    --warn: #96650D;
+    --warn-bg: #FBF0DA;
+    --bad: #B03636;
+    --bad-bg: #FBE7E7;
+    --fe: #2F5FA0;
+    --fe-bg: #E6EEF9;
+    --be: #93571C;
+    --be-bg: #F8EDDF;
+    --shadow: 0 1px 2px rgba(16,32,28,.06), 0 8px 24px rgba(16,32,28,.06);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0D1613; --surface: #16211D; --surface-2: #1B2723; --ink: #E8F1ED; --ink-soft: #C2D2CC;
+      --muted: #8AA099; --border: #26332E; --accent: #34C4B1; --accent-bg: #10312C;
+      --ok: #59C97F; --ok-bg: #12301E; --warn: #E0A93F; --warn-bg: #322511;
+      --bad: #E86A6A; --bad-bg: #331817; --fe: #6FA5E0; --fe-bg: #15242F; --be: #DFA063; --be-bg: #2D2114;
+      --shadow: 0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.28);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0D1613; --surface: #16211D; --surface-2: #1B2723; --ink: #E8F1ED; --ink-soft: #C2D2CC;
+    --muted: #8AA099; --border: #26332E; --accent: #34C4B1; --accent-bg: #10312C;
+    --ok: #59C97F; --ok-bg: #12301E; --warn: #E0A93F; --warn-bg: #322511;
+    --bad: #E86A6A; --bad-bg: #331817; --fe: #6FA5E0; --fe-bg: #15242F; --be: #DFA063; --be-bg: #2D2114;
+    --shadow: 0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.28);
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; scroll-padding-top: 20px; }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font-family: 'IBM Plex Sans KR', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 15.5px; line-height: 1.72; -webkit-font-smoothing: antialiased;
+  }
+  code, kbd, .mono { font-family: 'IBM Plex Mono', ui-monospace, monospace; font-size: 0.88em; }
+  code { background: var(--surface-2); border: 1px solid var(--border); padding: 1px 5px; border-radius: 4px; word-break: break-all; }
+  a { color: var(--accent); }
+
+  .layout { max-width: 1180px; margin: 0 auto; padding: 0 16px; display: grid; grid-template-columns: 1fr; }
+  .sidebar { display: none; }
+  @media (min-width: 1020px) {
+    .layout { grid-template-columns: 232px minmax(0,1fr); gap: 40px; align-items: start; }
+    .sidebar { display: block; position: sticky; top: 24px; max-height: calc(100vh - 48px); overflow-y: auto; padding: 28px 0; }
+  }
+  .sidebar .side-title { font-size: .74rem; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin: 0 0 12px; font-family: 'IBM Plex Mono', monospace; }
+  .sidebar ol { list-style: none; margin: 0; padding: 0; }
+  .sidebar li { margin-bottom: 2px; }
+  .sidebar a { display: block; padding: 5px 10px; border-radius: 6px; font-size: .87rem; color: var(--ink-soft); text-decoration: none; border-left: 2px solid transparent; }
+  .sidebar a:hover { background: var(--surface-2); color: var(--ink); }
+  .sidebar a.active { background: var(--accent-bg); color: var(--accent); border-left-color: var(--accent); font-weight: 600; }
+
+  main { padding: 28px 0 120px; min-width: 0; }
+
+  .hero { padding-bottom: 26px; border-bottom: 1px solid var(--border); margin-bottom: 34px; }
+  .kicker { font-family: 'IBM Plex Mono', monospace; font-size: .74rem; letter-spacing: .12em; text-transform: uppercase; color: var(--accent); margin: 0 0 10px; }
+  h1 { font-size: clamp(1.6rem, 4vw, 2.15rem); line-height: 1.25; margin: 0 0 14px; letter-spacing: -.02em; }
+  .hero p { color: var(--ink-soft); margin: 0 0 8px; max-width: 74ch; }
+  .chips { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 18px; }
+  .chip { font-family: 'IBM Plex Mono', monospace; font-size: .72rem; padding: 4px 10px; border-radius: 999px; border: 1px solid var(--border); background: var(--surface); color: var(--muted); }
+  .chip.ok { border-color: var(--ok); color: var(--ok); background: var(--ok-bg); }
+  .chip.wait { border-color: var(--warn); color: var(--warn); background: var(--warn-bg); }
+
+  section { margin-bottom: 56px; scroll-margin-top: 20px; }
+  .sec-head { display: flex; align-items: center; gap: 12px; margin: 0 0 6px; }
+  .sec-n { flex: none; width: 30px; height: 30px; border-radius: 8px; background: var(--accent-bg); color: var(--accent); font-family: 'IBM Plex Mono', monospace; font-weight: 600; font-size: .9rem; display: grid; place-items: center; }
+  h2 { font-size: 1.28rem; margin: 0; letter-spacing: -.01em; }
+  h3 { font-size: 1.02rem; margin: 26px 0 10px; }
+  .sec-sub { color: var(--muted); font-size: .92rem; margin: 0 0 20px 42px; }
+  @media (max-width: 640px) { .sec-sub { margin-left: 0; } }
+
+  .grid2 { display: grid; gap: 16px; grid-template-columns: 1fr; }
+  @media (min-width: 720px) { .grid2 { grid-template-columns: 1fr 1fr; } }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 18px 20px; box-shadow: var(--shadow); }
+  .card h4 { margin: 0 0 4px; font-size: 1rem; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .card .card-sub { color: var(--muted); font-size: .84rem; margin: 0 0 14px; }
+  .tag { font-family: 'IBM Plex Mono', monospace; font-size: .68rem; padding: 2px 8px; border-radius: 999px; font-weight: 600; }
+  .tag.fe { color: var(--fe); background: var(--fe-bg); }
+  .tag.be { color: var(--be); background: var(--be-bg); }
+
+  .chain { list-style: none; margin: 0; padding: 0; counter-reset: ch; }
+  .chain li { counter-increment: ch; position: relative; padding: 9px 0 9px 34px; border-bottom: 1px dashed var(--border); font-size: .92rem; }
+  .chain li:last-child { border-bottom: none; }
+  .chain li::before { content: counter(ch); position: absolute; left: 0; top: 10px; width: 22px; height: 22px; border-radius: 6px; background: var(--surface-2); color: var(--muted); font-family: 'IBM Plex Mono', monospace; font-size: .72rem; display: grid; place-items: center; font-weight: 600; }
+  .chain li b { display: block; }
+  .chain li span { color: var(--muted); font-size: .84rem; }
+  .role-list { list-style: none; margin: 0; padding: 0; }
+  .role-list li { padding: 9px 0; border-bottom: 1px dashed var(--border); font-size: .92rem; }
+  .role-list li:last-child { border-bottom: none; }
+  .role-list .role { display: block; font-size: .76rem; color: var(--accent); font-weight: 600; }
+  .role-list small { display: block; color: var(--muted); font-size: .8rem; }
+
+  .rules { display: grid; gap: 12px; }
+  .rule { background: var(--surface); border: 1px solid var(--border); border-left: 3px solid var(--accent); border-radius: 10px; padding: 16px 18px; }
+  .rule .rn { font-family: 'IBM Plex Mono', monospace; font-size: .72rem; color: var(--accent); font-weight: 600; }
+  .rule b { display: block; margin: 2px 0 6px; font-size: 1rem; }
+  .rule p { margin: 0; color: var(--ink-soft); font-size: .92rem; }
+  .rule.hot { border-left-color: var(--bad); }
+  .rule.hot .rn { color: var(--bad); }
+
+  .shot { margin: 18px 0; }
+  .shot figure { margin: 0; }
+  .shot .frame { position: relative; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; background: var(--surface-2); cursor: zoom-in; box-shadow: var(--shadow); }
+  .shot img { display: block; width: 100%; height: auto; }
+  .shot .zoom-hint { position: absolute; right: 8px; bottom: 8px; background: rgba(0,0,0,.66); color: #fff; font-family: 'IBM Plex Mono', monospace; font-size: .68rem; padding: 3px 8px; border-radius: 5px; opacity: 0; transition: opacity .16s; pointer-events: none; }
+  .shot .frame:hover .zoom-hint { opacity: 1; }
+  .shot figcaption { margin-top: 10px; font-size: .88rem; color: var(--ink-soft); background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 11px 14px; }
+  .shot figcaption .look { display: block; font-family: 'IBM Plex Mono', monospace; font-size: .74rem; color: var(--accent); font-weight: 600; margin-bottom: 4px; }
+
+  .steps { counter-reset: st; list-style: none; margin: 14px 0; padding: 0; }
+  .steps li { counter-increment: st; position: relative; padding: 0 0 12px 32px; font-size: .93rem; }
+  .steps li::before { content: counter(st); position: absolute; left: 0; top: 2px; width: 21px; height: 21px; border-radius: 50%; background: var(--accent); color: var(--bg); font-family: 'IBM Plex Mono', monospace; font-size: .7rem; font-weight: 700; display: grid; place-items: center; }
+
+  .box { border-radius: 10px; padding: 15px 17px; margin: 16px 0; font-size: .93rem; border: 1px solid; }
+  .box .lbl { display: block; font-family: 'IBM Plex Mono', monospace; font-size: .72rem; font-weight: 700; letter-spacing: .05em; margin-bottom: 6px; }
+  .box p:first-of-type { margin-top: 0; }
+  .box p:last-child { margin-bottom: 0; }
+  .box.trap { background: var(--bad-bg); border-color: var(--bad); }
+  .box.trap .lbl { color: var(--bad); }
+  .box.fix { background: var(--ok-bg); border-color: var(--ok); }
+  .box.fix .lbl { color: var(--ok); }
+  .box.tip { background: var(--warn-bg); border-color: var(--warn); }
+  .box.tip .lbl { color: var(--warn); }
+  .box.note { background: var(--surface-2); border-color: var(--border); color: var(--ink-soft); }
+  .box.note .lbl { color: var(--muted); }
+
+  .tw { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 16px 0; }
+  table { border-collapse: collapse; width: 100%; font-size: .89rem; min-width: 520px; }
+  th, td { border: 1px solid var(--border); padding: 9px 11px; text-align: left; vertical-align: top; }
+  th { background: var(--surface-2); color: var(--ink); font-weight: 600; }
+  td.ok { color: var(--ok); font-weight: 600; }
+  td.bad { color: var(--bad); font-weight: 600; }
+  td.num { font-family: 'IBM Plex Mono', monospace; text-align: right; }
+
+  .check { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 6px 18px 14px; box-shadow: var(--shadow); }
+  .check .bar { height: 5px; background: var(--surface-2); border-radius: 99px; overflow: hidden; margin: 14px 0 4px; }
+  .check .bar i { display: block; height: 100%; width: 0; background: var(--accent); transition: width .25s; }
+  .check .cnt { font-family: 'IBM Plex Mono', monospace; font-size: .76rem; color: var(--muted); }
+  .check label { display: flex; gap: 10px; align-items: flex-start; padding: 9px 0; border-bottom: 1px dashed var(--border); cursor: pointer; font-size: .93rem; }
+  .check label:last-of-type { border-bottom: none; }
+  .check input { margin-top: 5px; accent-color: var(--accent); flex: none; }
+  .check label.done > span { text-decoration: line-through; color: var(--muted); }
+  .check small { display: block; color: var(--muted); font-size: .8rem; }
+
+  pre { background: var(--surface-2); border: 1px solid var(--border); border-radius: 8px; padding: 13px 15px; overflow-x: auto; font-size: .84rem; line-height: 1.6; margin: 12px 0; }
+  pre code { background: none; border: none; padding: 0; }
+
+  #lb { position: fixed; inset: 0; background: rgba(8,14,12,.93); display: none; place-items: center; z-index: 50; padding: 24px; cursor: zoom-out; }
+  #lb.on { display: grid; }
+  #lb img { max-width: 100%; max-height: 90vh; border-radius: 8px; box-shadow: 0 20px 60px rgba(0,0,0,.6); }
+  #lb .lb-cap { position: absolute; bottom: 14px; left: 50%; transform: translateX(-50%); color: #DCE8E4; font-size: .82rem; background: rgba(0,0,0,.55); padding: 6px 14px; border-radius: 99px; font-family: 'IBM Plex Mono', monospace; max-width: 88vw; text-align: center; }
+
+  footer { border-top: 1px solid var(--border); margin-top: 20px; padding-top: 18px; color: var(--muted); font-size: .83rem; }
+  .theme-btn { position: fixed; right: 16px; bottom: 16px; z-index: 40; background: var(--surface); border: 1px solid var(--border); color: var(--ink-soft); border-radius: 999px; padding: 8px 14px; font-size: .78rem; cursor: pointer; box-shadow: var(--shadow); font-family: 'IBM Plex Sans KR', sans-serif; }
+</style>
+</head>
+<body>
+
+<div class="layout">
+  <nav class="sidebar" aria-label="목차">
+    <p class="side-title">목차</p>
+    <ol id="toc">
+      <li><a href="#result">결론 — 최종 구성</a></li>
+      <li><a href="#rules">5가지 핵심 원칙</a></li>
+      <li><a href="#todo">실행 체크리스트</a></li>
+      <li><a href="#s0">0. 공급자 화면 찾기</a></li>
+      <li><a href="#s1">1. Z.ai — GLM-4.7-Flash</a></li>
+      <li><a href="#s2">2. Kiro — Claude Sonnet</a></li>
+      <li><a href="#s3">3. Groq — Qwen3.8-27B</a></li>
+      <li><a href="#s4">4. Gemini — 3.8 Flash</a></li>
+      <li><a href="#s5">5. Mistral — Codestral</a></li>
+      <li><a href="#s6">6. 엔드포인트와 터널</a></li>
+      <li><a href="#s7">7. 콤보 만들기</a></li>
+      <li><a href="#s8">8. 테스트와 오류 수정</a></li>
+      <li><a href="#s9">9. 남은 단계</a></li>
+      <li><a href="#s10">10. Docker — 뭘 켜야 하나</a></li>
+      <li><a href="#appendix">부록 — 제외된 모델</a></li>
+    </ol>
+  </nav>
+
+  <main>
+    <header class="hero">
+      <p class="kicker">Visual Deep-Dive · 실제 캡처 40여 장 기반 · 2026-09-18</p>
+      <h1>OmniRoute 무료 모델 게이트웨이<br>왕초보 완벽분석가이드</h1>
+      <p>
+        Claude Opus/Sonnet 토큰이 소진됐을 때 대신 쓸 <b>영구 무료 AI 모델 5개</b>를
+        OmniRoute(로컬 LLM 게이트웨이)에 실제로 연결한 전 과정입니다.
+      </p>
+      <p>
+        정리된 정답만 보여주는 대신 <b>중간에 빠졌던 함정과 그걸 알아챈 방법</b>까지 순서대로 남겼습니다 —
+        무료처럼 보이지만 아닌 것, 이름은 같지만 다른 커넥터, 테스트를 통과한 것처럼 보였지만 사실 실패했던 구간까지.
+        같은 함정은 다른 서비스에서도 똑같은 모양으로 반복되기 때문입니다.
+      </p>
+      <div class="chips">
+        <span class="chip ok">계정 연결 5/5</span>
+        <span class="chip ok">백엔드 콤보 테스트 통과</span>
+        <span class="chip ok">CLI 연결 검증 완료</span>
+        <span class="chip">다음 재검증 2026-11-01</span>
+      </div>
+    </header>
+
+    <section id="result">
+      <div class="sec-head"><span class="sec-n">✓</span><h2>결론 — 최종 구성</h2></div>
+      <p class="sec-sub">긴 과정을 다 읽기 전에, 무엇으로 끝났는지부터.</p>
+
+      <div class="grid2">
+        <div class="card">
+          <h4>프론트엔드 <span class="tag fe">역할별 직접 호출</span></h4>
+          <p class="card-sub">성격이 서로 달라서 폴백 체인으로 묶지 않고, 작업 종류에 따라 골라 부릅니다.</p>
+          <ul class="role-list">
+            <li>
+              <span class="role">판단 · 설계</span>
+              <b>kiro/claude-sonnet-4.5</b>
+              <small>화면 구조, 상태관리 위치 같은 결정. 월 50크레딧뿐이라 아껴 씀</small>
+            </li>
+            <li>
+              <span class="role">UI 코드 작성 — 기본값 · 대량 작업</span>
+              <b>zai/glm-4.7-flash</b>
+              <small>폼·리스트·스타일 등 실제 컴포넌트 코드. 만료 없는 영구 무료라 <b>반복 작업도 여기가 받아냄</b></small>
+            </li>
+            <li>
+              <span class="role">예비 — 하루 20건</span>
+              <b>gemini/gemini-3.8-flash</b>
+              <small>GLM이 막혔을 때만 쓰는 비상용. 한도가 작아 대량 작업엔 쓸 수 없음</small>
+            </li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h4>백엔드 <span class="tag be">순차 폴백 콤보</span></h4>
+          <p class="card-sub">이름 <code>Free-fallback</code> · 전략 Priority — 앞이 막히면 자동으로 다음으로.</p>
+          <ol class="chain">
+            <li><b>kiro/claude-sonnet-4.5</b><span>판단력 최고, 월 50크레딧</span></li>
+            <li><b>groq/qwen/qwen3.8-27b</b><span>오픈웨이트 상위권, 분당 3만 토큰</span></li>
+            <li><b>gemini/gemini-3.8-flash</b><span>하루 20건</span></li>
+            <li><b>mistral/codestral-latest</b><span>월 10억 토큰, 최후 보루</span></li>
+          </ol>
+        </div>
+      </div>
+
+      <div class="box note">
+        <span class="lbl">계정 5개 · 모델 5개</span>
+        <p>Z.ai · Kiro · Groq · Google AI Studio · Mistral — 각각 계정 하나씩. Kiro와 Gemini는 프론트/백엔드 양쪽에서 같은 계정을 공유합니다.</p>
+      </div>
+    </section>
+
+    <section id="rules">
+      <div class="sec-head"><span class="sec-n">!</span><h2>5가지 핵심 원칙</h2></div>
+      <p class="sec-sub">이번에 겪은 실수를 다음에도 쓸 수 있는 규칙으로 바꾼 것. 이 문서에서 가장 값어치 있는 부분입니다.</p>
+
+      <div class="rules">
+        <div class="rule hot">
+          <span class="rn">원칙 1</span>
+          <b>커넥터 이름에 "Web"이 붙어 있으면 정식 API가 아니다</b>
+          <p>"Z.ai Web", "Gemini Web (Free)" 같은 항목은 <b>브라우저 로그인 세션(쿠키/토큰)을 재활용</b>하는 방식입니다. 사람용 화면의 캡차를 자동 우회하기 때문에 세션이 끊기면 멈추고, 약관 위반 소지도 있습니다. 반드시 "API 키" 분류에 있는 정식 커넥터를 고르세요. 이 함정은 Z.ai와 Gemini에서 <b>두 번 똑같이</b> 나타났습니다.</p>
+        </div>
+
+        <div class="rule hot">
+          <span class="rn">원칙 2</span>
+          <b>"무료"라는 단어가 아니라 한도의 구조를 확인한다</b>
+          <p>같은 "무료"라도 두 종류입니다. ① <b>주기적으로 리셋</b>되는 진짜 무료(Groq의 분당 제한, Kiro의 월 50크레딧, Mistral의 월 10억 토큰)와 ② <b>가입 시 한 번만 주는 크레딧</b>(DeepSeek 500만 토큰, Qoder 14일 체험판). ②번은 다 쓰면 영구 유료로 바뀌므로 무료 체인에 넣으면 안 됩니다. 판단 기준은 하나 — <b>"다 쓰면 다시 채워지는가?"</b></p>
+        </div>
+
+        <div class="rule">
+          <span class="rn">원칙 3</span>
+          <b>연결 직후엔 항상 모든 모델이 켜져 있다 — 먼저 다 끄고 필요한 것만 켠다</b>
+          <p>Z.ai는 8개, Groq는 17개, Mistral은 <b>48개</b>가 전부 활성 상태로 시작했습니다. 그 안에 유료 모델이 섞여 있으면 라우팅될 때 과금될 수 있습니다. "모두 숨기기"를 먼저 누른 뒤 쓸 모델 하나만 켜는 순서가 안전합니다.</p>
+        </div>
+
+        <div class="rule">
+          <span class="rn">원칙 4</span>
+          <b>모델 ID는 추측하지 말고 프로바이더의 실제 목록에서 확인한다</b>
+          <p>Anthropic에 Claude Sonnet 5가 존재한다는 사실과, <b>Kiro가 그걸 제공한다</b>는 사실은 별개입니다. Kiro 무료 티어는 4.5까지만 서빙하고 있어서 <code>claude-sonnet-5</code>로 요청하니 33ms 만에 거부당했습니다. 서드파티 무료 플랫폼은 보통 최신 세대를 몇 달 늦게 반영합니다.</p>
+        </div>
+
+        <div class="rule hot">
+          <span class="rn">원칙 5</span>
+          <b>폴백 체인은 1순위의 실패를 감춘다 — 만든 뒤 반드시 테스트한다</b>
+          <p>이번에 1순위 Claude Sonnet이 완전히 죽어 있었는데도, 2순위 Qwen이 즉시 받아내서 <b>겉보기에는 콤보가 정상 작동</b>했습니다. 테스트 화면에서 단계별 결과를 하나씩 보지 않았다면 "가장 좋은 모델을 쓰고 있다"고 착각한 채로 계속 갔을 겁니다. 폴백은 안정성을 주는 대신 문제를 조용하게 만듭니다.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="todo">
+      <div class="sec-head"><span class="sec-n">□</span><h2>실행 체크리스트</h2></div>
+      <p class="sec-sub">진행 상태는 이 브라우저에만 저장됩니다. 순서대로 따라가면 됩니다.</p>
+
+      <div class="check" id="check">
+        <div class="bar"><i id="bar"></i></div>
+        <div class="cnt" id="cnt">0 / 8 완료</div>
+
+        <label data-k="c1"><input type="checkbox"><span><b>Z.ai</b> — z.ai 가입 → 우측 상단 <code>API ↗</code> → 키 발급 → OmniRoute에 "Z.AI API 키"로 등록 <small>검증 모델 <code>glm-4.7-flash</code> · 우선순위 1</small></span></label>
+        <label data-k="c2"><input type="checkbox"><span><b>Z.ai 모델 정리</b> — <code>glm-4.7-flash</code>만 남기고 나머지 6개 숨기기 <small>목표 상태: 1/7 active</small></span></label>
+        <label data-k="c3"><input type="checkbox"><span><b>Kiro</b> — Connect Kiro → AWS Builder ID 로그인 <small>"무료 모델만 가져오기" 켜기 · 최대 동시 요청 수 1</small></span></label>
+        <label data-k="c4"><input type="checkbox"><span><b>Groq</b> — console.groq.com 키 발급 → 등록 → <code>qwen/qwen3.8-27b</code>만 활성화 <small>목표 상태: 1/17 active</small></span></label>
+        <label data-k="c5"><input type="checkbox"><span><b>Gemini</b> — aistudio.google.com/apikey 키 발급 → "Gemini (Google AI Studio)" 카드에 등록 <small>"Gemini Web"은 선택 금지 · <code>-live</code> 모델 제외</small></span></label>
+        <label data-k="c6"><input type="checkbox"><span><b>Mistral</b> — console.mistral.ai 키 발급 → 등록 → <code>codestral-latest</code>만 활성화 <small>목표 상태: 1/48 active</small></span></label>
+        <label data-k="c7"><input type="checkbox"><span><b>콤보 생성</b> — 이름 <code>Free-fallback</code>, 전략 우선순위, 4단계 순서대로 <small>Quick templates는 쓰지 않음</small></span></label>
+        <label data-k="c8"><input type="checkbox"><span><b>테스트</b> — 4개 전부 OK 확인, ERROR 나오면 모델 ID부터 의심 <small>1순위가 죽어도 폴백 때문에 겉보기엔 성공함</small></span></label>
+      </div>
+    </section>
+
+    <section id="s0">
+      <div class="sec-head"><span class="sec-n">0</span><h2>공급자 화면 찾기</h2></div>
+      <p class="sec-sub">모든 등록의 출발점. <code>localhost:20128</code> → 왼쪽 메뉴 <b>공급자</b>.</p>
+
+      <div class="shot">
+        <figure>
+          <div class="frame" data-cap="공급자 첫 진입 — 아직 연결된 공급자가 없는 상태">
+            <img loading="lazy" src="../assets/omniroute-guide/2.png" alt="공급자 화면 첫 진입, 첫 번째 공급자 추가 안내">
+            <span class="zoom-hint">클릭하면 확대</span>
+          </div>
+          <figcaption>
+            <span class="look">화면에서 볼 곳 — 가운데 "첫 번째 공급자 추가" 영역</span>
+            "공급자 온보딩 마법사" 버튼이 크게 보이지만, 이 가이드에서는 <b>마법사를 쓰지 않고 하나씩 직접 검색해서 등록</b>합니다.
+            각 커넥터가 정확히 어떤 방식인지(정식 API인지 세션 토큰인지) 매번 확인하며 가야 원칙 1의 함정을 피할 수 있습니다.
+          </figcaption>
+        </figure>
+      </div>
+
+      <div class="shot">
+        <figure>
+          <div class="frame" data-cap="공급자 분류 필터 — 347개 프로바이더가 연결 방식별로 나뉘어 있다">
+            <img loading="lazy" src="../assets/omniroute-guide/4.png" alt="공급자 필터 태그: OAuth, 프리 티어, API 키, 웹 쿠키 등">
+            <span class="zoom-hint">클릭하면 확대</span>
+          </div>
+          <figcaption>
+            <span class="look">화면에서 볼 곳 — 검색창 아래 색깔 태그 줄</span>
+            <b>OAuth 20 · 프리 티어 154 · API 키 230 · 웹 쿠키 35</b> — 이 숫자들이 연결 방식 분류입니다.
+            우리가 쓸 건 <b>OAuth</b>(Kiro)와 <b>API 키</b>(나머지 4개)뿐이고, <b>웹 쿠키 35개는 전부 피해야 할 방식</b>입니다.
+          </figcaption>
+        </figure>
+      </div>
+
+      <div class="box trap">
+        <span class="lbl">▲ 실제로 헷갈렸던 것</span>
+        <p>왼쪽 사이드바에서 <b>"공급자"</b> 바로 아래 <b>"내장 서비스"</b>가 붙어 있어서 실제로 잘못 들어갔습니다.
+        "내장 서비스"는 CLIProxyAPI·9Router 같은 <b>로컬 프록시 엔진을 관리하는 화면</b>이고, AI 모델을 등록하는 곳이 아닙니다.</p>
+        <div class="shot" style="margin-bottom:0">
+          <figure>
+            <div class="frame" data-cap="내장 서비스 — 여기가 아니다">
+              <img loading="lazy" src="../assets/omniroute-guide/6.png" alt="내장 서비스 화면, CLIProxyAPI 등 로컬 엔진 관리">
+              <span class="zoom-hint">클릭하면 확대</span>
+            </div>
+          </figure>
+        </div>
+      </div>
+    </section>
+
+    <section id="s1">
+      <div class="sec-head"><span class="sec-n">1</span><h2>Z.ai — GLM-4.7-Flash</h2></div>
+      <p class="sec-sub"><span class="tag fe">프론트엔드</span> UI 코드 작성 기본값 · API 키 방식 · 입력/출력 $0, 만료 없음</p>
+
+      <div class="box trap">
+        <span class="lbl">▲ 함정 — 검색하면 "Z.ai Web"이 먼저 걸린다</span>
+        <p>공급자 검색창에 <code>Z.ai</code>를 치면 이 카드가 먼저 나옵니다. 안내문에 <b>"Z.ai Web은 API 키 대신 브라우저 웹 세션을 사용합니다"</b>라고 명시돼 있고, chat.z.ai에 로그인한 뒤 DevTools로 <code>token</code> 값을 복사해오라고 시킵니다.</p>
+        <div class="shot">
+          <figure>
+            <div class="frame" data-cap="Z.ai Web 웹 토큰 추가 — 제목에 'Web'이 붙어 있으면 세션 토큰 방식">
+              <img loading="lazy" src="../assets/omniroute-guide/9.png" alt="Z.ai Web 웹 토큰 추가 다이얼로그, DevTools로 토큰 복사 안내">
+              <span class="zoom-hint">클릭하면 확대</span>
+            </div>
+            <figcaption>
+              <span class="look">화면에서 볼 곳 — 상단 제목과 보라색 안내 박스</span>
+              "OmniRoute handles the per-request CAPTCHA through its browser transport" — <b>요청마다 뜨는 캡차를 자동으로 우회</b>한다는 뜻입니다.
+              단점 셋: ① 로그아웃/만료되면 그때마다 다시 복사 ② 봇 차단 장치 우회라 계정이 막힐 수 있음 ③ 실제 브라우저를 흉내 내므로 느림.
+            </figcaption>
+          </figure>
+        </div>
+      </div>
+
+      <div class="box fix">
+        <span class="lbl">✓ 정답 경로 — "Z.AI API 키 추가"</span>
+        <p>z.ai 사이트 <b>우측 상단의 <code>API ↗</code> 링크</b>로 들어가면 진짜 개발자 콘솔이 열립니다. 거기서 키를 발급받아, 제목이 <b>"Z.AI API 키 추가"</b>인 카드에 넣어야 합니다.</p>
+        <div class="shot" style="margin-bottom:0">
+          <figure>
+            <div class="frame" data-cap="Z.AI API 키 추가 — 제목에 'Web'이 없다. 이게 정식 경로">
+              <img loading="lazy" src="../assets/omniroute-guide/10.png" alt="Z.AI API 키 추가 창, 검증 모델 glm-4.7-flash, 우선순위 1">
+              <span class="zoom-hint">클릭하면 확대</span>
+            </div>
+            <figcaption>
+              <span class="look">입력값</span>
+              <b>이름</b> <code>Z.AI</code> · <b>API 키</b> 붙여넣고 "확인" → 초록색 <b>유효</b> 표시 · <b>검증 모델</b> <code>glm-4.7-flash</code> · <b>우선순위</b> <code>1</code>
+              <br><br>
+              <b>우선순위 오해 주의</b> — 이건 우리가 만들 폴백 체인과 무관합니다. 같은 프로바이더에 키를 <i>여러 개</i> 등록했을 때 어느 키를 먼저 쓸지 정하는 값이라, 계정이 하나면 항상 1입니다.
+            </figcaption>
+          </figure>
+        </div>
+      </div>
+
+      <h3>연결 후 — 속도 제한 보호 켜기</h3>
+      <div class="grid2">
+        <div class="shot">
+          <figure>
+            <div class="frame" data-cap="연결 목록 — 방패 아이콘이 '보호되지 않음' 상태">
+              <img loading="lazy" src="../assets/omniroute-guide/11.png" alt="Z.ai 연결 행, 보호되지 않음 방패 아이콘">
+              <span class="zoom-hint">클릭하면 확대</span>
+            </div>
+            <figcaption><span class="look">🛡 "보호되지 않음"을 클릭</span>연결 상태·할당량·동기화·재테스트 버튼이 한 줄에 모여 있습니다.</figcaption>
+          </figure>
+        </div>
+        <div class="shot">
+          <figure>
+            <div class="frame" data-cap="툴팁 — 속도 제한 보호를 활성화하려면 클릭하세요">
+              <img loading="lazy" src="../assets/omniroute-guide/12.png" alt="방패 아이콘 툴팁: 속도 제한 보호를 활성화하려면 클릭하세요">
+              <span class="zoom-hint">클릭하면 확대</span>
+            </div>
+            <figcaption><span class="look">켜는 게 이득</span>요청이 몰릴 때 자동으로 속도를 조절해 차단당하는 걸 막아줍니다. 무료 티어는 정확한 한도가 공개되지 않는 경우가 많아 더 유용합니다.</figcaption>
+          </figure>
+        </div>
+      </div>
+
+      <h3>모델 정리 — 8개 중 1개만 남기기</h3>
+      <div class="box trap">
+        <span class="lbl">▲ 함정 — 연결하면 유료 모델까지 전부 켜져 있다</span>
+        <div class="shot">
+          <figure>
+            <div class="frame" data-cap="8/8 active — GLM-5.x 계열까지 전부 활성 상태">
+              <img loading="lazy" src="../assets/omniroute-guide/17.png" alt="Z.ai 모델 카드 8개, 전부 활성화됨">
+              <span class="zoom-hint">클릭하면 확대</span>
+            </div>
+            <figcaption>
+              <span class="look">화면에서 볼 곳 — "8/8 active" 카운터</span>
+              <code>glm-5.3</code> <code>glm-5.2</code> <code>glm-5.1</code> <code>glm-5</code> <code>glm-5-turbo</code> <code>glm-4.7</code> — 무료가 확인된 건 <code>glm-4.7-flash</code> 하나뿐인데 나머지도 다 열려 있습니다.
+              여기서 실수로 중복 등록했던 CUSTOM 항목(<code>GLM-4.7-Flash</code>)도 발견해 삭제했습니다.
+            </figcaption>
+          </figure>
+        </div>
+      </div>
+      <div class="box fix">
+        <span class="lbl">✓ 목표 상태 — 1/7 active</span>
+        <div class="shot" style="margin-bottom:0">
+          <figure>
+            <div class="frame" data-cap="1/7 active — glm-4.7-flash만 열린 눈, 나머지는 슬래시 눈">
+              <img loading="lazy" src="../assets/omniroute-guide/18.png" alt="Z.ai 모델 목록 정리 완료, 1/7 active">
+              <span class="zoom-hint">클릭하면 확대</span>
+            </div>
+            <figcaption><span class="look">눈 아이콘 = 사용 여부</span>열린 눈이 활성, 슬래시 눈이 숨김입니다. "모두 숨기기"를 먼저 누르고 하나만 켜는 게 빠릅니다.</figcaption>
+          </figure>
+        </div>
+      </div>
+    </section>
+
+    <section id="s2">
+      <div class="sec-head"><span class="sec-n">2</span><h2>Kiro — Claude Sonnet 4.5</h2></div>
+      <p class="sec-sub"><span class="tag fe">프론트엔드</span><span class="tag be">백엔드</span> 판단·설계 전담 + 백엔드 1순위 · OAuth · 월 50크레딧(AWS가 "perpetual"로 명시)</p>
+
+      <p>여긴 API 키가 필요 없습니다. <b>Connect Kiro → AWS Builder ID(또는 Google/GitHub) 로그인 → 권한 허용</b>이 전부입니다. AWS Builder ID가 없어도 이메일만으로 그 자리에서 만들 수 있습니다.</p>
+
+      <div class="grid2">
+        <div class="shot">
+          <figure>
+            <div class="frame" data-cap="연결 편집 상단 — 이름과 태그 그룹, 그리고 '무료 모델만 가져오기'">
+              <img loading="lazy" src="../assets/omniroute-guide/13.png" alt="Kiro 연결 편집 창 상단">
+              <span class="zoom-hint">클릭하면 확대</span>
+            </div>
+            <figcaption><span class="look">"무료 모델만 가져오기" → 켜기</span>유료 모델이 목록에 섞여 들어오는 걸 원천 차단합니다. Tag Group·Routing Tags·Excluded Models는 계정이 하나면 비워둡니다.</figcaption>
+          </figure>
+        </div>
+        <div class="shot">
+          <figure>
+            <div class="frame" data-cap="연결 편집 하단 — 쿨다운, 상태 점검, 우선순위, 최대 동시 요청 수">
+              <img loading="lazy" src="../assets/omniroute-guide/14.png" alt="Kiro 연결 편집 창 하단, 최대 동시 요청 수">
+              <span class="zoom-hint">클릭하면 확대</span>
+            </div>
+            <figcaption>
+              <span class="look">최대 동시 요청 수 0 → 1</span>
+              화면 설명에 <b>"구독 계정은 보통 1~3개만 허용, 초과하면 429 오류"</b>라고 직접 적혀 있습니다.
+              <b>"쿨다운 비활성화"는 끈 채로</b> 두세요 — 켜면 오류 시 계속 재시도해서 귀한 크레딧을 빨리 태웁니다.
+            </figcaption>
+          </figure>
+        </div>
+      </div>
+
+      <div class="box tip">
+        <span class="lbl">◆ 지나가도 되는 경고 두 개</span>
+        <div class="shot">
+          <figure>
+            <div class="frame" data-cap="연결 목록 — 이름 오타(Kilo)와 Token Short 경고">
+              <img loading="lazy" src="../assets/omniroute-guide/15.png" alt="Kiro 연결 행, Kilo 오타와 ~24m Token Short 경고">
+              <span class="zoom-hint">클릭하면 확대</span>
+            </div>
+          </figure>
+        </div>
+        <p><b>⚠ ~24m / Token Short</b> — OAuth 토큰 갱신 주기를 알려주는 정상 표시입니다. 에러가 아닙니다.
+        <br><b>이름 "Kilo"</b> — 실제로는 "Kiro"인데 오타로 입력됐습니다. 기능엔 영향 없지만 헷갈리니 연필 아이콘으로 고치는 편이 낫습니다.</p>
+      </div>
+    </section>
+
+    <section id="s3">
+      <div class="sec-head"><span class="sec-n">3</span><h2>Groq — Qwen3.8-27B</h2></div>
+      <p class="sec-sub"><span class="tag be">백엔드</span> 로직·알고리즘 담당 2순위 · API 키 · 분당 3만 토큰, 일 14,400회, 카드 등록 불필요</p>
+
+      <ol class="steps">
+        <li><code>console.groq.com</code> 가입(카드 불필요) → <b>API Keys</b> → <b>Create API Key</b> → 생성 즉시 복사</li>
+        <li>OmniRoute 공급자 검색 <code>Groq</code> → 키 붙여넣기 → 저장</li>
+        <li>모델 목록에서 <code>qwen/qwen3.8-27b</code>만 켜고 나머지 16개 숨기기</li>
+      </ol>
+
+      <div class="box trap">
+        <span class="lbl">▲ 함정 — "Qwen3.8이 목록에 없다"</span>
+        <div class="shot">
+          <figure>
+            <div class="frame" data-cap="무료만 필터 — Llama·GPT-OSS·Qwen3-32B는 보이는데 3.8이 없다">
+              <img loading="lazy" src="../assets/omniroute-guide/19.png" alt="Groq 무료 모델 목록, qwen3-32b만 보임">
+              <span class="zoom-hint">클릭하면 확대</span>
+            </div>
+            <figcaption>
+              <span class="look">화면에서 볼 곳 — 하단 <code>groq/qwen/qwen3-32b</code> 카드</span>
+              비슷한 이름의 <b>다른 세대 모델</b>입니다. 이것 때문에 "Qwen3.8은 Groq에 없나 보다"라고 잘못 결론 내릴 뻔했습니다.
+            </figcaption>
+          </figure>
+        </div>
+      </div>
+      <div class="box fix">
+        <span class="lbl">✓ 있었다 — "IMPORTED" 태그로 따로 존재</span>
+        <div class="shot" style="margin-bottom:0">
+          <figure>
+            <div class="frame" data-cap="qwen3.8-27b — IMPORTED 태그, 1/17 active">
+              <img loading="lazy" src="../assets/omniroute-guide/20.png" alt="Groq qwen3.8-27b IMPORTED, 1/17 active">
+              <span class="zoom-hint">클릭하면 확대</span>
+            </div>
+            <figcaption>
+              <span class="look">BUILT-IN vs IMPORTED</span>
+              <b>BUILT-IN</b>은 OmniRoute가 미리 알고 있던 모델, <b>IMPORTED</b>는 <code>/models에서 가져오기</code>로 최신 목록을 새로 불러왔을 때 추가된 모델입니다.
+              최신 모델일수록 IMPORTED로 나타나니, 찾는 모델이 안 보이면 이 버튼을 먼저 눌러보세요.
+            </figcaption>
+          </figure>
+        </div>
+      </div>
+    </section>
+
+    <section id="s4">
+      <div class="sec-head"><span class="sec-n">4</span><h2>Gemini — Google AI Studio</h2></div>
+      <p class="sec-sub"><span class="tag fe">프론트엔드</span><span class="tag be">백엔드</span> 소량 백업 · API 키 · <b>하루 20건 · 분당 10건</b></p>
+
+      <div class="shot">
+        <figure>
+          <div class="frame" data-cap="Gemini 관련 커넥터가 세 개 — 고르는 게 중요하다">
+            <img loading="lazy" src="../assets/omniroute-guide/21.png" alt="Gemini Business, Gemini Web (Free), Gemini (Google AI Studio)">
+            <span class="zoom-hint">클릭하면 확대</span>
+          </div>
+          <figcaption>
+            <span class="look">세 개 중 딱 하나만 정답</span>
+            <b>✓ Gemini (Google AI Studio)</b> — "API 키 제공자" 섹션에 있는 것.<br>
+            <b>✗ Gemini Web (Free)</b> — "Web Cookie Providers" 섹션. 원칙 1의 함정, Z.ai에서 이미 겪은 그 방식입니다.<br>
+            <b>✗ Gemini Business (Enterprise)</b> — 기업용이라 개인 무료와 무관.
+          </figcaption>
+        </figure>
+      </div>
+
+      <ol class="steps">
+        <li><code>aistudio.google.com/apikey</code> 접속 → 평소 쓰는 구글 계정으로 로그인</li>
+        <li><b>Create API Key</b> → 생성된 키 복사</li>
+        <li>OmniRoute → "Gemini (Google AI Studio)" 카드 → 키 붙여넣기 → 저장</li>
+        <li>모델 목록에서 <code>gemini-3.8-flash</code>(순수 텍스트 버전)만 활성화</li>
+      </ol>
+
+      <div class="box trap">
+        <span class="lbl">▲ 함정 1 — "-live" 모델은 코딩용이 아니다</span>
+        <div class="shot">
+          <figure>
+            <div class="frame" data-cap="Live·Robotics·Lyria — 실시간 음성/영상/음악 전용 모델들">
+              <img loading="lazy" src="../assets/omniroute-guide/23.png" alt="gemini-3.8-live, live-extended-thinking, robotics, lyria 모델 목록">
+              <span class="zoom-hint">클릭하면 확대</span>
+            </div>
+            <figcaption>
+              <span class="look">전부 숨김 처리 대상</span>
+              <code>gemini-3.8-live</code>는 전화 통화하듯 실시간으로 음성을 주고받는 Live API용, <code>robotics-er-2-streaming</code>은 로봇 제어, <code>lyria-realtime</code>은 음악 생성입니다.
+              이름이 비슷해 헷갈리기 쉬우니 <b>모델 필터에 <code>3.8-flash</code>로 검색</b>해서 정확히 찾으세요.
+            </figcaption>
+          </figure>
+        </div>
+      </div>
+
+      <div class="box trap">
+        <span class="lbl">▲ 함정 2 — 알고 있던 무료 한도가 틀렸다</span>
+        <div class="shot">
+          <figure>
+            <div class="frame" data-cap="'유료만' 필터에서 gemini-3.8-flash가 나온다">
+              <img loading="lazy" src="../assets/omniroute-guide/24.png" alt="유료만 필터 선택 시 gemini-3.8-flash가 표시됨">
+              <span class="zoom-hint">클릭하면 확대</span>
+            </div>
+          </figure>
+        </div>
+        <p>원래 알고 있던 정보는 "분당 25만 토큰의 압도적 무료 한도"였는데, <b>"유료만" 필터에 이 모델이 걸렸습니다.</b> 구글 공식 문서(<code>ai.google.dev/gemini-api/docs/pricing</code>)를 다시 확인한 결과:</p>
+        <div class="tw">
+          <table>
+            <tr><th></th><th>잘못 알고 있던 것</th><th>공식 문서 기준 사실</th></tr>
+            <tr><td>과금</td><td>무료</td><td class="ok">무료 맞음 (Free of charge)</td></tr>
+            <tr><td>한도</td><td>분당 25만 토큰</td><td class="bad">하루 20건 · 분당 10건</td></tr>
+            <tr><td>역할</td><td>대량 반복 작업의 주력 폴백</td><td class="bad">사실상 소량 백업밖에 안 됨</td></tr>
+          </table>
+        </div>
+        <p style="margin-bottom:0">구글 개발자 포럼에도 "20 RPD는 실제로 테스트하기엔 너무 적다"는 글이 올라와 있습니다.
+        <b>Cloud Billing이 연결된 계정</b>이면 OmniRoute가 "유료 등급 사용 가능"으로 인식할 수 있는데, 사용량이 무료 한도 안이면 실제 과금은 발생하지 않습니다.</p>
+      </div>
+    </section>
+
+    <section id="s5">
+      <div class="sec-head"><span class="sec-n">5</span><h2>Mistral — Codestral</h2></div>
+      <p class="sec-sub"><span class="tag be">백엔드</span> 최후 보루 · API 키 · 월 약 10억 토큰(Experiment 티어, 상시 유지)</p>
+
+      <p>프랑스 Mistral AI의 코딩 특화 모델입니다. 체인 맨 끝에 둔 이유가 "한도가 커서"만은 아닙니다 —
+      <b>HumanEval 86.6%</b>에 응답 시작이 200ms 이내로 빠르고, 80개 이상 언어의 코드 중간 채우기(FIM)에 특화돼 있습니다.
+      다만 여러 파일을 넘나드는 복잡한 조율은 약해서, 단순·빠른 코드 완성용으로 적합합니다.</p>
+
+      <div class="grid2">
+        <div class="shot">
+          <figure>
+            <div class="frame" data-cap="새 키 생성 — 만료일 없음, 공유 커넥터만">
+              <img loading="lazy" src="../assets/omniroute-guide/25.png" alt="Mistral 새 키 생성 창">
+              <span class="zoom-hint">클릭하면 확대</span>
+            </div>
+            <figcaption>
+              <span class="look">기본값 그대로 두면 됨</span>
+              <b>만료</b> "만료일 없음" 유지 · <b>커넥터 접근 범위</b> "공유 커넥터만"(기본값) 유지.
+              커넥터는 Mistral 플랫폼 자체의 외부 도구 연동 기능이라 우리는 쓰지 않으므로, 최소 권한을 유지하는 쪽이 맞습니다.
+            </figcaption>
+          </figure>
+        </div>
+        <div class="shot">
+          <figure>
+            <div class="frame" data-cap="48/48 active — 여기가 가장 많이 켜져 있다">
+              <img loading="lazy" src="../assets/omniroute-guide/26.png" alt="Mistral 모델 48개 전부 활성화, codestral-latest 포함">
+              <span class="zoom-hint">클릭하면 확대</span>
+            </div>
+            <figcaption>
+              <span class="look">"모두 숨기기" → codestral만 켜기</span>
+              Large·Medium·Small·Devstral·Pixtral·Magistral까지 <b>48개가 전부 활성</b>입니다.
+              하나씩 끄면 오래 걸리니 "모두 숨기기"를 먼저 누르고 <code>codestral-latest</code>만 다시 켜세요.
+            </figcaption>
+          </figure>
+        </div>
+      </div>
+    </section>
+
+    <section id="s6">
+      <div class="sec-head"><span class="sec-n">6</span><h2>엔드포인트와 터널</h2></div>
+      <p class="sec-sub">결론부터 — 터널은 아무것도 켜지 않습니다.</p>
+
+      <div class="shot">
+        <figure>
+          <div class="frame" data-cap="API 엔드포인트 — 이 주소 하나만 기억하면 된다">
+            <img loading="lazy" src="../assets/omniroute-guide/27.png" alt="엔드포인트 화면, localhost:20128/v1과 터널 목록">
+            <span class="zoom-hint">클릭하면 확대</span>
+          </div>
+          <figcaption>
+            <span class="look">활성 엔드포인트 — <code>http://localhost:20128/v1</code></span>
+            마지막 단계(Claude Code CLI 연결)에서 쓸 주소입니다. 나머지 터널 항목은 건드리지 않습니다.
+          </figcaption>
+        </figure>
+      </div>
+
+      <div class="box note">
+        <span class="lbl">터널 4종이 하는 일 (전부 불필요)</span>
+        <p><b>클라우드 OmniRoute · Cloudflare Quick Tunnel · Tailscale Funnel · ngrok</b> — 전부 이 로컬 서버를 인터넷에 공개해서 <b>다른 기기에서 접속</b>하게 해주는 기능입니다.
+        Claude Code와 OmniRoute가 같은 PC에 있으면 필요 없고, 켜면 오히려 API 키가 걸린 게이트웨이가 외부에 노출됩니다.</p>
+        <p style="margin-bottom:0"><b>헷갈리기 쉬운 지점</b> — "폰에서 kdance 앱을 미리보고 싶다"는 것과는 <b>완전히 다른 문제</b>입니다.
+        그건 OmniRoute(20128번)가 아니라 Expo 개발 서버(8081번)를 터널링해야 하는 별개의 작업입니다.</p>
+      </div>
+
+      <div class="grid2">
+        <div class="shot">
+          <figure>
+            <div class="frame" data-cap="터널 0/3 활성 — 이 상태가 정상">
+              <img loading="lazy" src="../assets/omniroute-guide/42.png" alt="엔드포인트 화면 터널 0/3 활성">
+              <span class="zoom-hint">클릭하면 확대</span>
+            </div>
+          </figure>
+        </div>
+        <div class="shot">
+          <figure>
+            <div class="frame" data-cap="ngrok 터널 상세 — 인증 토큰까지 요구하지만 쓸 일이 없다">
+              <img loading="lazy" src="../assets/omniroute-guide/43.png" alt="ngrok 터널 설정, 인증 토큰 필요">
+              <span class="zoom-hint">클릭하면 확대</span>
+            </div>
+          </figure>
+        </div>
+      </div>
+    </section>
+
+    <section id="s7">
+      <div class="sec-head"><span class="sec-n">7</span><h2>백엔드 콤보 <code>Free-fallback</code> 만들기</h2></div>
+      <p class="sec-sub">계정 5개를 각각 연결한 것만으로는 자동 전환이 안 됩니다. 우선순위 체인으로 묶는 단계.</p>
+
+      <div class="shot">
+        <figure>
+          <div class="frame" data-cap="콤보 메뉴 첫 진입 — 4단계 마법사와 프리셋들">
+            <img loading="lazy" src="../assets/omniroute-guide/28.png" alt="콤보 화면, 자동 라우팅 카탈로그와 Kimi Coding 프리셋">
+            <span class="zoom-hint">클릭하면 확대</span>
+          </div>
+          <figcaption>
+            <span class="look">우측 상단 "+ 콤보 생성"으로 시작</span>
+            화면에 보이는 <b>"Kimi Coding 프리셋"은 누르지 마세요</b> — Kimi는 Groq에서 2026-03-23부로 지원 종료돼 이번 구성에서 제외한 모델입니다.
+          </figcaption>
+        </figure>
+      </div>
+
+      <h3>1단계 — Basics (이름 짓기)</h3>
+      <div class="grid2">
+        <div class="shot">
+          <figure>
+            <div class="frame" data-cap="1단계 — 콤보 이름 입력">
+              <img loading="lazy" src="../assets/omniroute-guide/29.png" alt="콤보 생성 1단계 Basics, 이름 입력과 Quick templates">
+              <span class="zoom-hint">클릭하면 확대</span>
+            </div>
+            <figcaption><span class="look">이름 칸에 <code>Free-fallback</code></span>설명은 비워둬도 됩니다.</figcaption>
+          </figure>
+        </div>
+        <div class="shot">
+          <figure>
+            <div class="frame" data-cap="Quick templates — 편해 보이지만 쓰면 안 된다">
+              <img loading="lazy" src="../assets/omniroute-guide/30.png" alt="Quick templates: Free Stack, High availability, Cost saver 등">
+              <span class="zoom-hint">클릭하면 확대</span>
+            </div>
+            <figcaption>
+              <span class="look">"Free Stack ($0)" 설명을 읽어보면</span>
+              <b>"Qoder (5 models)"</b>가 포함돼 있습니다. Qoder는 14일 체험판이 끝나면 프리미엄 모델이 막히는 경로라 이미 제외한 대상입니다. 템플릿 대신 <b>4개를 직접 추가</b>하세요.
+            </figcaption>
+          </figure>
+        </div>
+      </div>
+
+      <h3>2단계 — Steps (모델을 순서대로 추가)</h3>
+      <div class="grid2">
+        <div class="shot">
+          <figure>
+            <div class="frame" data-cap="PROVIDER → MODEL → ACCOUNT 순으로 채우고 Add step">
+              <img loading="lazy" src="../assets/omniroute-guide/31.png" alt="콤보 2단계, 제공자-모델-계정 드롭다운">
+              <span class="zoom-hint">클릭하면 확대</span>
+            </div>
+            <figcaption><span class="look">ACCOUNT는 "런타임 시 자동 선택" 그대로</span>계정이 하나뿐이라 자동 선택으로 둬도 됩니다. <b>추가하는 순서가 곧 우선순위</b>입니다.</figcaption>
+          </figure>
+        </div>
+        <div class="shot">
+          <figure>
+            <div class="frame" data-cap="드롭다운 — 5개 계정이 모두 (1 acct)로 잡혀 있다">
+              <img loading="lazy" src="../assets/omniroute-guide/32.png" alt="Provider 선택 드롭다운, Gemini/Groq/Kiro/Mistral/Z.AI 각 1 acct">
+              <span class="zoom-hint">클릭하면 확대</span>
+            </div>
+            <figcaption><span class="look">여기서 등록 상태를 재확인할 수 있다</span>Gemini · Groq · Kiro AI · Mistral · Z.AI 다섯 개가 전부 <code>(1 acct)</code>로 보이면 앞 단계가 다 성공한 것입니다.</figcaption>
+          </figure>
+        </div>
+      </div>
+
+      <div class="shot">
+        <figure>
+          <div class="frame" data-cap="4개 추가 완료 — 체크리스트 전부 초록">
+            <img loading="lazy" src="../assets/omniroute-guide/33.png" alt="콤보 4단계 모델 목록, 체크리스트 통과">
+            <span class="zoom-hint">클릭하면 확대</span>
+          </div>
+          <figcaption>
+            <span class="look">순서 확인 — 1 Kiro · 2 Groq/Qwen · 3 Gemini · 4 Mistral</span>
+            화살표 버튼으로 순서를 바꿀 수 있습니다. Mistral의 실제 버전이 <code>codestral-2508</code>로 표시되는데, 이는 <code>codestral-latest</code>가 가리키는 구체적 버전이라 정상입니다.
+          </figcaption>
+        </figure>
+      </div>
+
+      <h3>3단계 — Strategy (전략 선택)</h3>
+      <div class="grid2">
+        <div class="shot">
+          <figure>
+            <div class="frame" data-cap="14가지 전략 중 '우선순위'가 기본 선택돼 있다">
+              <img loading="lazy" src="../assets/omniroute-guide/34.png" alt="라우팅 전략 그리드, 우선순위 선택됨">
+              <span class="zoom-hint">클릭하면 확대</span>
+            </div>
+            <figcaption><span class="look">"우선순위(Priority)" 그대로 유지</span>화면 하단 설명도 정확히 우리 목적입니다 — "모델 1을 먼저 시도한 다음 2 등을 시도합니다".</figcaption>
+          </figure>
+        </div>
+        <div class="shot">
+          <figure>
+            <div class="frame" data-cap="Recommended setup — 이미 다 충족된 상태">
+              <img loading="lazy" src="../assets/omniroute-guide/35.png" alt="Fail-safe baseline 권장 설정 체크리스트">
+              <span class="zoom-hint">클릭하면 확대</span>
+            </div>
+            <figcaption><span class="look">"Apply recommendations" 누를 필요 없음</span>"가장 신뢰도 높은 모델을 1번에"라는 권장사항을 이미 만족하고 있습니다.</figcaption>
+          </figure>
+        </div>
+      </div>
+
+      <h3>고급 설정 — 하나만 켜고 나머지는 비우기</h3>
+      <div class="shot">
+        <figure>
+          <div class="frame" data-cap="응답 검증 — 금지된 하위 문자열만 기본값 유지">
+            <img loading="lazy" src="../assets/omniroute-guide/36.png" alt="응답 검증 설정, 금지된 하위 문자열 I cannot help / as an AI">
+            <span class="zoom-hint">클릭하면 확대</span>
+          </div>
+          <figcaption>
+            <span class="look">이 기능은 켜두는 게 이득</span>
+            응답이 HTTP 200으로 성공해도 내용에 <code>I cannot help</code>, <code>as an AI</code> 같은 <b>거절 문구가 섞이면 실패로 간주하고 다음 모델로 넘어갑니다.</b>
+            안전성 튜닝이 과한 일부 오픈모델이 평범한 코딩 요청에도 얼버무리는 경우가 있어서, 폴백 체인과 잘 맞습니다.
+          </figcaption>
+        </figure>
+      </div>
+      <div class="box tip">
+        <span class="lbl">◆ 나머지는 왜 비워두나</span>
+        <p><b>필수 하위 문자열 / 최소 콘텐츠 길이</b> — 코딩 응답은 한 줄 수정부터 긴 리팩터링까지 형태가 제각각이라, 고정 규칙을 걸면 <b>정상 응답이 실패로 처리될 위험</b>이 더 큽니다.<br>
+        <b>에이전트 기능</b>(시스템 메시지 재정의 · 도구 필터 정규식 · 컨텍스트 길이) — 지금 구성에는 필요 없습니다. 컨텍스트 길이를 비워두면 각 모델이 원래 지원하는 크기를 자동으로 씁니다.</p>
+      </div>
+      <div class="grid2">
+        <div class="shot"><figure><div class="frame" data-cap="에이전트 기능 하단 — 전부 비워둔 채 '다음'"><img loading="lazy" src="../assets/omniroute-guide/37.png" alt="에이전트 기능 하단, 도구 필터와 컨텍스트 길이"><span class="zoom-hint">클릭하면 확대</span></div></figure></div>
+        <div class="shot"><figure><div class="frame" data-cap="고급 설정 펼친 모습"><img loading="lazy" src="../assets/omniroute-guide/38.png" alt="고급 설정 응답 검증 섹션"><span class="zoom-hint">클릭하면 확대</span></div></figure></div>
+      </div>
+
+      <h3>4단계 — Review</h3>
+      <div class="shot">
+        <figure>
+          <div class="frame" data-cap="Review — 저장 전 마지막 확인">
+            <img loading="lazy" src="../assets/omniroute-guide/39.png" alt="콤보 Review 화면, NAME Free-fallback, STEPS 4">
+            <span class="zoom-hint">클릭하면 확대</span>
+          </div>
+          <figcaption>
+            <span class="look">이름이 <code>Free-fallback</code>인 이유</span>
+            원래 계획한 이름은 <code>be-fallback</code>이었는데 실제 입력은 <code>Free-fallback</code>이 됐고, 이 이름으로 테스트까지 통과한 뒤였기에 <b>다시 바꾸지 않고 그대로 확정</b>했습니다.
+            나중에 Claude Code에서 모델명으로 이 문자열을 정확히 지정해야 하므로, 문서·규칙 전부 이 이름으로 통일해뒀습니다.
+          </figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section id="s8">
+      <div class="sec-head"><span class="sec-n">8</span><h2>테스트 — 실패를 발견하고 고치기</h2></div>
+      <p class="sec-sub">이 문서에서 가장 중요한 단계. 원칙 5가 실제로 벌어진 장면입니다.</p>
+
+      <div class="box trap">
+        <span class="lbl">▲ 1차 테스트 — 콤보는 "성공"했지만 1순위는 죽어 있었다</span>
+        <div class="shot">
+          <figure>
+            <div class="frame" data-cap="Resolved by groq/qwen — 1순위 Kiro가 33ms 만에 ERROR">
+              <img loading="lazy" src="../assets/omniroute-guide/40.png" alt="테스트 결과: kiro/claude-sonnet-5 ERROR, 나머지 3개 OK">
+              <span class="zoom-hint">클릭하면 확대</span>
+            </div>
+            <figcaption>
+              <span class="look">맨 위 "Resolved by" 줄을 보세요</span>
+              <code>groq/qwen/qwen3.8-27b</code>로 해결됐다고 나옵니다 — 즉 <b>1순위를 건너뛰고 2순위가 응답</b>한 것입니다. 단계별 목록을 열어보지 않으면 그냥 "성공"으로 보입니다.
+            </figcaption>
+          </figure>
+        </div>
+        <p><b>원인 추적 과정</b></p>
+        <ol class="steps" style="margin-bottom:0">
+          <li><b>예산 가드 의심</b> → 기각. 같은 가드(<code>maxCost:0, block</code>)가 걸린 상태에서 나머지 3개는 정상 응답했습니다.</li>
+          <li><b>Kiro 연결 불량 의심</b> → 기각. 할당량 조회 결과 <code>tokenStatus: valid</code>, 사용량 0으로 정상이었습니다.</li>
+          <li><b>모델 ID 의심</b> → 적중. <b>33ms라는 비정상적으로 빠른 실패</b>가 단서였습니다. 네트워크 문제라면 이렇게 빨리 끝나지 않습니다. "그런 모델 없음" 류의 즉시 거부라는 뜻입니다.</li>
+        </ol>
+      </div>
+
+      <div class="box fix">
+        <span class="lbl">✓ 수정 — claude-sonnet-5 → claude-sonnet-4.5</span>
+        <div class="shot">
+          <figure>
+            <div class="frame" data-cap="재테스트 — 4개 전부 OK, 1순위에서 바로 해결">
+              <img loading="lazy" src="../assets/omniroute-guide/41.png" alt="재테스트 결과: 4개 전부 OK, Resolved by kiro/claude-sonnet-4.5">
+              <span class="zoom-hint">클릭하면 확대</span>
+            </div>
+          </figure>
+        </div>
+        <div class="tw" style="margin-bottom:0">
+          <table>
+            <tr><th>순위</th><th>모델</th><th class="num">응답시간</th><th>결과</th></tr>
+            <tr><td>1</td><td><code>kiro/claude-sonnet-4.5</code></td><td class="num">2,601ms</td><td class="ok">OK</td></tr>
+            <tr><td>2</td><td><code>groq/qwen/qwen3.8-27b</code></td><td class="num">287ms</td><td class="ok">OK</td></tr>
+            <tr><td>3</td><td><code>gemini/gemini-3.8-flash</code></td><td class="num">9,361ms</td><td class="ok">OK</td></tr>
+            <tr><td>4</td><td><code>mistral/codestral-latest</code></td><td class="num">528ms</td><td class="ok">OK</td></tr>
+          </table>
+        </div>
+      </div>
+
+      <div class="box note">
+        <span class="lbl">숫자에서 읽을 수 있는 것</span>
+        <p style="margin-bottom:0">Groq가 <b>287ms</b>로 압도적으로 빠릅니다(LPU 전용 하드웨어). Gemini는 <b>9.3초</b>로 가장 느려서, 하루 20건 한도와 합치면 실시간 작업용으로는 더더욱 부적합하다는 게 숫자로도 확인됩니다. Kiro(Claude)는 2.6초로 품질 대비 무난합니다.</p>
+      </div>
+    </section>
+
+    <section id="s9">
+      <div class="sec-head"><span class="sec-n">9</span><h2>Claude Code CLI 연결</h2></div>
+      <p class="sec-sub">마지막 단계. 실제 요청을 보내 동작을 확인한 뒤 실행 스크립트로 정리했습니다.</p>
+
+      <div class="box fix">
+        <span class="lbl">✓ 실제 요청으로 검증 완료 (2026-09-18)</span>
+        <p>Anthropic 형식 요청을 게이트웨이에 직접 쏴서 확인한 결과입니다.</p>
+        <div class="tw">
+          <table>
+            <tr><th>확인 항목</th><th>결과</th></tr>
+            <tr><td>HTTP 상태</td><td class="ok">200 · 2.31s</td></tr>
+            <tr><td>응답한 모델</td><td class="ok"><code>claude-sonnet-4.5</code> — 1순위에서 바로 해결(폴백 안 탐)</td></tr>
+            <tr><td><code>Free-fallback</code> 노출</td><td class="ok"><code>/v1/models</code> 목록에 정상 등장</td></tr>
+            <tr><td>API 키</td><td class="ok">OmniRoute 관리 키를 그대로 사용 — 별도 발급 불필요</td></tr>
+            <tr><td><code>ANTHROPIC_BASE_URL</code></td><td class="ok"><code>/v1</code> 유무 <b>둘 다 동작</b> — OmniRoute가 양쪽 경로를 모두 받음</td></tr>
+          </table>
+        </div>
+        <p style="margin-bottom:0">즉 이 구성은 <b>이론이 아니라 실제로 통하는 것이 확인된 상태</b>입니다.</p>
+      </div>
+
+      <div class="box tip">
+        <span class="lbl">◆ 지금 쓰는 터미널이 아니라 새 터미널에서</span>
+        <p style="margin-bottom:0">환경변수는 <b>이미 실행 중인 프로세스에는 적용되지 않습니다.</b>
+        따라서 현재 Claude Code 세션은 계속 Anthropic 공식 API로 동작하고, 무료 체인은 <b>새로 여는 터미널</b>부터 적용됩니다.
+        이건 의도한 구조이기도 합니다 — 중요한 판단은 유료 세션, 소진 후·반복 작업은 무료 체인.</p>
+      </div>
+
+      <h3>방법 A — 실행 스크립트 (권장)</h3>
+      <p>매번 세 줄을 치는 대신 스크립트 하나로 띄웁니다. 키는 리포에 넣지 않고 실행 시점에 <code>~/.claude.json</code>에서 읽습니다.</p>
+      <pre><code>cd ~/kdance
+scripts/claude-free.sh              # 무료 체인으로 Claude Code 실행
+scripts/claude-free.sh --continue   # claude에 넘길 인자는 그대로 전달</code></pre>
+      <div class="box note">
+        <span class="lbl">스크립트가 대신 해주는 것</span>
+        <p style="margin-bottom:0">
+          ① <b>게이트웨이 생존 확인</b> — 죽어 있으면 Docker 켜라는 안내와 함께 즉시 중단(요청 전부 실패하는 상황 예방)<br>
+          ② <b>키 자동 주입</b> — <code>~/.claude.json</code>에서 읽어오므로 키를 복사해 둘 필요 없음<br>
+          ③ <b>모델 지정</b> — <code>ANTHROPIC_MODEL=Free-fallback</code>을 자동으로 걸어줌<br>
+          주소·콤보를 바꾸고 싶으면 <code>OMNIROUTE_URL</code>, <code>OMNIROUTE_COMBO</code> 환경변수로 덮어쓸 수 있습니다.
+        </p>
+      </div>
+
+      <h3>방법 B — 수동</h3>
+      <pre><code>export ANTHROPIC_BASE_URL=http://localhost:20128
+export ANTHROPIC_API_KEY=&lt;~/.claude.json 의 omniroute Authorization 값&gt;
+export ANTHROPIC_MODEL=Free-fallback
+claude</code></pre>
+
+      <div class="box note">
+        <span class="lbl">왜 <code>omniroute run claude --model auto</code>를 권하지 않나</span>
+        <p style="margin-bottom:0"><code>auto</code>는 <b>OmniRoute 자체의 내장 자동 라우터</b>를 쓰는 옵션이라, 우리가 만든 <code>Free-fallback</code> 콤보를 타지 않습니다.
+        실제로 <code>/v1/models</code> 목록에도 <code>auto/best-free</code>, <code>auto/coding:free</code> 같은 별도 항목으로 존재합니다 —
+        이름이 비슷해 헷갈리지만 우리가 정한 우선순위와 무관한 다른 체계입니다.</p>
+      </div>
+    </section>
+
+    <section id="s10">
+      <div class="sec-head"><span class="sec-n">10</span><h2>Docker — 매번 뭘 켜야 하나</h2></div>
+      <p class="sec-sub">결론부터: <b>Docker Desktop만 켜면 됩니다.</b> 명령어를 칠 필요가 없습니다.</p>
+
+      <div class="box note">
+        <span class="lbl">먼저 — 컨테이너가 뭔가요</span>
+        <p>OmniRoute는 여러분 PC에 직접 설치된 프로그램이 아니라 <b>컨테이너</b>로 돌아갑니다.
+        프로그램 하나와 그게 필요로 하는 모든 것(라이브러리·설정·파일)을 상자 하나에 통째로 담아
+        격리해서 돌리는 방식입니다. 상자째 옮기면 어느 PC에서든 똑같이 동작하고,
+        지울 때도 상자만 버리면 되니 PC가 지저분해지지 않습니다.
+        그 상자를 관리하는 프로그램이 <b>Docker</b>이고, Windows에서 쓰는 형태가 <b>Docker Desktop</b>입니다.</p>
+        <p style="margin-bottom:0">즉 <b>Docker Desktop이 꺼져 있으면 상자도 전부 멈춰 있습니다.</b>
+        OmniRoute가 응답하지 않는 원인은 거의 항상 이겁니다.</p>
+      </div>
+
+      <div class="box fix">
+        <span class="lbl">✓ 그런데 왜 켜기만 하면 되나 — <code>restart=unless-stopped</code></span>
+        <p>각 상자에는 "언제 자동으로 켤지"를 정하는 옵션이 붙어 있습니다.
+        이 프로젝트의 상자 4개는 전부 <code>unless-stopped</code>로 걸려 있습니다.
+        말 그대로 풀면 <b>"내가 직접 멈춘 게 아니라면(unless stopped) 알아서 다시 켜라"</b>입니다.</p>
+        <p>그래서 Docker Desktop이 뜨는 순간 상자 4개가 같이 올라옵니다.
+        <code>docker start omniroute</code> 같은 명령을 따로 칠 필요가 없습니다.</p>
+        <div class="tw">
+          <table>
+            <tr><th>상자 이름</th><th>하는 일</th><th>자동 기동</th></tr>
+            <tr><td><code>omniroute</code></td><td>무료 모델 게이트웨이</td><td class="ok">O</td></tr>
+            <tr><td><code>kdance-db</code></td><td>PostgreSQL 데이터베이스 (5433번 문)</td><td class="ok">O</td></tr>
+            <tr><td><code>kdance-redis</code></td><td>Redis 캐시 (6380번 문)</td><td class="ok">O</td></tr>
+            <tr><td><code>ollama</code></td><td>로컬 AI 모델 실행기</td><td class="ok">O</td></tr>
+          </table>
+        </div>
+        <p style="margin-bottom:0">직접 확인하려면 <code>docker ps</code>를 쳐보세요.
+        네 개가 <code>healthy</code>로 떠 있으면 정상입니다.</p>
+      </div>
+
+      <h3>순서대로 하면</h3>
+      <pre><code>1. Docker Desktop 실행
+2. 작업표시줄 고래 아이콘이 초록색이 될 때까지 대기 (보통 30~90초)
+3. cd ~/kdance &amp;&amp; ai        # ai 는 claude-free.sh 의 별칭</code></pre>
+
+      <div class="box trap">
+        <span class="lbl">그래도 OmniRoute가 응답하지 않으면</span>
+        <p>예전에 그 상자를 <b>손으로 멈춰둔</b> 경우입니다.
+        <code>unless-stopped</code>는 사람이 의도적으로 멈춘 상자는 일부러 켜지 않습니다
+        — 그게 옵션 이름의 "unless-stopped" 부분이 뜻하는 바입니다.
+        이때만 수동으로 켭니다.</p>
+        <pre style="margin-bottom:0"><code>docker start omniroute   # 이 경우에만 필요
+docker ps                # omniroute 가 healthy 로 뜨는지 확인
+curl -s http://localhost:20128/api/health   # 응답이 오면 준비 완료</code></pre>
+      </div>
+
+      <div class="box note">
+        <span class="lbl">WSL에서 <code>docker</code> 명령이 없다고 나올 때</span>
+        <p style="margin-bottom:0">Docker Desktop이 꺼져 있다는 뜻입니다.
+        Docker Desktop은 실행될 때 WSL 안에 <code>docker</code> 명령을 넣어주는데(WSL 통합),
+        꺼져 있으면 그 명령이 사라집니다.
+        <code>"The command 'docker' could not be found in this WSL 2 distro"</code> 메시지가 뜨면
+        설정이 잘못된 게 아니라 <b>그냥 Docker Desktop을 켜면 해결됩니다.</b></p>
+      </div>
+    </section>
+
+    <section id="appendix">
+      <div class="sec-head"><span class="sec-n">＋</span><h2>부록 — 제외된 모델과 그 이유</h2></div>
+      <p class="sec-sub">후보에 올랐다가 탈락한 것들. 왜 탈락했는지가 다음 재검증의 기준이 됩니다.</p>
+
+      <div class="tw">
+        <table>
+          <tr><th>후보</th><th>탈락 사유</th><th>분류</th></tr>
+          <tr><td><b>Qoder 경유 GLM-5.2 / Kimi K2.6</b></td><td>14일 · 300크레딧 체험판. 끝나면 프리미엄 모델 접근이 막힘</td><td>원칙 2 위반</td></tr>
+          <tr><td><b>DeepSeek 자체 API</b></td><td>가입 시 500만 토큰 1회 지급 후 영구 유료. 매달 리셋 없음</td><td>원칙 2 위반</td></tr>
+          <tr><td><b>DeepSeek R1 Distill (Groq)</b></td><td>2025-01 출시 구형 + 수학/추론 특화라 일반 코딩엔 강점 약함</td><td>세대·용도 불일치</td></tr>
+          <tr><td><b>DeepSeek V3.2 (Kiro)</b></td><td>무료는 맞지만 Claude Sonnet과 같은 월 50크레딧을 나눠 쓸 뿐 — 새 용량이 아님</td><td>실익 없음</td></tr>
+          <tr><td><b>Kimi (Groq)</b></td><td>2026-03-23부로 Groq에서 지원 종료(<code>gpt-oss-120b</code>로 대체)</td><td>경로 소멸</td></tr>
+          <tr><td><b>OpenRouter 무료 모델</b></td><td>무료 목록이 20개→14개로 축소되는 등 불안정, 분당 20건·일 200건 제한</td><td>안정성 부족</td></tr>
+          <tr><td><b>Perplexity / Grok / Kimi K3</b></td><td>각각 강점은 있으나(리서치 / 문서·UI 생성 / 프론트엔드 1위) API에 상시 무료 티어가 없음</td><td>원칙 2 위반</td></tr>
+        </table>
+      </div>
+
+      <div class="box note">
+        <span class="lbl">3개월마다 자동 재검증</span>
+        <p style="margin-bottom:0">이 구성은 <b>2026-11-01</b>부터 3개월 주기(2/1 · 5/1 · 8/1 · 11/1)로 클라우드 루틴이 자동 재검증합니다.
+        검사 기준은 셋 — ① OmniRoute로 연결 가능한 경로인가 ② 영구 무료인가(체험판·1회성 크레딧 제외) ③ 최신 세대이고 용도가 맞는가.
+        결과는 <b>보고서만 생성</b>하고 문서를 자동 수정하지는 않습니다.</p>
+      </div>
+    </section>
+
+    <footer>
+      요약 체크리스트: <a href="../omniroute-setup.html">docs/omniroute-setup.html</a> ·
+      캡처 원본: <code>docs/assets/omniroute-guide/</code> ·
+      규칙 반영 위치: <code>.claude/rules/core-rules.md</code> 5항 ·
+      최종 검증 2026-09-18
+    </footer>
+  </main>
+</div>
+
+<button class="theme-btn" id="themeBtn" type="button">◐ 테마 전환</button>
+
+<div id="lb" role="dialog" aria-modal="true" aria-label="확대 보기">
+  <img id="lbImg" alt="">
+  <div class="lb-cap" id="lbCap"></div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  var lb = document.getElementById('lb');
+  var lbImg = document.getElementById('lbImg');
+  var lbCap = document.getElementById('lbCap');
+
+  document.querySelectorAll('.shot .frame').forEach(function (fr) {
+    fr.addEventListener('click', function () {
+      var img = fr.querySelector('img');
+      if (!img) return;
+      lbImg.src = img.src;
+      lbImg.alt = img.alt || '';
+      lbCap.textContent = fr.getAttribute('data-cap') || img.alt || '';
+      lb.classList.add('on');
+      document.body.style.overflow = 'hidden';
+    });
+  });
+  function closeLb() {
+    lb.classList.remove('on');
+    lbImg.src = '';
+    document.body.style.overflow = '';
+  }
+  lb.addEventListener('click', closeLb);
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && lb.classList.contains('on')) closeLb();
+  });
+
+  var KEY = 'omniroute-visual-guide-progress-v2';
+  var box = document.getElementById('check');
+  var labels = box ? Array.prototype.slice.call(box.querySelectorAll('label[data-k]')) : [];
+  var bar = document.getElementById('bar');
+  var cnt = document.getElementById('cnt');
+
+  function load() {
+    try { var r = localStorage.getItem(KEY); return r ? JSON.parse(r) : {}; }
+    catch (e) { return {}; }
+  }
+  function save(s) {
+    try { localStorage.setItem(KEY, JSON.stringify(s)); } catch (e) { /* 저장 불가해도 동작 유지 */ }
+  }
+  var state = load();
+
+  function render() {
+    var done = labels.filter(function (l) { return l.classList.contains('done'); }).length;
+    if (bar) bar.style.width = labels.length ? (done / labels.length * 100) + '%' : '0%';
+    if (cnt) cnt.textContent = done + ' / ' + labels.length + ' 완료';
+  }
+  labels.forEach(function (l) {
+    var k = l.getAttribute('data-k');
+    var cb = l.querySelector('input');
+    var on = !!state[k];
+    cb.checked = on;
+    l.classList.toggle('done', on);
+    cb.addEventListener('change', function () {
+      l.classList.toggle('done', cb.checked);
+      state[k] = cb.checked;
+      save(state);
+      render();
+    });
+  });
+  render();
+
+  var links = Array.prototype.slice.call(document.querySelectorAll('#toc a'));
+  var secs = links.map(function (a) { return document.querySelector(a.getAttribute('href')); }).filter(Boolean);
+  if ('IntersectionObserver' in window && secs.length) {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) {
+        if (!en.isIntersecting) return;
+        links.forEach(function (a) {
+          a.classList.toggle('active', a.getAttribute('href') === '#' + en.target.id);
+        });
+      });
+    }, { rootMargin: '-12% 0px -78% 0px' });
+    secs.forEach(function (s) { io.observe(s); });
+  }
+
+  var TKEY = 'omniroute-visual-guide-theme';
+  var btn = document.getElementById('themeBtn');
+  try {
+    var saved = localStorage.getItem(TKEY);
+    if (saved === 'light' || saved === 'dark') document.documentElement.setAttribute('data-theme', saved);
+  } catch (e) { /* 무시 */ }
+  btn.addEventListener('click', function () {
+    var cur = document.documentElement.getAttribute('data-theme');
+    if (!cur) {
+      var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      cur = prefersDark ? 'dark' : 'light';
+    }
+    var next = cur === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', next);
+    try { localStorage.setItem(TKEY, next); } catch (e) { /* 무시 */ }
+  });
+})();
+</script>
+</body>
+</html>

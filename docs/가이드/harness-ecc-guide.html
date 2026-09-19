@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Harness × ECC 왕초보 완벽분석가이드</title>
+<style>
+  :root {
+    --bg: #0f1115;
+    --card: #161a21;
+    --card-border: #262b35;
+    --text: #e8eaed;
+    --text-dim: #9aa4b2;
+    --accent-a: #4fc3f7;
+    --accent-b: #ffb74d;
+    --accent-good: #81c784;
+    --accent-warn: #e57373;
+    --code-bg: #0b0d11;
+  }
+  * { box-sizing: border-box; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+    line-height: 1.7;
+    margin: 0;
+    padding: 0 16px 80px;
+  }
+  .wrap { max-width: 960px; margin: 0 auto; }
+  header.hero { padding: 48px 0 24px; border-bottom: 1px solid var(--card-border); margin-bottom: 32px; }
+  header.hero h1 { font-size: 1.9rem; margin: 0 0 8px; }
+  header.hero p.sub { color: var(--text-dim); font-size: 1.05rem; margin: 0; }
+  nav.toc { background: var(--card); border: 1px solid var(--card-border); border-radius: 12px; padding: 20px 24px; margin-bottom: 40px; }
+  nav.toc h2 { font-size: 1rem; color: var(--text-dim); margin: 0 0 12px; text-transform: uppercase; letter-spacing: .04em; }
+  nav.toc ol { margin: 0; padding-left: 20px; columns: 2; column-gap: 24px; }
+  nav.toc li { margin-bottom: 6px; break-inside: avoid; }
+  nav.toc a { color: var(--accent-a); text-decoration: none; }
+  nav.toc a:hover { text-decoration: underline; }
+  section { margin-bottom: 60px; scroll-margin-top: 20px; }
+  h2 { font-size: 1.5rem; border-left: 4px solid var(--accent-a); padding-left: 14px; margin: 0 0 20px; }
+  h3 { font-size: 1.15rem; color: var(--accent-a); margin: 28px 0 10px; }
+  p { margin: 0 0 14px; }
+  .callout { background: var(--card); border: 1px solid var(--card-border); border-left: 4px solid var(--accent-a); border-radius: 8px; padding: 16px 20px; margin: 20px 0; }
+  .callout.warn { border-left-color: var(--accent-warn); }
+  .callout.good { border-left-color: var(--accent-good); }
+  .callout-label { font-weight: 700; font-size: .85rem; text-transform: uppercase; letter-spacing: .04em; color: var(--text-dim); margin-bottom: 6px; }
+  table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: .93rem; }
+  th, td { border: 1px solid var(--card-border); padding: 10px 14px; text-align: left; vertical-align: top; }
+  th { background: var(--card); color: var(--accent-a); }
+  tr:nth-child(even) td { background: rgba(255,255,255,0.02); }
+  code { background: var(--code-bg); border: 1px solid var(--card-border); border-radius: 4px; padding: 2px 6px; font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace; font-size: .9em; }
+
+  /* ── 두 질문 카드 ── */
+  .qcards { display: flex; flex-wrap: wrap; gap: 16px; margin: 24px 0; }
+  .qcard { flex: 1 1 260px; background: var(--card); border: 1px solid var(--card-border); border-radius: 14px; padding: 22px; }
+  .qcard.harness { border-top: 4px solid var(--accent-a); }
+  .qcard.ecc { border-top: 4px solid var(--accent-b); }
+  .qcard .icon { font-size: 2rem; }
+  .qcard h3 { margin-top: 6px; }
+  .qcard .q { font-size: 1.1rem; font-weight: 700; color: var(--text); margin: 8px 0; }
+  .qcard .tag { color: var(--text-dim); font-size: .9rem; }
+
+  /* ── 트리 다이어그램 (org-chart 스타일) ── */
+  .tree { text-align: center; margin: 32px 0; }
+  .tree .node { display: inline-block; background: var(--card); border: 1px solid var(--card-border); border-radius: 10px; padding: 10px 18px; font-weight: 700; }
+  .tree .node.root { border-color: var(--accent-a); color: var(--accent-a); font-size: 1.05rem; }
+  .tree .node.h { border-color: var(--accent-a); }
+  .tree .node.e { border-color: var(--accent-b); }
+  .tree .row { display: flex; justify-content: center; gap: 60px; margin: 4px 0; flex-wrap: wrap; }
+  .tree .col { display: flex; flex-direction: column; align-items: center; }
+  .tree .leaf-list { text-align: left; background: var(--code-bg); border: 1px solid var(--card-border); border-radius: 8px; padding: 10px 16px; font-size: .85rem; margin-top: 6px; color: var(--text-dim); }
+  .tree .leaf-list b { color: var(--text); }
+  .vline { width: 1px; height: 18px; background: var(--card-border); margin: 0 auto; }
+
+  /* ── 플로우(파이프라인) ── */
+  .flow { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin: 24px 0; font-size: .92rem; }
+  .flow .step { background: var(--card); border: 1px solid var(--card-border); border-radius: 8px; padding: 12px 16px; flex: 1 1 150px; min-width: 150px; }
+  .flow .step b { display: block; color: var(--accent-a); margin-bottom: 4px; }
+  .flow .step.ecc b { color: var(--accent-b); }
+  .flow .arrow { color: var(--text-dim); font-size: 1.2rem; }
+
+  /* ── 자동차 비유 2단 비교 ── */
+  .compare { display: flex; gap: 16px; flex-wrap: wrap; margin: 20px 0; }
+  .compare .side { flex: 1 1 260px; background: var(--card); border: 1px solid var(--card-border); border-radius: 12px; padding: 18px 20px; }
+  .compare .side.h { border-left: 4px solid var(--accent-a); }
+  .compare .side.e { border-left: 4px solid var(--accent-b); }
+  .compare .side h4 { margin: 0 0 10px; }
+  .compare .side ul { margin: 0; padding-left: 18px; }
+  .compare .side li { margin-bottom: 6px; }
+
+  /* ── 나쁜 예 / 좋은 예 ── */
+  .bad-good { display: flex; gap: 16px; flex-wrap: wrap; margin: 20px 0; }
+  .bad-good .box { flex: 1 1 260px; border-radius: 12px; padding: 18px 20px; }
+  .bad-good .bad { background: rgba(229,115,115,.08); border: 1px solid rgba(229,115,115,.35); }
+  .bad-good .good { background: rgba(129,199,132,.08); border: 1px solid rgba(129,199,132,.35); }
+  .bad-good h4 { margin: 0 0 10px; }
+
+  /* ── 팀 카드 ── */
+  .teamgrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; margin: 20px 0; }
+  .teamcard { background: var(--card); border: 1px solid var(--card-border); border-radius: 10px; padding: 16px; }
+  .teamcard b { color: var(--accent-a); display: block; margin-bottom: 6px; }
+  .teamcard span { color: var(--text-dim); font-size: .85rem; }
+
+  .dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 6px; }
+  .dot.main { background: var(--accent-good); }
+  .dot.sub { background: var(--accent-b); }
+  .dot.none { background: #454c59; }
+
+  /* ── 파일 트리 ── */
+  .filetree { background: var(--code-bg); border: 1px solid var(--card-border); border-radius: 10px; padding: 18px 22px; margin: 20px 0; overflow-x: auto; }
+  .filetree pre { margin: 0; font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace; font-size: .85rem; line-height: 1.75; color: var(--text); white-space: pre; }
+  .filetree .c { color: var(--text-dim); }
+  .filetree .dir { color: var(--accent-a); }
+
+  footer { border-top: 1px solid var(--card-border); margin-top: 60px; padding-top: 24px; color: var(--text-dim); font-size: .9rem; }
+  footer a { color: var(--accent-a); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="hero">
+  <h1>🧭 Harness × ECC 왕초보 완벽분석가이드</h1>
+  <p class="sub">kdance-dev-harness(무엇을·누구에게·어떤 순서로)와 ECC(어떻게 잘 만들지)를 그림 중심으로 설명합니다. 코딩 경력 6개월 정도, 비전공자도 따라올 수 있게 씁니다.</p>
+</header>
+
+<nav class="toc">
+  <h2>목차</h2>
+  <ol>
+    <li><a href="#overview">1. 핵심 질문 두 개</a></li>
+    <li><a href="#bigpic">2. 전체 구조 다이어그램</a></li>
+    <li><a href="#files">3. 파일 구성 한눈에 보기</a></li>
+    <li><a href="#phases">4. 9단계 파이프라인 상세</a></li>
+    <li><a href="#harness">5. Harness 상세 — 5대 업무</a></li>
+    <li><a href="#ecc">6. ECC 상세 — 6대 업무</a></li>
+    <li><a href="#pipeline">7. 실행 파이프라인 (예약 기능 예시)</a></li>
+    <li><a href="#matrix">8. 역할 충돌 방지 매트릭스</a></li>
+    <li><a href="#analogy">9. 비유로 이해하기</a></li>
+    <li><a href="#antipattern">10. 절대 금지 패턴</a></li>
+    <li><a href="#scale">11. 프로젝트가 커질 때 — 팀 조직</a></li>
+  </ol>
+</nav>
+
+<section id="overview">
+  <h2>1. 핵심 질문 두 개</h2>
+  <p>이 프로젝트는 혼자 Claude Code로 개발합니다. 사람 팀이면 "DB 담당·프론트 담당·QA 담당"으로 저절로 역할이 나뉘지만, 혼자 할 때는 그 역할 분담을 <b>Harness</b>가 대신 해주고, 코드 품질 관리는 <b>ECC</b>가 대신 해줍니다. 이 둘은 서로 다른 질문에 답합니다.</p>
+  <div class="qcards">
+    <div class="qcard harness">
+      <div class="icon">🏗</div>
+      <h3>Harness</h3>
+      <div class="q">"이 큰 작업을 누구에게 어떤 순서로 시킬까?"</div>
+      <div class="tag">Agent Orchestration Layer · 프로젝트 레벨</div>
+    </div>
+    <div class="qcard ecc">
+      <div class="icon">🛡</div>
+      <h3>ECC</h3>
+      <div class="q">"이 코드를 어떻게 하면 제대로 만들 수 있지?"</div>
+      <div class="tag">Software Engineering Quality Layer · 엔지니어링 레벨</div>
+    </div>
+  </div>
+  <div class="callout good">
+    <div class="callout-label">최종 중심축</div>
+    이 프로젝트의 뼈대는 <b>Harness(작업 지휘) + ECC(품질 보증)</b> 둘뿐입니다. Playwright·MindPilot·Visual Guide 같은 나머지는 이 둘과 경쟁하지 않고 그 위에 얹히는 실행 도구·설명 도구입니다.
+  </div>
+</section>
+
+<section id="bigpic">
+  <h2>2. 전체 구조 다이어그램</h2>
+  <p>지금까지 이야기한 모든 걸 합치면 이렇게 하나의 나무 구조로 보는 게 가장 깔끔합니다.</p>
+  <div class="tree">
+    <div class="node root">👤 나 (Product Owner)</div>
+    <div class="vline"></div>
+    <div class="node root">Claude Code</div>
+    <div class="vline"></div>
+    <div class="row">
+      <div class="col">
+        <div class="node h">🏗 Harness<br><span style="font-weight:400;font-size:.8rem">WORKFLOW · "무엇을?"</span></div>
+        <div class="leaf-list">
+          Feature Plan<br>
+          Task 분해<br>
+          Agent 배정<br>
+          의존성 관리<br>
+          병렬화<br>
+          결과 통합
+        </div>
+      </div>
+      <div class="col">
+        <div class="node e">🛡 ECC<br><span style="font-weight:400;font-size:.8rem">QUALITY · "어떻게?"</span></div>
+        <div class="leaf-list">
+          TDD<br>
+          Security<br>
+          Code Review<br>
+          Refactoring<br>
+          Coding Standard<br>
+          Testing
+        </div>
+      </div>
+    </div>
+    <div class="vline"></div>
+    <div class="node root">🔌 MCP Layer</div>
+    <div class="vline"></div>
+    <div class="row" style="gap:24px">
+      <div class="col"><div class="node">📚 Context7</div><span style="color:var(--text-dim);font-size:.8rem">문서</span></div>
+      <div class="col"><div class="node">🗄 PostgreSQL</div><span style="color:var(--text-dim);font-size:.8rem">DB 작업</span></div>
+      <div class="col"><div class="node">🧪 Playwright</div><span style="color:var(--text-dim);font-size:.8rem">E2E</span></div>
+      <div class="col"><div class="node">🧠 MindPilot</div><span style="color:var(--text-dim);font-size:.8rem">구조도</span></div>
+      <div class="col"><div class="node">🌐 DevTools</div><span style="color:var(--text-dim);font-size:.8rem">브라우저</span></div>
+    </div>
+    <div class="vline"></div>
+    <div class="node root">kdance</div>
+  </div>
+
+  <h3>전체 4계층으로 보면</h3>
+  <table>
+    <tr><th>계층</th><th>구성</th><th>역할</th></tr>
+    <tr><td>1. 핵심 조합</td><td>Harness + ECC</td><td>오케스트레이션 + 품질 — 이 프로젝트의 뼈대</td></tr>
+    <tr><td>2. 도구 계층</td><td>Context7 · PostgreSQL · Playwright · MindPilot · Memory · Chrome DevTools</td><td>Harness/ECC가 공통으로 호출하는 실행 수단</td></tr>
+    <tr><td>3. UI 계층</td><td><code>frontend-design</code>, <code>ui-ux-pro-max</code></td><td>admin-web·mobile 화면 작업 시 사용</td></tr>
+    <tr><td>4. 왕초보 설명 계층</td><td>SCH별 학습 주석 + 왕초보 가이드 + MindPilot</td><td>1~3번이 끝난 결과를 <b>설명만</b> — 의사결정에 관여 안 함</td></tr>
+  </table>
+</section>
+
+<section id="files">
+  <h2>3. 파일 구성 한눈에 보기</h2>
+  <p>Harness·ECC 관련 실제 파일은 <code>.claude/</code>(에이전트·스킬·역할 분리 규칙)와 <code>docs/</code>(그림 중심 설명 문서) 두 군데에 나뉘어 있습니다. 폴더를 그대로 옮기면 이런 모양입니다.</p>
+  <div class="filetree"><pre>.claude/
+├── rules/core-rules.md                          <span class="c"># 역할 분리 원칙(Harness ↔ ECC)</span>
+├── skills/kdance-dev-harness/
+│   ├── SKILL.md                                 <span class="c"># 9단계 파이프라인 오케스트레이터 본체</span>
+│   └── references/
+│       ├── beginner-comment-style.md            <span class="c"># 소스 코드 내 "지도바둑식" 학습 주석 표준</span>
+│       └── sch-guide-template.md                <span class="c"># SCH별 왕초보 완벽분석가이드 HTML 표준</span>
+└── agents/
+    ├── kdance-req-analyst.md                    <span class="c"># 1.요구사항 분석 담당</span>
+    ├── kdance-impl-planner.md                   <span class="c"># 3.구현 계획 담당</span>
+    ├── kdance-task-splitter.md                  <span class="c"># 4.Task 분리 담당</span>
+    ├── kdance-implementer.md                    <span class="c"># 5.구현 담당 (+ 9.5.학습 주석/가이드 재사용)</span>
+    ├── kdance-test-runner.md                    <span class="c"># 6.테스트 담당</span>
+    ├── kdance-bug-fixer.md                      <span class="c"># 7.오류 수정 담당</span>
+    ├── kdance-code-reviewer.md                  <span class="c"># 8.코드 리뷰 담당</span>
+    └── kdance-completion-verifier.md            <span class="c"># 9.완료 검증 담당</span>
+    <span class="c">(2.코드 구조 확인은 기존 code-searcher 에이전트를 그대로 재사용)</span>
+
+docs/
+└── harness-ecc-guide.html                       <span class="c"># 이 문서 — Harness/ECC 역할 분리 다이어그램 설명</span></pre></div>
+  <div class="callout">
+    <div class="callout-label">범용 메타스킬과 혼동 주의</div>
+    설치된 범용 <code>harness:harness</code> 메타스킬은 새 프로젝트에 하네스를 처음부터 만들어주는 도구입니다. kdance는 이미 위 구조로 커스터마이징돼 있으므로, 점검·수정·확장할 때는 범용 메타스킬을 부르지 않고 <code>.claude/skills/kdance-dev-harness/</code>와 <code>.claude/agents/kdance-*.md</code>를 직접 읽고 고칩니다.
+  </div>
+</section>
+
+<section id="phases">
+  <h2>4. 9단계 파이프라인 상세</h2>
+  <p><code>kdance-dev-harness</code> SKILL.md가 정의한 단계입니다. 각 단계는 이전 단계 결과물에 의존하는 순차 흐름이라, "Phase 5"처럼 번호만으로 부르지 않고 <b>번호 + 단계 이름</b>을 항상 같이 씁니다(예: <code>5.구현</code>).</p>
+  <table>
+    <tr><th>단계</th><th>담당</th><th>출력 파일</th></tr>
+    <tr><td><b>0. 사전 점검</b></td><td><code>_workspace/</code> 존재 여부로 처음 시작인지, 이어서 하는 작업인지 판단</td><td><code>00_input/request.md</code></td></tr>
+    <tr><td><b>1. 요구사항 분석</b></td><td>kdance-req-analyst</td><td><code>01_requirements.md</code></td></tr>
+    <tr><td><b>2. 코드 구조 확인</b></td><td>code-searcher (기존 재사용)</td><td><code>02_structure.md</code></td></tr>
+    <tr><td><b>3. 구현 계획</b></td><td>kdance-impl-planner</td><td><code>03_plan.md</code></td></tr>
+    <tr><td><b>4. Task 분리</b></td><td>kdance-task-splitter</td><td><code>04_tasks.md</code></td></tr>
+    <tr><td><b>5. 구현</b> (병렬 가능)</td><td>kdance-implementer × N</td><td><code>05_implementer_{task}_summary.md</code></td></tr>
+    <tr><td><b>6. 테스트</b></td><td>kdance-test-runner</td><td><code>06_results.md</code></td></tr>
+    <tr><td><b>7. 오류 수정</b> ↔ <b>8. 코드 리뷰</b> (최대 2회 왕복)</td><td>kdance-bug-fixer ↔ kdance-code-reviewer</td><td><code>07_fixes.md</code> / <code>08_review.md</code></td></tr>
+    <tr><td><b>9. 완료 검증</b></td><td>kdance-completion-verifier</td><td><code>09_report.md</code></td></tr>
+    <tr><td><b>9.5. 학습 주석 재구성 + 가이드 생성</b> (SCH 완료 시에만)</td><td>kdance-implementer 재사용</td><td>소스 주석 갱신 + <code>guides/SCH-XX.html</code></td></tr>
+  </table>
+  <div class="callout good">
+    <div class="callout-label">흐름 요약</div>
+    <div class="flow">
+      <div class="step"><b>1.요구사항 분석</b></div>
+      <div class="arrow">→</div>
+      <div class="step"><b>2.코드 구조 확인</b></div>
+      <div class="arrow">→</div>
+      <div class="step"><b>3.구현 계획</b></div>
+      <div class="arrow">→</div>
+      <div class="step"><b>4.Task 분리</b></div>
+      <div class="arrow">→</div>
+      <div class="step"><b>5.구현</b>(×N 병렬)</div>
+    </div>
+    <div class="flow">
+      <div class="step"><b>6.테스트</b></div>
+      <div class="arrow">→</div>
+      <div class="step ecc"><b>7.오류 수정</b> ↔ <b>8.코드 리뷰</b></div>
+      <div class="arrow">→</div>
+      <div class="step"><b>9.완료 검증</b></div>
+      <div class="arrow">→</div>
+      <div class="step"><b>9.5.학습 주석/가이드</b></div>
+    </div>
+  </div>
+</section>
+
+<section id="harness">
+  <h2>5. Harness 상세 — 5대 업무</h2>
+  <p>Harness는 코드를 직접 짜지 않습니다. "누구에게 무엇을 어떤 순서로" 시킬지만 결정합니다.</p>
+  <table>
+    <tr><th>#</th><th>업무</th><th>내용</th><th>연결 단계</th></tr>
+    <tr><td>①</td><td>요구사항 → 작업 분해</td><td>예: 예약 기능 → DB Schema / Backend API / Service / Payment / Notification / Next.js / React Native / Admin / E2E</td><td>1.요구사항 분석 ~ 3.구현 계획</td></tr>
+    <tr><td>②</td><td>Agent Team 구성·배정</td><td>DB / Backend / Frontend / Payment / Notification / AI / QA Agent 중 누가 뭘 할지</td><td>4.Task 분리</td></tr>
+    <tr><td>③</td><td>작업 의존성 관리</td><td>DB 완료 → Backend 완료 → Frontend 구현 → Integration → E2E 순서 강제</td><td>4.Task 분리</td></tr>
+    <tr><td>④</td><td>병렬 작업</td><td>의존성 없는 작업은 동시 진행(예: DB 완료 후 Frontend와 Admin UI를 같이)</td><td>5.구현 팬아웃</td></tr>
+    <tr><td>⑤</td><td>Agent 결과 취합</td><td>각 Agent 산출물을 하나의 기능으로 통합 + 학습 주석/가이드</td><td>5.구현 ~ 9.5.학습 주석/가이드</td></tr>
+  </table>
+  <div class="flow">
+    <div class="step"><b>DB</b>완료</div>
+    <div class="arrow">→</div>
+    <div class="step"><b>Backend</b>완료</div>
+    <div class="arrow">→</div>
+    <div class="step"><b>Frontend</b>구현</div>
+    <div class="arrow">→</div>
+    <div class="step"><b>Integration</b></div>
+    <div class="arrow">→</div>
+    <div class="step"><b>E2E</b></div>
+  </div>
+</section>
+
+<section id="ecc">
+  <h2>6. ECC 상세 — 6대 업무</h2>
+  <p>Harness가 "Backend Agent야 예약 API 만들어"라고 시키면, ECC는 그 결과물에 "테스트 있나? SQL Injection 가능성은? 권한 체크 했나? 에러 처리는? 타입 안전성은?"을 묻습니다.</p>
+  <table>
+    <tr><th>#</th><th>업무</th><th>내용</th></tr>
+    <tr><td>①</td><td>TDD</td><td>요구사항 → Test → Implementation → Test → Refactor 순환. "테스트부터 제대로 작성했나?"</td></tr>
+    <tr><td>②</td><td>Code Review</td><td>버그 / 중복 / 복잡도 / 유지보수성 / 설계 문제</td></tr>
+    <tr><td>③</td><td>Security</td><td><b>예약·결제가 있는 이 프로젝트에서 특히 중요.</b> 인증 / 권한 / 입력 검증 / 민감정보 / API 보호 / Webhook 검증 / 결제 위변조</td></tr>
+    <tr><td>④</td><td>Refactoring</td><td>거대 파일(예: 예약 코드 1,000줄)을 Service / Repository / Domain / Validator / DTO 등으로 분리</td></tr>
+    <tr><td>⑤</td><td>Coding Standard</td><td>Python(FastAPI/SQLAlchemy2/Pydantic), TypeScript(Next.js/React Native) 스타일 일관성</td></tr>
+    <tr><td>⑥</td><td>테스트 품질</td><td>Unit / Integration / Security / Regression Test — <b>실제 브라우저 E2E 실행은 Playwright</b>가 담당</td></tr>
+  </table>
+  <div class="callout">
+    <div class="callout-label">TDD 순환</div>
+    <div class="flow">
+      <div class="step ecc"><b>요구사항</b></div>
+      <div class="arrow">→</div>
+      <div class="step ecc"><b>Test</b></div>
+      <div class="arrow">→</div>
+      <div class="step ecc"><b>Implementation</b></div>
+      <div class="arrow">→</div>
+      <div class="step ecc"><b>Test</b></div>
+      <div class="arrow">→</div>
+      <div class="step ecc"><b>Refactor</b></div>
+    </div>
+  </div>
+</section>
+
+<section id="pipeline">
+  <h2>7. 실행 파이프라인 — "예약 기능 만들어줘"라고 시키면</h2>
+  <div class="flow">
+    <div class="step"><b>1. 사용자</b>"예약 기능 만들어"</div>
+    <div class="arrow">↓</div>
+  </div>
+  <div class="flow">
+    <div class="step"><b>2. Harness</b>기능 분석 → Task 분해 → Agent 배정 → 순서 결정</div>
+    <div class="arrow">↓</div>
+  </div>
+  <div class="flow">
+    <div class="step"><b>3. Agent (병렬)</b>DB Agent</div>
+    <div class="step"><b>&nbsp;</b>Backend Agent</div>
+    <div class="step"><b>&nbsp;</b>Frontend Agent</div>
+  </div>
+  <div class="flow"><div class="arrow">↓ (전부 완료 후 합류)</div></div>
+  <div class="flow">
+    <div class="step ecc"><b>4. ECC</b>TDD → Security → Review → Refactor</div>
+    <div class="arrow">↓</div>
+  </div>
+  <div class="flow">
+    <div class="step"><b>5. Playwright</b>실제 사용자 흐름 E2E 검증</div>
+    <div class="arrow">↓</div>
+  </div>
+  <div class="flow">
+    <div class="step"><b>6. Harness</b>전체 기능 통합 완료 판단</div>
+  </div>
+  <div class="callout good">
+    <div class="callout-label">한 줄 요약</div>
+    "Harness가 작업을 지휘하고, ECC가 작업의 품질을 검사한다."
+  </div>
+</section>
+
+<section id="matrix">
+  <h2>8. 역할 충돌 방지 매트릭스</h2>
+  <p><span class="dot main"></span>주 역할 · <span class="dot sub"></span>보조 · <span class="dot none"></span>맡기지 않음 — 애매한 업무가 나오면 이 표로 바로 판단합니다.</p>
+  <table>
+    <tr><th>업무</th><th>Harness</th><th>ECC</th></tr>
+    <tr><td>요구사항 분석 / 기능 분해 / Agent 구성·배정 / 작업 순서 / 의존성 관리 / 병렬 실행 / 결과 통합</td><td><span class="dot main"></span>주 역할</td><td><span class="dot none"></span>-</td></tr>
+    <tr><td>코드 작성</td><td><span class="dot sub"></span>Agent 실행</td><td><span class="dot main"></span>품질 기준</td></tr>
+    <tr><td>Architecture</td><td><span class="dot main"></span>시스템 관점</td><td><span class="dot main"></span>코드 관점</td></tr>
+    <tr><td>TDD / Unit Test / Security / Code Review / Refactoring / Coding Standard</td><td><span class="dot none"></span>-</td><td><span class="dot main"></span>주 역할</td></tr>
+    <tr><td>Integration Test / Build 오류</td><td><span class="dot sub"></span>보조</td><td><span class="dot main"></span>주 역할</td></tr>
+    <tr><td>E2E</td><td><span class="dot none"></span>-</td><td><span class="dot sub"></span>품질 기준만(실행은 Playwright)</td></tr>
+    <tr><td>전체 프로젝트 상태</td><td><span class="dot main"></span>주 역할</td><td><span class="dot none"></span>-</td></tr>
+    <tr><td>전체 완료 판단</td><td><span class="dot main"></span>주 역할</td><td><span class="dot sub"></span>보조</td></tr>
+  </table>
+</section>
+
+<section id="analogy">
+  <h2>9. 비유로 이해하기</h2>
+  <h3>자동차</h3>
+  <div class="compare">
+    <div class="side h"><h4>🏗 Harness = 주행 시스템</h4><ul><li>어디로 갈까?</li><li>어떤 경로?</li><li>누가 운전?</li><li>어떤 순서?</li><li>언제 멈출까?</li></ul></div>
+    <div class="side e"><h4>🛡 ECC = 품질/안전 시스템</h4><ul><li>브레이크 정상?</li><li>엔진 정상?</li><li>안전벨트?</li><li>경고등?</li><li>검사?</li></ul></div>
+  </div>
+  <p>둘 다 있어야 차가 목적지에 안전하게 도착합니다.</p>
+
+  <h3>사람 역할</h3>
+  <table>
+    <tr><th>실제 역할</th><th>이 구조에서</th></tr>
+    <tr><td>Product Owner</td><td>👤 나(사용자)</td></tr>
+    <tr><td>Tech Lead / PM</td><td>🏗 Harness</td></tr>
+    <tr><td>개발자</td><td>각 Agent</td></tr>
+    <tr><td>Senior Engineer + QA</td><td>🛡 ECC</td></tr>
+    <tr><td>실제 사용자 테스트 담당</td><td>🧪 Playwright</td></tr>
+  </table>
+</section>
+
+<section id="antipattern">
+  <h2>10. 절대 금지 패턴</h2>
+  <div class="bad-good">
+    <div class="box bad">
+      <h4>❌ 나쁜 구조</h4>
+      <p>Harness도 <code>Plan → Implement → Test → Review</code>를 돌고, ECC도 똑같이 <code>Plan → Implement → Test → Review</code>를 따로 돕니다.</p>
+      <p>→ "Harness가 계획을 세웠는데 ECC가 또 계획을 세우는" 중복·혼란이 생깁니다.</p>
+    </div>
+    <div class="box good">
+      <h4>✅ 좋은 구조</h4>
+      <p>Harness는 <b>"무엇을·누구에게·어떤 순서로"</b>만 정하고 두 번 다시 정하지 않습니다.</p>
+      <p>ECC는 그 결과물의 <b>"품질"</b>만 검사하고 순서·배정을 다시 정하지 않습니다.</p>
+    </div>
+  </div>
+</section>
+
+<section id="scale">
+  <h2>11. 프로젝트가 커질 때 — 팀 조직</h2>
+  <p>kdance는 예약 취소/환불 슬라이스를 넘어 수업·결제·캘린더·알림·학원·공지·대회·파티·뉴스·관리자·비용관리·PDF/이미지 등록·AI 검색·추천까지 넓어질 예정입니다. 이 규모에서는 Task를 개별 나열하지 않고 <b>팀 단위</b>로 먼저 묶습니다(Harness가 팀 구성을 정하고, 팀 내부 실행은 ECC에 위임).</p>
+  <div class="teamgrid">
+    <div class="teamcard"><b>Frontend Team</b><span>Android · Next.js · Admin<br>ECC: TDD/Review/Refactor</span></div>
+    <div class="teamcard"><b>Backend Team</b><span>API · Auth · Reservation · Notification<br>ECC: Security/API Review/DB Review</span></div>
+    <div class="teamcard"><b>Data Team</b><span>PostgreSQL · pgvector</span></div>
+    <div class="teamcard"><b>AI Team</b><span>Search · RAG · Recommendation · Agent<br>ECC: Evaluation/Prompt Review/RAG Test</span></div>
+    <div class="teamcard"><b>QA Team</b><span>Unit · Integration · E2E<br>(모든 팀의 결과가 여기로 수렴)</span></div>
+  </div>
+</section>
+
+<footer>
+  작성 기준: <code>.claude/rules/core-rules.md</code>의 "Harness / ECC 역할 분리" 절 · kdance-dev-harness SKILL.md · 2026-09-15 작성.
+</footer>
+
+</div>
+</body>
+</html>
