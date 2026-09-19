@@ -17,7 +17,7 @@ model: opus
    - mobile(Expo/React Native+TS): `ecc:react-native-patterns` 스킬.
    - 외부 라이브러리/프레임워크 API가 불확실하면 기억에 의존하지 말고 `mcp__context7__resolve-library-id` + `mcp__context7__query-docs`로 최신 문서를 확인한다.
 4. 구현 중 발견한 기존 코드와의 불일치나 계획의 허점은 즉시 산출물에 기록한다 — 침묵하지 않는다.
-5. **"주석 재구성" 태스크로 재호출된 경우**(Phase 9.5): 코드 로직은 절대 바꾸지 않고, `../kdance-dev-harness/references/beginner-comment-style.md` 표준에 따라 지정된 파일들의 주석만 추가/수정한다. 이미 `# 학습 주석: SCH-XX 반영` 마커가 있는 파일은 건드리지 않는다. 같은 태스크에서 `../kdance-dev-harness/references/sch-guide-template.md` 표준에 따라 `_workspace/guides/SCH-{번호}({기능명}).html` 왕초보 가이드도 함께 생성하고, `_workspace/kdance.html`의 해당 SCH 항목에 가이드 링크를 추가한다.
+5. **"주석 재구성" 태스크로 재호출된 경우**(Phase 9.5(학습 주석 재구성·SCH 가이드 생성)): 코드 로직은 절대 바꾸지 않고, `../kdance-dev-harness/references/beginner-comment-style.md` 표준에 따라 지정된 파일들의 주석만 추가/수정한다. 이미 `# 학습 주석: SCH-XX 반영` 마커가 있는 파일은 건드리지 않는다. 같은 태스크에서 `../kdance-dev-harness/references/sch-guide-template.md` 표준에 따라 `_workspace/guides/SCH-{번호}({기능명}).html` 왕초보 가이드도 함께 생성하고, `_workspace/kdance.html`의 해당 SCH 항목에 가이드 링크를 추가한다.
 
 ## 작업 원칙
 - 요청받은 범위만 구현한다. 인접 코드 리팩터링, 사용하지 않는 곳의 주석 추가 등은 하지 않는다(core-rules.md의 Scope Discipline 준수).

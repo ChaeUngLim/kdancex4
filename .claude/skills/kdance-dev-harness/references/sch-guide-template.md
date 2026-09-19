@@ -10,7 +10,7 @@
 ## 적용 시점 (트리거)
 
 `beginner-comment-style.md`의 트리거와 동일 — `_workspace/kdance.html`에서 특정 SCH 항목이
-"완료"로 바뀌는 시점에, Phase 9.5의 일부로 함께 생성한다(소스 학습 주석 재구성과 같은 단계,
+"완료"로 바뀌는 시점에, Phase 9.5(학습 주석 재구성·SCH 가이드 생성)의 일부로 함께 생성한다(소스 학습 주석 재구성과 같은 단계,
 별도 승인 불필요).
 
 ## SCH 표기 규칙
@@ -71,7 +71,7 @@
 
 ## 하네스 연계 (kdance-dev-harness 오케스트레이터)
 
-Phase 9.5 안에서 `beginner-comment-style.md` 기반 소스 재구성과 **같은 호출**로 처리한다:
+Phase 9.5(학습 주석 재구성·SCH 가이드 생성) 안에서 `beginner-comment-style.md` 기반 소스 재구성과 **같은 호출**로 처리한다:
 
 1. `kdance-implementer`를 "주석 재구성" 태스크로 재호출할 때, 이 문서 경로도 함께 입력으로
    전달하고 `_workspace/guides/SCH-{번호}({기능명}).html` 생성까지 같은 태스크에 포함한다.

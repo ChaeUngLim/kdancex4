@@ -168,7 +168,7 @@ Harness(WORKFLOW)와 ECC(QUALITY) 둘 다 아래 MCP를 호출해 실제 작업�
 
 전체 그림(다이어그램 중심 설명)은 `docs/가이드/harness-ecc-guide.html` 참고.
 
-**설치된 범용 `harness:harness` 메타스킬(harness-marketplace 플러그인)과 절대 혼동하지 않는다.** 이 메타스킬은 새 도메인에 처음부터 하네스를 만들어주는 범용 도구이고, "하네스 점검/감사/현황/에이전트-스킬 동기화" 같은 문구에 트리거된다. kdance는 이미 `kdance-dev-harness`가 만들어져 있고 Phase 9.5·SCH 표기 규칙·beginner-comment-style.md 등 이 프로젝트 전용으로 커스터마이징돼 있다 — 범용 메타스킬은 이 커스터마이징을 모른 채 자기 템플릿으로 재구성하려 들 수 있으므로, kdance에서 하네스를 점검·수정·확장할 때는 **범용 `harness:harness`를 호출하지 말고 `.claude/skills/kdance-dev-harness/`와 `.claude/agents/kdance-*.md`를 직접 Read/Edit한다.**
+**설치된 범용 `harness:harness` 메타스킬(harness-marketplace 플러그인)과 절대 혼동하지 않는다.** 이 메타스킬은 새 도메인에 처음부터 하네스를 만들어주는 범용 도구이고, "하네스 점검/감사/현황/에이전트-스킬 동기화" 같은 문구에 트리거된다. kdance는 이미 `kdance-dev-harness`가 만들어져 있고 Phase 9.5(학습 주석 재구성·SCH 가이드 생성)·SCH 표기 규칙·beginner-comment-style.md 등 이 프로젝트 전용으로 커스터마이징돼 있다 — 범용 메타스킬은 이 커스터마이징을 모른 채 자기 템플릿으로 재구성하려 들 수 있으므로, kdance에서 하네스를 점검·수정·확장할 때는 **범용 `harness:harness`를 호출하지 말고 `.claude/skills/kdance-dev-harness/`와 `.claude/agents/kdance-*.md`를 직접 Read/Edit한다.**
 
 ## Git 커밋 / PR 설명 (왕초보 + 면접담당자 기준)
 - 커밋 메시지와 PR 설명은 **두 종류의 독자** 모두가 읽고 이해할 수 있게 쓴다: ① 개발 경력 6개월차 비전공자(무엇을 왜 바꿨는지 개념부터 이해해야 함) ② 면접담당자/리뷰어(짧은 시간에 구조와 흐름, 판단력을 파악해야 함). 두 독자 모두 **장황한 나열보다 핵심만 정돈된 글**을 원한다 — 있었던 일을 전부 적지 말고, 그 커밋에서 가장 중요한 판단 1~2가지로 압축한다.

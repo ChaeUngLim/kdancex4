@@ -59,7 +59,7 @@ Git 작업(커밋/브랜치)은 오케스트레이터(리더)가 사용자 승�
 4. 2회 초과 후에도 CRITICAL/HIGH가 남으면 루프를 멈추고 사용자에게 미해결 항목을 보고, 진행 여부를 확인한다.
 
 ### Phase 9: 완료 검증
-`kdance-completion-verifier` 호출. `INCOMPLETE`면 미충족 기준을 사용자에게 보고하고 Phase 5/7 재진입 여부를 확인한다. `COMPLETE`면 아래 "Phase 9.5"로.
+`kdance-completion-verifier` 호출. `INCOMPLETE`면 미충족 기준을 사용자에게 보고하고 Phase 5(구현)/7(오류 수정) 재진입 여부를 확인한다. `COMPLETE`면 아래 "Phase 9.5(학습 주석 재구성·SCH 가이드 생성)"로.
 
 ### Phase 9.5: 학습 주석 재구성 + 왕초보 완벽분석가이드 생성 (SCH 완료 시)
 `references/beginner-comment-style.md`(소스 내 학습 주석) + `references/sch-guide-template.md`(SCH별 HTML 가이드) 참고. 이번 작업이 `_workspace/kdance.html`의 SCH 항목에 대응하는 경우에만 수행한다(SCH 미부여 작업이면 생략하고 사용자에게 그 사실을 보고한 뒤 "정리"로 진행).
