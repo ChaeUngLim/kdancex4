@@ -315,7 +315,7 @@ graph TB
   </div>
 
   <h3>그림으로 보면</h3>
-  <p>주문이 생성되는 순간 금액을 보고 두 갈래로 갈라집니다. 이 라우팅 로직(SCH-19) 자체는 아직 코드로 구현되지 않았고, 9만원 초과~10만원 미만 구간(O1)도 아직 안 정해졌습니다.</p>
+  <p>주문이 생성되는 순간 금액을 보고 두 갈래로 갈라집니다. 이 라우팅 로직(SCH-19: 가격/상품유형 기준 방식 A·B 라우팅) 자체는 아직 코드로 구현되지 않았고, 9만원 초과~10만원 미만 구간(O1)도 아직 안 정해졌습니다.</p>
   <div class="diagram-card"><pre class="mermaid">
 flowchart TD
   START(["주문 생성 Order Created"]) --> CHECK{"금액 얼마? 가격 기준 라우팅, SCH-19 예정"}
@@ -390,7 +390,7 @@ flowchart TD
     <p>토스, 카카오페이, 네이버페이 각각 스킴(앞부분 주소 형식)이 다릅니다. 실제 파이썬 코드 예시는 <code>docs/payment-deeplink-reference.md</code> 문서에 정리돼 있습니다.</p>
   </details>
 
-  <h3>전체 흐름을 순서대로 보면 (예정, SCH-13~20)</h3>
+  <h3>전체 흐름을 순서대로 보면 (예정, SCH-13~20: 외부 계정·승인 절차부터 테스트까지)</h3>
   <p>위 4단계는 사용자가 보는 화면이고, 아래는 그 뒤에서 백엔드·SOLAPI·Popbill까지 포함한 전체 순서입니다. 아직 코드로 만들어지지 않은 계획 단계입니다.</p>
   <div class="diagram-card"><pre class="mermaid">
 sequenceDiagram
@@ -489,7 +489,7 @@ graph TD
 
 <section id="refund">
   <h2>7. 예약 취소·환불은 어떻게 되나</h2>
-  <p>이 부분은 <b>백엔드 코드까지 완료됐습니다</b>(SCH-01~10, pytest 159개 통과 — Docker로 띄우는 실 DB 통합 테스트 2건만 대기 중). 아래는 실제로 동작하는 규칙입니다.</p>
+  <p>이 부분은 <b>백엔드 코드까지 완료됐습니다</b>(SCH-01~10: 기반 배선부터 환불 정책 문서까지, pytest 159개 통과 — Docker로 띄우는 실 DB 통합 테스트 2건만 대기 중). 아래는 실제로 동작하는 규칙입니다.</p>
   <table>
     <tr><th>상황</th><th>환불 규칙</th></tr>
     <tr><td>수업 시작 24시간 <b>초과</b> 전 취소</td><td>전액 환불 (플랫폼 고정 규칙)</td></tr>
@@ -566,7 +566,7 @@ graph TD
 
   <div class="callout warn">
     <div class="callout-label">아직 안 풀린 것</div>
-    환불 시 플랫폼 수수료·쿠폰을 어떻게 되돌릴지, 부분 취소를 지원할지는 결정만 되고 코드에는 반영되지 않았습니다(쿠폰 모델·정산 모듈 자체가 아직 없음). Docker로 띄우는 실 DB 통합 테스트(SCH-11·12)도 아직 대기 중입니다. 최신 상태는 <code>_workspace/kdance.html</code>을 확인하세요.
+    환불 시 플랫폼 수수료·쿠폰을 어떻게 되돌릴지, 부분 취소를 지원할지는 결정만 되고 코드에는 반영되지 않았습니다(쿠폰 모델·정산 모듈 자체가 아직 없음). Docker로 띄우는 실 DB 통합 테스트(SCH-11: 마이그레이션 검증, SCH-12: DB 통합 테스트 실행)도 아직 대기 중입니다. 최신 상태는 <code>_workspace/kdance.html</code>을 확인하세요.
   </div>
 </section>
 
@@ -608,7 +608,7 @@ graph TD
   <div class="doclink-list">
     <div><a href="./payment-method-policy.md">결제수단 정책 (payment-method-policy.md)</a><div class="path">방식 A/B 라우팅 결정, 무료 API 원칙, 오픈 이슈</div></div>
     <div><a href="./payment-deeplink-reference.md">딥링크 구현 레퍼런스 (payment-deeplink-reference.md)</a><div class="path">토스/카카오페이/네이버페이 딥링크·브릿지 페이지·알림톡 발송 코드</div></div>
-    <div><a href="./sch-payment-deeplink-implementation.md">방식 A 구현 스케줄 (sch-payment-deeplink-implementation.md)</a><div class="path">T1~T8 태스크, 의존관계, 착수 전 확인사항</div></div>
+    <div><a href="./sch-payment-deeplink-implementation.md">방식 A 구현 스케줄 (sch-payment-deeplink-implementation.md)</a><div class="path">T1~T8(외부 계정·승인 절차 ~ 테스트) 태스크, 의존관계, 착수 전 확인사항</div></div>
     <div><a href="./pricing-policy.md">가격 정책 (pricing-policy.md)</a></div>
     <div><a href="./distribution-policy.md">배포 정책 (distribution-policy.md)</a></div>
     <div><a href="./requirements-analysis.md">요구사항 분석 (requirements-analysis.md)</a></div>
