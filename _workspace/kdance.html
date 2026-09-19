@@ -365,7 +365,7 @@
             <div class="body">
               <div class="item s-done">
                 <div class="top"><span class="sch">SCH-10</span><span class="t">payment-method-policy.md 환불 섹션</span><span class="badge">완료</span></div>
-                <div class="d">Q4 확정 4건·Q5 제외 2건, 결정↔구현 3범주로 구분해 기록.</div>
+                <div class="d">Q4(수수료·쿠폰·정산 역산 규칙) 확정 4건·Q5(부분 취소·학원 귀책 취소) 제외 2건, 결정↔구현 3범주로 구분해 기록.</div>
               </div>
             </div>
           </div>
@@ -471,7 +471,7 @@
               <tr>
                 <td class="id">WD</td>
                 <td class="id">SCH-13~20</td>
-                <td>방식 A 딥링크. O1~O4 결정 후 별도 착수 — 예약취소환불 완료를 기다릴 필요 없음(파일 무충돌).</td>
+                <td>방식 A 딥링크. O1~O4(경계 구간 ~ 방식 A 재확인) 결정 후 별도 착수 — 예약취소환불 완료를 기다릴 필요 없음(파일 무충돌).</td>
                 <td>O1~O4</td>
                 <td><div class="bar b-todo"><i style="left: 0; width: 0%"></i></div></td>
               </tr>
@@ -541,8 +541,8 @@
               <tr><td class="k">SCH-13~20</td><td>방식 A 딥링크 구현 (T1~T8)</td><td><code>docs/sch-payment-deeplink-implementation.md</code></td></tr>
               <tr><td class="k">정책</td><td>결제수단 라우팅·환불 규칙 전체</td><td><code>docs/payment-method-policy.md</code></td></tr>
               <tr><td class="k">참고 코드</td><td>딥링크·브릿지·알림톡 예시</td><td><code>docs/payment-deeplink-reference.md</code></td></tr>
-              <tr><td class="k">요구사항</td><td>Q1~Q5 결정 근거</td><td><code>_workspace/01_req-analyst_requirements.md</code></td></tr>
-              <tr><td class="k">구현 계획</td><td>D1~D4 설계 결정, 7개 열린 항목</td><td><code>_workspace/03_impl-planner_plan.md</code></td></tr>
+              <tr><td class="k">요구사항</td><td>Q1~Q5(구현 범위 ~ 부분 취소 포함 여부) 결정 근거</td><td><code>_workspace/01_req-analyst_requirements.md</code></td></tr>
+              <tr><td class="k">구현 계획</td><td>D1~D4(Order/Reservation 분리 ~ Fake PG 어댑터) 설계 결정, 7개 열린 항목</td><td><code>_workspace/03_impl-planner_plan.md</code></td></tr>
               <tr><td class="k">전체 기획</td><td>프로젝트 전반 요약·오픈 이슈</td><td><code>docs/plan-summary.md</code></td></tr>
             </tbody>
           </table>
