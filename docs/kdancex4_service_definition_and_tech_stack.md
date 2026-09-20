@@ -549,33 +549,156 @@ Vector Search만 사용하는 것보다 사용자 질문과 후보 콘텐츠의 
 
 # 11. 기술 스택 고정표
 
-| 영역 | 기술 | 버전/기준 | 역할 |
-|---|---|---|---|
-| Web | Next.js | 16.3.3 | Web/App Router, 서버 기능 |
-| UI | React | 19.3 | Web UI |
-| Mobile | React Native | 0.87 | Android/iOS App |
-| Language | TypeScript | 5.9.x | 타입 안정성 |
-| Runtime | Node.js | 24.11+ LTS | Next.js/Prisma 실행환경 |
-| CSS | Tailwind CSS | 4.3.x | UI 스타일 |
-| UI System | shadcn/ui | latest | 디자인 시스템 |
-| Client State | Zustand | 5.x | UI 상태 |
-| Server State | TanStack Query | 5.x | API/cache |
-| Auth | Better Auth | latest | 인증 |
-| Auth 대안 | Clerk | 보류 | 관리형 인증 |
-| ORM | Prisma | 8 RC | DB 접근 |
-| DB | PostgreSQL | 18.x | 관계형 DB |
-| Vector | pgvector | compatible latest | RAG |
-| AI UI | Vercel AI SDK | 6.x | Streaming/Tool/UI |
-| Agent | LangGraph | 1.2.x | Agent workflow |
-| LLM | Qwen | 3.5 9B | 기본 LLM |
-| Embedding | Nemotron | 3-Embed-1B-BF8 | 임베딩 |
-| Reranker | NVIDIA Nemotron | llama-Nemotron-Rerank-1B-v2 | 후보 재정렬 |
-| Protocol | MCP | latest compatible | 외부 도구 연결 |
-| Storage | Cloudflare R2 | latest | 이미지/영상/파일 |
-| Deploy | Vercel | latest | Web/Edge/배포 |
-| Dev AI | Claude Code | latest | AI Coding Agent |
-| Container | Docker | latest stable | 개발/배포 환경 |
-| VCS | Git/GitHub | latest | 형상관리 |
+**확정 기준일: 2026-09-20.** 아래 버전은 npm 레지스트리·Docker Hub·peerDependencies 를
+실제 조회해 확인한 값이다. 추정치가 아니다.
+
+원칙은 **호환되는 선에서 최신**이다. "최신"과 "의존성 호환"이 충돌하면 호환이 이긴다.
+
+| 영역 | 기술 | 버전/기준 | 역할                            |
+|---|---|---|-------------------------------|
+| Web | Next.js | 16.3.5 | Web/App Router, 서버 기능         |
+| UI | React | 19.3.0 | Web UI                        |
+| Mobile | Expo SDK | 58.0.0-preview.3 | 모바일 툴체인 · RN 앵커 |
+| Mobile | React Native | 0.88.0-rc.0 | Android/iOS App (Expo SDK 핀) |
+| Language | TypeScript | 7.0.2 | 타입 안정성                        |
+| Runtime | Node.js | 24.21.0 LTS (Krypton) | Next.js/Prisma 실행환경           |
+| CSS | Tailwind CSS | 4.3.3 | UI 스타일                        |
+| UI System | shadcn/ui | 4.21.0 | 디자인 시스템                       |
+| Client State | Zustand | 5.0.15 | UI 상태                         |
+| Server State | TanStack Query | 5.103.1 | API/cache                     |
+| Auth | Better Auth | 1.7.5 | 인증                            |
+| Auth 대안 | Clerk | 보류 | 관리형 인증                        |
+| ORM | Prisma | 8.0.0-rc.15 (CLI) / @prisma/orm-postgres 8.0.0-rc.11 (런타임) | DB 접근                         |
+| DB | PostgreSQL | 18.6 | 관계형 DB                        |
+| Vector | pgvector | 0.8.6 (`pgvector/pgvector:0.8.6-pg18`) | RAG                           |
+| AI UI | Vercel AI SDK | 7.0.107 (`ai`) | Streaming/Tool/UI             |
+| Agent | LangGraph | 1.4.16 (`@langchain/langgraph`) | Agent workflow                |
+| Agent Core | LangChain Core | 1.2.12 (`@langchain/core`) | LangGraph 가 `^1.1.48` 로 요구 |
+| Date/Time | temporal-polyfill | 1.0.5 | Node 24 LTS 에 없는 `Temporal` 보충 — Prisma 8 timestamptz 필수 |
+| Schema | zod | 4.6.5 | `ai`·LangGraph·MCP SDK 가 공유 — 표에 없으면 3.x 가 섞여 깨진다 |
+| LLM | Qwen | 3.5 9B | 기본 LLM                        |
+| Embedding | Nemotron | 3-Embed-1B-BF8 | 임베딩                           |
+| Reranker | NVIDIA Nemotron | llama-Nemotron-Rerank-1B-v2 | 후보 재정렬                        |
+| Protocol | MCP | 1.30.0 (`@modelcontextprotocol/sdk`) | 외부 도구 연결                      |
+| Storage | Cloudflare R2 | latest | 이미지/영상/파일                     |
+| Deploy | Vercel | latest | Web/Edge/배포                   |
+| Dev AI | Claude Code | latest | AI Coding Agent               |
+| Container | Docker | latest stable | 개발/배포 환경                      |
+| VCS | Git/GitHub | latest | 형상관리                          |
+
+## 11-1. 버전을 이렇게 정한 이유
+
+### React Native 0.88.0-rc.0 — 앵커를 Expo 58 preview 로 옮겼다
+
+RN 버전은 직접 고르는 값이 아니다. Expo SDK 가 고정한다. 그래서 고를 수 있는 건
+**어느 SDK 를 앵커로 둘 것인가** 뿐이다.
+
+```
+Expo SDK 57.0.24 (안정판)   →  react-native 0.86.3
+Expo SDK 58.0.0-preview.3  →  react-native 0.88.0-rc.0   ← 채택
+Expo SDK 58.x 안정판        →  아직 없음
+```
+
+핀은 패키지 안의 `bundledNativeModules.json` 에 들어 있다. 58 preview 의 실제 값은
+`react-native` 0.88.0-rc.0, `react` 19.2.3, `react-native-worklets` 0.12.2 다.
+
+**0.87 을 핀하는 SDK 가 없다.** Expo 가 0.86.3 에서 0.88 로 건너뛰기 때문에, RN 의
+안정 최신인 0.87.1 은 Expo 를 쓰는 한 도달할 수 없는 값이다. 0.87 을 쓰려면 Expo 를
+버려야 하고, 그러면 EAS 빌드와 `expo-*` 모듈 전체를 잃는다. 그 대가가 크다고 보아
+58 preview 를 택했다. 58 안정판이 나오면 그리로 옮긴다.
+
+**peer 는 이걸 막아주지 않는다.** `expo` 의 `react-native` peer 는 `*` 이고
+`expo-modules-core` 도 마찬가지다. RN 을 아무 버전이나 깔아도 `npm install` 은
+경고 없이 통과한다. 네이티브 호환성은 npm 버전 범위로 표현되지 않기 때문이다.
+그래서 설치 성공을 호환 근거로 삼으면 안 된다 — 버전 정책의 함정 ③ 이 이 자리다.
+
+**모바일의 React 는 58 에서도 19.2.3 이다.** 웹(admin-web)의 19.3.0 과 다르다.
+RN 앵커를 어디에 두든 이 값은 바뀌지 않으므로, "RN 을 올리면 React 도 최신이 된다"는
+기대는 성립하지 않는다.
+
+### Prisma 8 RC — `@prisma/client` 를 쓰지 않는다
+
+Prisma 8 은 런타임 패키지 이름이 바뀌었다. `@prisma/client` 는 7 계열까지의 이름이고
+(최신 7.10.0), 8 의 런타임은 **`@prisma/orm-postgres`** 다. 8 을 찾으면서
+`@prisma/client` 만 보면 "8 이 없다"는 잘못된 결론에 이른다.
+
+또한 8 부터 CLI 가 ORM 을 넘어 플랫폼(`auth`/`project`/`postgres`/`bucket`/`branch`/
+`git`/`service`/`deploy`/`dev`)으로 확장됐고, ORM 은 `prisma orm` 서브커맨드로 들어갔다.
+
+```
+prisma orm init --target postgres --authoring psl
+  → src/prisma/contract.prisma   (PSL 데이터 계약)
+    prisma.config.ts
+    src/prisma/db.ts
+prisma contract emit
+  → contract.json + contract.d.ts 생성
+```
+
+접근 방식도 `new PrismaClient()` 가 아니라 계약 기반이다.
+
+```typescript
+import postgres from '@prisma/orm-postgres/runtime';
+import type { Contract } from './contract.d';
+import contractJson from './contract.json' with { type: 'json' };
+
+export const db = postgres<Contract>({ contractJson, url: process.env['DATABASE_URL']! });
+```
+
+`@prisma/orm-postgres` 는 `"type": "module"` 인 ESM 패키지다. 다만 **소비하는 쪽까지 ESM 일 필요는 없었다** — CommonJS 기본값인 admin-web 에서 그대로 import 된다(2026-09-20 실측). `prisma.config.ts` 를 Node 가 직접 실행할 때는 다를 수 있어 스캐폴딩 단계에서 확인한다.
+
+**AI 코딩 에이전트 지원이 8 을 택한 이유 중 하나다.** `prisma init --skills=claude` 가
+에이전트용 스킬 파일을 깔고 postinstall 훅으로 동기화하며, CLI 출력이 전부 구조화 JSON
+(`{"kind":"result","envelope":{...,"nextActions":[...]}}`)이라 에이전트가 바로 파싱한다.
+
+### pgvector 는 부동 태그를 쓰지 않는다
+
+`pgvector/pgvector:pg18` 은 내용이 바뀌는 부동 태그라 재현성이 없다.
+`0.8.6-pg18` 로 고정해 PostgreSQL 18.6 + pgvector 0.8.6 을 확정한다.
+
+### AI 스택은 라인 자체를 올렸다
+
+`ai` 6.x(6.0.286 까지)와 `@langchain/langgraph` 1.2.x(1.2.9 까지)는 구세대 에이전트
+API 다. AI SDK 7 은 agent 루프와 tool 호출 구조가 6 과 다르고, LangGraph 1.4 는 1.2 에서
+두 마이너 앞선다. 에이전트 기능을 쓰려면 이 둘은 올려야 한다.
+
+## 11-2. 알려진 위험
+
+| 항목 | 내용 | 상태 |
+|---|---|---|
+| Better Auth × Prisma 8 | 레지스트리 조회 결과 `better-auth@1.7.5` 와 `@better-auth/prisma-adapter@1.7.5` 의 peer 가 둘 다 `prisma: ^5.0.0 \|\| ^6.0.0 \|\| ^7.0.0` 이다. **8 이 범위 밖이다.** `peerDependenciesMeta` 가 전부 `optional: true` 지만 **`npm install` 은 실제로 차단된다** — `optional` 은 "없어도 된다"는 뜻이지 "있으면 아무 버전이나 된다"가 아니다. Prisma 8 이 설치돼 있으면 npm 이 범위를 검사해 ERESOLVE 로 거부한다(2026-09-20 실측). 구조도 안 맞는다 — Prisma 8 은 계약 기반(`postgres<Contract>({contractJson, url})`)인데 어댑터는 `new PrismaClient()` 를 전제한다. 두 패키지 모두 최신이 1.7.5 라 올려서 풀 수 없다 | **비호환 확정** |
+| Better Auth 설치 해결 | `package.json` 에 `"overrides": {"better-auth": {"prisma": "$prisma"}}` 를 넣어 해결했다. better-auth 가 선언한 `prisma` peer 범위를 루트 버전으로 덮어쓴다. 우리는 prisma 어댑터를 쓰지 않으므로 그 제약이 우리 구성에 해당하지 않는다. 플래그 없는 `npm install` 이 exit 0 으로 통과한다(2026-09-20 실측). `--legacy-peer-deps` 보다 낫다 — `package.json` 에 남아 다른 PC·CI 에서도 동작하고, peer 검증을 이 한 건에만 끈다 | **해결** |
+| Better Auth 어댑터 경로 | `@better-auth/prisma-adapter` 는 optional peer 가 아니라 `better-auth` 의 **정식 dependency** 라 항상 설치된다. 막을 수 없고, 설정에서 고르지 않으면 쓰이지 않는다. 대신 `kysely` 가 better-auth 의 직접 의존성이고 `@better-auth/kysely-adapter` 가 `createKyselyAdapter`·`getPostgresSchema` 를 내보낸다 — **Postgres 직결이 임시방편이 아니라 정식 지원 경로다**(2026-09-20 실측) | **경로 확정** |
+| Better Auth 런타임 | 설치와 import 는 확인했지만 실제 인증 동작(세션·스키마 생성·로그인 흐름)은 아직 돌려보지 않았다 | **미검증** |
+| Prisma 8 | RC 다. 안정판 전까지 breaking change 가 올 수 있다 | 감수 |
+| Expo 58 preview | preview 이고 RN 0.88 도 RC 다. 안정판 전까지 breaking change 가 올 수 있다. 58 안정판이 나오면 옮긴다 | 감수 |
+| TypeScript 7 | 설치본이 6.0.3 이라 메이저 1 단계다. `eslint-config-next@16.3.5` 의 peer 는 `typescript >=3.3.1` 이라 막히지 않는다. 다만 admin-web 의 `npm run lint` 가 이미 깨져 있으므로(eslint-config-next 16 × eslint 9 순환 설정) 둘을 동시에 건드리지 않는다 | 순서 분리 |
+| mobile TypeScript | Expo 58 preview 의 `expo install --check` 는 `typescript ~6.0.3` 을 기대하고 7.0.2 에 경고를 낸다(`Your project may not work correctly...`). 그러나 **`npx tsc --noEmit` 은 7.0.2 로 통과한다(exit 0, 2026-09-20 실측)** — Expo 의 경고는 번들 버전표 대조 결과이지 실제 실패가 아니다. admin-web 과 버전을 맞추고 고정표를 지키기 위해 **7.0.2 를 유지**한다. better-auth 사례(peer 가 설치를 실제로 막음)와 달리 여기서는 호환이 실제로 깨지지 않았다. Expo 도구가 계속 경고를 내는 것은 감수한다 | **감수** |
+| Temporal 부재 | Prisma 8 Postgres 타깃은 `timestamptz` 를 `Temporal.Instant` 로 읽고 쓴다. 런타임 가드가 `typeof Temporal === "undefined"` 면 `RUNTIME.TEMPORAL_UNAVAILABLE` 로 던진다(`orm-target-postgres/dist/*.mjs` 실측). **`globalThis.Temporal` 은 Node 26.8.2+ 에만 있고 우리는 24.21.0 LTS 다.** 이 프로젝트는 `starts_at`·`paid_at`·`cancelled_at`·`created_at`/`updated_at` 이 전부 timestamptz 라 첫 읽기/쓰기에서 죽는다 | **해결** |
+| Temporal 대응 | `temporal-polyfill@1.0.5` 를 도입했다(2026-09-20). 가드가 맨 식별자 `Temporal` 을 보므로 `import 'temporal-polyfill/global'` 로 전역에 심으면 통과한다 — 실측: 주입 전 `undefined` → 주입 후 `object`, `Temporal.Instant.from()` 왕복 정상. **Node 26 은 아직 LTS 가 아니라(2026-09-20 기준 v26.9.0 LTS:False) 런타임 업그레이드 대신 폴리필을 택했다.** 26 이 LTS 가 되면 폴리필만 걷어낸다 | **적용** |
+| Temporal 대안 | 쓰지 않았지만 기록한다 — Prisma 8 은 코덱을 쌍으로 제공한다(`timestampTemporalColumn` ↔ `timestampStringColumn`, `date`/`time` 도 동일). 문자열 코덱은 Temporal 없이 동작하는 **정식 경로**다. 폴리필이 문제를 일으키면 이쪽으로 옮길 수 있다 | 대안 확보 |
+| 폴리필 주입 시점 | 폴리필은 **Prisma 코드가 처음 돌기 전에** 로드되어야 한다. Next.js 에서는 `instrumentation.ts` 같은 최초 진입점이 후보다. 어디에 넣을지는 Phase 3(구현 계획)에서 정한다 | **미검증** |
+| LLM 3종 | Qwen 3.5 9B · Nemotron 3-Embed-1B-BF8 · llama-Nemotron-Rerank-1B-v2 는 npm 밖이라 이번 조회에서 검증하지 못했다 | **미검증** |
+
+## 11-3. 백엔드 교체
+
+이 표는 TypeScript 단일 스택이다. ORM(Prisma) · Auth(Better Auth) · AI UI(Vercel AI SDK)
+가 모두 TypeScript 전용이라 Python 백엔드가 설 자리가 없다. 따라서 기존
+`backend/`(FastAPI + SQLAlchemy 2 + Alembic + psycopg3)는 **Next.js + Prisma 8 로 교체**한다.
+
+| 대상 | 전 | 후 |
+|---|---|---|
+| API | FastAPI Route | Next.js Route Handler / Server Action |
+| DB 접근 | SQLAlchemy 2 + psycopg3 | Prisma 8 (`@prisma/orm-postgres`) |
+| 마이그레이션 | Alembic | `prisma migration` / `prisma db` |
+| 테스트 | pytest 159개 | TypeScript 테스트로 재작성 |
+| 배포 | 로컬 Docker | Vercel |
+
+유지되는 것: PostgreSQL 18.6 + pgvector(스키마 그대로, 접근 계층만 교체) ·
+mobile(Expo/React Native, API 계약 유지 시 영향 최소) · `_workspace/` 작업 기록과
+SCH 가이드 · 하네스 9단계 · ECC.
+
+교체 시점 근거: Alembic 마이그레이션이 1개뿐이라 이관 부채가 거의 없다. 스키마가 커진
+뒤에 옮기면 비용이 몇 배가 된다.
 
 ---
 
@@ -604,7 +727,7 @@ AI SDK 6
 
 ## Mobile
 
-**React Native 0.87**
+**React Native 0.86.3** (Expo SDK 57 고정값)
 
 대상:
 
@@ -896,7 +1019,7 @@ AI 추천
                  ┌──────────────┐    ┌──────────────┐
                  │ Web           │    │ Mobile       │
                  │ Next.js       │    │ React Native │
-                 │ React         │    │ 0.87         │
+                 │ React         │    │ 0.86.3       │
                  └──────┬───────┘    └──────┬───────┘
                         │                   │
                         └─────────┬─────────┘
