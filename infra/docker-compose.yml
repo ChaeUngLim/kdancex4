@@ -1,17 +1,28 @@
+# kdance 로컬 개발용 컨테이너.
+# 포트는 같은 머신의 다른 프로젝트와 충돌하지 않게 비켜 놓았다 (Postgres 5433, Redis 6380).
+#
+# 이미지 태그는 부동 태그(pg18)가 아니라 정확한 버전으로 고정한다 —
+# 부동 태그는 내용이 조용히 바뀌어서 "어제 되던 게 오늘 안 되는" 원인을 못 찾게 만든다.
+# 근거: docs/kdancex4_service_definition_and_tech_stack.md 11-1
+
 services:
   db:
-    image: pgvector/pgvector:pg18
+    image: pgvector/pgvector:0.8.6-pg18
     container_name: kdance-db
     restart: unless-stopped
     environment:
-      POSTGRES_USER: brad
-      POSTGRES_PASSWORD: 2131
-      POSTGRES_DB: kdance_DB
+      # backend/.env 의 DATABASE_URL 과 반드시 같아야 한다.
+      # 비밀번호는 infra/.env 로 덮어쓸 수 있다 (infra/.env.example 참고).
+      POSTGRES_USER: kdance
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-kdance}
+      POSTGRES_DB: kdance
     ports:
       - "5433:5432"
     volumes:
       - kdance-db-data:/var/lib/postgresql
     healthcheck:
+      # 위 POSTGRES_USER/DB 와 같은 값이어야 한다. 어긋나 있으면
+      # pg_isready 가 서버 응답만 보고 통과시켜서 불일치를 놓친다.
       test: ["CMD-SHELL", "pg_isready -U kdance -d kdance"]
       interval: 5s
       timeout: 3s
