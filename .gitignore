@@ -46,3 +46,7 @@ _workspace/mobydick-v2-schedule.html
 
 # humanize-korean 스킬 run 디렉터리 (YYYY-MM-DD-NNN 형식 — 윤문 중간 산출물)
 _workspace/20[0-9][0-9]-[0-1][0-9]-[0-3][0-9]-[0-9][0-9][0-9]/
+
+# 진행 리뷰 — 로컬 전용. 원격에 올리지 않는다(2026-09-20 결정)
+# 규칙은 core-rules.md 「진행 리뷰」에 있고, 파일 자체는 각자 로컬에서 이어 쓴다
+/docs/Review.md
