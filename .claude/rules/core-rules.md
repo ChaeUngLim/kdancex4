@@ -35,13 +35,13 @@
 
 **왜 이렇게 바꿨나 (2026-09-20 실측)** — 커밋 메시지 6건을 전부 에이전트로 돌린 결과 변경률이 0.0%·0.9%·1.3%·2.9%·3.7%·5.2%였다. 한 건은 고칠 게 하나도 없는 no-op였다. 초안을 규칙대로 쓰면 이미 대부분 걸러지기 때문이다. 반면 일부러 번역투를 심은 테스트(`risk_score` 1)는 13.3%가 나왔다 — **점수가 실제로 예측력이 있다.** 이 규칙이었다면 그날 8회 중 6회를 건너뛰어 약 55만 토큰이 남았다.
 
-**윤문하지 않는 것** — 코드 식별자, 수치·테스트 결과·명령어·파일 경로·고유명사, 코드 블록, frontmatter, 링크, 영어 원문. 스킬의 Do-NOT 대상이라 보통 변형되지 않지만 결과에서 한 번 더 확인한다.
+**윤문하지 않는 것** — 코드 식별자, 수치·테스트 결과·명령어·파일 경로·고유명사, 코드 블록, frontmatter, 링크, 영어 원문. **에이전트용 `.md` 문서(`_workspace/guides/SCH-XX(기능명).md`)도 제외한다** — 독자가 사람이 아니라 AI 에이전트이고, 문체보다 정확성이 우선이다. 스킬의 Do-NOT 대상이라 보통 변형되지 않지만 결과에서 한 번 더 확인한다.
 
 **의미 보존이 문체보다 우선한다.** 윤문 후 원문과 대조해 수치·사실·주장이 바뀌지 않았는지 확인하고, 바뀐 문장은 원문으로 되돌린다.
 
 ### 식별자·용어 표기 통일
 
-**번호나 코드만 단독으로 쓰지 않는다.** SCH·Task(`T1~`)·Phase·화면 ID 등 이 프로젝트가 쓰는 모든 식별자는 `식별자(핵심 기능)` 형태로 쓴다. 번호만으로는 그게 뭘 가리키는지 알 수 없어서, 문서를 처음 읽는 사람이 매번 정의부로 되돌아가야 한다.
+**번호나 코드만 단독으로 쓰지 않는다.** SCH·Task(`T1~`)·Phase·화면 ID·리스크(`R1~`)·미해결 질문(`Q1~`) 등 이 프로젝트가 쓰는 모든 식별자는 `식별자(핵심 기능)` 형태로 쓴다. 번호만으로는 그게 뭘 가리키는지 알 수 없어서, 문서를 처음 읽는 사람이 매번 정의부로 되돌아가야 한다.
 
 | 이렇게 쓰지 않는다 | 이렇게 쓴다 |
 |---|---|
@@ -49,6 +49,8 @@
 | `T3` | `T3(리다이렉트 브릿지 엔드포인트)` |
 | `Phase 9.5` | `Phase 9.5(학습 주석 재구성·SCH 가이드 생성)` |
 | `의존: T2~T5` | `의존: T2~T5(딥링크 생성 ~ 입금 확인 폴링)` |
+| `R2` | `R2(Prisma 8 트랜잭션·행 잠금 미검증)` |
+| `Q1` | `Q1(기존 backend 처리 방식)` |
 
 - 괄호 안 기능명은 그 식별자의 **공식 한 줄 설명**을 쓴다 — SCH는 `_workspace/kdance.html`, Task는 해당 문서의 헤딩에서 가져온다. 새로 지어내지 않는다. 길면 핵심만 줄이되, 같은 식별자는 프로젝트 전체에서 같은 축약을 쓴다.
 - **같은 섹션·같은 문단 안에서 반복**할 때는 번호만 써도 된다. 매번 괄호를 붙이면 오히려 읽기 어렵다. 새 섹션·새 파일·새 주석 블록에서는 다시 붙인다.
@@ -172,7 +174,7 @@ Harness(WORKFLOW)와 ECC(QUALITY) 둘 다 아래 MCP를 호출해 실제 작업�
 >    - **프론트엔드 3개는 폴백이 아니라 역할별 직접 호출**: 화면 구조·상태관리 등 판단이 필요한 작업 → `kiro/claude-sonnet-4.5`(월 50회 한도라 아무 데나 먼저 쓰지 않음); 실제 컴포넌트/UI 코드 작성 **및 비슷한 화면 다수·일괄 스타일 같은 대량 반복** → `zai/glm-4.7-flash`(기본값 겸 물량 담당 — 만료 없는 영구 무료라 프론트엔드에서 볼륨을 받아낼 수 있는 유일한 모델); `gemini/gemini-3.8-flash`는 **예비(비상용)** — 하루 20건뿐이라 대량 작업에 쓸 수 없고 GLM이 막혔을 때 중요한 몇 건에만 쓴다. 지정한 모델의 한도가 막혔을 때만 안전망 Combo `fe-fallback`(`kiro/claude-sonnet-4.5 → zai/glm-4.7-flash → gemini/gemini-3.8-flash`, Priority, 아직 미생성)으로 대체한다.
 >    - 3개월마다(다음: 2026-12-18) 클라우드 루틴이 이 구성의 최신성을 재검증한다 — 결과는 보고서만 남기고 자동 반영은 안 하므로, 다음 세션에서 사람이 확인 후 직접 반영한다.
 
-**전체 4계층**: 1) 핵심 조합 — Harness + ECC  2) 도구 계층 — 위 MCP 6종  3) UI 계층 — `frontend-design` + `ui-ux-pro-max` 스킬군(admin-web·mobile 화면 작업)  4) 왕초보 설명 계층 — SCH별 학습 주석(`beginner-comment-style.md`) + 왕초보 완벽분석가이드(`sch-guide-template.md`, `_workspace/guides/SCH-XX(기능명).html`) + MindPilot.
+**전체 4계층**: 1) 핵심 조합 — Harness + ECC  2) 도구 계층 — 위 MCP 6종  3) UI 계층 — `frontend-design` + `ui-ux-pro-max` 스킬군(admin-web·mobile 화면 작업)  4) 왕초보 설명 계층 — SCH별 학습 주석(`beginner-comment-style.md`) + 왕초보 완벽분석가이드(`sch-guide-template.md`, `_workspace/guides/SCH-XX(기능명).html`) + MindPilot  5) 에이전트 설명 계층 — 스택 개요(`docs/ai-coding-agent.html`) + SCH별 버전 맞춤 문서(`agent-sch-doc-template.md`, `_workspace/guides/SCH-XX(기능명).md`). 4번은 사람이, 5번은 에이전트가 읽는다.
 
 4번(왕초보 설명 계층)은 1~3번이 끝난 결과를 설명만 할 뿐, 의사결정에 관여하지 않는다 — Visual Guide Skill과 MindPilot은 Harness/ECC와 경쟁·대체 관계가 아니라 그 위에 얹는 부가 계층이다.
 
@@ -194,6 +196,74 @@ Harness(WORKFLOW)와 ECC(QUALITY) 둘 다 아래 MCP를 호출해 실제 작업�
   - **커밋 메시지는 「AI 티 제거」 절의 점수 분기를 그대로 따른다** — shim을 돌려 `risk_score` 0이면 에이전트를 부르지 않고 지목된 패턴만 직접 고친다. 실측상 커밋 본문은 거의 항상 0이 나온다(2026-09-20: 6건 중 6건).
 - 하나의 커밋에 여러 변경을 욱여넣지 않는다 — 커밋을 나누는 기준 자체가 "면접담당자가 커밋 로그만 훑어도 작업 흐름이 보이는가"다. 논리적 단위(기능/SCH/계층)로 나눠서 커밋한다.
 - Git 작업(커밋/푸시)은 여전히 **사용자가 명시적으로 요청할 때만** 수행한다 — 이 규칙은 "쓸 때의 문체"만 정하고 "언제 커밋할지"는 바꾸지 않는다.
+
+## 버전 정책 (2026-09-20 확정)
+
+**호환되는 선에서 최신을 쓴다.** "최신"과 "의존성 호환"이 충돌하면 **호환이 이긴다.**
+
+확정된 버전표는 `docs/kdancex4_service_definition_and_tech_stack.md` 의
+「11. 기술 스택 고정표」다. 버전을 말하거나 문서에 적을 때는 **거기를 먼저 본다.**
+
+### 버전을 추정하지 않는다
+
+기억으로 버전을 쓰지 않는다. 학습 시점 이후에 나온 버전이 항상 있다. 실제 파일이나
+레지스트리에서 읽는다.
+
+| 무엇 | 어디서 |
+|---|---|
+| 설치된 JS 패키지 | `admin-web/package.json` · `mobile/package.json` |
+| Expo 가 고정한 RN 버전 | `mobile/node_modules/expo/bundledNativeModules.json` |
+| npm 최신 | `npm view <pkg> version` · 라인 내 최신은 `npm view <pkg>@<major.minor> version` |
+| 안정판 vs RC 구분 | `npm view <pkg> dist-tags` — `latest` 가 RC 를 가리키는 경우가 있다 |
+| 호환 범위 | `npm view <pkg>@<ver> peerDependencies` |
+| DB·컨테이너 | `infra/docker-compose.yml` 의 이미지 태그 |
+
+### 실측으로 확인한 함정 2가지
+
+- **패키지 이름이 바뀌기도 한다.** Prisma 8 의 런타임은 `@prisma/client` 가 아니라
+  `@prisma/orm-postgres` 다. 옛 이름만 조회하고 "해당 버전이 없다"고 결론짓지 않는다.
+  없다고 판단하기 전에 그 메이저가 패키지를 재편했는지 확인한다.
+- **`optional: true` 는 "아무 버전이나"가 아니다.** "없어도 된다"는 뜻일 뿐이라, 그 패키지가
+  실제로 설치돼 있으면 npm 이 범위를 검사해 `ERESOLVE` 로 **설치를 막는다.** 실측: prisma 8 이
+  깔린 상태에서 `npm install better-auth@1.7.5` 가 거부됐다(peer `^5 || ^6 || ^7`).
+  `--legacy-peer-deps` 는 peer 검증을 통째로 끄므로 쓰지 않는다. `package.json` 의
+  `overrides` 로 해당 항목 하나만 덮어쓴다 — 예: `"overrides": {"better-auth": {"prisma": "$prisma"}}`.
+  기록이 `package.json` 에 남아 다른 PC·CI 에서도 동작한다.
+
+### 올리기 전에
+
+1. 그 패키지를 고정하는 상위 패키지가 있는지 먼저 본다(Expo · 프레임워크 · 메타패키지).
+2. `peerDependencies` 로 표 안의 다른 항목과 충돌하는지 본다.
+3. 메이저가 올라가면 패키지 이름·API 재편 여부를 확인한다.
+4. 깨져 있는 검증선과 겹치지 않게 순서를 나눈다 — 한 번에 둘을 건드리면 원인 분리가 안 된다.
+5. 올린 뒤 실제로 돌려 본다. 레지스트리 조회만으로 "된다"고 하지 않는다.
+
+**미검증 항목은 미검증이라고 적는다.** 확정표의 「11-2. 알려진 위험」에 상태를 남긴다.
+
+### 에이전트용 버전 맞춤 문서
+
+에이전트의 학습 데이터에는 구버전 API 가 들어 있다. 적어 두지 않으면 우리 코드를 옛
+방식으로 되돌린다 — Prisma 8 의 계약 기반 접근을 `new PrismaClient()` 로, AI SDK 7 의
+agent 루프를 6 구조로, `@prisma/orm-postgres` 를 `@prisma/client` 오타로 보고 "고친다".
+
+Next.js 16.3 이 `node_modules/next/dist/docs/` 와 `AGENTS.md` 를 깔아 주는 이유가 같다 —
+에이전트가 학습 데이터 대신 **설치된 버전의 문서**를 읽게 만드는 것. 같은 방식을 이
+프로젝트 소스에 적용한다.
+
+| 문서 | 무엇 |
+|---|---|
+| `docs/ai-coding-agent.html` | 스택 전체 개요. 최신에서만 되는 것, 그 대가, 버전 확인 방법. 항목마다 **실측 / 미검증** 을 표시한다 |
+| `.claude/skills/kdance-dev-harness/references/agent-sch-doc-template.md` | SCH 단위 `.md` 문서 표준. 산출물은 `_workspace/guides/SCH-XX(기능명).md` |
+
+- 스택·버전이 걸린 작업 전에 `docs/ai-coding-agent.html` 을 먼저 본다. 버전 **값**의
+  원본은 「11. 기술 스택 고정표」이고, 이 문서는 **왜 그 값인지와 실측 근거**를 담는다.
+  값을 두 곳에 복제하지 않는다 — 복제하면 반드시 어긋난다.
+- SCH 문서는 셋이 짝이다: 소스 안 학습 주석(`beginner-comment-style.md`) · 사람용 HTML
+  가이드(`sch-guide-template.md`) · 에이전트용 `.md`(`agent-sch-doc-template.md`).
+  앞의 둘은 **모르는 독자**를 가르치고, 셋째는 **잘못 아는 독자**를 교정한다. 셋의
+  사실관계가 어긋나면 셋 다 못 믿게 되므로, 사실은 같고 서술 대상만 다르게 쓴다.
+- 에이전트용 `.md` 의 핵심 절은 「쓰면 안 되는 것」이다. 에이전트에게는 "무엇을 하라"보다
+  "무엇을 하지 말라"가 효과가 크다 — 잘못된 사전 지식이 기본값으로 깔려 있기 때문이다.
 
 ## Investigation & Accuracy
 - Never speculate about code you have not read. Read files and ripgrep for usages before making claims

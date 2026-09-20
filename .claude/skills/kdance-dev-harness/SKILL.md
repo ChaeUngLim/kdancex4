@@ -1,6 +1,6 @@
 ---
 name: kdance-dev-harness
-description: kdance 프로젝트(FastAPI backend / React admin-web / Expo mobile)에서 기능 구현, 버그 수정, 리팩터링 등 코드 변경이 걸린 작업을 요구사항 분석→기존 코드 구조 확인→구현 계획→Task 분리→구현→테스트→오류 수정→코드 리뷰→완료 검증의 9단계 파이프라인으로 오케스트레이션한다. "기능 만들어줘", "구현해줘", "버그 고쳐줘", "이거 개발해줘" 같은 코드 변경 요청 시 반드시 이 스킬을 사용한다. 후속 작업(이어서 진행, 재실행, Phase 5만 다시, 리뷰 지적 반영해서 다시, 테스트 실패 수정, 이전 결과 기반으로 계속) 요청에도 반드시 이 스킬을 사용한다. 단순 질문/설명/파일 하나 읽어달라는 요청에는 사용하지 않는다.
+description: kdance 프로젝트(FastAPI backend / React+Next.js admin-web / Expo+React Native mobile)에서 기능 구현, 버그 수정, 리팩터링 등 코드 변경이 걸린 작업을 요구사항 분석→기존 코드 구조 확인→구현 계획→Task 분리→구현→테스트→오류 수정→코드 리뷰→완료 검증의 9단계 파이프라인으로 오케스트레이션한다. "기능 만들어줘", "구현해줘", "버그 고쳐줘", "이거 개발해줘" 같은 코드 변경 요청 시 반드시 이 스킬을 사용한다. 후속 작업(이어서 진행, 재실행, Phase 5만 다시, 리뷰 지적 반영해서 다시, 테스트 실패 수정, 이전 결과 기반으로 계속) 요청에도 반드시 이 스킬을 사용한다. 단순 질문/설명/파일 하나 읽어달라는 요청에는 사용하지 않는다.
 ---
 
 # kdance 개발 하네스 오케스트레이터
@@ -24,7 +24,7 @@ kdance 프로젝트의 코드 변경 작업을 9단계 파이프라인으로 조
 | 7 오류 수정 | kdance-bug-fixer | `kdance-bug-fixer` | `ecc:build-fix`, `ecc:react-build-resolver` (디버깅) | `07_bug-fixer_fixes.md` |
 | 8 코드 리뷰 | kdance-code-reviewer | `kdance-code-reviewer` | `code-review`, `ecc:fastapi-reviewer`/`react-reviewer`/`typescript-reviewer`/`database-reviewer`/`security-reviewer` | `08_code-reviewer_review.md` |
 | 9 완료 검증 | kdance-completion-verifier | `kdance-completion-verifier` | `run`, `ecc:verification-loop` | `09_completion-verifier_report.md` |
-| 9.5 학습 주석 재구성 + SCH 가이드 생성 (SCH 완료 시) | kdance-implementer (재사용) | `kdance-implementer` | `references/beginner-comment-style.md`, `references/sch-guide-template.md`, "다른 SCH와의 연관관계" 절에 플로우 다이어그램이 필요하면 `mcp__mindpilot__*`(절차는 core-rules.md) | 변경 파일에 학습 주석 반영 + `_workspace/guides/SCH-{번호}({기능명}).html` 신규 + `kdance.html` SCH 완료·가이드 링크 갱신 |
+| 9.5 학습 주석 재구성 + SCH 가이드 생성 (SCH 완료 시) | kdance-implementer (재사용) | `kdance-implementer` | `references/beginner-comment-style.md`, `references/sch-guide-template.md`, `references/agent-sch-doc-template.md`, "다른 SCH와의 연관관계" 절에 플로우 다이어그램이 필요하면 `mcp__mindpilot__*`(절차는 core-rules.md) | 변경 파일에 학습 주석 반영 + `_workspace/guides/SCH-{번호}({기능명}).html` 신규 + **`_workspace/guides/SCH-{번호}({기능명}).md`(에이전트용) 신규** + `kdance.html` SCH 완료·가이드 링크 갱신 |
 
 Git 작업(커밋/브랜치)은 오케스트레이터(리더)가 사용자 승인 후 직접 수행한다(core-rules.md: 공유 상태 변경은 확인 후) — `ecc:git-workflow` 스킬 참고. 리팩터링은 Phase 8 지적을 Phase 7이 반영하거나, 범위가 크면 사용자에게 별도 `ecc:refactor-clean` 실행 여부를 확인한다.
 
@@ -62,12 +62,13 @@ Git 작업(커밋/브랜치)은 오케스트레이터(리더)가 사용자 승�
 `kdance-completion-verifier` 호출. `INCOMPLETE`면 미충족 기준을 사용자에게 보고하고 Phase 5(구현)/7(오류 수정) 재진입 여부를 확인한다. `COMPLETE`면 아래 "Phase 9.5(학습 주석 재구성·SCH 가이드 생성)"로.
 
 ### Phase 9.5: 학습 주석 재구성 + 왕초보 완벽분석가이드 생성 (SCH 완료 시)
-`references/beginner-comment-style.md`(소스 내 학습 주석) + `references/sch-guide-template.md`(SCH별 HTML 가이드) 참고. 이번 작업이 `_workspace/kdance.html`의 SCH 항목에 대응하는 경우에만 수행한다(SCH 미부여 작업이면 생략하고 사용자에게 그 사실을 보고한 뒤 "정리"로 진행).
+`references/beginner-comment-style.md`(소스 내 학습 주석) + `references/sch-guide-template.md`(사람용 SCH HTML 가이드) + `references/agent-sch-doc-template.md`(에이전트용 SCH `.md` 문서) 참고 — 세 산출물을 같은 호출에서 만든다. 이번 작업이 `_workspace/kdance.html`의 SCH 항목에 대응하는 경우에만 수행한다(SCH 미부여 작업이면 생략하고 사용자에게 그 사실을 보고한 뒤 "정리"로 진행).
 
 1. Phase 5 산출물(`05_implementer_*_summary.md`), Phase 6/8/9 산출물에서 이번 SCH가 건드린 파일·이슈·테스트 결과·인계 사항을 취합한다.
 2. `kdance-implementer`를 "주석 재구성" 태스크로 재호출한다 — 입력은 변경 파일 목록 + 두 참고 문서 경로. 이 한 번의 호출로 두 가지를 만든다:
    - 로직 변경 금지, 주석만 추가/수정(`beginner-comment-style.md`). 이미 처리된 SCH 마커(`# 학습 주석: SCH-XX 반영`)가 있는 파일은 건드리지 않는다.
    - `_workspace/guides/SCH-{번호}({기능명}).html` 신규 생성(`sch-guide-template.md`의 7개 섹션 구성 그대로) — 이슈/원인파악/해결/테스트 결과/다른 SCH와의 연관관계를 포함한다.
+   - `_workspace/guides/SCH-{번호}({기능명}).md` 신규 생성(`agent-sch-doc-template.md`의 9개 절 구성 그대로) — 독자가 AI 에이전트다. 「쓰면 안 되는 것」 절(학습 데이터 함정)이 핵심이며, 버전은 `package.json`·`node_modules` 실측값을 쓴다. 이 문서는 윤문(humanize) 대상이 아니다.
 3. `kdance-test-runner`로 관련 테스트만 가볍게 재실행해 그린 유지를 확인한다. 실패하면 로직이 바뀐 것이므로 Phase 7로 되돌린다(예외적 재진입).
 4. `_workspace/kdance.html`에서 해당 SCH 항목을 "완료"로 갱신하고, 그 `.item` 블록에 새 가이드로 연결되는 `가이드 보기` 링크를 추가한다.
 
