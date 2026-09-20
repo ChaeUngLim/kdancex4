@@ -61,7 +61,7 @@
 
 ### 1.7 관리자 웹
 
-- FR-70: 관리자 콘솔은 모바일 앱과 별도의 데스크톱 웹(React+Vite), 같은 FastAPI 백엔드를 공유하되 배포·심사 주기 분리 (`social-dance-app-dev-guide.html`)
+- FR-70: 관리자 콘솔은 모바일 앱과 별도의 데스크톱 웹(React+Next.js), 같은 FastAPI 백엔드를 공유하되 배포·심사 주기 분리 (`social-dance-app-dev-guide.html`)
 - FR-71: 스케줄 등록과 동일한 입력 폼을 파티/공연/대회(뉴스피드), 공지(텍스트만, `bookable` 없음) 3종 콘텐츠가 재사용, 예약 연결 여부만 분기 (`social-dance-app-dev-guide.html`)
 
 ### 1.8 모바일 앱 (소비자)

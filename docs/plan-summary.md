@@ -21,7 +21,7 @@
 | 회원(수강생) | 소셜댄스를 배우려는 일반 사용자. 대학생 세그먼트는 별도 요금제 대상 | 회원가입, 검색, 학원 상세, 결제, 캘린더, 길찾기, 뉴스피드, 공지, 마이/구독 | `kdance-screens-spec.html` |
 | 학원 관리자(원장) | 스케줄 등록·정산을 담당하는 스튜디오 운영자. 모바일이 아닌 데스크톱 웹 콘솔 사용자 | 스케줄 입력, 미리보기, 정산 대시보드, 공지 작성 | `social-dance-app-dev-guide.html`, `kdance-screens-spec.html` |
 
-관리자(학원) 화면은 의도적으로 모바일 앱에 넣지 않는다 — 여러 필드 입력·표 비교 작업은 데스크톱이 편해서 관리자 콘솔은 같은 백엔드를 보는 별도 웹(React+Vite)으로 분리한다. (출처: `social-dance-app-dev-guide.html`, 2026-09-14 Android 단일 확정에 따라 Apple 심사 관련 근거는 제거)
+관리자(학원) 화면은 의도적으로 모바일 앱에 넣지 않는다 — 여러 필드 입력·표 비교 작업은 데스크톱이 편해서 관리자 콘솔은 같은 백엔드를 보는 별도 웹(React+Next.js)으로 분리한다. (출처: `social-dance-app-dev-guide.html`, 2026-09-14 Android 단일 확정에 따라 Apple 심사 관련 근거는 제거)
 
 ## 3. 핵심 가치 제안 / 문제 정의
 
@@ -101,7 +101,7 @@ Google Play 개발자 등록(최초 1회 $25) 대신 **갤럭시 스토어(Galax
 ### 8.1 확정 스택 (현재 코드베이스에 반영됨, `CLAUDE.md` 기준)
 
 - 백엔드: FastAPI + SQLAlchemy2 + Alembic + psycopg3 (uv, Python 3.12)
-- 관리자 웹: React + Vite + TS
+- 관리자 웹: React + Next.js + TS
 - 모바일: Expo SDK 57 + React Native + TS
 - DB: PostgreSQL 18 + pgvector, 로컬 컨테이너 `kdance-db`(포트 5433)
 - Redis: 로컬 컨테이너 `kdance-redis`(포트 6380) — 스케줄러 잡큐, 쿠폰 중복방지 락 용도로 예정, 아직 미사용

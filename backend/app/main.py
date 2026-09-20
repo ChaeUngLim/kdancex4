@@ -29,15 +29,13 @@ from app.routers import admin_academies, reservations
 
 app = FastAPI(title="kdance")
 
-#: 브라우저에서 API를 호출하는 출처. admin-web은 Next.js(기본 3000)로 옮겨졌지만
-#: Vite 개발 서버(5173)로 띄우는 구성이 아직 남아 있어 둘 다 허용한다.
-#: 모바일(Expo)은 브라우저가 아니라 CORS 대상이 아니다.
+#: 브라우저에서 API를 호출하는 출처. admin-web은 Next.js 개발 서버(기본 3000)뿐이다.
+#: 모바일(Expo/React Native)은 브라우저가 아니라 CORS 대상이 아니다.
 #:
 #: 와일드카드(``*``)를 쓰지 않는다. 이 API는 ``X-User-Id`` 헤더 하나로 신원을
 #: 주장하므로(F7), 아무 페이지나 호출할 수 있게 열어두면 임시 인증의 구멍이 그대로
 #: 브라우저로 노출된다. 배포 출처가 생기면 **설정으로 빼서** 여기에 더한다.
 ALLOWED_ORIGINS = [
-    "http://localhost:5173",
     "http://localhost:3000",
 ]
 

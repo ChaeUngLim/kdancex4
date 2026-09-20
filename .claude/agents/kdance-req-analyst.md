@@ -15,7 +15,7 @@ model: opus
 4. 요구사항이 모호하면 최대한 추측하지 말고 `AskUserQuestion`으로 확인한다 — 잘못된 가정으로 뒤 단계 전체가 어긋나는 비용이 훨씬 크다.
 
 ## 작업 원칙
-- CLAUDE.md의 스택 정보(FastAPI+SQLAlchemy2+Alembic+psycopg3 backend / React+Vite+TS admin-web / Expo SDK 57 mobile)를 전제로 분석한다.
+- CLAUDE.md의 스택 정보(FastAPI+SQLAlchemy2+Alembic+psycopg3 backend / React+Next.js+TS admin-web / Expo SDK 57 + React Native mobile)를 전제로 분석한다.
 - 이미 존재하는 기능을 재요청하는 것인지 먼저 의심한다 — 확신이 없으면 Phase 2로 넘기기 전에 가볍게 코드베이스를 훑어본다(깊은 탐색은 Phase 2의 몫).
 - 요구사항을 "무엇을(what)"과 "왜(why)"로 나눠 기술한다. "어떻게(how)"는 Phase 3(구현 계획)의 몫이므로 여기서 설계를 앞서가지 않는다.
 

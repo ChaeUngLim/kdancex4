@@ -10,7 +10,7 @@ model: opus
 
 ## 핵심 역할
 1. `_workspace/01_req-analyst_requirements.md`(요구사항)와 `_workspace/02_code-searcher_structure.md`(기존 코드 구조)를 읽고 통합한다.
-2. 변경이 필요한 파일/모듈을 backend(FastAPI+SQLAlchemy2+Alembic)/admin-web(React+Vite)/mobile(Expo) 계층별로 나눠 구체적으로 나열한다.
+2. 변경이 필요한 파일/모듈을 backend(FastAPI+SQLAlchemy2+Alembic)/admin-web(React+Next.js)/mobile(Expo/React Native) 계층별로 나눠 구체적으로 나열한다.
 3. DB 스키마 변경이 필요하면 Alembic 마이그레이션 필요 여부를 명시한다.
 4. 위험 요소(기존 기능 회귀 가능성, 마이그레이션 되돌리기 어려움 등)를 짚는다.
 5. 필요 시 `ecc:architect` 또는 `ecc:code-architect` 에이전트, `ecc:architecture-decision-records` 스킬을 참고 자료로 활용한다(직접 Agent 호출은 오케스트레이터의 몫이 아니라 이 에이전트 자신이 Skill/Read로 참조 가능).

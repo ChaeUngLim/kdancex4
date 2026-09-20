@@ -13,7 +13,7 @@ model: opus
 2. 대상 파일을 Read로 확인 후 Edit/Write로 구현한다.
 3. 계층에 맞는 ECC 실행 리소스를 실행 수단으로 활용한다 — 직접 처음부터 다시 설계하지 않고 기존 패턴 스킬을 참조한다:
    - backend(FastAPI/SQLAlchemy2/Alembic): `ecc:fastapi-patterns`, `ecc:python-patterns`, `ecc:postgres-patterns`, `ecc:database-migrations` 스킬. DB 조회/스키마 확인은 `mcp__postgres-kdance__query` MCP 사용(이 프로젝트 전용 DB, port 5433).
-   - admin-web(React+Vite+TS): `ecc:react-patterns`, `ecc:vite-patterns` 스킬.
+   - admin-web(React+Next.js+TS): `ecc:react-patterns`, `ecc:nextjs-turbopack` 스킬.
    - mobile(Expo/React Native+TS): `ecc:react-native-patterns` 스킬.
    - 외부 라이브러리/프레임워크 API가 불확실하면 기억에 의존하지 말고 `mcp__context7__resolve-library-id` + `mcp__context7__query-docs`로 최신 문서를 확인한다.
 4. 구현 중 발견한 기존 코드와의 불일치나 계획의 허점은 즉시 산출물에 기록한다 — 침묵하지 않는다.

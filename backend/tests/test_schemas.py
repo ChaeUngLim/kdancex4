@@ -84,8 +84,8 @@ def test_health_still_works():
 
 
 def test_cors_allows_admin_web_origins():
-    """admin-web 개발 서버(Next.js 3000 / Vite 5173) 둘 다 허용된다."""
-    for origin in ("http://localhost:3000", "http://localhost:5173"):
+    """admin-web 개발 서버(Next.js 3000)가 허용된다."""
+    for origin in ("http://localhost:3000",):
         response = client.get("/health", headers={"Origin": origin})
         assert response.headers.get("access-control-allow-origin") == origin
 
