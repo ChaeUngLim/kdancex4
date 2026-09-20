@@ -1,648 +1,694 @@
-# Phase 2 — 코드베이스 구조 조사 (예약 취소 환불 로직)
+# Phase 2(기존 코드 구조 확인) — FastAPI → Next.js + Prisma 8 전환 코드 조사
 
-조사일: 2026-09-14 / 브랜치 `main` / HEAD `48f048d`
-조사 범위: backend, alembic, admin-web, mobile, infra, docs, 로컬 DB
-
-**한 줄 결론:** Phase 1 요약("backend에 도메인 코드 사실상 없음")은 정확하다. 직접 확인 결과 `backend/`의 `.py` 파일은 `.venv` 제외 5개뿐이고, SQLAlchemy 모델·라우터·세션 코드가 **문자 단위로 0건**이다. 이번 수직 슬라이스는 사실상 그린필드다.
-
----
-
-## 1. `backend/` 프로젝트 구조
-
-### 1.1 실제 파일 목록 (`.venv`, `__pycache__` 제외)
-
-```
-backend/
-├── pyproject.toml
-├── uv.lock
-├── alembic.ini
-├── .python-version          # "3.12"
-├── .env / .env.example      # DATABASE_URL 한 줄뿐
-├── README.md                # 0 바이트 (빈 파일)
-├── alembic/
-│   ├── env.py
-│   ├── README
-│   ├── script.py.mako
-│   └── versions/.gitkeep    # 리비전 0건
-├── app/
-│   ├── __init__.py          # 0 바이트
-│   └── main.py              # 8줄
-└── tests/
-    ├── __init__.py          # 0 바이트
-    └── test_health.py       # 11줄
-```
-
-전체 `.py` 파일: `alembic/env.py`, `app/__init__.py`, `app/main.py`, `tests/__init__.py`, `tests/test_health.py`. **끝.**
-
-도메인 코드 부재 교차검증 — 다음 패턴으로 `backend/` 전체(`.venv` 제외)를 훑었고 **매치 0건**이다:
-`DeclarativeBase` / `declarative_base` / `Mapped[` / `mapped_column` / `APIRouter` / `sessionmaker` / `create_engine` / `relationship(`
-
-즉 모델 레이어, 라우터 분리, DB 세션 관리 중 **어느 것도 존재하지 않는다.** `app/main.py`가 `FastAPI()` 인스턴스를 직접 들고 데코레이터로 엔드포인트를 직접 다는 단일 파일 구조다.
-
-### 1.2 `pyproject.toml` (`backend/pyproject.toml:1-22`)
-
-```toml
-requires-python = ">=3.12"
-dependencies = [
-    "alembic>=1.20.0",        # :11
-    "fastapi>=0.141.1",       # :12
-    "psycopg[binary]>=3.3.5", # :13
-    "python-dotenv>=1.2.3",   # :14
-    "sqlalchemy>=2",          # :15
-]
-[dependency-groups]
-dev = ["httpx>=0.28.1", "pytest>=9.1.1"]   # :19-21
-```
-
-`.venv`에 **실제 설치된** 버전 (`importlib.metadata` 직접 조회):
-
-| 패키지 | 버전 | 비고 |
-|---|---|---|
-| fastapi | 0.141.1 | |
-| starlette | 1.6.0 | |
-| sqlalchemy | 2.0.52 | 2.x 계열 확정 (`Mapped[]` / `mapped_column` 스타일 사용 가능) |
-| alembic | 1.20.0 | |
-| psycopg | 3.3.5 | psycopg3, binary 익스트라 |
-| **pydantic** | **2.13.5** | ⚠️ **`pyproject.toml`에 선언 안 됨 — fastapi 통해 들어온 전이 의존성** |
-| pydantic-core | 2.46.5 | |
-| python-dotenv | 1.2.3 | |
-| pytest | 9.1.1 | |
-| httpx | 0.28.1 | TestClient 구동용 |
-| greenlet | 3.5.5 | SQLAlchemy 동기/asyncio 브리지 |
-| anyio | 4.15.1 | |
-
-**미설치 (Phase 3에서 `uv add` 필요할 수 있는 것들):**
-
-| 패키지 | 상태 | 이번 작업 관련성 |
-|---|---|---|
-| `uvicorn` | ❌ | `fastapi`를 `[standard]` 없이 bare로 깔아서 ASGI 서버가 없다. `.venv/bin/fastapi` 바이너리는 있으나 `fastapi dev` 실행 불가. `.superpowers/sdd/2026-09-13-kdance-scaffold/task-3-report.md:53`에 이 사실이 이미 기록돼 있다(“pytest evidence is the binding verification”). |
-| `redis` | ❌ | **FR-42 슬롯 락 구현 시 필수** |
-| `pytest-asyncio` | ❌ | async 엔드포인트/세션 테스트하려면 필요 |
-| `asyncpg` | ❌ | 현재 DSN이 `postgresql+psycopg://`라 동기 psycopg3 전제. async 갈 거면 psycopg async 사용 가능(별도 설치 불필요) |
-| `apscheduler` | ❌ | 개발 가이드에서 "신규"로 잡아둔 항목 (가이드 `:325-329`) |
-
-### 1.3 없는 것 — 컨벤션 판단에 중요
-
-- **`conftest.py` 없음** (파일 목록에 부재). 테스트 픽스처/DB 격리 장치가 전무.
-- **`[tool.pytest.ini_options]` 없음** — `pyproject.toml`에 `[tool.*]` 섹션 자체가 0개. pytest는 rootdir 기준 기본 동작에 의존.
-- **린터/포매터 없음** — backend에 ruff/black/mypy 설정 전무. (admin-web만 oxlint 있음)
-- **설정(Settings) 모듈 없음** — `pydantic-settings` 미설치. 환경변수는 `alembic/env.py`에서만 `os.environ.get`으로 읽는다.
-- **`app/` 하위 서브패키지 0개** — `models/`, `routers/`, `schemas/`, `services/`, `db/` 전부 없음.
-
-### 1.4 빌드·테스트 명령 컨벤션 (`.superpowers/sdd/2026-09-13-kdance-scaffold/*.md`에서 확인)
-
-CLAUDE.md의 "Build, Test & Verify" 섹션이 비어 있어서, 스캐폴드 작업 기록에서 실제 사용된 명령을 추출했다:
-
-```bash
-cd backend && uv run pytest tests/test_health.py -v
-cd backend && uv run alembic current
-cd backend && uv run alembic revision --autogenerate -m "..."
-cd backend && uv run alembic upgrade head
-cd backend && uv add <pkg>          # 런타임 의존성
-cd backend && uv add --dev <pkg>    # 개발 의존성
-cd admin-web && npm run build
-cd admin-web && npm run dev
-```
-
-**모델을 어디에 둘지 판단 근거:** 기존 컨벤션이 사실상 없다. `app/` 패키지가 있고 `app.main:app`이 진입점이라는 것만 확정. 따라서 Phase 3가 레이아웃을 새로 정해야 하며, 그 결정을 제약하는 기존 코드는 없다. (§9 권고 참조)
+작성: 2026-09-20 · 담당: code-searcher
+입력: `_workspace/00_input/request.md` · `_workspace/01_req-analyst_requirements.md` · `docs/ai-coding-agent.html`
+탐색 범위: `backend/`(읽기 전용, 수정 없음) · `admin-web/`
+근거 원칙: 실제 파일을 읽고 `파일:줄`로 댄다. 읽지 않은 것은 "못 찾았다"로 적는다.
 
 ---
 
-## 2. `backend/alembic/` 설정 상태
+## 0. 결론 먼저
 
-### 2.1 `alembic.ini`
+| 항목 | 결론 | 확신도 |
+|---|---|---|
+| **R2(Prisma 8 트랜잭션·행 잠금 미검증) — 트랜잭션** | **지원함.** `db.transaction(fn)` 콜백형. 커밋/롤백 자동 | High (설치본 `.d.mts` + 런타임 `.mjs` 직접 확인) |
+| **R2(Prisma 8 트랜잭션·행 잠금 미검증) — 행 잠금(`FOR UPDATE`)** | **빌더 API 없음. raw SQL 로 우회 가능** — 그리고 그 raw 플랜을 트랜잭션 안에서 실행할 수 있다 | High (타입 호환성까지 확인) |
+| **R2(Prisma 8 트랜잭션·행 잠금 미검증) — 중첩 트랜잭션(SAVEPOINT)** | **없다.** 설치본 전체에 `SAVEPOINT` 문자열이 없다 | High (전 패키지 grep) |
+| **R2(Prisma 8 트랜잭션·행 잠금 미검증) — 격리수준·타임아웃 옵션** | **없다.** `transaction()` 이 옵션 인자를 받지 않고, 런타임은 맨 `BEGIN` 만 보낸다 | High |
+| **R3(부분 유니크 인덱스 PSL 표현 미검증) — 부분 유니크 인덱스** | **지원함.** PSL `@@index([...], where: "...", unique: true, name: "...")` | High (PSL 스펙 타입 + 마이그레이션 op 타입 양쪽 확인) |
+| **R3(부분 유니크 인덱스 PSL 표현 미검증) — CHECK 제약** | **지원함.** PSL `@@check(expression:, name:/map:)` + 마이그레이션 `addCheckConstraint` | High |
+| **추가 발견 — 서버리스 façade** | `postgresServerless()` 는 **`transaction()` 과 `orm` 을 의도적으로 빼놓았다.** Vercel Edge 런타임을 쓰면 취소 트랜잭션이 아예 불가능 | High |
 
-- `backend/alembic.ini:8` — `script_location = %(here)s/alembic`
-- `backend/alembic.ini:21` — `prepend_sys_path = .` (→ `backend/`를 sys.path에 넣으므로 `from app.models import ...` 임포트가 env.py에서 동작함)
-- `backend/alembic.ini:75` — `path_separator = os`
-- `backend/alembic.ini:89` — `sqlalchemy.url = driver://user:pass@localhost/dbname` ← **플레이스홀더 그대로**. env.py가 런타임에 덮어쓴다.
-- `:117-149` — 기본 로깅 설정. 커스터마이즈 없음.
-- `:92-113` — `[post_write_hooks]` 전부 주석 처리 (ruff/black 훅 미적용)
+**Phase 3(구현 계획)이 가장 먼저 결정해야 할 것**: 취소 오케스트레이션의 행 잠금을 `tx.query(db.raw.sql\`... FOR UPDATE\`.returnsRow(...).build())` 로 옮기고, SAVEPOINT 가 없으므로 **멱등 INSERT 충돌 복구 경로를 재설계**한다(§2.4).
 
-### 2.2 `alembic/env.py` — 스캐폴드에서 2군데만 수정됨
+---
+
+## 1. 1순위 (a) — `services/cancellation.py` 트랜잭션 경계 해부
+
+파일: `/home/user/kdance/backend/app/services/cancellation.py` (1,069줄)
+
+### 1.1 트랜잭션은 어디서 시작해 어디서 끝나는가
+
+**시작 지점이 코드에 없다.** 세션은 FastAPI 의존성이 만들어 넘긴다:
+
+- `/home/user/kdance/backend/app/db.py:52-58` — `get_db()` 가 요청마다 `SessionLocal()` 을 열고 `finally: db.close()` 로 닫는다.
+- `/home/user/kdance/backend/app/db.py:39-47` — `sessionmaker(autoflush=False, autocommit=False, expire_on_commit=False)`.
+  `autocommit=False` 이므로 SQLAlchemy 가 첫 쿼리에서 암묵적으로 트랜잭션을 연다. 즉 **트랜잭션의 실질적 시작점은 `_lock_reservation()` 의 첫 SELECT** 다.
+- `/home/user/kdance/backend/app/routers/reservations.py:142-152` — 라우터가 `session` 을 주입받아 `cancel_reservation(session, ...)` 에 그대로 넘긴다.
+
+**끝나는 지점은 세 곳이다** — 이게 중요하다. "함수 하나 = 트랜잭션 하나"라는 파일 상단 주석(`cancellation.py:600-603`)과 달리, 실제 커밋 지점은 3개다.
+
+| # | 위치 | 상황 | 커밋 후 동작 |
+|---|---|---|---|
+| C1 | `cancellation.py:807` | 카드 결제 등 **미지원 결제수단**. 실패 행을 확정하고 커밋 | 커밋 후 `_notify(REFUND_FAILED)` → `UnsupportedRefundMethodError(422)` 를 던진다 |
+| C2 | `cancellation.py:885` | 정상 경로(성공·대기·PG실패 전부) | 커밋 후 슬롯락 해제 + 알림 |
+| C3 | (없음) | 3단계 멱등 재생 / 6단계 유니크 충돌 | **커밋하지 않고 return** — `get_db()` 의 `close()` 가 암묵 롤백 |
+
+C1 의 존재가 전환에서 놓치기 쉽다. 라우터 주석(`reservations.py:186-187`)이 이미 짚어 두었다: "서비스가 이미 실패 사유를 DB에 커밋한 뒤 던지므로 롤백할 것이 없다." **Prisma 8 의 `db.transaction(fn)` 은 콜백이 throw 하면 무조건 롤백한다** — 이 구조를 그대로 옮기면 실패 기록이 사라진다. 트랜잭션을 먼저 정상 반환으로 닫고 그 바깥에서 422 를 던지도록 바꿔야 한다.
+
+### 1.2 `SELECT ... FOR UPDATE` — 어디에 왜 거는가
+
+- 거는 곳은 **한 곳뿐**: `/home/user/kdance/backend/app/services/cancellation.py:398-407`
 
 ```python
-# backend/alembic/env.py:8-12
-import os
-from dotenv import load_dotenv
-load_dotenv()
-
-# backend/alembic/env.py:18-24
-config.set_main_option(
-    "sqlalchemy.url",
-    os.environ.get(
-        "DATABASE_URL",
-        "postgresql+psycopg://kdance:kdance@localhost:5433/kdance",
-    ),
-)
-
-# backend/alembic/env.py:35
-target_metadata = None          # ⚠️ 여기가 핵심
+def _lock_reservation(session: Session, reservation_id: uuid.UUID) -> Reservation:
+    return session.execute(
+        select(Reservation).where(Reservation.id == reservation_id).with_for_update()
+    ).scalar_one_or_none()
 ```
 
-**`target_metadata = None` (`backend/alembic/env.py:35`)** — 이 상태에서는 `alembic revision --autogenerate`가 **빈 마이그레이션을 뱉는다.** 모델을 만든 직후 이 줄을 `Base.metadata`로 바꾸는 것이 Phase 3의 **첫 번째 필수 작업**이다. 이걸 빼먹으면 모델을 아무리 잘 만들어도 테이블이 안 생긴다.
+- 호출은 `cancellation.py:645` — `cancel_reservation()` 의 **1단계, 다른 무엇보다 먼저**.
+- 이유는 `cancellation.py:401-404` 주석에 있다: 동시 취소 요청 2건 중 하나가 여기서 대기하고, 풀렸을 때는 앞선 요청이 이미 `Refund` 를 만든 뒤라 뒤 요청은 멱등 재생 경로(3단계)로 빠진다.
+- `preview_cancellation()`(`cancellation.py:504`)은 잠그지 않는다 — 순수 조회다.
+- 잠금 대상은 `reservations` 행 하나다. `class_schedules` 는 잠그지 않고 대신 조건부 UPDATE 로 처리한다(§1.4).
 
-나머지 `run_migrations_offline` (`:43-64`) / `run_migrations_online` (`:67-86`)은 alembic 기본 템플릿 그대로다. 동기 엔진(`engine_from_config` + `pool.NullPool`) 전제.
+### 1.3 커밋 전 / 커밋 후
 
-### 2.3 `versions/` — 리비전 0건 (확정)
+**커밋 전 (C2 기준, 1~9단계 — `cancellation.py:645-884`)**
 
-```
-backend/alembic/versions/
-└── .gitkeep     (0 바이트, 유일한 파일)
-```
+1. 행 잠금 (`:645`)
+2. 소유권 검증 → 403 (`:650-652`)
+3. **멱등 재생 검사** (`:662-685`) — 상태 전이 검증보다 **앞**. 순서를 바꾸면 중복 요청이 409 로 튕겨 수용 기준이 깨진다(`:663-665` 주석)
+4. 상태 전이 검증 → 409 (`:688-698`)
+5. 결제 원거래 조회 + `calculate_refund()` (`:701-711`)
+6. `Refund` INSERT — SAVEPOINT 로 감싼 flush (`:713-758`)
+7. `refund_events` 요청 이벤트 INSERT (`:760-779`)
+8. PG 환불 호출 (`:781-812`)
+9. 결과 반영 — 성공이면 `reservation.status='cancelled'`, `orders.status='refunded'`, `reserved_count -= 1`, 감사 이벤트 2건 (`:815-880`)
+10. `session.commit()` (`:885`)
 
-`.superpowers/.../task-4-report.md`에도 "리비전 없음, 모델 없음"으로 기록돼 있고 `alembic current`가 클린하게 돌았다고 남아 있다. 즉 이번에 만들 마이그레이션이 **`down_revision = None`인 최초 리비전**이 된다.
+**커밋 후 (11단계 — `cancellation.py:887-895`)**
 
-### 2.4 `script.py.mako`
+- `_release_slot_lock()` (`:979-1007`) — Redis 슬롯락 해제. **반환값을 의도적으로 버리고 예외도 삼킨다.**
+- `_notify_outcome()` (`:1038-1069`) → `_notify()` (`:1009-1036`) — 회원·학원 관리자 **2방향**. 각각 try/except 로 감싸 한쪽 실패가 다른 쪽을 막지 않는다.
 
-`backend/alembic/script.py.mako:15-18` — alembic 1.20 기본 템플릿. `revision: str`, `down_revision: Union[str, Sequence[str], None]` 타입 어노테이션 포함. 수정 없음.
+순서 근거는 파일 상단 `cancellation.py:20-23` 에 명시돼 있다. 롤백될지 모르는 트랜잭션을 근거로 "취소됐습니다"를 보내면 안 되고, 캐시·푸시 장애가 확정된 환불을 되돌려서도 안 된다.
 
----
+**전환 시 함의**: Prisma 8 의 `db.transaction(fn)` 은 콜백 경계가 곧 트랜잭션 경계다. 슬롯락 해제·알림은 **콜백 바깥**으로 빼야 한다. 콜백의 반환값이 그대로 통과하므로(`references/queries-postgres.md:359`) `outcome` 을 반환하고 바깥에서 부수효과를 실행하는 형태가 자연스럽다.
 
-## 3. `app/main.py` · `tests/test_health.py` 실제 코드
+### 1.4 멱등성 방어는 몇 겹인가
 
-### 3.1 `backend/app/main.py` (전문, 8줄)
+**3겹이고 권위는 DB 하나다** (`cancellation.py:26-39` 주석).
+
+| 겹 | 장치 | 위치 | 성격 |
+|---|---|---|---|
+| 1 | 부분 유니크 인덱스 `UNIQUE (reservation_id) WHERE status <> 'failed'` | `/home/user/kdance/backend/alembic/versions/0001_initial_domain.py:305-311` | **구조적 권위.** 이게 없으면 이중 환불이 가능 |
+| 2 | `refunds.idempotency_key` UNIQUE | `0001_initial_domain.py:298` (`uq_refunds_idempotency_key`) | 헤더를 안 보내는 클라이언트도 막힌다 |
+| 3 | `SELECT ... FOR UPDATE` | `cancellation.py:398-407` | 정상 경로에서 1·2 겹이 **안 보이게** 해 주는 층. 성능/UX 층이지 권위가 아니다 |
+
+**보조 장치 — 결정적 멱등 키**: `build_idempotency_key()` (`cancellation.py:362-385`). 헤더가 없으면 `sha256("cancel:" + reservation_id)` 로 예약당 항상 같은 키를 만든다. 접두사 `IDEMPOTENCY_KEY_PREFIX = "cancel:"` 는 고정값이다(`cancellation.py:175`).
+
+**충돌 복구 경로 — 여기가 전환의 진짜 난점**:
 
 ```python
-from fastapi import FastAPI
-
-app = FastAPI(title="kdance")
-
-
-@app.get("/health")
-def health() -> dict[str, str]:
-    return {"status": "ok"}
+# cancellation.py:732-734
+with session.begin_nested():      # ← SAVEPOINT
+    session.add(refund)
+    session.flush()
+except IntegrityError:            # :735
+    ...
+    winner = _find_active_refund(...) or _find_refund_by_idempotency_key(...)
+    return _outcome_from_refund(winner, ..., replayed=True)   # :755-758
 ```
 
-읽히는 패턴:
-- `app = FastAPI(title="kdance")` — 팩토리 함수(`create_app()`) 아님, **모듈 레벨 싱글턴**
-- 라우트를 `main.py`에 데코레이터로 직접 부착 — `APIRouter` 미사용
-- **동기 함수** (`def`, `async def` 아님)
-- **반환 타입 어노테이션 사용** (`-> dict[str, str]`), PEP 585 내장 제네릭 (3.12)
-- `response_model` 미지정, Pydantic 스키마 미사용
+SAVEPOINT 를 쓰는 이유가 `cancellation.py:728-731` 에 명시돼 있다 — **바깥 트랜잭션 전체를 롤백하면 1단계의 `FOR UPDATE` 잠금까지 풀려서 경합이 다시 열린다.** Prisma 8 에 SAVEPOINT 가 없으므로(§2.3) 이 경로는 재설계가 필요하다.
 
-→ 새 API를 추가할 때 이 파일에 계속 붙일지, `APIRouter`로 분리하고 `app.include_router()` 할지는 열려 있다. 취소 API 하나만 봐도 예약·주문·결제·환불 4개 리소스가 엮이므로 라우터 분리가 합리적이다(§9).
-
-### 3.2 `backend/tests/test_health.py` (전문, 11줄)
+**정원 복구는 잠금이 아니라 조건부 UPDATE** — `cancellation.py:956-977`:
 
 ```python
-from fastapi.testclient import TestClient
-
-from app.main import app
-
-client = TestClient(app)
-
-
-def test_health_returns_ok():
-    response = client.get("/health")
-    assert response.status_code == 200
-    assert response.json() == {"status": "ok"}
+update(ClassSchedule).where(id == ...).where(reserved_count > 0)
+    .values(reserved_count=ClassSchedule.reserved_count - 1)
 ```
 
-읽히는 패턴:
-- `from app.main import app` — 절대 임포트. `backend/`가 rootdir이어야 동작 (§1.4의 `cd backend && uv run pytest`와 일치)
-- **모듈 레벨 `TestClient(app)`** — 픽스처 없음
-- 테스트 함수명 `test_<대상>_<기대결과>` 형태 (`test_health_returns_ok`)
-- 클래스 그루핑 없음, 파라미터라이즈 없음, 마커 없음
-- **DB를 전혀 건드리지 않는다** — 그래서 DB 없이도 통과한다
+읽고-고쳐-쓰기를 피해 한 문장으로 감소시키고, `reserved_count > 0` 조건으로 CHECK 제약 위반 대신 0행 갱신이 되게 했다. `rowcount != 1` 이면 경고만 남기고 환불은 그대로 진행한다.
 
-⚠️ **Phase 3가 반드시 풀어야 할 문제:** 취소/환불 테스트는 DB가 필요하다. 현재 `conftest.py`도, 테스트 DB 격리 전략(트랜잭션 롤백 / 스키마 분리 / SQLite 대체)도, `get_db` 의존성 오버라이드 훅도 **하나도 없다.** 이건 새로 설계해야 하는 항목이며, 기존 `test_health.py` 패턴은 여기에 아무 답을 주지 않는다.
+### 1.5 PG 실패 / pending 처리
+
+- **PG 실패 시 예약을 취소하지 않는다** (`cancellation.py:816-826`, 근거 주석 `:41-46`): 환불 실패인데 좌석까지 없애면 회원이 자리도 돈도 잃는다. `failed` 는 부분 유니크 인덱스 밖이라 그대로 재시도 가능.
+- **`pending` 은 실패가 아니다** (`:47-53`): 가상계좌 환불은 별도 송금이라 즉시 완결되지 않는다. `pending` 에서도 좌석은 반납되고 예약은 취소 확정된다. `refunded_amount` 는 0 으로 둔다(`_apply_success`, `:914-929`).
+- 실패도 **예외가 아니라 결과**다 — `CancellationOutcome.is_failed`(`:319-326`). 실패 사유를 DB 에 남긴 커밋이 예외로 날아가면 안 되기 때문.
 
 ---
 
-## 4. `docs/social-dance-app-dev-guide.html` — API 계약 조사
+## 2. 1순위 (b) — 설치된 Prisma 8 의 트랜잭션·행 잠금·raw SQL
 
-### 4.1 결론부터: 취소·환불 계약은 **문서에 없다**
+근거는 전부 **설치본**이다. 경로 기준: `/home/user/kdance/admin-web/node_modules/@prisma/`
+버전: `@prisma/orm-postgres@8.0.0-rc.11` (`orm-postgres/package.json:3`), CLI `prisma@8.0.0-rc.15` (`admin-web/package.json:41`)
 
-`docs/social-dance-app-dev-guide.html` (49,872 바이트) 전문을 파싱해 키워드 빈도를 센 결과:
+> 부수 발견: 이 패키지는 `skills/prisma-8/` 디렉터리를 동봉한다(`orm-postgres/package.json:9-12`, 17,865줄). `SKILL.md` + `references/{runtime,queries-postgres,contract,migrations,...}.md` 로, **Prisma 팀이 직접 쓴 에이전트용 레퍼런스**다. 웹 문서 대신 이걸 근거로 쓸 수 있다. Phase 3(구현 계획)·Phase 5(구현)는 여기를 먼저 읽어야 한다.
 
-| 키워드 | 히트 수 |
-|---|---|
-| `취소` | **0** |
-| `환불` | **0** |
-| `Refund` | **0** |
-| `Reservation` | **0** |
-| `FR-` (모든 FR 코드) | **0** |
-| `예약` | 19 |
-| `정원` | 5 |
-| `슬롯` | 1 |
-| `Redis` | 2 |
-| `Push` | 2 |
+### 2.1 클라이언트 생성 — `new PrismaClient()` 가 없는 것이 맞다
 
-**즉 이 파일에서 취소/환불 API 계약을 가져올 수 없다.** 그리고 **FR-42/FR-43/FR-92는 이 파일에 없다** — 아래 §4.4 참조.
+`orm-postgres/dist/postgres-CBDyBUe9-Dg4ZOUYS.d.mts:122-130`:
 
-### 4.2 화면↔API 매핑표 (`docs/social-dance-app-dev-guide.html:769-816`)
-
-문서화된 유일한 API 목록이다. **엔드포인트 경로만 있고 request/response 필드 스키마는 어디에도 없다.**
-
-| # | 화면 | API | 모델 | 우선순위 | 라인 |
-|---|---|---|---|---|---|
-| 01 | 회원가입·대학생 인증 | `POST /auth/verify-phone`, `POST /auth/verify-student` | `User.student_verified_at` | MVP | `:781-783` |
-| 02 | 홈 — 카테고리 검색 | `GET /academies?genre&region&day` | 카카오 Local + pgvector | 2단계 | `:784-786` |
-| 03 | 학원 상세 | `GET /academies/{id}` | `Academy`, `ClassSchedule` | MVP | `:787-789` |
-| 04 | **체크아웃·결제** | **`POST /orders`** (정가−대학생할인−쿠폰 계산 → PG 호출) | **`Order`** | MVP | `:790-792` |
-| 05 | 캘린더·알람 | `GET /me/schedule` | expo-notifications + APScheduler | 2단계 | `:793-795` |
-| 06 | 길찾기 | 카카오 Local 경로 API 프록시 | — | 3단계 | `:796-797` |
-| 07 | 뉴스피드 | `GET /events?type=party\|performance\|competition` | `Event(bookable:bool)` | 2단계 | `:798-800` |
-| 08 | 학원 공지 | `GET·POST /academies/{id}/notices` | `Notice` | 2단계 | `:801-803` |
-| 09 | 마이·구독 관리 | `GET /me/subscription`, `GET /me/coupons` | `Subscription`, `Coupon` | 4단계 | `:804-806` |
-| 10 | 관리자·스케줄 입력 | `POST /admin/schedules` | `ClassSchedule` | MVP | `:807-809` |
-| 11 | 관리자·미리보기 | `GET /admin/schedules/{id}/preview` | — | MVP | `:810-813` |
-| 12 | 관리자·정산 대시보드 | `GET /admin/settlements` | — | MVP(기본)/4단계(쿠폰) | `:814-816` |
-
-### 4.3 ⚠️ 네이밍 충돌 — Phase 3가 결정해야 함
-
-**기존 설계에는 `Reservation`이라는 개념이 없다.** 결제 흐름의 주체는 `Order`다 (`:791`, 화면 04 "체크아웃 · 결제 ★"). 반면 Phase 1 요구사항은 `POST /reservations/{id}/cancel`을 예상하고 있다.
-
-선택지는 둘:
-1. **`POST /orders/{id}/cancel`** — 기존 문서의 `POST /orders`(`:791`)와 리소스 일관. 문서 정합성 ✅
-2. **`Reservation`을 새로 도입** — `Order`(돈)와 `Reservation`(자리)을 분리. 개념적으로 더 깔끔하지만 문서에 근거 없음
-
-`:462-465`가 힌트를 준다: 게시 시 "**같은 트랜잭션에서 예약 가능 슬롯과 결제 상품이 함께 생성된다**" — 즉 "예약 슬롯"과 "결제 상품"을 원래부터 **별개 개념으로 본다.** 이건 2번(분리)을 지지하는 근거다. 다만 명시적 모델명은 없다.
-
-→ **Phase 3에서 명시적으로 결정하고 근거를 남겨야 할 항목.** 결정하지 않고 코딩하면 이후 화면 04 연동 때 충돌한다.
-
-### 4.4 FR-42 / FR-43 / FR-92 — 실제 출처는 다른 파일
-
-개발 가이드가 아니라 **`docs/requirements-analysis.md`**에 있다:
-
-- **FR-42** (`docs/requirements-analysis.md:48`)
-  > 가상계좌 발급 시점에 해당 슬롯을 Redis 락으로 잠그고, 입금 확인 시 확정·기한 초과 시 해제. 동일 슬롯에 복수 가상계좌가 발급된 경우 먼저 입금 확인된 주문만 확정 (`payment-method-policy.md`)
-
-- **FR-43** (`docs/requirements-analysis.md:49`)
-  > PG 웹훅(`payment.completed`) 수신 시 구매자·학원 관리자 양쪽에 즉시 앱 내 알림(Expo Push) 발송 — SMS는 사용하지 않음 (`payment-method-policy.md`, FR-90과 연계)
-
-- **FR-92** (`docs/requirements-analysis.md:79`)
-  > 결제 확인 알림은 SMS가 아니라 Expo Push 기반 앱 내 팝업으로 구현 — 무료 API 우선 원칙에 따른 결정 (2026-09-14). **관리자 웹 쪽 실시간 알림 전달 방식(폴링/WebSocket/SSE)은 미정**
-
-관련 근거가 `docs/payment-method-policy.md:38`에도 있다:
-> 같은 슬롯에 여러 명이 동시에 가상계좌를 발급받았다가 한 명만 입금한 경우, **먼저 입금 확인된 주문이 슬롯을 확정**하고 나머지는 자동 취소 처리한다.
-
-### 4.5 🔑 환불 정책 원문 — `docs/kdance-screens-spec.html`에 있다
-
-**개발 가이드가 아니라 화면 명세서에 있다.** 이게 "Academy 환불 비율표 설정 필드"의 실제 근거다.
-
-`docs/kdance-screens-spec.html:502-506` (이용약관 핵심 요약 > 결제·환불):
-```
-수업 시작 24시간 전 취소 — 전액 환불
-24시간 이내 취소 — 학원 정책에 따름 (학원 상세 페이지에 명시)
-플랫폼은 통신판매중개자 — 학원과 회원 간 계약을 중개함을 결제 화면에 고지
+```ts
+declare function postgres<TContract extends Contract<SqlStorage>>(
+  options: PostgresOptionsWithContractJson<TContract>
+): PostgresClient<TContract>;
+// - Emitted: postgres<Contract>({ contractJson, url })
 ```
 
-동일 내용이 **FR-22**로 정리돼 있다 (`docs/requirements-analysis.md:31`).
+- import 경로는 `@prisma/orm-postgres/runtime` 의 **default export** 다 (`orm-postgres/dist/runtime.d.mts:17` — `postgres as default`).
+- 바인딩은 `url` / `pg`(기존 `pg.Pool`·`Client`) / `binding` **셋 중 하나만** (`postgres-...d.mts:24-36`, 상호 배타).
+- 풀 튜닝은 `poolOptions.connectionTimeoutMillis` · `idleTimeoutMillis` **둘뿐**이다 (`:102-105`). max 커넥션 수는 노출되지 않는다 — 필요하면 `pg.Pool` 을 직접 만들어 `pg:` 로 넘긴다(`skills/prisma-8/references/runtime.md:345`).
 
-체크아웃 화면에도 동의 항목이 이미 있다 — `docs/kdance-screens-spec.html:290`:
-> "주문 내용과 취소·환불 정책에 동의합니다"
+**주의 — 문서와 설치본의 import 경로가 다르다.** 동봉 스킬 문서는 `@internal/postgres/runtime` 을 쓰라고 한다(`references/runtime.md:29-30`). `@internal/postgres` 는 `prisma orm init` 이 스캐폴딩하는 **façade 패키지**이고(`references/quickstart.md:35`), **지금 `admin-web/node_modules` 에 없다**(확인함). Phase 3 은 둘 중 하나를 정해야 한다:
+- (a) `prisma orm init --target postgres --authoring psl` 을 돌려 façade 를 깔고 문서대로 `@internal/postgres/runtime` 을 쓴다 — 문서와 일치, 권장
+- (b) 설치본 `@prisma/orm-postgres/runtime` 을 직접 import 한다 — 지금 당장 되지만 문서 예제와 어긋난다
 
-**환불액 산정 로직 설계에 직접 쓰이는 규칙:**
-- 수업 시작 24시간 **초과** 전 취소 → 환불율 **100%** (플랫폼 고정 규칙)
-- 수업 시작 24시간 **이내** 취소 → **학원별 설정값** ← 여기가 `Academy` 환불 비율표 필드가 필요한 지점
-- 그 비율표는 **학원 상세 페이지에 노출**되어야 한다 (= `GET /academies/{id}` 응답에 포함돼야 함)
+### 2.2 트랜잭션 — **지원함**
 
-⚠️ `_workspace/01_req-analyst_requirements.md:55`가 지적한 갭이 여기서 확인된다 — `payment-method-policy.md`에 **환불 서술이 전무**하고, 가상계좌 환불(계좌 입력 필요)과 카드 승인취소는 구조가 다르다. 가짜 PG 어댑터 인터페이스를 설계할 때 이 둘을 구분할지 결정해야 한다.
+타입: `orm-postgres/dist/postgres-CBDyBUe9-Dg4ZOUYS.d.mts:93`
 
-### 4.6 Redis 용도 (개발 가이드 원문)
-
-`docs/social-dance-app-dev-guide.html:554-557`:
-> **Redis** — 신규
-> APScheduler 잡 큐, 그리고 "첫 이용자 50% 할인" 중복 사용 방지용 **단기 락(lock)**에 사용.
-
-`:937-940`:
-> 배치·캐시 — APScheduler · Redis — 둘 다 오픈소스, Docker 셀프호스팅. 완전 무료
-
-→ 가이드는 Redis 락을 "할인 중복 방지"용으로만 적어뒀다. **FR-42의 "슬롯 락"은 `requirements-analysis.md`에서 추가된 용도**이고, 두 용도가 같은 Redis 인스턴스를 공유한다. 키 네임스페이스 설계 필요.
-
-### 4.7 알림 (Expo Push) 원문
-
-`docs/social-dance-app-dev-guide.html:943-947`:
-> 푸시 알림 — **Expo Push / FCM** — 완전 무료.
-> "1일 전 점심 1회·1시간 전 선택 알람"은 **APScheduler가 발송 트리거를 만들고 Expo Push가 무료로 전달** — 추가 비용 없음
-
-`:325-329`:
-> **APScheduler** — 신규. 정산 배치, 대학생 무료체험 만료, 수업 전 알람 발송처럼 "정해진 시각에 한 번" 도는 작업이 셋이나 생겨서 필요.
-
-→ 환불 알림은 **즉시 발송**(스케줄 아님)이므로 APScheduler 없이 Expo Push 직접 호출로 충분하다. APScheduler 도입을 이번 슬라이스에 끌어들일 필요 없음.
-
-### 4.8 PG 어댑터 — 가짜 어댑터가 정당한 이유
-
-`docs/social-dance-app-dev-guide.html:315-321`:
-> **결제대행(PG) 클라이언트** — 신규.
-> 포트원(아임포트) 또는 토스페이먼츠. 선정 기준 둘 — "**하위 가맹점 정산 분배**"와 "**정기결제(빌링키)**" 둘 다 지원 여부 — 학원 대신 받고 수수료를 뗀 나머지를 보내는 구조에, 월 구독까지 겹쳐서 일반 결제 연동보다 요구사항이 많다.
-
-**PG사가 아직 미선정이다.** 따라서 가짜 어댑터(Protocol/ABC + Fake 구현)로 가는 것이 문서상 근거가 확실하다. 실제 SDK를 고르는 순간 되돌리기 비싼 결정이 된다.
-
-### 4.9 정원(capacity) — 슬롯 복구의 대상
-
-`docs/social-dance-app-dev-guide.html:470-473`:
-> ⚠ 가격·**정원**은 검토 단계에서 반드시 확인.
-> 가격·정원처럼 되돌리기 어려운 필드를 OCR이 잘못 추출한 채 그대로 게시하면 실제 예약·결제가 잘못된 조건으로 열린다 — 버그가 아니라 **돈 사고**다.
-
-`:488-491` 표: 수업 스케줄은 "예약·결제: **있음** — 정원·가격 검토 필수"
-
-→ `ClassSchedule`에 `capacity`(정원) 필드가 있어야 하고, **"슬롯 복구" = 해당 스케줄의 잔여 정원 +1**이다. 화면에도 이미 노출 중 — `docs/kdance-screens-spec.html:272` "정원 대비 신청 인원(8/12)을 보여줘 마감 임박을 유도한다".
-
----
-
-## 5. `infra/docker-compose.yml` — Redis 구성
-
-`infra/docker-compose.yml` 전문(33줄) 확인. **Redis는 이미 정의돼 있다.**
-
-```yaml
-# infra/docker-compose.yml:20-30
-  redis:
-    image: redis:alpine          # :21
-    container_name: kdance-redis # :22
-    restart: unless-stopped      # :23
-    ports:
-      - "6380:6379"              # :25  ← 호스트 6380
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]  # :27
-      interval: 5s
-      timeout: 3s
-      retries: 5
+```ts
+transaction<R>(fn: (tx: PostgresTransactionContext<TContract>) => PromiseLike<R>): Promise<R>;
 ```
 
-DB 쪽 (`:2-18`): `pgvector/pgvector:pg18`, 컨테이너 `kdance-db`, 포트 **`5433:5432`**, user/pw/db 전부 `kdance`, 볼륨 `kdance-db-data`.
+`PostgresTransactionContext` 가 가진 것 (`:76-81`):
 
-### Phase 3가 알아야 할 것
-
-| 항목 | 상태 |
-|---|---|
-| Redis 호스트 포트 | **6380** (표준 6379 아님 — mobydick과의 충돌 회피 추정) |
-| 접속 URL | `redis://localhost:6380/0` |
-| 비밀번호 | 없음 (`requirepass` 미설정) |
-| 영속성 | ❌ **볼륨 없음** — 컨테이너 재시작 시 전부 날아감. 슬롯 락 같은 단기 TTL 데이터에는 문제없으나, 락이 "유일한 진실"이 되면 안 된다는 뜻이다. 정원 잔여수는 반드시 **DB가 source of truth**여야 한다. |
-| ⚠️ `REDIS_URL` 환경변수 | **`backend/.env`·`.env.example`에 없다.** 현재 `DATABASE_URL` 한 줄뿐(`backend/.env.example:1`). Phase 3에서 두 파일 모두에 추가해야 한다. |
-| ⚠️ `redis` 파이썬 패키지 | **미설치.** `cd backend && uv add redis` 필요. |
-
----
-
-## 6. `admin-web/` 구조
-
-### 6.1 실제 파일
-
-```
-admin-web/
-├── package.json, vite.config.ts, index.html
-├── tsconfig.json / tsconfig.app.json / tsconfig.node.json
-├── .oxlintrc.json
-├── public/{favicon.svg, icons.svg}
-└── src/
-    ├── main.tsx        # 10줄
-    ├── App.tsx         # 21줄
-    ├── index.css, App.css
-    └── assets/{hero.png, react.svg, vite.svg}
-```
-
-`src/` 하위에 **디렉터리가 `assets/` 하나뿐이다.** `pages/`, `components/`, `api/`, `hooks/`, `routes/` 전부 없음.
-
-### 6.2 의존성 (`admin-web/package.json:12-24`)
-
-```json
-"dependencies":   { "react": "^19.2.8", "react-dom": "^19.2.8" }
-"devDependencies": { "@types/node": "^24.13.3", "@types/react": "^19.2.18",
-                     "@types/react-dom": "^19.2.7", "@vitejs/plugin-react": "^6.1.1",
-                     "oxlint": "^1.81.0", "typescript": "~6.0.2", "vite": "^8.3.0" }
-```
-
-**런타임 의존성이 react + react-dom **딱 둘**이다.**
-
-| 라이브러리 | 상태 | Academy 설정 화면 영향 |
-|---|---|---|
-| 라우터 (`react-router`, `@tanstack/router`) | ❌ **없음** | 설정 화면을 별도 URL로 만들려면 라우터 도입이 선행 과제 |
-| 상태관리 (`zustand`, `redux`, `jotai`) | ❌ **없음** | `useState`로 충분한 규모 |
-| 데이터 페칭 (`@tanstack/react-query`, `swr`) | ❌ **없음** | 현재 생 `fetch` + `useEffect` |
-| UI 라이브러리 (MUI, shadcn, Tailwind) | ❌ **없음** | 순수 CSS |
-| 폼 (`react-hook-form`) | ❌ **없음** | 환불 비율표 입력 폼을 수동 구현하거나 도입 |
-| 테스트 (vitest, testing-library) | ❌ **없음** | admin-web에 테스트 인프라 자체가 없음 |
-
-스크립트 (`:6-11`): `dev`(vite) / `build`(`tsc -b && vite build`) / `lint`(oxlint) / `preview`.
-
-### 6.3 `src/App.tsx` (전문, `admin-web/src/App.tsx:1-21`)
-
-```tsx
-import { useEffect, useState } from "react";
-
-function App() {
-  const [status, setStatus] = useState<string>("확인 중...");
-
-  useEffect(() => {
-    fetch("http://localhost:8000/health")   // :7  ← 하드코딩
-      .then((res) => res.json())
-      .then((data) => setStatus(data.status))
-      .catch(() => setStatus("백엔드 연결 실패"));
-  }, []);
-
-  return (
-    <main>
-      <h1>kdance 관리자 콘솔</h1>
-      <p>백엔드 상태: {status}</p>
-    </main>
-  );
+```ts
+interface PostgresTransactionContext<TContract> extends TransactionContext {
+  readonly sql: Db<TContract>;
+  readonly orm: OrmClient<TContract>;
+  readonly enums / nativeEnums;
 }
-
-export default App;
 ```
 
-- 백엔드 URL이 **`admin-web/src/App.tsx:7`에 하드코딩**돼 있다. `.env`/`import.meta.env` 미사용. API 클라이언트 모듈 없음.
-- UI 텍스트는 **한국어**.
-- `main.tsx:6-9` — `StrictMode` + `createRoot`, 라우터 래핑 없음.
-- `tsconfig.app.json:20-23` — `noUnusedLocals`, `noUnusedParameters`, `erasableSyntaxOnly`, `noFallthroughCasesInSwitch` 활성. **`strict`는 명시돼 있지 않다.**
-- `.oxlintrc.json:4-7` — `react/rules-of-hooks: error`, `react/only-export-components: warn`
+그리고 `TransactionContext extends RuntimeQueryable extends RuntimeScope`
+(`orm-family-sql/dist/prepared-statement-9QpkE6JG-B9xqBu5T.d.mts:381-384`), `RuntimeScope` 는
+(`orm-family-sql/dist/types-CyxGtOOh-BJnoWm0f.d.mts:29-32`):
 
-**Academy 설정 화면 배치 판단:** 라우터가 없으므로 선택지는 (a) 라우터 도입 후 `/settings/refund-policy` 같은 경로, (b) `App.tsx`에 탭/조건부 렌더링으로 임시 배치. 이번 수직 슬라이스의 "최소" 성격을 고려하면 (b)가 맞지만, 화면 12개가 예정된 프로젝트라 (a)를 언제 할지는 Phase 3가 판단할 것.
+```ts
+interface RuntimeScope {
+  query<Row>(plan: SqlOrmPlan<Row>, options?): AsyncIterableResult<Row>;
+  execute(plan: SqlOrmPlan, options?): Promise<SqlStatementStats>;
+}
+```
+
+- 커밋/롤백: 콜백이 정상 반환하면 커밋, throw 하면 롤백 (`references/runtime.md:280`).
+- 콜백 반환값은 그대로 통과한다 (`references/queries-postgres.md:359`).
+- **`tx` 에 `raw` 가 없다.** `PostgresClient` 에는 `readonly raw: RawLane<TContract>` 가 있지만(`:87`) `PostgresTransactionContext` 에는 없다. 우회는 §2.5.
+
+### 2.3 트랜잭션의 한계 — 옵션 없음, SAVEPOINT 없음
+
+**(1) 격리수준·타임아웃·재시도 옵션이 없다.** `transaction<R>(fn)` 의 시그니처에 두 번째 인자가 아예 없다(`:93`). 런타임 구현도 맨 `BEGIN` 만 보낸다:
+
+`orm-target-postgres/dist/runtime-Di_BFzUC.mjs:365`
+```js
+await this.#connection.query("BEGIN").catch(rethrowNormalizedError);
+```
+
+`SET TRANSACTION ISOLATION LEVEL` 도, `statement_timeout` 설정도 없다. 격리수준이 필요하면 트랜잭션 안에서 raw SQL 로 `SET LOCAL ...` 을 직접 실행해야 한다. **이 방식은 이 프로젝트에서 돌려본 적이 없다 — 미검증으로 남긴다.**
+
+**(2) 중첩 트랜잭션 / SAVEPOINT 가 없다.**
+
+```
+grep -rn "SAVEPOINT" --include=*.mjs --include=*.d.mts /home/user/kdance/admin-web/node_modules/@prisma/
+→ 0건
+```
+
+`BEGIN` 문자열이 나오는 곳은 3군데뿐이고(`orm-target-postgres/dist/control-BF220oqr.mjs:383`, `runtime-Di_BFzUC.mjs:287,365`) 전부 최상위 트랜잭션이다. 커서 스트리밍용 `BEGIN`(`:287`)은 `inExplicitTransaction()` 으로 중첩을 **피하도록** 짜여 있다(`:283-286`) — 즉 중첩을 지원하는 게 아니라 회피한다.
+
+**이것이 `cancellation.py:732` 의 `session.begin_nested()` 를 그대로 옮길 수 없다는 뜻이다.** Phase 3 이 대안을 정해야 한다:
+
+| 대안 | 방식 | 대가 |
+|---|---|---|
+| A. 선제 조회로 충돌을 사전 회피 | `FOR UPDATE` 로 잠근 뒤 활성 환불을 조회(3단계)하는 지금 로직에 의존. 잠금이 유효하면 INSERT 충돌은 사실상 발생하지 않는다 | 유니크 위반이 나면 트랜잭션 전체가 죽는다 — **방어가 3겹에서 2겹으로 준다** |
+| B. `INSERT ... ON CONFLICT DO NOTHING RETURNING` | raw SQL 로 충돌을 예외가 아닌 0행으로 받아 트랜잭션을 살린다. 0행이면 같은 트랜잭션 안에서 승자 행을 조회 | 부분 유니크 인덱스를 `ON CONFLICT` 대상으로 지정하는 문법 확인 필요(`ON CONFLICT (reservation_id) WHERE status <> 'failed'`) |
+| C. 트랜잭션 밖에서 재시도 | 충돌이 나면 전체 트랜잭션을 버리고 멱등 재생 경로로 재진입 | 재시도 루프가 늘고 PG 호출 중복 위험 |
+
+**분석자 의견: B안.** 빌더의 `insert().onConflict(...)` 지원 여부는 확인했다 — AST 레벨에 `InsertOnConflict`, `DoNothingConflictAction`, `DoUpdateSetConflictAction` 이 존재한다(`orm-family-sql/dist/relational-core.d.mts:13` export 목록). 다만 **부분 인덱스를 conflict target 으로 지정할 수 있는지는 확인하지 못했다.** raw SQL 이면 확실하다.
+
+**(3) 서버리스 façade 에는 트랜잭션이 아예 없다.** `orm-postgres/dist/serverless.d.mts:38-43`:
+
+> "the returned client deliberately omits `orm`, `runtime()`, and `transaction()`."
+
+`PostgresServerlessClient` 가 가진 것은 `sql`, `context`, `stack`, `contract`, `connect()` 뿐이다(`:10-18`). **배포 목표가 Vercel 이므로 이건 중요하다.** Next.js Route Handler 를 Node 런타임에서 돌리면 일반 `postgres()` façade 를 쓸 수 있지만, Edge 런타임(`export const runtime = 'edge'`)으로 넘어가는 순간 취소 트랜잭션이 불가능해진다. **취소·환불 경로는 Node 런타임으로 못박아야 한다.**
+
+### 2.4 행 잠금(`FOR UPDATE`) — **빌더 API 없음**
+
+전 패키지 검색 결과:
+
+```
+grep -rn "forUpdate|for_update|lockClause|skipLocked|nowait" --include=*.mjs --include=*.d.mts @prisma/
+→ 0건
+
+grep -rn -i "FOR UPDATE" --include=*.mjs --include=*.d.mts @prisma/
+→ 2건, 둘 다 RLS 정책 문서 주석 (orm-postgres/dist/contract-builder.{mjs:217,d.mts:110})
+  "Authors a `FOR UPDATE` policy (PSL `policy_update`)" — 행 잠금과 무관한 RLS `FOR UPDATE` 정책이다
+```
+
+`SelectQuery` 인터페이스(`orm-family-sql/dist/db-BhQdL6Za-DubRGJvv.d.mts:424~`)에도 잠금 메서드가 없다. 있는 것은 `where` / `orderBy` / `limit` / `offset` / `distinctOn` / `annotate` 계열뿐이다.
+
+**결론: 행 잠금을 표현하는 1급 수단이 Prisma 8 rc.11 에 없다.**
+
+### 2.5 raw SQL 우회 — **가능하다. 트랜잭션 안에서도 된다**
+
+이게 R2(Prisma 8 트랜잭션·행 잠금 미검증) 의 해답이다. 세 단계로 검증했다.
+
+**(1) raw 레인이 존재한다.** `orm-family-sql/dist/db-BhQdL6Za-DubRGJvv.d.mts:386-388`:
+
+```ts
+type RawLane<C extends TableProxyContract> = {
+  readonly sql: RawTagFor<C>;   // db.raw.sql`...`
+};
+```
+
+`PostgresClient.raw` 로 노출된다(`postgres-CBDyBUe9-Dg4ZOUYS.d.mts:87`).
+문서 확인: "Raw SQL is spelled `db.raw.sql`, not `db.sql.raw`" (`references/queries-postgres.md:415`).
+
+**(2) raw 빌더의 종단이 플랜을 만든다.** `orm-family-sql/dist/expression-mku9I7Ue.d.mts:203-215`:
+
+```ts
+interface RawRowQuery<Row, Refs> {
+  readonly returns: Refs;
+  buildAst(): RawQueryAst;
+  build(): SqlQueryPlan<Row>;      // ← 플랜
+}
+interface RawAffectedCountQuery { build(): SqlQueryPlan<AffectedCount>; }   // :235-237
+```
+
+**(3) 그 플랜을 `tx` 가 받는다.** `orm-family-sql/dist/types-CyxGtOOh-BJnoWm0f.d.mts:21`:
+
+```ts
+type SqlOrmPlan<Row = unknown> = SqlExecutionPlan<Row> | SqlQueryPlan<Row>;
+```
+
+`RuntimeScope.query(plan: SqlOrmPlan<Row>)` 가 `SqlQueryPlan` 을 받으므로, `tx.query(rawPlan)` 은 **타입 레벨에서 호환된다.**
+
+따라서 쓸 수 있는 형태는 이렇다 (아직 이 프로젝트에서 실행해 보지 않았다 — 타입 근거만):
+
+```ts
+const lockPlan = db.raw.sql`
+  SELECT id, user_id, order_id, class_schedule_id, status, cancelled_at
+  FROM reservations WHERE id = ${reservationId} FOR UPDATE
+`.returnsRow({ id: 'pg/uuid@1', user_id: 'pg/uuid@1', /* ... */ }).build();
+
+await db.transaction(async (tx) => {
+  const [reservation] = await tx.query(lockPlan);   // 행 잠금이 이 트랜잭션에 걸린다
+  // ... 나머지는 tx.orm / tx.sql
+});
+```
+
+**열려 있는 위험 (Phase 3 이 실측해야 한다)**
+1. `db.raw` 는 클라이언트 레인이지만 `.build()` 로 만든 **플랜은 순수 데이터**다. `tx.query()` 로 실행하면 그 트랜잭션의 커넥션을 쓴다 — 타입상 그렇고 문서(`references/queries-postgres.md:392` "Inside a transaction, `tx.query(plan)` / `tx.execute(plan)`")도 그렇게 말한다. **실제로 잠금이 그 트랜잭션에 걸리는지는 통합 테스트로 확인해야 한다.** 여기서 틀리면 멱등성 방어가 통째로 무너진다.
+2. 각 컬럼마다 코덱 id 를 손으로 선언해야 한다(`returnsRow`). 코덱 id 표기(`pg/uuid@1` 등)는 emit 된 `contract.d.ts` 에서 읽어야 한다 — **지금 추정으로 쓴 것이고 확인하지 않았다.**
+3. 캐시 미들웨어는 트랜잭션 안에서 자동 우회된다(`references/runtime.md:217`) — 이건 우리에게 유리하다.
+
+### 2.6 그 밖에 확인한 제약
+
+| 항목 | 상태 | 근거 |
+|---|---|---|
+| 배열형 배치(`$transaction([a, b])`) | **없다.** `db.transaction(async tx => ...)` 로 감싸라 | `references/queries.md:216` |
+| TypedSQL(`.sql` 파일 컴파일) | 없다 | `references/queries.md:214` |
+| `EXPLAIN` / 플랜 검사 | 없다. `db.raw.sql\`EXPLAIN ANALYZE ...\`` 로 우회 | `references/debug.md:129` |
+| 쿼리 로거 내장 | 없다. `afterQuery` 미들웨어 직접 작성 | `references/runtime.md:346` |
+| 읽기 복제본 라우팅 | 없다 | `references/runtime.md:344` |
+| `db.end()` | 없다. `await db.close()` | `references/runtime.md:133` |
+| `Temporal` 의존 | **Node 26.8.2+ 만 `globalThis.Temporal` 을 갖는다. Node 24 는 없다** — `Timestamptz` 컬럼 첫 읽기/쓰기에서 `RUNTIME.TEMPORAL_UNAVAILABLE` 로 죽는다 | `references/contract.md:119` |
+
+**마지막 항목이 새 리스크다.** 이 프로젝트의 런타임은 **Node 24.21.0**(`request.md`)이고, 도메인 모델은 `TIMESTAMP WITH TIME ZONE` 투성이다(`models/class_schedule.py:57`, `models/payment.py:51`, `models/reservation.py:63`, `models/base.py:32,37`). 두 가지 선택지뿐이다:
+- `import 'temporal-polyfill/full/global'` 을 첫 쿼리 전에 로드하고 `temporal-polyfill` 을 의존성에 추가
+- 컬럼을 `TimestamptzString(p)` 로 작성해 Postgres 텍스트를 그대로 받는다
+
+**Phase 3 이 반드시 결정해야 한다. 미해결 질문으로 올린다(§6 Q-new-1).**
 
 ---
 
-## 7. `mobile/` 구조
+## 3. 2순위 — R3(부분 유니크 인덱스 PSL 표현 미검증): 부분 유니크 인덱스의 PSL 표현
 
-### 7.1 실제 파일
+### 3.1 원본이 요구하는 것
+
+`/home/user/kdance/backend/alembic/versions/0001_initial_domain.py:305-311`:
+
+```python
+op.create_index(
+    "uq_refunds_reservation_id_active",
+    "refunds",
+    ["reservation_id"],
+    unique=True,
+    postgresql_where=sa.text("status <> 'failed'"),
+)
+```
+
+### 3.2 PSL 은 이걸 표현할 수 있다 — **지원함**
+
+**근거 1 — PSL 속성 스펙 타입** (`orm-family-sql/dist/contract-psl__attribute-specs.d.mts:20-30`):
+
+```ts
+readonly index: () => AttributeSpec<{
+  fields?: string[];
+  readonly expression?: string;
+  readonly where?: string;       // ← 부분 인덱스 술어
+  readonly unique?: boolean;     // ← 유니크
+  readonly name?: string;
+  readonly map?: string;
+  readonly type?: string;
+  readonly options?: Record<string, string>;
+}, ModelAttributeCtx>;
+```
+
+**근거 2 — TS 빌더 옵션 타입** (`orm-family-sql/dist/contract-builder-De_sioHE.d.mts:255-262`):
+
+```ts
+type IndexOptionsBase<Name> = {
+  readonly name?: Name;
+  /** Exact physical name — adopted verbatim, no wire hash. Xor `name`. */
+  readonly map?: string;
+  /** Opaque SQL: partial-index predicate (WHERE body, without the keyword). */
+  readonly where?: string;
+  readonly unique?: boolean;
+};
+```
+
+**근거 3 — 마이그레이션 연산 타입** (`orm-target-postgres/dist/op-factory-call-BAeyLFYf-BAgG1h1C.d.mts:31-41`):
+
+```ts
+interface CreateIndexExtras {
+  readonly type?: string;
+  readonly options?: Record<string, unknown>;
+  /** Partial-index predicate (WHERE body, without the keyword). Inserted
+   *  verbatim, never quoted or escaped */
+  readonly where?: string;
+  readonly unique?: boolean;
+}
+```
+`createIndex({ schema, table, index, columns, extras })` 가 이 `extras` 를 받는다(`orm-target-postgres/dist/postgres-migration-BNsrwlxh-CwI5BqAu.d.mts:209-219`).
+
+**근거 4 — 동봉 문서 예제** (`references/contract.md:120-124`):
+
+```prisma
+@@index([authorId], where: "(archived_at IS NULL)", name: "posts_author_active")
+```
+
+### 3.3 따라서 `contract.prisma` 는 이렇게 쓴다
+
+```prisma
+model Refund {
+  // ...
+  @@index([reservationId], where: "status <> 'failed'", unique: true, map: "uq_refunds_reservation_id_active")
+}
+```
+
+**`name:` 과 `map:` 의 선택이 갈린다.**
+- `name:` → 물리명이 `<name>_<8자리해시>` 가 된다(wire-named). 이름 변경이 `ALTER INDEX ... RENAME` 으로 계획된다.
+- `map:` → 물리명을 **그대로** 쓴다. 다만 SQL 본문(`where:`)과 함께 쓰면 빌드 시 `PN_EXACT_NAME_BODY_COMPARISON` 경고가 난다 — drift 검출이 손으로 쓴 텍스트를 Postgres 의 reprint 와 바이트 비교하기 때문이다(`references/contract.md:126`).
+
+**DB 가 비어 있으므로(테이블 0개) 물리명을 유지할 이유가 없다. `name:` 을 권장한다** — 경고가 없고 rename 이 1급으로 처리된다. 다만 `backend/` 쪽 코드/테스트가 인덱스 이름을 문자열로 참조하는지 확인해야 한다(현재 `cancellation.py` 는 이름이 아니라 `IntegrityError` 타입으로만 분기하므로 영향 없다 — `cancellation.py:735`).
+
+### 3.4 CHECK 제약도 표현된다
+
+원본에 CHECK 이 11개 있다 (`0001_initial_domain.py:94,98,129,130,132,172,176,208,266,271,275,276,277,281`).
+
+- PSL: `@@check(expression:, name:/map:)` (`contract-psl__attribute-specs.d.mts:31-35`)
+- 마이그레이션: `addCheckConstraint` / `renameCheckConstraint` / `dropCheckConstraint`, 헬퍼 `checkExpression` (`references/migrations.md:365,369`)
+
+### 3.5 raw SQL 마이그레이션 탈출구도 있다
+
+필요 없을 가능성이 높지만, 있다는 사실은 기록해 둔다. `references/migrations.md:369`:
+
+> "the raw escape hatch `rawSql({ id, label, operationClass, target, precheck, execute, postcheck, ... })`"
+
+그리고 pgvector 설치용 `installExtension` / `createExtension` 도 있다(`postgres-migration-...d.mts:233-238`, `references/migrations.md:368`). **pgvector 확장이 아직 DB 에 생성돼 있지 않으므로**(request.md) 이걸 쓰게 된다.
+
+---
+
+## 4. 3순위 — 계층 구조 지도
+
+### 4.1 `backend/app/` (총 3,963줄, 테스트 제외)
 
 ```
-mobile/
-├── package.json, app.json, tsconfig.json
-├── index.ts        # 8줄  — registerRootComponent(App)
-├── App.tsx         # 29줄
-├── AGENTS.md, CLAUDE.md(11바이트), LICENSE
-├── .env            # ⚠️ 14KB — §7.4 참조
-└── assets/         # 아이콘 6종 (png)
+main.py(58)
+ └─ include_router → routers/reservations.py(205) · routers/admin_academies.py(146)
+      ├─ deps.py(157)   → adapters/{payment_gateway,notification,slot_lock}.py
+      ├─ db.py(58)      → config.py(52)
+      ├─ schemas/{cancellation(225), academy(136)}.py
+      └─ services/cancellation.py(1069)
+           ├─ services/refund_policy.py(267) → services/fee_policy.py(66)
+           ├─ models/*(407)
+           └─ adapters/*(948)
 ```
 
-`src/` 디렉터리 없음. 컴포넌트/화면/네비게이션 구조 전무.
+| 파일 | 줄 | 역할 | 누가 부르나 | 무엇을 부르나 |
+|---|---|---|---|---|
+| **진입** |
+| `main.py` | 58 | FastAPI 앱 조립. CORS(`localhost:3000` 만, 와일드카드 금지 — `:34-41`), `/health` | uvicorn | `routers.*` |
+| **설정·DB** |
+| `config.py` | 52 | pydantic-settings. `database_url` / `test_database_url` / `redis_url`. `@lru_cache get_settings()` (`:50-53`) | `db.py`, `alembic/env.py` | `.env` |
+| `db.py` | 58 | Engine(`pool_pre_ping=True`) + `SessionLocal` + `get_db()` 제너레이터 의존성 | 라우터 `Depends(get_db)` | `config.get_settings()` |
+| `deps.py` | 157 | 임시 인증 + 어댑터 3종 주입. `@lru_cache` 싱글턴 3개(§5.3) | 라우터 | `adapters.*` |
+| **라우터** |
+| `routers/reservations.py` | 205 | `GET /reservations/{id}/cancellation-preview`(`:100`), `POST /reservations/{id}/cancel`(`:137`). `CancellationError.status_code` 를 그대로 HTTP 로 옮긴다(`:79-81`) | mobile | `services.cancellation` |
+| `routers/admin_academies.py` | 146 | `GET|PUT /admin/academies/{id}/refund-policy`(`:91,109`). PUT 은 **전체 교체**(PATCH 아님, `:119-131`) | admin-web | `models.Academy`, `schemas.academy` |
+| **스키마(Pydantic)** |
+| `schemas/cancellation.py` | 225 | `CancelRequest`(`extra="forbid"`, `:93`) · `CancelResponse`(`:126`) · `CancellationPreviewResponse`(`:173`) · `RefundAccountIn`(`:58`) | 라우터 | 서비스의 dataclass ↔ 변환 |
+| `schemas/academy.py` | 136 | `RefundPolicyTier`(`:56`, bp 0~10000·시간 1~720) · `RefundPolicyUpdate`(`:75`, 정렬·중복 검증) · `RefundPolicyResponse`(`:127`) | 라우터 | — |
+| **서비스** |
+| `services/cancellation.py` | **1069** | 취소 오케스트레이션. §1 전체 | 라우터 | `refund_policy`, `models.*`, `adapters.*` |
+| `services/refund_policy.py` | 267 | 환불액 산정(`calculate_refund`). 비율표 티어 해석 | `cancellation.py:706` | `fee_policy` |
+| `services/fee_policy.py` | 66 | 수수료 정책 | `refund_policy` | — |
+| **모델(SQLAlchemy 2)** |
+| `models/base.py` | 42 | `DeclarativeBase` + `TimestampMixin`(`created_at`/`updated_at`, timezone-aware) | 전 모델 | — |
+| `models/academy.py` | 48 | `academies` — `name`, `refund_policy_tiers`(JSONB) | 라우터, 서비스 | — |
+| `models/class_schedule.py` | 61 | `class_schedules` — `starts_at`, `price_amount`, `capacity`, `reserved_count`. **종료 시각 컬럼 없음**(`cancellation.py:240-243` 이 이걸 근거로 판정을 하나로 묶는다) | 서비스 | — |
+| `models/order.py` | 45 | `orders` — `user_id`, `status`, `total_amount` | 서비스 | — |
+| `models/payment.py` | 52 | `payments` — `method`, `amount`, `paid_at`, `gateway_payment_key` | 서비스 | — |
+| `models/reservation.py` | 63 | `reservations` — `order_id`, `class_schedule_id`, `user_id`, `status`, `cancelled_at` | 서비스 | — |
+| `models/refund.py` | 130 | `refunds` — 멱등키·금액·상태·환불계좌·실패사유. 방어의 중심 | 서비스 | — |
+| `models/refund_event.py` | 66 | `refund_events` — append-only 감사 로그(`payload` JSONB) | 서비스 | — |
+| **어댑터(포트)** |
+| `adapters/__init__.py` | 81 | Protocol·포트/어댑터 패턴 설명 | — | — |
+| `adapters/payment_gateway.py` | 526 | `PaymentGateway` Protocol + `FakePaymentGateway` + **응답 파서(프로덕션 코드)** + `UnsupportedPaymentMethodError` | `deps.py`, 서비스 | — |
+| `adapters/notification.py` | 155 | `NotificationSender` Protocol(`:78`) — `notify_member`(`:86`) / `notify_academy_admin`(`:95`) 둘로 나뉨. `NotificationEvent` StrEnum(`:51`) | `deps.py`, 서비스 | — |
+| `adapters/slot_lock.py` | 186 | `SlotLock` Protocol(`:75`) + `RedisSlotLock`(`:91`) + `NullSlotLock`(`:171`). `release()` 하나뿐 | `deps.py`, 서비스 | redis |
+| **마이그레이션** |
+| `alembic/versions/0001_initial_domain.py` | 373 | 유일한 마이그레이션. 테이블 7개 + 인덱스 10개 + CHECK 11개 | alembic | — |
+| `alembic/env.py` | 118 | alembic 설정 | alembic | `config.get_settings()` |
 
-### 7.2 의존성 (`mobile/package.json:5-14`)
+### 4.2 `admin-web/` 현재 구조 (825줄)
 
+```
+app/
+  layout.tsx(25)          루트 레이아웃
+  page.tsx(31)            대시보드 — /health 폴링
+  globals.css(111)        순수 CSS (Tailwind 4 설치돼 있으나 아직 이 파일 기준)
+  refund-policy/page.tsx(5)   → components/RefundPolicySettings
+components/
+  AdminNav.tsx(48)
+  RefundPolicySettings.tsx(441)   환불 비율표 편집 화면 — 가장 큰 클라이언트 컴포넌트
+lib/
+  api-client.ts(164)      백엔드 호출 단일 창구
+```
+
+- `app/` 아래에 `api/` 라우트 핸들러가 **하나도 없다.** 서버 코드를 전부 새로 만든다.
+- Prisma 관련 파일(`prisma.config.ts`, `src/prisma/contract.prisma`, `db.ts`, `migrations/`)도 **아직 없다** — `prisma orm init` 이 첫 작업이 된다.
+- `tsconfig.json` 의 paths 는 `@/*` 하나뿐(`admin-web/tsconfig.json:28-32`). `moduleResolution: "bundler"`, `target: "ES2017"`.
+- `package.json:47-51` 의 `overrides { "better-auth": { "prisma": "$prisma" } }` — 지우면 `npm install` 이 ERESOLVE 로 깨진다(request.md 제약 2).
+- **`pg` 는 직접 의존성이 아니다.** `@prisma/orm-postgres` 의 전이 의존성으로 들어온다(`orm-postgres/package.json:21`). `@types/pg` 는 devDependencies 에 직접 있다(`package.json:37`).
+- `eslint.config.mjs` — 건드리지 않는다(이미 깨진 검증선). 검증은 `npx next build`.
+
+---
+
+## 5. 4순위 — 경계면
+
+### 5.1 mobile 이 부르는 엔드포인트 3개
+
+출처: `/home/user/kdance/mobile/App.tsx` (범위 밖이지만 계약 확인용으로 읽음)
+
+| # | 호출 | `App.tsx` | 헤더 |
+|---|---|---|---|
+| 1 | `GET /health` | `:105` | 없음 |
+| 2 | `GET /reservations/{id}/cancellation-preview` | `:116-118` | `X-User-Id` |
+| 3 | `POST /reservations/{id}/cancel` | `:175-183` | `X-User-Id`, `Idempotency-Key`(선택) |
+
+베이스 URL: `process.env.EXPO_PUBLIC_API_URL ?? "http://localhost:8000"` (`App.tsx:27`)
+
+**요청·응답 형태 (필드명 전부 snake_case)**
+
+`GET /health` →
 ```json
-"dependencies":   { "expo": "^57.0.0", "expo-status-bar": "~57.0.1",
-                    "react": "19.2.3", "react-native": "0.86.3" }
-"devDependencies": { "@types/react": "~19.2.2", "typescript": "~6.0.3" }
+{ "status": "ok" }
+```
+(`backend/app/main.py:56-58`)
+
+`GET /reservations/{reservation_id}/cancellation-preview` → `CancellationPreviewResponse`
+(`backend/app/schemas/cancellation.py:192-205`)
+```
+reservation_id: uuid
+payment_method: "virtual_account" | "card" | null
+paid_amount: int
+refund_amount: int
+refund_rate_bp: int          # basis point, 10000 = 100%
+hours_before_start: int
+seconds_before_start: int
+applied_tier_hours: int | null
+starts_at: datetime (ISO8601)
+cancellable: bool
+reason_code: str | null      # CancellationError.code 와 같은 값
+```
+- `cancellable=false` 도 **200** 이다. 400대로 돌려주지 않는 이유는 `routers/reservations.py:111-116`.
+- 예외는 404(없는 예약) / 403(타인 예약) 둘뿐.
+
+`POST /reservations/{reservation_id}/cancel`
+요청 본문(**선택** — 없어도 된다, `routers/reservations.py:158`) `CancelRequest` (`schemas/cancellation.py:93-108`, `extra="forbid"`):
+```
+method: "virtual_account" | "card" | null
+refund_account: {
+  bank_code: str(1~20)
+  account_number: str(1~64)
+  holder_name: str(1~100)
+  holder_phone_number: str(≤20) | null
+} | null
+```
+응답 `CancelResponse` (`schemas/cancellation.py:138-150`):
+```
+reservation_id: uuid
+refund_id: uuid
+status: "succeeded" | "pending" | "failed"
+requested_amount: int
+refunded_amount: int
+refund_rate_bp: int
+hours_before_start: int
+reservation_status: str
+slot_restored: bool
+replayed: bool                  # 중복 요청이면 true
+failure_code: str | null
+failure_message: str | null
+gateway_refund_id: str | null
+```
+**상태 코드 규칙이 특이하다 — 전환 시 그대로 지켜야 한다** (`routers/reservations.py:167-179`):
+- 중복 요청 → **200** + `replayed=true` (409 아님)
+- PG 환불 실패 → **200** + `status="failed"` (비-2xx 로 바꾸면 실패 사유가 클라이언트 에러 처리로 빨려 들어간다)
+- 요청 자체가 성립 안 함(없는 예약 404 / 타인 403 / 이미 취소 409 / 이미 시작 409 / 카드 422) → 4xx
+
+### 5.2 admin-web 이 부르는 엔드포인트 2개
+
+`lib/api-client.ts:143-164` · 백엔드 `routers/admin_academies.py:91,109`
+
+| 호출 | 경로 | 요청 | 응답 |
+|---|---|---|---|
+| `fetchRefundPolicy` | `GET /admin/academies/{academy_id}/refund-policy` | — | `RefundPolicyResponse` |
+| `updateRefundPolicy` | `PUT /admin/academies/{academy_id}/refund-policy` | `{ "refund_policy_tiers": [...] }` | `RefundPolicyResponse` |
+
+티어 원소 (`lib/api-client.ts:106-109`, `schemas/academy.py:68-70`):
+```
+{ hours_before_start: int (1~720), refund_rate_bp: int (0~10000) }
 ```
 
-Expo SDK 57 순정 템플릿 그대로. 스크립트는 `start`/`android`/`ios`/`web` (`:15-20`).
+**응답 봉투가 느슨하다 — 전환 시 함정이다.** `extractTiers()` (`lib/api-client.ts:125-139`) 가 두 형태를 **모두** 받아들인다:
+- 배열 그대로 `[...]`
+- `{ refund_policy_tiers: [...] }` 로 감싼 것
 
-### 7.3 ⚠️ Push 알림 관련 설정 — **전무**
+주석(`api-client.ts:119-124`)이 이유를 적어 뒀다: 공유 계약이 티어 원소 형태만 고정하고 봉투는 고정하지 않았다. **새 Route Handler 는 봉투를 하나로 못박아야 한다** — 안 그러면 다음 사람이 어느 쪽이 맞는지 알 수 없다. 권장: `{ refund_policy_tiers: [...] }` (PUT 요청 본문과 대칭).
 
-`mobile/app.json` 전문(24줄)을 확인했다:
+PUT 은 **전체 교체**다(`admin_academies.py:119-131`). 부분 갱신을 지원하지 않는 이유가 명시돼 있다 — 비율표는 행 하나가 아니라 표 전체가 하나의 정책이기 때문이다. 검증(정렬·중복·범위)이 항상 표 전체에 걸려야 한다.
 
-```json
-{ "expo": {
-    "name": "mobile", "slug": "mobile", "version": "1.0.0",
-    "orientation": "portrait", "icon": "./assets/icon.png",
-    "userInterfaceStyle": "light",
-    "ios": { "supportsTablet": true },
-    "android": { "adaptiveIcon": {...}, "predictiveBackGestureEnabled": false },
-    "web": { "favicon": "./assets/favicon.png" }
-} }
+### 5.3 R9(Pydantic 422 형태 변경) — `extractMessage()` 가 파싱하는 형태
+
+`/home/user/kdance/admin-web/lib/api-client.ts:41-60`
+
+```ts
+function extractMessage(payload: unknown): string | null {
+  if (typeof payload === "string" && payload) return payload;          // ① 평문
+  const detail = (payload as { detail?: unknown }).detail;
+  if (typeof detail === "string" && detail) return detail;             // ② {"detail": "..."}
+  if (Array.isArray(detail)) {                                          // ③ {"detail":[{"msg":"..."}]}
+    const messages = detail.map(item => item?.msg).filter(...);
+    if (messages.length > 0) return messages.join(" / ");
+  }
+  return null;
+}
 ```
 
-| 필요 항목 | 상태 |
-|---|---|
-| `expo-notifications` 패키지 | ❌ 미설치 (node_modules 검색 결과 notification/push 관련 패키지 0건) |
-| `expo-device` / `expo-constants` | ❌ 미설치 |
-| `extra.eas.projectId` | ❌ 없음 — **`getExpoPushTokenAsync()`에 필수** |
-| `plugins` 배열 | ❌ 없음 (`expo-notifications` 플러그인 등록 자리) |
-| `android.googleServicesFile` / FCM 설정 | ❌ 없음 |
-| `notification` 설정 블록 | ❌ 없음 |
-| **`android.package`** | ❌ **없음** — CLAUDE.md는 `com.kdancex3`라고 하는데 app.json에 반영 안 됨 |
-| `name`/`slug` | ⚠️ 둘 다 `"mobile"` — 제품명 `K-DanceX3` 미반영 |
-| 네비게이션 (expo-router, react-navigation) | ❌ 없음 |
+**세 형태를 파싱한다:**
 
-→ **Expo Push는 이번 슬라이스에서 "구현"이 아니라 "인터페이스만 두고 no-op"으로 가는 것이 현실적이다.** 실제 푸시를 동작시키려면 EAS 프로젝트 생성 + `projectId` 발급 + 패키지 3종 설치 + 실기기 테스트가 필요하고, 이건 별개 작업 단위다. 백엔드 쪽은 `NotificationSender` Protocol + Fake 구현으로 충분하다(PG 어댑터와 같은 전략).
+| 형태 | 누가 만드나 | 예시 |
+|---|---|---|
+| ② `{"detail": "문자열"}` | 앱이 직접 던지는 `HTTPException` | `routers/reservations.py:81` (`CancellationError.message`), `admin_academies.py:57`, `deps.py:81,92` |
+| ③ `{"detail":[{"msg":..., "loc":..., "type":...}]}` | **Pydantic 검증 실패 시 FastAPI 가 자동 생성**하는 422 | `RefundPolicyUpdate` 검증 실패(`schemas/academy.py:90-104`), `CancelRequest` 의 `extra="forbid"` 위반 |
+| ① 평문 | JSON 파싱 실패 시 fallback (`api-client.ts:33-39`) | — |
 
-### 7.4 ⚠️ `mobile/.env` 위생 문제 (부수 발견)
+**전환 영향**: Next.js Route Handler 가 zod 로 검증하면 에러 형태가 완전히 달라진다. zod 4 의 `error.issues` 는 `[{ code, path, message }]` 로, `msg` 가 아니라 `message` 다. **`extractMessage()` 의 ③ 분기가 조용히 실패하고 화면에 에러가 안 뜬다.**
 
-`mobile/.env`가 **14,193 바이트**이고, 내용이 이 프로젝트 것이 아니다. 추출한 키 목록에 `NVIDIA_API_KEY`, `TOUR_API_KEY`, `ODSAY_API_KEY`, `KMA_API_HUB_KEY`, `CULTURE_FACILITY_ENDPOINT`, `MODEL_ROUTER`, `MODEL_RERANKER`, `EMBED_DIM`, `PG_DSN`, `TAVILY_API_KEY` 등 **다른 프로젝트(mobydick 추정)의 키가 대량 포함**돼 있고, `EXPO_PUBLIC_NAVER_MAP_CLIENT_ID`는 중복 정의돼 있다.
+선택지는 둘이다:
+- (A) Route Handler 가 `{"detail":[{"msg": issue.message, "loc": issue.path}]}` 형태로 zod 결과를 변환해 내보낸다 — `api-client.ts` 무수정
+- (B) 새 에러 봉투를 정하고 `extractMessage()` 를 고친다 — 더 깨끗하지만 mobile 도 같이 봐야 한다(mobile 은 `App.tsx` 에서 직접 fetch 하므로 별도 처리)
 
-- 루트 `.gitignore:7`의 `.env`로 커밋에서는 제외된다 (유출 위험 낮음)
-- 다만 kdance용으로 쓸 만한 키는 `EXPO_PUBLIC_API_URL` 정도이고, 나머지는 혼동만 유발한다
-- `mobile/.env.example`이 없다
-- **이번 작업 범위 밖이지만 Phase 3에서 "정리 권고" 항목으로 남길 가치가 있다**
+**분석자 의견: (A)** — 전환 단계에서 검증선을 하나라도 줄이는 편이 낫다. 봉투 정리는 전환이 끝난 뒤 별도 작업으로.
+
+### 5.4 R6(프로세스 싱글턴 서버리스 붕괴) — `deps.py` 의 `@lru_cache` 싱글턴 3개
+
+`/home/user/kdance/backend/app/deps.py:105-126`
+
+| 함수 | 반환 | 무엇을 들고 있나 | 서버리스에서 깨지는가 |
+|---|---|---|---|
+| `_payment_gateway()` (`:105`) | `FakePaymentGateway` | **인메모리 멱등 원장.** 주석(`:108-111`)이 명시: 요청마다 새로 만들면 재시도가 매번 "처음 호출"로 보인다 | **깨진다** |
+| `_notification_sender()` (`:115`) | `FakeNotificationSender` | 발송 기록 리스트(`adapters/notification.py:114-116`) | 깨진다 (테스트 전용이라 영향 작음) |
+| `_slot_lock()` (`:120`) | `RedisSlotLock` | **Redis 커넥션.** 지연 생성이라 Redis 가 꺼져 있어도 여기서 죽지 않는다(`:122`) | **부분적으로** — 상태는 Redis 에 있으므로 인스턴스가 늘어도 정합성은 유지된다. 커넥션 풀만 늘어난다 |
+
+네 번째 `@lru_cache` 가 하나 더 있다: `config.get_settings()` (`config.py:50-53`). 이건 불변 설정이라 문제 없다.
+
+**전환 판단**
+- `_slot_lock` — 상태가 Redis 에 있으므로 **모듈 레벨 싱글턴으로 옮기면 그대로 된다.** Next.js 에서는 `db.ts` 와 같은 패턴(모듈 싱글턴)을 쓴다(`references/runtime.md:340`).
+- `_payment_gateway` — **인메모리 원장이 서버리스에서 무의미해진다.** 다만 §1.4 에서 본 대로 멱등성의 실제 권위는 DB 제약이다. 따라서 치명적이지 않다. 문제는 **테스트**다 — Fake 원장에 의존하는 테스트가 환경에 따라 다르게 나온다. Phase 1 의 Q8 이 이걸 묻고 있다.
+- `_notification_sender` — Fake 이므로 실 구현 전까지 문제 없다.
 
 ---
 
-## 8. DB 실제 상태 확인 — ⚠️ **검증 실패 (미확인)**
+## 6. Phase 3(구현 계획)에 넘기는 것
 
-### 8.1 `mcp__postgres-kdance__query` 도구를 쓸 수 없었다
+### 6.1 반드시 실측으로 확인해야 하는 것 (타입만 보고 넘어가면 안 되는 것)
 
-이 세션의 MCP 도구 목록에 **`mcp__postgres-kdance__query`가 존재하지 않는다.** 조회 가능한 postgres MCP는 `mcp__postgres-mobydick__query` 하나뿐이고, 이건 무관한 DB다. `ToolSearch`로 `select:mcp__postgres-kdance__query` 조회 시 "No matching deferred tools found" 응답.
+| # | 확인할 것 | 왜 | 어떻게 |
+|---|---|---|---|
+| V1 | `tx.query(db.raw.sql\`...FOR UPDATE\`.build())` 의 잠금이 **그 트랜잭션에 걸리는가** | 여기서 틀리면 멱등성 방어가 통째로 무너진다 | 동시 요청 2건 통합 테스트. 하나가 대기하는지 확인 |
+| V2 | 코덱 id 실제 표기(`pg/uuid@1` 등) | `returnsRow()` 가 코덱 id 를 손으로 요구한다. 지금은 추정이다 | `prisma contract emit` 후 `contract.d.ts` 를 읽는다 |
+| V3 | `ON CONFLICT` 의 conflict target 으로 **부분 인덱스**를 지정할 수 있는가 | SAVEPOINT 대체안(§2.3 B) | raw SQL 로 `ON CONFLICT (reservation_id) WHERE status <> 'failed' DO NOTHING` 실행 |
+| V4 | Node 24 에서 `Timestamptz` 컬럼 읽기 | `RUNTIME.TEMPORAL_UNAVAILABLE` 로 죽을 수 있다 | 스캐폴딩 직후 첫 arc 에서 timestamptz 컬럼 1개로 왕복 |
+| V5 | `@internal/postgres` façade 가 `prisma orm init` 으로 실제로 설치되는가 | 지금 `node_modules` 에 없다 | init 실행 후 확인 |
 
-(참고: `omniroute` MCP 서버도 ConnectionRefused로 연결 실패 상태다.)
+### 6.2 설계 결정이 필요한 것
 
-### 8.2 직접 접속도 실패 — **DB가 떠 있지 않다**
+| # | 결정 사항 | 선택지 | 분석자 의견 |
+|---|---|---|---|
+| D1 | 취소 트랜잭션의 커밋 지점 3개(§1.1 C1/C2/C3)를 어떻게 옮기나 | 콜백 안에서 throw 하면 무조건 롤백 → C1(미지원 결제수단 실패 기록) 이 사라진다 | 트랜잭션을 정상 반환으로 닫고 **바깥에서** 422 를 던진다 |
+| D2 | SAVEPOINT 대체 | A(선제 조회) / B(`ON CONFLICT`) / C(재시도) — §2.3 | **B**. A 는 방어가 3겹→2겹으로 준다 |
+| D3 | 에러 봉투 | (A) FastAPI 형태 유지 / (B) 새 봉투 — §5.3 | **A**. 전환 중 검증선을 늘리지 않는다 |
+| D4 | 환불 비율표 응답 봉투 | 배열 / `{refund_policy_tiers:[...]}` — §5.2 | `{refund_policy_tiers:[...]}` 로 못박는다 |
+| D5 | 인덱스 이름 표기 | `name:`(wire) / `map:`(exact) — §3.3 | **`name:`**. DB 가 비어 있고 경고가 없다 |
+| D6 | Route Handler 런타임 | Node / Edge — §2.3(3) | **취소·환불 경로는 Node 못박기.** Edge 에는 `transaction()` 이 없다 |
+| D7 | Temporal 처리 | polyfill / `TimestamptzString` — §2.6 | Phase 3 이 V4 결과를 보고 정한다 |
+| D8 | `db.ts` import 경로 | `@internal/postgres/runtime` / `@prisma/orm-postgres/runtime` — §2.1 | `orm init` 을 돌린 뒤 façade 쪽으로. 문서 예제와 일치시킨다 |
 
-우회로 `backend/.venv`의 psycopg3로 직접 붙어봤다:
+### 6.3 새로 올리는 미해결 질문
 
-```
-postgresql://kdance:kdance@localhost:5433/kdance
-→ OperationalError: connection failed:
-  connection to server at "127.0.0.1", port 5433 failed: Connection refused
-```
+**Q-new-1. Node 24 의 `Temporal` 부재를 어떻게 처리하나?**
+Prisma 8 의 Postgres 타깃은 `Timestamptz` 를 `Temporal.Instant` 로 읽고 쓴다. `globalThis.Temporal` 은 Node 26.8.2 이상에만 있고 **우리는 Node 24.21.0** 이다. 이 프로젝트의 도메인 모델은 timestamptz 가 핵심이다(`starts_at` · `paid_at` · `cancelled_at` · `created_at`/`updated_at`). 근거: `references/contract.md:119`.
+- A안: `temporal-polyfill` 의존성 추가 + `import 'temporal-polyfill/full/global'` 을 첫 쿼리 전에 로드
+- B안: 컬럼을 `TimestamptzString(p)` 로 작성 — Postgres 텍스트를 그대로 받아 JS 에서 파싱
+- C안: Node 를 26.8.2+ 로 올린다 — **버전 정책상 Vercel 지원 런타임과 Expo/RN 쪽 영향을 먼저 봐야 한다**
 
-추가 확인:
-- `docker` CLI: **이 WSL2 배포판에서 사용 불가** ("could not be found in this WSL 2 distro" — Docker Desktop WSL 통합 미활성)
-- 리스닝 포트 스캔(`ss -ltn`): **5433, 6380, 5432, 6379 모두 열려 있지 않음**
+**Q-new-2. Vercel 배포 시 Route Handler 를 Node 런타임으로 고정하는 것에 동의하는가?**
+`postgresServerless()` 는 `transaction()` 을 의도적으로 뺐다(`serverless.d.mts:38-43`). 취소·환불은 트랜잭션 없이 불가능하다. Edge 의 콜드스타트 이점을 포기하는 결정이다.
 
-→ `kdance-db`와 `kdance-redis` 컨테이너가 **현재 실행 중이 아니다.**
+### 6.4 기존 SCH-01~07 의 처리
 
-### 8.3 그래서 교차검증 결과는?
-
-**직접 확인하지 못했다.** 정직하게 미확인으로 남긴다. 다만 코드 증거로 강하게 추론할 수 있다:
-
-| 근거 | 내용 |
-|---|---|
-| `backend/alembic/versions/` | `.gitkeep` 외 파일 0개 → 적용 가능한 리비전이 애초에 없음 |
-| `backend/alembic/env.py:35` | `target_metadata = None` |
-| 모델 코드 | grep 결과 0건 (§1.1) |
-| `.superpowers/.../task-4-report.md:30` | 당시 라이브 `kdance-db`에 대해 `alembic current`를 2회 실행, "zero revisions" 클린 결과 기록 |
-
-→ **`alembic_version` 테이블조차 없을 가능성이 높다.** `alembic current`는 조회만 하므로 `alembic_version`을 생성하지 않고, `alembic upgrade`가 한 번도 실행된 적이 없기 때문이다. 도메인 테이블은 확실히 0개다(생성할 코드가 존재한 적 없음).
-
-**신뢰도: 중간.** 코드·기록상으로는 "모델 0개 = DB 테이블 0개"가 일관되지만, 누군가 수동 SQL로 테이블을 만들었을 가능성은 배제하지 못했다.
-
-### 8.4 Phase 3 착수 전 선행 조건 (블로커)
-
-```bash
-cd /home/user/kdance/infra && docker compose up -d    # Docker Desktop WSL 통합 활성화 필요
-cd /home/user/kdance/backend && uv run alembic current   # 기대: 빈 출력(리비전 없음)
-```
-
-`docker` CLI가 이 환경에서 안 되므로, **사용자가 Docker Desktop의 WSL 통합을 켜야** 마이그레이션·DB 테스트가 가능하다. Phase 3 계획에 이걸 명시적 선행 조건으로 넣어야 한다.
+request.md 가 Phase 3 에 판단을 맡긴 사항이다. 조사 결과 기준으로 사실만 적는다:
+- SCH-01~07 은 전부 `backend/` FastAPI 코드를 설명한다. 전환되면 설명 대상이 사라진다.
+- 다만 **설계 판단은 그대로 유효하다** — 커밋 전/후 분리, 멱등성 3겹, PG 실패 시 좌석 유지, `pending` 은 실패가 아니라는 판정. 이건 프레임워크와 무관하다.
+- 사라지는 것은 구현 세부(SQLAlchemy `begin_nested`, `Depends()`, Alembic op)뿐이다.
+- 직전 회차 산출물은 `_workspace_20260920_183143/` 에 보관돼 있다.
 
 ---
 
-## 9. 요약 — Phase 3를 위한 파일 배치 결론
+## 7. 읽지 않은 것 / 확인하지 못한 것
 
-### 9.1 현재 상태 한눈에
+정직하게 남긴다.
 
-| 영역 | 상태 |
-|---|---|
-| 백엔드 도메인 코드 | **0** (모델·라우터·세션·스키마 전부 없음) |
-| Alembic 리비전 | **0** (`target_metadata = None`) |
-| DB 테이블 | **0으로 추정** (직접 확인 실패 — DB 미기동) |
-| 백엔드 테스트 인프라 | `test_health.py` 1개, `conftest.py` 없음, DB 격리 전략 없음 |
-| Redis | compose에 정의됨(6380), 파이썬 패키지 미설치, `REDIS_URL` 미정의 |
-| admin-web | 라우터·상태관리·폼·데이터페칭 라이브러리 **전부 없음** |
-| mobile | Push 관련 설정·패키지 **전부 없음**, `android.package`조차 미설정 |
-| 취소/환불 API 계약 문서 | **없음** (개발 가이드에 `취소`/`환불` 0회) |
-| 환불 정책 원문 | `docs/kdance-screens-spec.html:502-506` = FR-22 |
-
-### 9.2 새 파일 배치 권고 (backend)
-
-기존 컨벤션이 `app/main.py` 단일 파일뿐이라 제약이 없다. 아래는 FastAPI 관례 + 이번 슬라이스 범위에 맞춘 **권고안**이며, Phase 3가 확정할 사항이다.
-
-```
-backend/
-├── app/
-│   ├── main.py                  # 수정: include_router() 추가 (기존 /health는 유지)
-│   ├── config.py                # 신규: DATABASE_URL / REDIS_URL 로딩
-│   ├── db.py                    # 신규: engine, SessionLocal, get_db 의존성
-│   ├── models/
-│   │   ├── __init__.py          # Base + 전 모델 re-export (alembic autogenerate가 여기를 임포트)
-│   │   ├── base.py              # DeclarativeBase, 공통 타임스탬프 믹스인
-│   │   ├── academy.py           # Academy (+ 환불 비율표 필드)
-│   │   ├── class_schedule.py    # ClassSchedule (capacity 포함)
-│   │   ├── reservation.py       # Reservation  ← §4.3 네이밍 결정 필요
-│   │   ├── order.py             # Order
-│   │   ├── payment.py           # Payment
-│   │   └── refund.py            # Refund
-│   ├── schemas/
-│   │   └── reservation.py       # Pydantic v2 request/response
-│   ├── routers/
-│   │   └── reservations.py      # POST /reservations/{id}/cancel
-│   ├── services/
-│   │   ├── refund_policy.py     # 환불액 산정 (순수 함수 — 테스트하기 쉽게)
-│   │   └── cancellation.py      # 취소 오케스트레이션 (트랜잭션 + 슬롯 복구 + 알림)
-│   └── adapters/
-│       ├── pg.py                # PaymentGateway Protocol + FakePaymentGateway
-│       ├── push.py              # NotificationSender Protocol + FakeNotificationSender
-│       └── slot_lock.py         # Redis 슬롯 락 (해제/복구)
-├── alembic/
-│   ├── env.py                   # 수정 필수: :35 target_metadata = Base.metadata
-│   └── versions/
-│       └── <rev>_initial_domain_models.py   # down_revision = None (최초 리비전)
-└── tests/
-    ├── conftest.py              # 신규 필수: DB 픽스처, get_db 오버라이드, Fake 어댑터 주입
-    ├── test_health.py           # 기존 유지
-    ├── test_refund_policy.py    # 환불액 산정 단위 테스트 (DB 불필요 — 여기를 두껍게)
-    └── test_cancel_api.py       # 취소 API 통합 테스트
-```
-
-**배치 근거:**
-- `app/models/__init__.py`에 모든 모델을 모으는 이유 — `alembic/env.py`가 `prepend_sys_path = .`(`alembic.ini:21`) 덕분에 `from app.models import Base` 한 줄로 전체 메타데이터를 얻을 수 있다. 모델 파일을 빼먹으면 autogenerate가 조용히 그 테이블을 누락한다.
-- `services/refund_policy.py`를 순수 함수로 분리하는 이유 — 개발 가이드 `:311`이 "**결제 금액 계산은 특히 케이스를 두껍게**"라고 명시했다. DB 없이 테스트 가능해야 케이스를 두껍게 쌓을 수 있다.
-- `adapters/`에 Protocol + Fake를 두는 이유 — PG사 미선정(`:315-321`)이고 Expo Push도 인프라 미비(§7.3). 둘 다 같은 이유로 같은 패턴을 쓴다.
-
-### 9.3 배치 권고 (admin-web / mobile)
-
-- **admin-web**: 라우터가 없으므로 최소 변경으로는 `src/pages/RefundPolicySettings.tsx` 신규 + `App.tsx`에서 조건부 렌더링. 동시에 `src/api/client.ts`를 만들어 `App.tsx:7`의 하드코딩 URL을 `import.meta.env.VITE_API_BASE_URL`로 빼는 것을 권고(이번에 두 번째 fetch 지점이 생기므로 지금이 적기다).
-- **mobile**: 이번 슬라이스에서 **변경하지 않는 것**을 권고. Push 실동작에는 EAS projectId 발급이 선행되어야 하고, 백엔드는 Fake sender로 계약만 맞춰두면 충분하다.
-
-### 9.4 Phase 3가 반드시 결정해야 할 열린 항목
-
-1. **`Reservation` vs `Order` 네이밍** — 문서에는 `Order`만 있다 (§4.3). 분리할지 통합할지.
-2. **`alembic/env.py:35` 수정** — 잊으면 마이그레이션이 빈 파일로 나온다. 계획서에 명시적 단계로 넣을 것.
-3. **테스트 DB 전략** — `conftest.py`가 없다. 트랜잭션 롤백 / 별도 스키마 / SQLite 중 택1.
-4. **가상계좌 환불 vs 카드 승인취소** — 구조가 다르다 (`_workspace/01_req-analyst_requirements.md:55`). Fake 어댑터 인터페이스에서 구분할지.
-5. **멱등성 키** — 이중 환불 방지 (`_workspace/01_req-analyst_requirements.md:95`). 어느 레이어에 둘지.
-6. **`REDIS_URL` 추가** — `backend/.env`와 `.env.example` 양쪽 모두.
-7. **선행 블로커: Docker 기동** — 현재 이 환경에서 `docker` CLI 사용 불가, DB·Redis 미기동 (§8.4).
+- `backend/app/services/refund_policy.py`(267) · `fee_policy.py`(66) — **본문을 읽지 않았다.** 트랜잭션 경계와 무관한 순수 산정 로직이라 이번 우선순위에서 뺐다. Phase 3 이 이관할 때 읽어야 한다.
+- `backend/app/adapters/payment_gateway.py`(526) — Protocol 이름과 예외 타입만 확인했고 **응답 파서 본문은 읽지 않았다.** "프로덕션 코드"라고 `deps.py:141` 이 적어 둔 부분이라 이관 시 비중이 크다.
+- `backend/tests/*`(2,470줄, 159개) — **전혀 읽지 않았다.** TS 재작성 범위 산정에 필요하다.
+- `admin-web/components/RefundPolicySettings.tsx`(441) — 줄 수만 확인했다.
+- **Prisma 8 을 실제로 실행해 보지 않았다.** 이 문서의 Prisma 관련 결론은 전부 설치본의 타입 정의·런타임 소스·동봉 문서에서 읽은 것이다. §6.1 의 V1~V5 가 실행 검증 목록이다.
+- `db.raw` 로 만든 플랜이 `tx` 에서 실행될 때 잠금이 그 트랜잭션에 걸리는지 — **타입 호환성과 문서 서술까지만 확인했다.** 실행으로 확인하지 않았다.
+- `mcp__postgres-kdance` 로 DB 를 조회하지 않았다 — request.md 가 이미 "테이블 0개, vector 확장 미생성"으로 실측해 두었고 이 조사에서 더 알아낼 것이 없었다.
