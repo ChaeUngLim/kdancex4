@@ -182,6 +182,65 @@ Harness(WORKFLOW)와 ECC(QUALITY) 둘 다 아래 MCP를 호출해 실제 작업�
 
 **설치된 범용 `harness:harness` 메타스킬(harness-marketplace 플러그인)과 절대 혼동하지 않는다.** 이 메타스킬은 새 도메인에 처음부터 하네스를 만들어주는 범용 도구이고, "하네스 점검/감사/현황/에이전트-스킬 동기화" 같은 문구에 트리거된다. kdance는 이미 `kdance-dev-harness`가 만들어져 있고 Phase 9.5(학습 주석 재구성·SCH 가이드 생성)·SCH 표기 규칙·beginner-comment-style.md 등 이 프로젝트 전용으로 커스터마이징돼 있다 — 범용 메타스킬은 이 커스터마이징을 모른 채 자기 템플릿으로 재구성하려 들 수 있으므로, kdance에서 하네스를 점검·수정·확장할 때는 **범용 `harness:harness`를 호출하지 말고 `.claude/skills/kdance-dev-harness/`와 `.claude/agents/kdance-*.md`를 직접 Read/Edit한다.**
 
+## spec-kit 과의 역할 분리 (2026-09-21 확정)
+
+GitHub spec-kit(`specify` CLI, `.specify/`, `/speckit-*` 스킬)을 설치했다. 그런데
+spec-kit 의 `specify → plan → tasks → implement → converge` 는 `kdance-dev-harness`
+의 9단계와 거의 같은 일을 한다. 그대로 두면 파이프라인이 둘이 되어 「Harness / ECC
+역할 분리」의 **절대 금지 패턴**(같은 파이프라인을 따로 도는 구조)에 그대로 걸린다.
+
+그래서 **앞단만 쓴다.**
+
+```
+spec-kit          "무엇을 왜"      →  spec.md
+     ↓ 인계
+kdance-dev-harness "어떻게"        →  Phase 1(요구사항 분석) ~ Phase 9.5
+     ↕
+ECC                "제대로"        →  품질 기준
+```
+
+### 쓰는 것 — 3개
+
+| 스킬 | 무엇 |
+|---|---|
+| `/speckit-specify` | 기능 명세. user story(P1~P3) · edge case · **측정 가능한 성공 기준** |
+| `/speckit-clarify` | 모호한 부분을 질문으로 좁힌다 (선택) |
+| `/speckit-checklist` | 요구사항 완전성 검증 (선택) |
+
+### 쓰지 않는 것 — 7개
+
+| 스킬 | 왜 안 쓰나 |
+|---|---|
+| `/speckit-constitution` | `core-rules.md` 가 그 자리다. 실행하면 규칙 원본이 둘로 갈라진다 |
+| `/speckit-plan` | Phase 3(구현 계획)과 중복 |
+| `/speckit-tasks` | Phase 4(Task 분리)와 중복 |
+| `/speckit-implement` | Phase 5(구현)와 중복 |
+| `/speckit-analyze` | Phase 8(코드 리뷰)과 중복 |
+| `/speckit-converge` | Phase 9(완료 검증)와 중복 |
+| `/speckit-taskstoissues` | 이 프로젝트는 GitHub 이슈로 작업을 관리하지 않는다 |
+
+### 인계 지점
+
+spec-kit 이 만든 `specs/{번호}-{기능명}/spec.md` 가 **하네스 Phase 1(요구사항 분석)의
+입력**이 된다. Phase 1 은 그 spec 을 처음부터 다시 쓰지 않고, kdance 고유의 것으로
+**번역**한다.
+
+| Phase 1 이 spec 에 더하는 것 |
+|---|
+| 버전 정책·검증선 제약 (`next build` 로 검증한다 등) |
+| 수용 기준을 실행 가능한 명령과 기대 결과로 |
+| 리스크(`R1~`)와 미해결 질문(`Q1~`) |
+| SCH 대응 관계 |
+
+spec 이 없으면 Phase 1 은 기존대로 처음부터 분석한다 — spec-kit 사용은 선택이다.
+
+### 왜 이렇게 나눴나
+
+spec-kit 의 강점은 **"무엇을 왜"를 사용자 시나리오로 풀어내는 템플릿**이다. 하네스의
+강점은 Phase 9.5(학습 주석 재구성·SCH 가이드 생성)가 만드는 학습 산출물 3종과 SCH
+추적이며, 이건 이 프로젝트 전용으로 손질한 것이라 대체물이 없다. 겹치는 구간
+(plan·tasks·implement)만 하네스에 맡기면 서로 잡아먹지 않는다.
+
 ## 진행 리뷰 (`docs/Review.md`) — 핵심 기능
 
 **이 프로젝트의 핵심 산출물 중 하나다.** 코드가 아니라 **배움**이 결과물인 자리다.
