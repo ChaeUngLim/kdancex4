@@ -92,49 +92,60 @@
 <div class="wrap">
 
   <div class="hero">
-    <div class="eyebrow"><span class="rule"></span>개발자용 · 베타 서비스 규모 기준</div>
-    <h1>노트북 개발 환경에서<br>실제 베타 서버로</h1>
+    <div class="eyebrow"><span class="rule"></span>개발자용 · 베타→운영 규모 기준 · 2026-09-24 개정</div>
+    <h1>노트북 베타에서<br>운영 서버로</h1>
     <p class="lede">지금까지의 스택·무료 API 판단은 <b>개인 개발자 노트북 기준</b>이었다.
-    베타를 "1만~10만 명이 실제로 쓴다"는 전제로 바꾸면, 몇 곳은 그대로 못 쓴다 —
-    특히 AI 모델 서빙과 DB가 그렇다. 이 문서는 그 갭을 숨기지 않고 짚는다.</p>
+    규모 목표가 <b>"베타 1~10명 → 3년 이후 1천~1만 명"</b>으로 바뀌었다(2026-09-24).
+    베타는 노트북 1대로 감당된다 — AI 동시 사용자 10명을 이 노트북에서 실측했다.
+    갭이 생기는 건 <b>3년 이후 운영 단계(1천~1만 명)</b>이고, 특히 AI 모델 서빙과 DB가 그렇다.
+    이 문서는 그 갭을 숨기지 않고 짚는다.</p>
     <div class="scale-row">
-      <div class="scale-tile"><div class="n">10,000~100,000</div><div class="l">베타 가입자(MAU 가정)</div></div>
+      <div class="scale-tile"><div class="n">1~10 → 1,000~10,000</div><div class="l">베타 → 3년 이후 가입자</div></div>
       <div class="scale-tile"><div class="n">RTX 4060 · 8GB</div><div class="l">지금 개발 노트북</div></div>
       <div class="scale-tile"><div class="n">Qwen3.5 9B</div><div class="l">채팅 AI 모델 (유지)</div></div>
     </div>
   </div>
 
-  <!-- ================= 노트북 → 베타 서버 ================= -->
+  <!-- ================= 노트북 → 운영 서버 ================= -->
   <section>
     <div class="section-head">
       <span class="tag">전환 · 01</span>
-      <h2>노트북 → 베타 서버, 뭐가 바뀌어야 하나</h2>
+      <h2>노트북 → 운영 서버, 뭐가 바뀌어야 하나</h2>
       <p>같은 이름의 도구를 계속 쓰더라도, "어디서 도느냐"가 바뀐다. 노트북에서
-      멀쩡히 돌던 게 실 서비스에서 문제가 되는 지점만 골랐다.</p>
+      멀쩡히 돌던 게 실 서비스에서 문제가 되는 지점만 골랐다.
+      <b>베타(1~10명)는 노트북 그대로 간다</b> — 아래 표의 "이전 필수"는 운영 단계
+      (1천~1만 명) 기준이다. 서버 이전은 운영 단계로 넘어가기 전에 정한다.</p>
     </div>
     <div class="table-wrap">
       <table>
-        <thead><tr><th>컴포넌트</th><th>지금(노트북)</th><th>베타(1만~10만)</th><th>바뀌는 이유</th></tr></thead>
+        <thead><tr><th>컴포넌트</th><th>지금(노트북)</th><th>운영(1천~1만)</th><th>바뀌는 이유</th></tr></thead>
         <tbody>
           <tr>
-            <td class="name">API 서버(FastAPI)</td>
-            <td>내 PC, <code>uvicorn --reload</code></td>
+            <td class="name">API 서버(FastAPI → Next.js)</td>
+            <td>내 PC, <code>uvicorn --reload</code> — Next.js 로 교체 예정(기술 스택 문서 11-3)</td>
             <td><span class="pill bad">이전 필수</span> 클라우드 VPS 2~4대 + 로드밸런서</td>
-            <td>내 PC가 꺼지면 서비스가 통째로 죽는다. 베타는 24시간 떠 있어야 한다</td>
+            <td>내 PC가 꺼지면 서비스가 통째로 죽는다. 운영 서비스는 24시간 떠 있어야 한다. 베타는 시험 시간대에만 켜 두는 것으로 감수한다</td>
           </tr>
           <tr>
             <td class="name">DB(PostgreSQL+pgvector)</td>
             <td>Docker 컨테이너, 로컬 디스크</td>
             <td><span class="pill bad">이전 필수</span> 관리형 DB(백업·복제 자동) 또는 전용 서버</td>
-            <td>노트북 디스크가 죽으면 회원·결제 데이터가 통째로 사라진다. 베타부터는
+            <td>노트북 디스크가 죽으면 회원·결제 데이터가 통째로 사라진다. 운영부터는
             매일 백업이 있어야 한다</td>
           </tr>
           <tr>
             <td class="name">채팅 AI(Qwen3.5 9B)</td>
-            <td>Ollama, 이 노트북 GPU</td>
+            <td>llama-server(<code>kdance-llm</code>), 이 노트북 GPU</td>
             <td><span class="pill bad">이전 필수</span> 별도 GPU 서버 — 아래 02절</td>
             <td>노트북 GPU 하나로는 동시 사용자 몇 명 이상에서 응답이 밀린다.
             가장 큰 갭이라 따로 다룬다</td>
+          </tr>
+          <tr>
+            <td class="name">AI 에이전트 서버(TypeScript)</td>
+            <td>내 PC, 아직 없음 — 새로 만든다(ADR-003)</td>
+            <td><span class="pill warn">검토 필요</span> GPU 서버 옆 또는 API 서버와 같은 VPS</td>
+            <td>에이전트는 LLM 을 여러 번 부르는 긴 작업이라 제품 API 와 떼어 둔다. DB 에는
+            접속하지 않고 API 서버의 도구(MCP)로만 데이터를 읽는다. 모델을 부르는 곳도 이 서버 하나다. 계산만 하므로 GPU 는 필요 없다</td>
           </tr>
           <tr>
             <td class="name">임베딩(로컬 소형 모델)</td>
@@ -177,14 +188,16 @@
     </div>
 
     <div class="callout">
-      <div class="callout-title">⚠ 노트북 GPU 1대로는 안 된다 — 숫자로 보면</div>
-      <p>Ollama는 기본적으로 모델 하나당 요청을 <b>거의 순차로</b> 처리한다
-      (<code>OLLAMA_NUM_PARALLEL</code>로 늘릴 수 있지만 8GB VRAM에선 여유가 거의 없다).
-      RTX 4060 한 장으로 9B Q4 모델을 돌리면 동시 처리가 체감상 1~4건 수준이다.</p>
-      <p>10만 MAU 중 채팅을 실제로 쓰는 비율을 낙관적으로 5%만 잡아도 5,000명이고,
-      그중 저녁 피크 시간대에 몰리는 수백 명이 동시에 응답을 기다리면 <b>대기열이
-      바로 몇 분 단위로 밀린다.</b> "AI가 느리다"가 아니라 "AI가 한 명씩 순서를
-      기다린다"는 게 정확한 진단이다.</p>
+      <div class="callout-title">⚠ 노트북 GPU 1대는 베타까지다 — 숫자로 보면</div>
+      <p><b>실측(2026-09-24)</b> — Ollama 0.33.3은 Qwen3.5를 병렬로 돌리지 않는다
+      (<code>OLLAMA_NUM_PARALLEL</code>을 줘도 한 번에 1건). 같은 모델 파일을 llama-server로
+      직접 띄워 슬롯 10개로 돌리니, 동시 10명 답 완료 p95가 <b>55.4초 → 15~18초</b>로 줄었다.
+      예전 이 자리의 "체감상 1~4건"은 추정이었다. 근거:
+      <code>specs/001-ai-dance-class-platform/local-ai-capacity.md</code></p>
+      <p><b>베타(최대 10명)</b>는 이 수치 안에 들어온다. <b>운영(1만 명)</b>에서 채팅을 쓰는
+      비율을 5%로 잡으면 500명이고, 저녁 피크에 수십 명이 동시에 몰리면 노트북 1대의
+      동시 10건을 넘어 <b>대기열이 분 단위로 밀린다.</b> 이 계산은 추정이다 — 실제 비율은
+      베타에서 잰다.</p>
     </div>
 
     <div class="opt-grid">
@@ -192,7 +205,7 @@
         <div class="opt-tag">옵션 A</div>
         <h3>저가 GPU 클라우드 1대</h3>
         <p>RunPod·JarvisLabs 등에서 RTX 4090급 인스턴스를 시간당 $0.34~0.59에
-        빌려 Qwen3.5 9B를 그 위에서 돌린다. Ollama 설정은 거의 그대로 옮긴다.</p>
+        빌려 Qwen3.5 9B를 그 위에서 돌린다. 노트북의 llama-server 구성(<code>infra/docker-compose.yml</code>)을 거의 그대로 옮긴다.</p>
         <div class="tradeoff">트레이드오프: "완전 무료"가 깨진다 — 24시간 기준 월
         약 $250~430. 대신 동시 처리가 8GB 노트북보다 훨씬 나아진다</div>
       </div>
@@ -214,7 +227,7 @@
       </div>
     </div>
     <p style="color:var(--text-dim); font-size:0.9rem; margin-top:16px;">
-      <b>추천 — B+C를 먼저, A는 베타 반응 보고 결정.</b> 처음부터 월 $300을 쓰기보다,
+      <b>추천 — B+C를 먼저, A는 베타 반응과 운영 전환 시점을 보고 결정.</b> 처음부터 월 $300을 쓰기보다,
       LLM 호출을 줄이는 설계(C)와 사용량 제한(B)으로 시작해서 실제 병목이 확인되면
       그때 GPU 서버(A)를 붙이는 순서가 "모두 무료로 시작한다"는 원래 방향과 맞는다.</p>
   </section>
@@ -223,10 +236,13 @@
   <section>
     <div class="section-head">
       <span class="tag">아키텍처 · 03</span>
-      <h2>권장 배포 구조 (베타 기준)</h2>
+      <h2>권장 배포 구조 (운영 기준 — 베타는 노트북)</h2>
       <p>회색 상자는 이미 무료/저비용으로 유지되는 것, 굵은 테두리는 위 02절에서
       비용이 생기는 지점이다.</p>
     </div>
+    <p>2026-09-24 에 에이전트 서버를 분리했다(<code>CLAUDE-decisions.md</code> ADR-003 — 언어는 API 서버와 같은 TypeScript).
+    DB 에 쓰는 곳은 API 서버 하나이고, 에이전트 서버는 도구 호출로만 데이터를 읽는다.
+    벡터도 에이전트 서버가 계산하고 API 서버가 기록한다.</p>
     <pre class="mermaid">
 flowchart TB
   subgraph client["클라이언트"]
@@ -241,7 +257,7 @@ flowchart TB
   end
 
   subgraph core["API 서버 (VPS 2~4대)"]
-    API["FastAPI"]
+    API["Next.js API (Prisma 8 · Better Auth)"]
     REDIS["Redis"]
     SCHED["APScheduler"]
   end
@@ -251,8 +267,12 @@ flowchart TB
     MINIO[("MinIO / R2 — 포스터 원본")]
   end
 
+  subgraph agent["AI 에이전트 서버 (TypeScript)"]
+    AGENT["Hono + LangGraph JS + AI SDK<br/>T2 추론 · 포스터 읽기 · 임베딩 계산"]
+  end
+
   subgraph ai["AI 서빙 — 비용 발생 지점"]
-    LLM["Qwen3.5 9B (Ollama)"]
+    LLM["Qwen3.5 9B (llama-server)"]
     EMB["로컬 임베딩 모델"]
   end
 
@@ -265,8 +285,10 @@ flowchart TB
   API --> KAKAO
   API --> PUSH
   API --> PG
-  API -. 채팅 요청만 .-> LLM
-  API --> EMB
+  API -. T2 질문만 .-> AGENT
+  AGENT -. 도구 호출(MCP) .-> API
+  AGENT --> LLM
+  AGENT --> EMB
 
   style LLM stroke:#A8352A,stroke-width:3px
   style EMB stroke:#A8352A,stroke-width:2px
@@ -279,14 +301,14 @@ flowchart TB
       <span class="tag">비용 · 04</span>
       <h2>이 규모에서 무료가 유지되는 것 / 안 되는 것</h2>
       <p><a href="https://claude.ai/code/artifact/7e0d30dd-39ff-4c2f-8e95-c5246f948532" target="_blank"
-      rel="noopener">개발 가이드의 무료 우선순위 가이드</a>를 베타 규모로 다시 채점했다.</p>
+      rel="noopener">개발 가이드의 무료 우선순위 가이드</a>를 운영 규모(1천~1만 명)로 다시 채점했다.</p>
     </div>
     <div class="table-wrap">
       <table>
-        <thead><tr><th>항목</th><th>노트북 기준</th><th>베타(1만~10만) 기준</th></tr></thead>
+        <thead><tr><th>항목</th><th>노트북·베타 기준</th><th>운영(1천~1만) 기준</th></tr></thead>
         <tbody>
           <tr><td class="name">카카오 Local API</td><td><span class="pill ok">무료</span></td>
-            <td><span class="pill warn">일부 유료 전환 가능</span> 일 10만 건 근접 시 건당 10~50원</td></tr>
+            <td><span class="pill warn">한도 확인 필요</span> 일 10만 건을 넘으면 건당 10~50원. 1만 명 규모에서는 한도 안일 가능성이 높다(추정)</td></tr>
           <tr><td class="name">OCR(Tesseract 1차)</td><td><span class="pill ok">무료</span></td>
             <td><span class="pill ok">무료 유지</span> 볼륨이 학원 수 기준이라 사용자 수와 무관하게 완만함</td></tr>
           <tr><td class="name">임베딩(로컬 소형 모델)</td><td><span class="pill ok">무료</span></td>
@@ -306,20 +328,22 @@ flowchart TB
   <section>
     <div class="section-head">
       <span class="tag">추정 · 05</span>
-      <h2>베타 월 예상 비용 (거친 범위)</h2>
+      <h2>월 예상 비용 (거친 범위)</h2>
       <p>PG 거래수수료(매출 비례)는 뺀, <b>고정 인프라비만</b>의 추정이다. 실측 전
       숫자라 ±50% 오차를 감안한다.</p>
     </div>
     <div class="cost-grid">
+      <div class="cost-card"><div class="amt">₩0</div>
+        <div class="lbl">베타(1~10명) — 노트북 1대<br>전기료 제외</div></div>
       <div class="cost-card"><div class="amt">₩0 ~ 5만원</div>
-        <div class="lbl">옵션 B+C만 적용 (GPU 서버 없이 시작)<br>VPS 소규모 1~2대 정도</div></div>
+        <div class="lbl">운영 — 옵션 B+C만 적용 (GPU 서버 없이 시작)<br>VPS 소규모 1~2대 정도</div></div>
       <div class="cost-card"><div class="amt">₩40만 ~ 60만원</div>
-        <div class="lbl">GPU 서버(옵션 A) 추가 시<br>RTX 4090급 24시간 인스턴스 기준</div></div>
+        <div class="lbl">운영 — GPU 서버(옵션 A) 추가 시<br>RTX 4090급 24시간 인스턴스 기준</div></div>
     </div>
     <p class="disclaimer">클라우드 GPU 시세는 자주 바뀐다. 실제 도입 직전에 RunPod·
     JarvisLabs 등에서 최신 시간당 단가를 다시 확인할 것.</p>
   </section>
 
-  <footer>kdance 베타 인프라 가이드 · 작성 2026-09-13 · docs/kdance 폴더</footer>
+  <footer>kdance 베타 인프라 가이드 · 작성 2026-09-13 · 개정 2026-09-24(규모 목표 1천~1만 명, AI 서빙 실측 반영) · docs 폴더</footer>
 
 </div>

@@ -40,5 +40,79 @@ services:
       timeout: 3s
       retries: 5
 
+  # AI 대화 생성 서버 (S0 권장 구성, 2026-09-24).
+  # Ollama 는 이 모델(qwen3.5)을 한 번에 1건씩만 처리한다 — 같은 모델 파일을
+  # llama-server 로 직접 띄우면 10건이 동시에 돈다. 동시 10명 답 완료 p95 가
+  # 55.4초 → 18.0초로 줄었다. 근거: specs/001-ai-dance-class-platform/local-ai-capacity.md
+  #
+  # 실행 파일은 Ollama 이미지 안에 들어 있는 것을 쓰고, 모델은 Ollama 가 받아 둔
+  # 볼륨을 읽기 전용으로 빌려 쓴다. 그래서 이미지를 digest 로 고정한다 —
+  # 태그가 움직이면 llama-server 버전도 조용히 바뀐다.
+  llm:
+    image: ollama/ollama@sha256:32931b46719f673c05fdbaa81ccb26da18ea4a1c57590a754874ab28ba269eb2
+    container_name: kdance-llm
+    restart: unless-stopped
+    entrypoint: /usr/lib/ollama/llama-server
+    command:  # llama-server 는 `--옵션=값` 형식을 받지 않는다 — 옵션과 값을 따로 적는다
+      # 모델 파일은 Ollama 의 blob 이름(해시)이다. `ollama pull` 로 모델을 다시 받으면
+      # 해시가 바뀌므로 여기도 같이 고친다 — 확인: `docker exec ollama ollama show qwen3.5:9b --modelfile`
+      - --model
+      - "/root/.ollama/models/blobs/sha256-dec52a44569a2a25341c4e4d3fee25846eed4f6f0b936278e3a3c900bb99d37c"
+      - --alias          # API 가 돌려주는 모델 이름을 Ollama 와 맞춘다
+      - "qwen3.5:9b"
+      - --host
+      - "0.0.0.0"
+      - --port
+      - "8080"
+      - --parallel               # 동시 10건 (AI 동시 사용자 최대 10명)
+      - "10"
+      - --ctx-size            # 전체 컨텍스트. 슬롯 하나당 40960/10 = 4096
+      - "40960"
+      - --cache-type-k         # KV 캐시 8비트 — 메모리 절반, 품질 손실 거의 없음
+      - "q8_0"
+      - --cache-type-v
+      - "q8_0"
+      - --flash-attn             # q8_0 KV 캐시의 전제 조건
+      - "on"
+      - --n-gpu-layers          # 전 레이어 GPU. 비전 포함 VRAM 약 7.9GB/8.2GB (2026-09-24 실측) — 이 GPU 에는 채팅·비전만 둔다
+      - "999"
+      # 비전(포스터 읽기) — Ollama 는 비전 부품을 본체에 합쳐 두지만 llama-server 는
+      # 별도 파일로 받는다. 파일: unsloth/Qwen3.5-9B-GGUF 의 mmproj-F16.gguf (0.92GB,
+      # sha256 f70dc3509053962b0d0d3ee8a7eacebf5d60aa560cad78254ae8698516ae029f).
+      # 없으면 컨테이너가 뜨지 않는다 — 받는 법: docs/kdancex4_service_definition_and_tech_stack.md 11-2
+      - --mmproj
+      - "/models/qwen3.5-9b/mmproj-F16.gguf"
+      # 비전 부품도 GPU 에 올린다(기본값). CPU 에 두는 --no-mmproj-offload 는 쓰지 않는다 —
+      # CPU 가 이미지를 읽는 20초 남짓 동안 채팅 슬롯이 사실상 멈춰 채팅 p95 가 6.5초 → 24초가 됐다(실측).
+      # 대신 GPU 여유가 수백 MB 뿐이라 임베딩·리랭커는 이 GPU 에 올리지 않는다(개발은 NVIDIA 호스팅) —
+      # 11-2 「Qwen 비전 서빙」·「임베딩·리랭커 배치」 행 참고
+      - --jinja
+      - --reasoning              # 사고(thinking) 모드 기본 끔(FR-279). 켜 두면 요청이 옵션을
+      - "off"                    # 빠뜨렸을 때 토큰을 사고에 다 쓰고 본문이 비어서 온다(실측)
+      - --metrics                   # /metrics — 응답 시간 관측(FR-274·FR-275)
+    environment:
+      # 드라이버 566.26 은 CUDA 12 계열이다. cuda_v13 백엔드는 GPU 를 못 잡는다(실측).
+      CUDA_VISIBLE_DEVICES: "0"
+      LD_LIBRARY_PATH: /usr/lib/ollama/cuda_v12:/usr/lib/ollama
+      GGML_BACKEND_PATH: /usr/lib/ollama/cuda_v12/libggml-cuda.so
+    ports:
+      - "11436:8080"
+    volumes:
+      - ollama-models:/root/.ollama:ro
+      - ${HOME}/models/qwen3.5-9b:/models/qwen3.5-9b:ro   # mmproj 파일 (저장소 밖)
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    # 헬스체크 없음 — 이미지에 curl·wget 이 없다. 상태 확인은 호스트에서
+    # `curl localhost:11436/health` 로 한다.
+
 volumes:
   kdance-db-data:
+  # 기존 `ollama` 컨테이너가 만든 볼륨을 그대로 빌린다(새로 만들지 않는다).
+  ollama-models:
+    external: true
+    name: ollama
