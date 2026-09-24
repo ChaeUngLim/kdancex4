@@ -611,9 +611,9 @@ Vector Search만 사용하는 것보다 사용자 질문과 후보 콘텐츠의 
 
 원칙은 **호환되는 선에서 최신**이다. "최신"과 "의존성 호환"이 충돌하면 호환이 이긴다.
 
-**에이전트 서버는 Next.js 와 별도 프로세스인 TypeScript 서버다**(`CLAUDE-decisions.md`
-ADR-003, 경계는 「11-3. 백엔드 교체」). `Agent 서버`·`LLM 연결`·`Chunking`·`Queue` 행은
-2026-09-24 npm 조회값이다 — `LLM 연결` 만 시험 설치로 확인했고 나머지는 설치해 보지 않았다.
+**에이전트 서버는 Next.js 와 별도 프로세스인 Python 서버다**(`CLAUDE-decisions.md`
+ADR-004, 경계는 「11-3. 백엔드 교체」). `Agent 서버`·`Agent`·`Agent Core`·`LLM 연결`·`Chunking`·`Queue` 행은
+2026-09-24 PyPI 조회값이다 — 아직 설치해 보지 않았다. 나머지 행(웹·앱·DB)은 TypeScript 쪽이다.
 
 | 영역 | 기술 | 버전/기준 | 역할                            |
 |---|---|---|-------------------------------|
@@ -633,18 +633,18 @@ ADR-003, 경계는 「11-3. 백엔드 교체」). `Agent 서버`·`LLM 연결`·
 | DB | PostgreSQL | 18.6 | 관계형 DB                        |
 | Vector | pgvector | 0.8.6 (`pgvector/pgvector:0.8.6-pg18`) | RAG                           |
 | AI UI | Vercel AI SDK | 7.0.113 (`ai`) | Streaming/Tool/UI             |
-| Agent 서버 | Hono · @hono/node-server | 4.13.9 · 2.1.1 | 에이전트 서버 HTTP(ADR-003). MCP SDK 가 이미 의존하는 계열 |
-| Agent | LangGraph | 1.4.17 (`@langchain/langgraph`) | Agent workflow — T2 그래프, 베타 체크포인터는 `MemorySaver` |
-| Agent Core | LangChain Core | 1.2.12 (`@langchain/core`) | LangGraph 가 `^1.1.48` 로 요구 |
-| LLM 연결 | AI SDK OpenAI Compatible | 3.0.55 (`@ai-sdk/openai-compatible`) | llama-server 호출. **`supportsStructuredOutputs: true` 필수**(11-2) — `ai` 7.0.113 과 `provider-utils` 5.0.47 공유(실측) |
-| Chunking | LangChain Text Splitters | 1.0.1 (`@langchain/textsplitters`) | 긴 설명문 청킹 — peer `@langchain/core ^1.0.0` |
-| Queue | BullMQ | 6.3.8 | 포스터 작업 큐(기존 `kdance-redis`), 워커 동시 1건 — 후보 |
+| Agent 서버 | Python · FastAPI · uvicorn | 3.12 · 0.141.1 · 0.53.0 | 에이전트 서버 런타임(ADR-004) — `backend/` 와 같은 Python 3.12·uv. 스키마는 pydantic 2.13.5 |
+| Agent | LangGraph (Python) | 1.2.12 (`langgraph`) | Agent workflow — T2 그래프, 베타 체크포인터는 메모리(`langgraph-checkpoint` 4.2.0) |
+| Agent Core | LangChain Core (Python) | 1.6.4 (`langchain-core`) | LangGraph 가 `<2,>=1.4.7` 로 요구 |
+| LLM 연결 | LangChain OpenAI · OpenAI SDK (Python) | 1.6.6 (`langchain-openai`) · 3.19.2 (`openai`) | llama-server·NVIDIA 호스팅 호출. **`response_format` 은 `json_schema` 로**(11-2) — `json_object` 는 코드블록이 온다 |
+| Chunking | LangChain Text Splitters (Python) | 1.1.2 (`langchain-text-splitters`) | 긴 설명문 청킹 |
+| Queue | Redis Streams (`redis` 8.1.0) | 기존 `kdance-redis` | 포스터 작업 큐. Next.js 가 넣고 Python 워커가 동시 1건으로 꺼낸다 — 언어 중립이라 BullMQ(Node 전용) 대신 고름. 후보 |
 | Date/Time | temporal-polyfill | 1.0.5 | Node 24 LTS 에 없는 `Temporal` 보충 — Prisma 8 timestamptz 필수 |
-| Schema | zod | 4.6.5 | `ai`·LangGraph·MCP SDK·Better Auth 가 공유 — 표에 없으면 3.x 가 섞여 깨진다 |
+| Schema | zod | 4.6.5 | Next.js 쪽 `ai`·MCP SDK·Better Auth 가 공유 — 표에 없으면 3.x 가 섞여 깨진다. 에이전트 쪽(pydantic)과는 JSON Schema 로 맞춘다 |
 | LLM | Qwen | 3.5 9B | 기본 LLM                        |
 | Embedding | Nemotron | 3-Embed-1B-BF8 (8비트. 정식 모델명 `nvidia/nemotron-3-embed-1b`) | 임베딩 — **개발·베타: NVIDIA 호스팅** / 운영: vLLM GPU. 11-2 「임베딩·리랭커 배치」 |
 | Reranker | NVIDIA Nemotron | llama-Nemotron-Rerank-**VL**-1B-v2 (운영: 공식 FP8 `-fp8`) | 후보 재정렬 — **개발·베타: NVIDIA 호스팅** / 운영: FP8 vLLM GPU. 1B-v2(텍스트판)는 호스팅 종료·llama.cpp 미지원·FP8 없음으로 대체 |
-| Protocol | MCP | 1.30.1 (`@modelcontextprotocol/sdk`) | Next.js 는 도구 서버, 에이전트 서버는 클라이언트 — 에이전트가 데이터를 읽는 유일한 통로(ADR-003) |
+| Protocol | MCP | 1.30.1 (`@modelcontextprotocol/sdk`, Next.js 도구 서버) · 2.2.0 (`mcp`, Python 클라이언트) | 에이전트가 데이터를 읽는 유일한 통로(ADR-004) |
 | Storage | Cloudflare R2 | latest | 이미지/영상/파일                     |
 | Deploy | Vercel | latest | Web/Edge/배포                   |
 | Dev AI | Claude Code | latest | AI Coding Agent               |
@@ -731,7 +731,7 @@ API 다. AI SDK 7 은 agent 루프와 tool 호출 구조가 6 과 다르고, Lan
 - 중복 설치 없음: `npm ls` 에서 `@langchain/core@1.2.12`·`zod@4.6.5` 가 전부 deduped 다. core 가 두 벌 깔리면 LangGraph 의 `instanceof` 검사가 깨지므로 이 확인이 핵심이다
 - 검증: `npm run build` 성공, Node 에서 `StateGraph` 컴파일·`invoke` 와 `ai`·MCP SDK·zod import 확인. **admin-web 코드는 아직 이 패키지들을 import 하지 않는다** — 빌드 통과는 타입 충돌이 없다는 뜻까지만이다
 
-**같은 날 에이전트를 별도 TypeScript 서버로 떼기로 했다(ADR-003 — 중간에 Python 안(ADR-002)을 거쳤다가 되돌렸다).** 위 `@langchain/langgraph`·`@langchain/core` 는 그대로 쓰되 **에이전트 서버 쪽으로 옮긴다.** admin-web `package.json` 에는 아직 남아 있고, 옮기는 건 에이전트 서버를 만드는 회차에서 한다. `ai`·MCP SDK·zod 는 채팅 UI·도구 서버용으로 admin-web 에도 남는다.
+**같은 날 에이전트를 별도 Python 서버로 떼기로 했다(ADR-004 — 중간에 TypeScript 안(ADR-003)을 거쳤다).** 위 `@langchain/langgraph`·`@langchain/core` 는 에이전트 런타임에서 빠진다. admin-web `package.json` 에는 아직 남아 있고, 제거는 에이전트 서버를 만드는 회차에서 한다. `ai`·MCP SDK·zod 는 채팅 UI·도구 서버용으로 admin-web 에 남는다.
 
 ## 11-2. 알려진 위험
 
@@ -749,8 +749,8 @@ API 다. AI SDK 7 은 agent 루프와 tool 호출 구조가 6 과 다르고, Lan
 | Temporal 대응 | `temporal-polyfill@1.0.5` 를 도입했다(2026-09-20). 가드가 맨 식별자 `Temporal` 을 보므로 `import 'temporal-polyfill/global'` 로 전역에 심으면 통과한다 — 실측: 주입 전 `undefined` → 주입 후 `object`, `Temporal.Instant.from()` 왕복 정상. **Node 26 은 아직 LTS 가 아니라(2026-09-20 기준 v26.9.0 LTS:False) 런타임 업그레이드 대신 폴리필을 택했다.** 26 이 LTS 가 되면 폴리필만 걷어낸다 | **적용** |
 | Temporal 대안 | 쓰지 않았지만 기록한다 — Prisma 8 은 코덱을 쌍으로 제공한다(`timestampTemporalColumn` ↔ `timestampStringColumn`, `date`/`time` 도 동일). 문자열 코덱은 Temporal 없이 동작하는 **정식 경로**다. 폴리필이 문제를 일으키면 이쪽으로 옮길 수 있다 | 대안 확보 |
 | 폴리필 주입 시점 | 폴리필은 **Prisma 코드가 처음 돌기 전에** 로드되어야 한다. Next.js 에서는 `instrumentation.ts` 같은 최초 진입점이 후보다. 어디에 넣을지는 Phase 3(구현 계획)에서 정한다 | **미검증** |
-| LangGraph → AI SDK 스트림 | LangGraph JS 출력을 `useChat` 스트림으로 바꾸는 `@ai-sdk/langchain@3.0.113` 은 `ai` 를 **`7.0.113` 으로 정확히 고정**한다(범위가 아니다). 쓰면 `ai` 와 이 어댑터를 항상 같은 번호로 함께 올려야 한다. 연결 자체는 돌려 보지 않았다(2026-09-24 조회만) | **미검증** |
-| AI SDK → llama-server 구조화 출력 | `@ai-sdk/openai-compatible@3.0.55` 로 포스터 구조화 추출을 시험했다(2026-09-24, 비전 CPU 구성). `supportsStructuredOutputs` **끔**: `json_object` 만 가서 마크다운이 돌아와 파싱 실패. **켬**: `json_schema` 가 가서 순수 JSON·zod 통과, 17/18(날짜만 원문 형식). 날짜를 zod `regex` 로 걸면 llama-server 가 `pattern` 을 생성 때 강제하지 않아 zod 가 거부(틀린 값이 저장되지 않는 쪽으로 실패). **프롬프트에 "날짜 YYYY-MM-DD·시각 HH:MM·금액 정수" 를 적으니 18/18, 2회 연속**, 28.1~28.6초. 규칙: 형식은 프롬프트로 유도하고 zod 로 검증한다 | **실측** |
+| Python ↔ AI SDK 스트림 | 에이전트가 Python 이라(ADR-004) `@ai-sdk/langchain` 어댑터는 쓰지 않는다. 대신 Python 서버의 스트림을 AI SDK 7 `useChat` 에 붙이는 방법이 남는다 — Python 이 AI SDK UI 스트림 형식을 직접 내보낼지, Next.js 가 중간에서 변환할지 확인하지 않았다. **구현 첫 단계에서 검증한다** | **미검증** |
+| AI SDK → llama-server 구조화 출력 | `@ai-sdk/openai-compatible@3.0.55` 로 포스터 구조화 추출을 시험했다(2026-09-24, 비전 CPU 구성). `supportsStructuredOutputs` **끔**: `json_object` 만 가서 마크다운이 돌아와 파싱 실패. **켬**: `json_schema` 가 가서 순수 JSON·zod 통과, 17/18(날짜만 원문 형식). 날짜를 zod `regex` 로 걸면 llama-server 가 `pattern` 을 생성 때 강제하지 않아 zod 가 거부(틀린 값이 저장되지 않는 쪽으로 실패). **프롬프트에 "날짜 YYYY-MM-DD·시각 HH:MM·금액 정수" 를 적으니 18/18, 2회 연속**, 28.1~28.6초. 규칙: 형식은 프롬프트로 유도하고 zod 로 검증한다  에이전트가 Python 으로 바뀌어도(ADR-004) 같은 llama-server 라 **`json_schema` 로 보내고, pattern 은 모델이 아니라 pydantic 이 검증한다**는 규칙은 그대로다. Python 클라이언트 경로 자체는 아직 돌려 보지 않았다 | **실측(서버) · Python 경로 미검증** |
 | 임베딩·리랭커 배치 | 2026-09-24 실측으로 정했다. **원칙: 개발은 원본 품질로, 로컬 GPU 는 채팅·비전 전용.**<br>① **로컬 llama.cpp 임베딩은 원본과 다르다** — NVIDIA 호스팅 `nemotron-3-embed-1b` 를 기준으로 로컬 GGUF 벡터 일치(코사인) 평균 0.82·최소 0.52. 원인은 양자화가 아니다(Q8_0 과 BF16 은 거의 같음). 모델은 양방향 어텐션(`is_causal: false`)인데 llama.cpp 가 단방향으로 돌리고, 이 빌드에는 바꿀 옵션이 없다. BOS 를 꺼도 0.84. 원본은 살사 0.53·요가 0.34 로 벌리는데 로컬은 0.38·0.36 으로 붙는다. 호출 규칙: `query: `·`passage: ` 접두어 필수(빼면 요가가 1위).<br>② **리랭커 1B-v2 는 막혔다** — NVIDIA 호스팅 410 Gone(2026-08-25 종료), llama.cpp 미지원(PR #24083 OPEN, 공식 build 11151 에서도 텐서 수 불일치), 공식 FP8 없음. **VL-1B-v2 호스팅은 정상**: 후보 5개 452~463ms, 정답 −2.60 · 나머지 −6.90 이하. 공식 FP8판(`-fp8`, W8A8 정적, 가중치 약 2.4GB)은 vLLM·GPU 전용이라 CPU 에서는 이득이 없다.<br>③ **재측정(반영 후)**: GPU 에는 Qwen + 비전(A)만. 채팅 10건 단독 p95 6.63초. **최악 부하(채팅 10 + 포스터 1 + 호스팅 임베딩·리랭크 10명 동시)**: 채팅 p95 **6.98초**(반영 전 24.28초), 포스터 12.6~16.3초·18/18, 호스팅 10명 전원 성공·임베딩 최대 1.34초·리랭크 최대 0.48초·합계 최대 1.83초, VRAM 최고 7,903/8,188MiB, 재시작 0.<br>**단계별 배치**: 개발·베타 — 둘 다 NVIDIA 호스팅(2026-09-24 사용자 결정). **전제: 베타 기간의 실제 사용자는 개발자 본인뿐(혼자 시험)이다** — 약관이 허용하는 "limited trial purposes" 범위로 본다. **다른 사람이 실제로 쓰기 시작하면 운영에 가까워지므로 그 시점에 재검토한다.** 운영 — 둘 다 vLLM 도커(GPU), 리랭커는 FP8. **베타 호스팅의 알려진 위험**: ① NVIDIA 체험 약관 1.2항이 "production" 사용을 금지한다 — 실사용자 베타가 여기에 해당할 수 있다(해석은 NVIDIA 확인 사항) ② 1B-v2 처럼 예고 없이 종료될 수 있다 ③ 입력(사용자 검색어·수업 설명)이 NVIDIA 로 나가고 약관상 세션 지표·로그가 수집된다 ④ 한도 분당 약 40회로 알려져 있다(약관 원문에는 수치 없음) — 베타 10명 동시 T2 는 임베딩 10 + 리랭크 10 = 20회라 들어간다(실측 10명 전원 성공). **대비책(에이전트 서버)**: 리랭커 실패 → 벡터 순위 그대로, 임베딩 실패 → SQL 조건 검색만으로 답한다(다른 임베딩 모델로 바꾸지 않는다 — 벡터가 호환되지 않는다). 엔진이 바뀌면 벡터를 다시 만든다(벡터에 모델·엔진 기록). 키는 저장소 밖 `~/.config/kdance/nvidia.env` | **개발·베타 배치 확정(위험 인지) · 운영은 방향만** |
 | LLM 3종 | 2026-09-20 에는 npm 밖이라 검증하지 못했다. **2026-09-24 전부 실측**: Qwen 3.5 9B(llama-server 10슬롯·비전) · Nemotron 3-Embed-1B-BF8(NVIDIA 호스팅 `nemotron-3-embed-1b`) · 리랭커는 1B-v2 호스팅 종료로 **Rerank-VL-1B-v2**(NVIDIA 호스팅)로 교체 — 상세는 이 표의 비전·임베딩·리랭커 행 | **실측** |
 | Qwen 3.5 9B 비전 입력 | 모델 파일(Ollama `qwen3.5:9b`, Q4_K_M) 안에 비전 인코더가 들어 있다 — GGUF 텐서 `v.*` 441개·27블록, Ollama capability `vision` 표시. 합성 한국어 포스터 1장으로 구조화 추출을 시험했다(Ollama 0.33.3, `format: json`, `think: false`, temperature 0): **18개 항목 전부 정확**(학원명·주소·수업명·강사·날짜·시간·수강료·남녀 정원·파티 시간·카드/현금 입장료·워크샵·환불 규정·연락처·인스타). 시간은 첫 호출 18.3초(로딩 7.3초 포함), 이후 9.5초이고 이미지 1장이 입력 약 1,180토큰이다(2026-09-24). **포스터 OCR 에 별도 라이브러리가 필요 없을 가능성이 크다.** 남은 것: ① 실제 사진 포스터로는 재지 않았다 ② 지금 `kdance-llm`(llama-server)은 `vision: False` 다 — llama-server 는 비전 부품을 `--mmproj` 별도 파일로 받는데 Ollama 는 본체에 합쳐 저장한다 ③ 서빙 구성은 아래 행 | **모델 지원 확인** |
@@ -759,8 +759,8 @@ API 다. AI SDK 7 은 agent 루프와 tool 호출 구조가 6 과 다르고, Lan
 ## 11-3. 백엔드 교체
 
 이 표는 TypeScript 단일 스택이다. ORM(Prisma 8) · Auth(Better Auth) · AI UI(Vercel AI SDK)가
-모두 TypeScript 전용이라 제품 API 는 Next.js 가 맡는다. **AI 에이전트는 별도 프로세스로
-떼되 언어는 같은 TypeScript 다**(ADR-003). 기존 `backend/`(FastAPI + SQLAlchemy 2 + Alembic +
+모두 TypeScript 전용이라 제품 API 는 Next.js 가 맡는다. **AI 에이전트는 별도 Python
+서버로 뗀다**(ADR-004). 기존 `backend/`(FastAPI + SQLAlchemy 2 + Alembic +
 psycopg3)는 **Next.js + Prisma 8 로 교체**한다.
 
 | 대상 | 전 | 후 |
@@ -786,7 +786,7 @@ mobile(Expo) · Next.js 화면
 Next.js API (TS) ── Prisma 8 · Better Auth · 결제 · Triage(T0·T1·T3) · 이관 처리
         │                          └─ PostgreSQL + pgvector   ← 쓰기는 여기만
         │ T2 요청 ↓         ↑ 도구 호출(MCP): 수업 검색 · 벡터 검색 · 일정 충돌
-AI 에이전트 서버 (TS) ── Hono + LangGraph JS + AI SDK · T2 추론 · 포스터 읽기 · 임베딩 계산
+AI 에이전트 서버 (Python) ── FastAPI + LangGraph · T2 추론 · 포스터 읽기 · 임베딩 호출
         ↓ OpenAI 호환 API
 llama-server(Qwen 3.5 9B) · 임베딩 · 리랭커   ← 베타: 노트북 GPU / 운영: GPU 서버
 ```
@@ -807,9 +807,11 @@ llama-server(Qwen 3.5 9B) · 임베딩 · 리랭커   ← 베타: 노트북 GPU 
 | 포스터 읽기 | Next.js 가 원본을 R2 에 올리고 큐에 넣는다. 워커가 동시 1건으로 꺼낸다 | Qwen 비전 + zod 결과를 Next.js 에 돌려준다 → 「확인 대기」 → **업주 확인 후** 확정 |
 | 임베딩 계산 | Next.js 가 저장 직전 `POST /embeddings` | 벡터를 돌려주면 Next.js 가 원본과 한 트랜잭션으로 기록 |
 
-**Python 을 쓰지 않는 이유.** Python 을 고려했던 근거는 OCR·문서 처리였는데(ADR-002),
-Qwen 비전이 포스터를 한 번의 호출로 구조화하고 그 호출을 AI SDK 에서 할 수 있음을
-실측했다(11-2). 남는 일은 전부 TS 로 된다.
+**에이전트만 Python 인 이유(ADR-004).** 기술만 보면 TypeScript 로도 된다(ADR-003 에서 실측).
+Python 을 고른 건 채용·포트폴리오 기준이다 — 실무에서 AI 에이전트 개발은 Python 이 표준이고,
+"제품 백엔드는 다른 언어, 에이전트 서비스는 Python" 이 흔한 구조다. 에이전트 서버가 HTTP·MCP 로만
+대화하고 DB 에 접속하지 않으므로, 언어가 둘이어도 스키마 원본은 Prisma 8 계약 하나로 남는다.
+노트북 자원도 차이가 없다(두 언어 모두 VRAM 0, RAM 약 0.2~0.5GB 추정).
 
 ---
 

@@ -141,8 +141,8 @@
             가장 큰 갭이라 따로 다룬다</td>
           </tr>
           <tr>
-            <td class="name">AI 에이전트 서버(TypeScript)</td>
-            <td>내 PC, 아직 없음 — 새로 만든다(ADR-003)</td>
+            <td class="name">AI 에이전트 서버(Python)</td>
+            <td>내 PC, 아직 없음 — 새로 만든다(ADR-004)</td>
             <td><span class="pill warn">검토 필요</span> GPU 서버 옆 또는 API 서버와 같은 VPS</td>
             <td>에이전트는 LLM 을 여러 번 부르는 긴 작업이라 제품 API 와 떼어 둔다. DB 에는
             접속하지 않고 API 서버의 도구(MCP)로만 데이터를 읽는다. 모델을 부르는 곳도 이 서버 하나다. 계산만 하므로 GPU 는 필요 없다</td>
@@ -240,7 +240,7 @@
       <p>회색 상자는 이미 무료/저비용으로 유지되는 것, 굵은 테두리는 위 02절에서
       비용이 생기는 지점이다.</p>
     </div>
-    <p>2026-09-24 에 에이전트 서버를 분리했다(<code>CLAUDE-decisions.md</code> ADR-003 — 언어는 API 서버와 같은 TypeScript).
+    <p>2026-09-24 에 에이전트 서버를 분리했다(<code>CLAUDE-decisions.md</code> ADR-004 — 에이전트 서버만 Python, API 서버는 TypeScript).
     DB 에 쓰는 곳은 API 서버 하나이고, 에이전트 서버는 도구 호출로만 데이터를 읽는다.
     벡터도 에이전트 서버가 계산하고 API 서버가 기록한다.</p>
     <pre class="mermaid">
@@ -267,8 +267,8 @@ flowchart TB
     MINIO[("MinIO / R2 — 포스터 원본")]
   end
 
-  subgraph agent["AI 에이전트 서버 (TypeScript)"]
-    AGENT["Hono + LangGraph JS + AI SDK<br/>T2 추론 · 포스터 읽기 · 임베딩 계산"]
+  subgraph agent["AI 에이전트 서버 (Python)"]
+    AGENT["FastAPI + LangGraph<br/>T2 추론 · 포스터 읽기 · 임베딩·리랭크 호출"]
   end
 
   subgraph ai["AI 서빙 — 비용 발생 지점"]

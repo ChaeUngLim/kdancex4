@@ -108,12 +108,12 @@
    │
    └── Expo SDK 58 ───────── Mobile (React Native 0.88.0-rc.0)
 
-Node.js 24 — AI 에이전트 서버 (별도 프로세스, ADR-003, 아직 없음)
+Python 3.12 — AI 에이전트 서버만 (별도 프로세스, ADR-004, 아직 없음)
    │
-   └── Hono 4.13.9 ──────── T2 추론 · 포스터 읽기 · 임베딩 계산
-          ├── LangGraph 1.4.17 ──────── Agent workflow runtime
-          ├── AI SDK 7 + openai-compatible ── llama-server 호출 (구조화 출력)
-          └── MCP 클라이언트 ─────────── Next.js 의 도구로만 데이터를 읽는다 (DB 직접 접속 없음)</code></pre>
+   └── FastAPI 0.141.1 ──── T2 추론 · 포스터 읽기 · 임베딩·리랭크 호출
+          ├── LangGraph 1.2.12 ─────── Agent workflow runtime
+          ├── langchain-openai 1.6.6 ── llama-server·NVIDIA 호출 (json_schema)
+          └── mcp 2.2.0 (클라이언트) ── Next.js 의 도구로만 데이터를 읽는다 (DB 직접 접속 없음)</code></pre>
 
   <h3>상태를 어디에 두는가</h3>
 
@@ -124,7 +124,7 @@ Node.js 24 — AI 에이전트 서버 (별도 프로세스, ADR-003, 아직 없�
     <tbody>
       <tr><td>화면 · UI 상태</td><td>Zustand 5.0.15</td><td>휘발. 새로고침하면 사라져도 된다</td></tr>
       <tr><td>서버 데이터 · 캐시</td><td>TanStack Query 5.103.1</td><td>서버가 원본. 캐시는 사본일 뿐</td></tr>
-      <tr><td>Agent 실행 상태</td><td>LangGraph 1.4.17 (에이전트 서버)</td><td>장기 실행. 중간에 끊겨도 이어져야 한다</td></tr>
+      <tr><td>Agent 실행 상태</td><td>LangGraph 1.2.12 (Python 에이전트 서버)</td><td>장기 실행. 중간에 끊겨도 이어져야 한다</td></tr>
       <tr><td>영속 데이터</td><td>PostgreSQL 18.6</td><td>진실의 원천</td></tr>
     </tbody>
   </table>
@@ -223,8 +223,8 @@ LangGraph</code></pre>
       <tr><td>Client State</td><td>zustand</td><td class="v">5.0.15</td><td><span class="st ok">설치됨</span></td></tr>
       <tr><td>Server State</td><td>@tanstack/react-query</td><td class="v">5.103.1</td><td><span class="st ok">설치됨</span></td></tr>
       <tr><td>AI UI</td><td>ai (Vercel AI SDK)</td><td class="v">7.0.113</td><td><span class="st ok">설치됨</span></td></tr>
-      <tr><td>Agent</td><td>@langchain/langgraph</td><td class="v">1.4.17</td><td><span class="st warn">설치됨 · 에이전트 서버로 이동 예정(ADR-003)</span></td></tr>
-      <tr><td>Agent Core</td><td>@langchain/core</td><td class="v">1.2.12</td><td><span class="st warn">설치됨 · 에이전트 서버로 이동 예정(ADR-003)</span></td></tr>
+      <tr><td>Agent</td><td>@langchain/langgraph</td><td class="v">1.4.17</td><td><span class="st warn">설치됨 · 제거 예정(에이전트는 Python, ADR-004)</span></td></tr>
+      <tr><td>Agent Core</td><td>@langchain/core</td><td class="v">1.2.12</td><td><span class="st warn">설치됨 · 제거 예정(에이전트는 Python, ADR-004)</span></td></tr>
       <tr><td>Protocol</td><td>@modelcontextprotocol/sdk</td><td class="v">1.30.1</td><td><span class="st ok">설치됨</span></td></tr>
       <tr><td>CSS</td><td>tailwindcss</td><td class="v">4.3.3</td><td><span class="st wait">연결 대기</span></td></tr>
       <tr><td>UI System</td><td>shadcn/ui</td><td class="v">4.21.0</td><td><span class="st no">CLI — 실행해 쓴다</span></td></tr>
@@ -612,8 +612,8 @@ export const db = postgres&lt;Contract&gt;({
   <h2>AI SDK 7 · LangGraph · MCP</h2>
 
   <div class="callout warn">
-    <div class="callout-label">2026-09-24 — 에이전트는 별도 TypeScript 서버에서 돈다</div>
-    <p style="margin:0"><code>CLAUDE-decisions.md</code> ADR-003. 에이전트 런타임은 Next.js 안이 아니라 <strong>별도 Node 프로세스(Hono + LangGraph JS + AI SDK)</strong>다. 중간에 Python 안(ADR-002)을 거쳤지만, Qwen 비전이 포스터를 OCR 없이 읽고 그 호출이 AI SDK 로 된다는 실측으로 되돌렸다. 이 절의 <code>@langchain/langgraph</code>·<code>@langchain/core</code> 는 에이전트 서버로 옮긴다. <code>ai</code>(채팅 UI)와 MCP SDK(도구 서버)는 Next.js 에도 남는다. llama-server 를 부를 때는 <code>@ai-sdk/openai-compatible</code> 에 <code>supportsStructuredOutputs: true</code> 를 준다 — 빠뜨리면 스키마 없이 <code>json_object</code> 만 가서 마크다운이 돌아온다. <strong>에이전트에게:</strong> Next.js 코드에 LangGraph 그래프를 새로 만들지 않는다. 에이전트 서버는 DB 에 접속하지 않는다 — 데이터는 Next.js 가 여는 도구로만 읽고, 벡터는 계산만 해서 Next.js 에 넘긴다.</p>
+    <div class="callout-label">2026-09-24 — 에이전트는 별도 Python 서버에서 돈다 (나머지는 TypeScript)</div>
+    <p style="margin:0"><code>CLAUDE-decisions.md</code> ADR-004. 에이전트 런타임은 Next.js 안이 아니라 <strong>별도 Python 서버(FastAPI + LangGraph)</strong>다. Python 은 이 서버에만 쓰고 웹·제품 API·모바일은 TypeScript 그대로다. 기술만 보면 TS 로도 됐지만(ADR-003 실측) 채용·포트폴리오 기준으로 Python 을 골랐다. 이 절의 <code>@langchain/langgraph</code>·<code>@langchain/core</code> 는 admin-web 에서 뺀다. <code>ai</code>(채팅 UI)와 MCP SDK(도구 서버)는 Next.js 에 남는다. llama-server 를 부를 때는 <code>response_format</code> 을 <code>json_schema</code> 로 보낸다 — <code>json_object</code> 만 보내면 코드블록·마크다운이 돌아온다(실측). <strong>에이전트에게:</strong> Next.js 코드에 LangGraph 그래프를 새로 만들지 않는다. 에이전트 서버는 DB 에 접속하지 않는다 — 데이터는 Next.js 가 여는 도구로만 읽고, 벡터는 계산만 해서 Next.js 에 넘긴다.</p>
   </div>
 
   <p>세 패키지 모두 라인 자체를 올렸다. <code>ai</code> 6.x 와 <code>@langchain/langgraph</code> 1.2.x 는 구세대 에이전트 API 라, 에이전트 기능을 쓰려면 올려야 한다. <span class="tag unverified">미검증</span> — 릴리스 노트 기준이고 이 프로젝트에서 아직 코드로 확인하지 않았다.</p>
@@ -663,7 +663,7 @@ export const db = postgres&lt;Contract&gt;({
   <p>Prisma CLI 출력을 줄글로 파싱하지 않는다. <code>envelope.ok</code> 로 성공을 판정하고, <code>envelope.diagnostics</code> 를 경고로 올리고, <code>envelope.nextActions</code> 가 비어 있지 않으면 그걸 다음 단계 후보로 쓴다.</p>
 
   <h3>3. 스키마는 zod 한 곳에서 정의한다</h3>
-  <p><code>ai</code> 의 tool 정의, LangGraph 의 상태, MCP 도구 스키마가 전부 zod 를 쓴다. 에이전트 서버와 Next.js 가 같은 언어라 이 스키마를 두 서버가 그대로 나눠 쓴다(ADR-003). 같은 개념을 세 번 정의하지 않고 한 번 정의해 세 곳에서 재사용한다. 버전이 하나로 수렴해 있어야 이게 성립한다.</p>
+  <p><code>ai</code> 의 tool 정의와 MCP 도구 스키마, Better Auth 가 zod 를 쓴다. 에이전트 서버는 Python(pydantic)이라 zod 를 직접 나눠 쓰지 못한다 — MCP 도구 스키마가 JSON Schema 라 두 언어가 같은 계약을 읽는다(ADR-004). 같은 개념을 세 번 정의하지 않고 한 번 정의해 세 곳에서 재사용한다. 버전이 하나로 수렴해 있어야 이게 성립한다.</p>
 
   <h3>4. 버전을 소스에 하드코딩하지 않는다</h3>
   <p>런타임에서 버전을 문자열로 비교하는 코드를 쓰지 않는다. RC 라 값이 자주 바뀐다. 필요하면 기능 존재 여부로 분기한다.</p>
