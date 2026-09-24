@@ -235,7 +235,56 @@
   5. 체크포인터는 베타에서 메모리. DB 에 접속하지 않는다
   6. 리랭커 실패 → 벡터 순위, 임베딩 실패 → SQL 조건 검색으로 물러선다
 - 미확인:
-  - Python → AI SDK `useChat` 스트림 연결(가장 불확실 — 구현 첫 단계에서 검증)
+  - Python → AI SDK `useChat` 스트림 연결(가장 불확실 — 구현 첫 단계에서 검증). 연결 방식은 ADR-005(에이전트 스트림은 자체 형식, 번역은 Next.js)로 정했다. 동작 검증은 아직이다
   - Python 클라이언트에서의 `json_schema` 경로(서버 동작은 AI SDK 시험으로 확인했지만 Python 클라이언트로는 안 돌렸다)
   - Redis Streams 를 Next.js·Python 이 함께 쓰는 구성, Python 패키지 설치
 - 관련: ADR-002(같은 방향, 근거가 OCR 이었다가 사라짐) · ADR-003(언어만 대체됨)
+
+## ADR-005. 에이전트 서버는 자체 스트림 형식으로 보내고, AI SDK 형식 번역은 Next.js 가 맡는다 (2026-09-25)
+
+- 상태: 채택
+- 맥락: 채팅 화면은 AI SDK(`ai` 7.0.113)의 `useChat` 으로 만든다. `useChat` 은 약속된 형식의
+  스트림만 알아듣는다. 헤더 `x-vercel-ai-ui-message-stream: v1` 에 `text-start`·`text-delta`·`finish`
+  같은 조각을 SSE 로 받는 형식이다(설치본 `admin-web/node_modules/ai/dist` 에서 확인).
+  Next.js 안에서 AI SDK 로 모델을 부르면 이 형식이 저절로 나온다. 그런데 ADR-004(에이전트 서버만
+  Python)로 모델을 부르는 곳이 Python 서버가 됐고 Python 에는 AI SDK 가 없다. ADR-004 가
+  "가장 불확실"로 남긴 항목이 이것이다.
+- 결정: **에이전트 서버는 자기 이벤트 형식으로 SSE 를 보내고 Next.js Route Handler 가 이를 AI SDK UI
+  스트림으로 번역해 화면에 넘긴다.** 에이전트 서버는 AI SDK 를 모른다.
+
+  ```
+  에이전트 서버(Python) ──SSE, 자체 형식──▶ Next.js Route Handler(번역) ──AI SDK UI 스트림──▶ useChat
+  ```
+
+  이벤트 초안(이름과 필드는 구현 때 JSON Schema 로 고정한다):
+
+  | 이벤트 | 뜻 | 대응 요구사항 |
+  |---|---|---|
+  | `queued{position, eta}` | 대기열 순번과 예상 대기 시간 | FR-261(대기열·순번 표시) |
+  | `stage{name}` | 지금 단계(조건 분석·후보 찾기·답 작성) | FR-262(진행 단계·점진 표시) |
+  | `text{sentence}` | 검사를 통과한 문장 하나 | FR-266(한국어로만 답)·FR-267(입력에 없는 사실 금지) |
+  | `done{metrics}` | 완료. 대기·첫 내용·완료 시간, 모델 호출 수 | FR-274(질문별 측정 기록). 기록은 Next.js 가 한다 |
+  | `error{fallback}` | 실패. 대체 답이나 사람 문의 안내 | FR-278(모델 장애 감지·자동 복구) |
+
+- 판단 근거:
+  - **형식 변경이 한 곳에서 끝난다.** AI SDK 는 메이저가 자주 바뀐다(6 → 7 에서 에이전트 API 가 바뀌었다).
+    형식이 `v1` 에서 바뀌어도 Next.js 의 번역기만 고치면 되고 Python 쪽은 그대로다
+  - **어차피 지나가는 길목이다.** 로그인 확인(Better Auth)과 측정값 기록(FR-274)을 Next.js 가 하므로
+    화면의 요청은 Next.js 를 거친다. 번역도 거기서 하면 경로가 늘지 않는다
+  - **경계가 ADR-004 와 맞는다.** 에이전트 서버는 HTTP·MCP 로만 대화하고 화면 기술을 모른다.
+    모바일(Expo)이 같은 스트림을 받게 되어도 에이전트 서버는 고칠 것이 없다
+- 버린 대안:
+  - **Python 이 AI SDK 형식(UI Message Stream Protocol)을 직접 맞춰 보낸다** — 불가능한 길은 아니다.
+    설치본 문서(`ai/docs/04-ai-sdk-ui/20-streaming-data.mdx`)에 Python·FastAPI 같은 외부 백엔드에서
+    이 프로토콜로 보낼 수 있다고 나와 있다. 번역 코드가 없어 경로도 가장 짧다. 버린 이유는 결합이다.
+    Python 라이브러리가 없어 형식을 손으로 맞춰야 하고 AI SDK 가 형식을 바꿀 때마다 Python 도 함께
+    고쳐야 한다
+- 대가: Next.js 에 번역기 코드가 생긴다(이벤트 5종 → AI SDK 조각). 번역기 단위 테스트가 필요하다
+- 번역에 쓸 API (설치본 `ai` 7.0.113 의 `index.d.ts`·`docs/04-ai-sdk-ui/20-streaming-data.mdx` 에서 확인):
+  - Route Handler 에서 `createUIMessageStream({ execute: ({ writer }) => ... })` 로 스트림을 열고
+    `writer.write({ type: 'text-delta', ... })` 로 조각을 쓴다. 응답은 `createUIMessageStreamResponse`
+  - `queued`·`stage` 는 `data-*` 조각에 `transient: true` 를 붙여 보낸다. 대화 기록에 남지 않고
+    화면의 `useChat` `onData` 에서만 받는다. 순번·진행 표시처럼 지나가는 정보에 맞는다
+- 미확인: 위 API 로 실제 Python SSE 를 번역해 화면까지 흘려 본 적은 없다. 에이전트 서버를 만들 때
+  첫 단계에서 끝에서 끝까지 한 번 통과시킨다
+- 관련: ADR-004(에이전트 서버만 Python) — 그 "미확인" 첫 항목의 연결 방식을 정한 것이다
