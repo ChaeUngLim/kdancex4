@@ -619,8 +619,8 @@ ADR-004, 경계는 「11-3. 백엔드 교체」). `Agent 서버`·`Agent`·`Agen
 |---|---|---|-------------------------------|
 | Web | Next.js | 16.3.5 | Web/App Router, 서버 기능         |
 | UI | React | 19.3.0 | Web UI                        |
-| Mobile | Expo SDK | 58.0.0-preview.3 | 모바일 툴체인 · RN 앵커 |
-| Mobile | React Native | 0.88.0-rc.0 | Android/iOS App (Expo SDK 핀) |
+| Mobile | Expo SDK | 58.0.0-preview.6 | 모바일 툴체인 · RN 앵커 |
+| Mobile | React Native | 0.88.0-rc.1 | Android/iOS App (Expo SDK 핀) |
 | Language | TypeScript | 6.0.3 | 타입 안정성                        |
 | Runtime | Node.js | 24.21.0 LTS (Krypton) | Next.js/Prisma 실행환경           |
 | CSS | Tailwind CSS | 4.3.3 | UI 스타일                        |
@@ -653,17 +653,18 @@ ADR-004, 경계는 「11-3. 백엔드 교체」). `Agent 서버`·`Agent`·`Agen
 
 ## 11-1. 버전을 이렇게 정한 이유
 
-### React Native 0.88.0-rc.0 — 앵커를 Expo 58 preview 로 옮겼다
+### React Native 0.88.0-rc.1 — 앵커를 Expo 58 preview 로 옮겼다
 
 RN 버전은 직접 고르는 값이 아니다. Expo SDK 가 고정한다. 그래서 고를 수 있는 건
 **어느 SDK 를 앵커로 둘 것인가** 뿐이다.
 
 ```
-Expo SDK 58.0.0-preview.3  →  react-native 0.88.0-rc.0   ← 채택
+Expo SDK 58.0.0-preview.6  →  react-native 0.88.0-rc.1   ← 채택
 ```
 
 핀은 패키지 안의 `bundledNativeModules.json` 에 들어 있다. 58 preview 의 실제 값은
-`react-native` 0.88.0-rc.0, `react` 19.2.3, `react-native-worklets` 0.12.2 다.
+`react-native` 0.88.0-rc.1, `react` 19.3.0, `react-native-worklets` 0.12.2 다
+(2026-09-25 preview.3 → preview.6 갱신. preview.3 때는 rc.0 · 19.2.3 이었다).
 
 **RN 의 안정 최신인 0.87.1 은 Expo 를 쓰는 한 도달할 수 없는 값이다. 0.87 을 쓰려면 Expo 를
 버려야 하고, 그러면 EAS 빌드와 `expo-*` 모듈 전체를 잃는다. 그 대가가 크다고 보아
@@ -674,9 +675,10 @@ Expo SDK 58.0.0-preview.3  →  react-native 0.88.0-rc.0   ← 채택
 경고 없이 통과한다. 네이티브 호환성은 npm 버전 범위로 표현되지 않기 때문이다.
 그래서 설치 성공을 호환 근거로 삼으면 안 된다 — 버전 정책의 함정 ③ 이 이 자리다.
 
-**모바일의 React 는 58 에서도 19.2.3 이다.** 웹(admin-web)의 19.3.0 과 다르다.
-RN 앵커를 어디에 두든 이 값은 바뀌지 않으므로, "RN 을 올리면 React 도 최신이 된다"는
-기대는 성립하지 않는다.
+**모바일의 React 도 preview.6 부터 19.3.0 이다.** 웹(admin-web)과 같아졌다. preview.3 까지는
+19.2.3 이라 웹과 달랐다. React 버전은 우리가 고르는 값이 아니라 Expo 가 preview 마다 바꾸는 값이다.
+그래서 "RN 을 올리면 React 도 따라 오른다"고 기대하지 말고, 올릴 때마다
+`bundledNativeModules.json` 을 다시 읽는다.
 
 ### Prisma 8 RC — `@prisma/client` 를 쓰지 않는다
 
