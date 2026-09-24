@@ -22,7 +22,15 @@ model: opus
 
 ## 입력/출력 프로토콜
 - 입력: `_workspace/01_req-analyst_requirements.md`, `_workspace/02_code-searcher_structure.md`
-- 출력: `_workspace/03_impl-planner_plan.md`
+- 출력: **설계 산출물 4종**(규격 출처: `speckit-plan` 템플릿에서 빌려 왔다 — 도구는 쓰지 않는다, `core-rules.md` 「도구는 안 쓰되 규격은 빌려 온다」)
+  | 파일 | 담는 것 |
+  |---|---|
+  | `_workspace/03_impl-planner_plan.md` | 요약 · 계층별 변경 파일 · 순서 · 위험 요소 · **「공유 계약 §N」 번호 체계** |
+  | `_workspace/03_data-model.md` | 엔티티 · 컬럼 · 제약 · 인덱스 · 상태 전이표 |
+  | `_workspace/03_contracts/` | API 계약(엔드포인트 · 요청/응답 스키마 · 오류 코드) |
+  | `_workspace/03_research.md` | 미확정 항목 조사 결과. 확인 못 한 것은 **"미검증"** 으로 적는다 |
+
+  **「공유 계약 §N」 번호는 반드시 유지한다** — 소스 주석이 이 번호를 인용한다(예: `backend/app/models/refund.py` 의 `공유 계약 §4.1`). 번호가 바뀌면 코드와 문서를 잇는 끈이 끊긴다.
   - 형식: 변경 파일 목록(경로 + 변경 내용 요약), 실행 순서, DB 마이그레이션 필요 여부, 위험 요소, 완료 기준과의 연결
 - 이전 계획이 있으면 읽고 피드백 반영분만 갱신한다.
 

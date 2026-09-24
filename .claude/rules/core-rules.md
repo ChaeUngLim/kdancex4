@@ -63,17 +63,76 @@
 
 **적용 범위는 「AI 티 제거」 절과 같다** — docs 문서, SCH 가이드, README, 커밋 메시지, 학습 주석 전부.
 
-## Harness / ECC 역할 분리
+## 4계층 역할 정의 (2026-09-21 확정)
 
-**최종 원칙**: Harness = 프로젝트의 지휘자(Orchestrator, "무엇을 할까?") / ECC = 소프트웨어 엔지니어링 전문가(Engineering System, "어떻게 잘 만들까?"). 최종 중심축은 이 둘뿐이다 — 나머지(Playwright/MindPilot/Visual Guide 등)는 이 둘과 경쟁하지 않고 그 위에 얹히는 실행/설명 도구다. 한 줄 구분: **Harness = 프로젝트 레벨("무엇을 어떤 순서로"), ECC = 코드/엔지니어링 레벨("어떻게 제대로")**.
+> 근거와 대안 검토는 `docs/role-split-analysis.md`.
 
-**한 줄 태그라인**
-- 🏗 Harness — "프로젝트를 움직이는 두뇌": 무엇을 만들지 → 어떻게 쪼갤지 → 어떤 Agent가 할지 → 어떤 순서로 할지 → 결과를 어떻게 합칠지
-- 🛡 ECC — "코드 품질을 지키는 수석 엔지니어": 어떻게 구현할지 → 테스트 → 보안 → 리뷰 → 리팩터링 → 품질 검증
+**「Harness」를 계층 이름으로 쓰지 않는다.** 이 단어가 두 가지를 가리켜 왔다 —
+①`kdance-dev-harness` 스킬(9단계 파이프라인) ②CLAUDE.md·rules·hooks·permissions·MCP 로
+이루어진 작업 환경. 같은 이름이라 경계 분쟁이 반복됐다(2026-09-21 한 세션에서 3회).
+이제 계층은 아래 네 이름으로만 부르고, "Harness" 는 스킬 이름으로만 남긴다.
+
+| 계층 | 이름 | 한 줄 | 실체 |
+|---|---|---|---|
+| 0 | **환경(Environment)** | AI 가 일할 작업장을 만든다 | `CLAUDE.md` · `.claude/rules/` · hooks · permissions · MCP 구성 |
+| 1 | **명세(Spec)** | 무엇을 **왜** 만드나 | `/speckit-specify` → `specs/{번호}-{기능명}/spec.md` |
+| 2 | **파이프라인(Pipeline)** | 무엇을 **어떤 순서로** | `kdance-dev-harness` Phase 1~9.5 + `kdance-*` 에이전트 |
+| 3 | **공구(Toolbox)** | 어떻게 **제대로** | ECC 에이전트·스킬 |
+
+### 경계 분쟁은 이 한 줄로 끝낸다 — 「코드를 보는가」
+
+| 계층 | 코드를 | 왜 |
+|---|---|---|
+| **명세** | **안 본다**(봐서도 안 된다) | 구현에 오염되면 "지금 있는 것" 에 맞춰 요구사항을 깎게 된다 |
+| **파이프라인** | **본다** | Phase 2(기존 코드 구조 확인)가 명시적으로 코드를 조사한다 |
+| **공구** | **고친다** | 실제 파일을 편집하는 유일한 주체 |
+| **환경** | 코드를 **다루지 않는다** | 누가 무엇을 할 수 있는지의 규칙만 정한다 |
+
+애매한 업무가 나오면 "그 일을 하려면 코드를 읽어야 하나" 를 먼저 묻는다.
+
+**한 줄 태그라인** — `별명 · 한 줄 정의 : 일의 흐름` 순서로 읽는다.
+
+- 🧱 **환경**(`CLAUDE.md`·rules·hooks·permissions·MCP) — "작업장 · AI가 안전하게 일할 자리를 만든다":
+  어떤 규칙으로 일할지 → 어떤 도구(MCP)를 쓸지 → 무엇을 금지할지 → 어디서 멈춰 세울지
+- 📐 **명세**(`/speckit-specify`) — "설계도 · 건축주의 요구서":
+  무엇을 만들지 → 왜 만드는지 → 누가 쓰는지 → 무엇이 되면 성공인지. **코드를 모른 채 쓴다**
+- 🏗 **파이프라인**(`kdance-dev-harness`) — "지휘자 · 프로젝트를 움직이는 두뇌":
+  무엇을 만들지 → 어떻게 쪼갤지 → 어떤 Agent가 할지 → 어떤 순서로 할지 → 결과를 어떻게 합칠지
+- 🛡 **공구**(ECC) — "수석 엔지니어 · 코드 품질을 지킨다":
+  어떻게 구현할지 → 테스트 → 보안 → 리뷰 → 리팩터링 → 품질 검증
 - 🧪 Playwright "실제 사용자가 되어 테스트" · 🧠 MindPilot "복잡한 시스템을 그림으로 이해" · 📚 Context7 "최신 공식 문서 확인" · 🗄 PostgreSQL MCP "DB 직접 확인/작업"
 
-### Harness = Agent Orchestration Layer
-핵심 질문: **"이 큰 작업을 누구에게 어떤 순서로 시킬까?"** 코드를 직접 짜거나 고치지 않는다.
+**이 넷만 계층이다.** Playwright·MindPilot·Visual Guide 등은 계층과 경쟁하지 않고 그 위에 얹히는 실행/설명 도구다.
+
+> **이름만 바뀌었고 역할은 그대로다.** 기존 「Harness」의 5대 업무는 **파이프라인**이,
+> 「ECC」의 6대 업무는 **공구**가 그대로 이어받는다. 태그라인의 일의 흐름도 원문 그대로다.
+> 바뀐 것은 계층 이름 하나뿐이고, 새로 **드러낸** 것은 환경과 명세 두 자리다 —
+> 둘 다 원래 있었는데 이름이 없어서 규칙이 다루지 못하던 것이다.
+
+### 계층 0 · 환경 = AI Runtime / Governance Layer
+핵심 질문: **"AI가 어떤 규칙과 권한으로 일하게 할까?"** 코드를 다루지 않는다. 대신 **다른 계층이 무엇을 할 수 있고 어디서 멈추는지**를 정한다.
+
+**6대 업무**:
+① **Rules** — 프로젝트 규칙과 행동 규칙(`CLAUDE.md`·`.claude/rules/`)
+② **Context** — Claude가 항상 알아야 하는 것: 구조·스택·실행법·테스트법·DB 규칙·Git 규칙
+③ **MCP 구성** — 어떤 서버를 연결하고 어떤 조건에서 쓸지. MCP 를 **누가 호출하느냐**는 계층 2·3이 정하지만, **무엇을 켤지**는 여기다
+④ **Hooks** — 코드가 바뀌면 무엇이 자동으로 돌지(format → lint → typecheck → unit test → E2E)
+⑤ **Permissions** — 허용 / 승인 필요 / 금지. 예: `production DB DROP` 금지, credential 출력 금지, secrets 커밋 금지
+⑥ **Quality Gates** — "작업 완료"의 자동 판정 조건
+
+> **⑥ Quality Gates 는 2026-09-21 에 이 계층으로 올렸다.** 그 전에는 어느 계층 일인지 규칙에 없었다. 실측 결과 이 프로젝트에는 **품질 게이트 훅이 하나도 없다** — `.claude/settings.json` 에 graphify 훅 2개뿐이고 전역 훅은 0개다. 즉 지금은 Phase 6(테스트)이 "불러야" 돌고, 코드가 바뀔 때 **자동으로 막아서는 장치가 없다.**
+>
+> **설치는 검증선을 고친 뒤에 한다.** admin-web 의 `npm run lint` 가 깨져 있고 DB 컨테이너가 미기동이라, 지금 훅을 걸면 정상 작업까지 매번 막힌다. 순서를 지킨다.
+
+### 계층 1 · 명세 = Spec-Driven Layer
+핵심 질문: **"무엇을 왜 만드나?"** **코드를 보지 않는다.** 보면 "지금 있는 것"에 맞춰 요구사항을 깎게 된다.
+
+**산출물**: `specs/{번호}-{기능명}/spec.md` — user story(P1~P3) · 수용 기준 · edge case · **측정 가능한 성공 기준** · 비기능 요구사항.
+
+**이 계층이 제품 요구사항의 단일 진실 원천(SSOT)이다.** 기능을 무엇으로 정했는지 다투면 여기를 본다.
+
+### 계층 2 · 파이프라인 = Agent Orchestration Layer
+핵심 질문: **"이 큰 작업을 누구에게 어떤 순서로 시킬까?"** 코드를 **읽지만 고치지는 않는다** — 고치는 것은 공구(ECC)의 일이다.
 
 **5대 업무** (kdance-dev-harness Phase 매핑):
 ① 요구사항 → 작업 분해 (Phase 1~3) — 예: 예약 기능 → DB Schema/Backend API/Service/Payment/Notification/Next.js/React Native/Admin/E2E
@@ -82,69 +141,129 @@
 ④ 병렬 작업 — 의존성 없는 작업끼리 동시 진행(예: DB 완료 후 Frontend와 Admin UI를 동시에)
 ⑤ Agent 결과 취합 (Phase 5~9.5) — 각 Agent 산출물을 하나의 기능으로 통합, 학습 주석/가이드까지 포함
 
-### ECC = Software Engineering Quality Layer
+### 계층 3 · 공구(ECC) = Software Engineering Quality Layer
 핵심 질문: **"이 코드를 어떻게 하면 제대로 만들 수 있지?"**
 
 **6대 업무**: ① TDD(요구사항→Test→Implementation→Test→Refactor, "테스트부터 제대로 작성했나?") ② Code Review(버그/중복/복잡도/유지보수성/설계 문제) ③ Security — **예약·결제가 있는 이 프로젝트에서 특히 중요**(인증/권한/입력 검증/민감정보/API 보호/Webhook 검증/결제 위변조) ④ Refactoring(거대 파일을 Service/Repository/Domain/Validator/DTO 등으로 분리) ⑤ Coding Standard(Python: FastAPI/SQLAlchemy2/Pydantic, TypeScript: Next.js/React Native) ⑥ 테스트 품질(Unit/Integration/Security/Regression) — 단 **실제 브라우저 E2E 실행은 Playwright가 담당**(ECC는 품질 기준만).
 
-실행 수단: 전문 Agent, Skills, Hooks, Rules(`ecc:fastapi-patterns`, `ecc:python-patterns`, `ecc:python-testing`, `ecc:security-reviewer`, `ecc:refactor-clean`, `code-review`, `ecc:build-fix` 등)로 코드 탐색·파일 수정·테스트 실행·Git 작업·의존성 확인·디버깅·리팩터링을 실제로 수행한다. **ECC의 방대한 스킬(387개+)을 전부 연결하려 하지 않는다** — 위 6대 업무 중심으로만 쓰고, 이 프로젝트와 무관한 스킬(마케팅/브랜딩/네트워크/블록체인 등)은 필요할 때만 개별적으로 고른다. Harness도 마찬가지로 위 5대 업무(Feature Planning/Task Decomposition/Agent Assignment/Dependency/Parallelization/Integration)에만 집중한다.
+실행 수단: 전문 Agent, Skills, Hooks, Rules(`ecc:fastapi-patterns`, `ecc:python-patterns`, `ecc:python-testing`, `ecc:security-reviewer`, `ecc:refactor-clean`, `code-review`, `ecc:build-fix` 등)로 코드 탐색·파일 수정·테스트 실행·Git 작업·의존성 확인·디버깅·리팩터링을 실제로 수행한다. **ECC의 방대한 스킬(387개+)을 전부 연결하려 하지 않는다** — 위 6대 업무 중심으로만 쓰고, 이 프로젝트와 무관한 스킬(마케팅/브랜딩/네트워크/블록체인 등)은 필요할 때만 개별적으로 고른다. 파이프라인도 마찬가지로 위 5대 업무(Feature Planning/Task Decomposition/Agent Assignment/Dependency/Parallelization/Integration)에만 집중한다.
+
+**호출 주체를 비워 두지 않는다.** ECC 는 스스로 나서지 않는다 — Phase 6(테스트)이 `ecc:*-test`·`ecc:e2e-runner` 를, Phase 8(코드 리뷰)이 `ecc:code-reviewer`·`ecc:security-reviewer` 를 부른다. "언제 누가 부르는가" 가 규칙에 없으면 ECC 는 공구상자가 아니라 방치된 창고가 된다.
+
+#### ECC 의 계획 스킬은 「구현 계획」에만 쓴다
+
+ECC 에는 계획 도구가 여럿 깔려 있다 — `ecc:planner` · `ecc:architect` · `ecc:plan` · `ecc:plan-prd` · `ecc:plan-canvas` · `ecc:prp-plan` · `ecc:plan-orchestrate`. **이것들로 제품 계획이나 Task 체계를 새로 만들지 않는다.** 만들면 파이프라인의 Phase 3·4 와 겹쳐 "어느 계획이 맞나" 가 생긴다.
+
+| 이렇게 쓰지 않는다 | 이렇게 쓴다 |
+|---|---|
+| 사용자 요구사항 → `ecc:planner` → ECC Task → 구현 | 명세 → Phase 3·4 → **Task 하나를 받아** `ecc:planner` → 구현 전략 검토 → 구현 |
+
+**받는 단위는 Task 하나다.** 예를 들어 Phase 4 가 낸 `T005(추천 API)` 를 받아 — 어떤 service 로 분리할지, repository 패턴을 쓸지, 트랜잭션이 필요한지, 캐싱이 필요한지, 에러 처리와 테스트 전략은 무엇인지를 검토한다. 이건 **구현 계획**이고, 제품 계획이 아니다.
+
+`ecc:architect` 도 같다 — 시스템 경계는 Phase 3 가 정하고, ECC 는 그 안의 **모듈 분리**를 본다(「역할 충돌 방지 매트릭스」의 SDD 행이 🟢 둘인 이유).
 
 ### 표준 실행 파이프라인
 ```
-사용자 요구사항
+🧱 환경 — 규칙·권한·MCP 가 이미 깔려 있다 (상시)
    ↓
-① Harness — "이 기능을 어떻게 쪼갤까?" (Phase 1~3)
+👤 사람 — "이 기능 만들어줘"
    ↓
-② Agent Team 구성 + ③ 의존성 결정 (Phase 4)
+📐 명세 — /speckit-specify → spec.md  ("무엇을 왜", 코드를 안 본다)
+   ↓ 인계
+🏗 파이프라인 ① 슬라이스 절단 + 요구사항 분석 (Phase 1)
    ↓
-④ 각 Agent 구현 — 병렬 가능한 것은 동시에 (Phase 5)
+🏗 ② 기존 코드 구조 확인 (Phase 2)   ← 여기서 처음 코드를 본다
    ↓
-⑤ ECC — TDD → Security → Review (Phase 6, 8)
+🏗 ③ 구현 계획 = SDD (Phase 3)  → 설계 산출물 4종
    ↓
-⑥ Playwright — E2E 검증 (Phase 6/8, `ecc:e2e-runner`/`mcp__playwright`)
+🏗 ④ Task 분리 — User Story 단위 수직 슬라이스 (Phase 4)
    ↓
-⑦ Harness — 전체 완료 판단 (Phase 9 + 9.5 학습 주석/가이드)
+🛡 ⑤ 구현 — 공구(ECC)로 (Phase 5, 병렬 팬아웃 가능)
    ↓
-⑧ 완료
+🛡 ⑥ 테스트 → 오류 수정 ↔ 코드 리뷰 (Phase 6·7·8)
+   ↓
+🧪 ⑦ Playwright — E2E 검증 (`ecc:e2e-runner`/`mcp__playwright`)
+   ↓
+🏗 ⑧ 완료 검증 (Phase 9)
+   ↓
+🏗 ⑨ 학습 산출물 3종 + SCH 갱신 (Phase 9.5)
+   ↓
+✅ 완료
 ```
-한 줄 요약: **"Harness가 작업을 지휘하고, ECC가 작업의 품질을 검사한다."**
+한 줄 요약: **"명세가 무엇을 왜, 파이프라인이 어떤 순서로, 공구가 어떻게 제대로."**
 
-kdance-implementer/test-runner/bug-fixer/code-reviewer 등 각 Phase 에이전트는 Harness가 배정한 "무엇을·누구에게·어떤 순서로"를 받아 ECC의 스킬/에이전트/MCP로 "어떻게 잘"을 실행한다 — 이 둘을 섞어서 하나가 다 하지 않는다.
+kdance-implementer/test-runner/bug-fixer/code-reviewer 등 각 Phase 에이전트는 파이프라인이 배정한 "무엇을·누구에게·어떤 순서로"를 받아 ECC의 스킬/에이전트/MCP로 "어떻게 잘"을 실행한다 — 이 둘을 섞어서 하나가 다 하지 않는다.
 
-**절대 금지 패턴**: Harness와 ECC가 각자 독립적으로 `Plan → Implement → Test → Review` 전체 파이프라인을 따로 도는 구조는 만들지 않는다 — "Harness가 계획을 세웠는데 ECC가 또 계획을 세우는" 중복·혼란이 생긴다.
+**절대 금지 패턴**: 둘 이상의 계층이 각자 독립적으로 `Plan → Implement → Test → Review` 전체를 도는 구조는 만들지 않는다. **파이프라인은 하나뿐이다.** `Spec Kit → Plan` 과 `파이프라인 → Plan` 이 동시에 존재하면 "어느 계획이 맞나" 가 생긴다. 이것이 spec-kit 의 `plan`·`tasks`·`implement`·`analyze`·`converge` 를 쓰지 않는 유일한 이유다.
 
 예외: 서브에이전트가 세션 한도(rate limit) 등으로 중단되어 이미 끝난 작업의 상태만 확인·정리해야 할 때, 또는 파일 몇 줄 수준의 사소한 마무리는 오케스트레이터가 직접 처리해도 된다 — 다만 이건 예외이지 기본 동작이 아니다.
 
 ### 역할 충돌 방지 매트릭스
 🟢 주 역할 / 🟡 보조 / ⚪ 맡기지 않음 — 애매한 업무가 나오면 이 표로 판단한다.
 
-| 업무 | Harness | ECC |
+| 업무 | 🧱 환경 | 📐 명세 | 🏗 파이프라인 | 🛡 공구(ECC) |
+|---|---|---|---|---|
+| Rules · Context · MCP 구성 · Permissions | 🟢 | ⚪ | ⚪ | ⚪ |
+| **Hooks · Quality Gates**(자동 실행·통과 강제) | 🟢 | ⚪ | 🟡 | 🟡(기준 제공) |
+| 사용자 시나리오 · 수용 기준 · 성공 지표 | ⚪ | 🟢 | 🟡(번역) | ⚪ |
+| 슬라이스 절단(이번 회차 범위) | ⚪ | ⚪ | 🟢 | ⚪ |
+| 요구사항 분석(코드에 비춘) | ⚪ | ⚪ | 🟢 | ⚪ |
+| 기존 코드 구조 조사 | ⚪ | ⚪ | 🟢 | 🟡 |
+| **시스템 설계(SDD)** | ⚪ | ⚪ | 🟢(시스템 관점) | 🟢(코드 관점) |
+| Task 분해 · 의존성 · 병렬 배정 | ⚪ | ⚪ | 🟢 | ⚪ |
+| 코드 작성 | ⚪ | ⚪ | 🟡(배정만) | 🟢 |
+| **테스트 — 무엇을 만족해야 하나**(수용 기준) | ⚪ | 🟢 | 🟡(번역) | ⚪ |
+| **테스트 — 어떻게 테스트하나**(작성) | ⚪ | ⚪ | ⚪ | 🟢 |
+| **테스트 — 언제 강제하나**(게이트) | 🟢 | ⚪ | 🟡 | ⚪ |
+| **보안 — 무엇을 지켜야 하나**(요구사항) | ⚪ | 🟢 | ⚪ | ⚪ |
+| **보안 — 어떻게 구현·검사하나** | ⚪ | ⚪ | ⚪ | 🟢 |
+| **보안 — 무엇을 아예 막나**(권한·차단) | 🟢 | ⚪ | ⚪ | ⚪ |
+| TDD / Code Review / Refactoring / Coding Standard | ⚪ | ⚪ | ⚪ | 🟢 |
+| Integration Test / Build 오류 | ⚪ | ⚪ | 🟡 | 🟢 |
+| E2E | ⚪ | ⚪ | ⚪ | 🟡(작성 — 실행은 Playwright) |
+| **제품 계획 · Task 체계 생성** | ⚪ | 🟡(무엇을) | 🟢 | ⚪ **ECC 계획 스킬 금지** |
+| **구현 계획**(Task 하나의 service·패턴·트랜잭션·캐싱) | ⚪ | ⚪ | ⚪ | 🟢 |
+| 전체 프로젝트 상태 · 완료 판단 | ⚪ | ⚪ | 🟢 | 🟡 |
+| **학습 산출물 3종 · SCH 추적** | ⚪ | ⚪ | 🟢 | ⚪ |
+
+### 테스트와 보안은 세 계층이 나눠 맡는다
+
+한 업무를 한 계층이 독점하지 않는 자리가 둘 있다. 질문이 다르기 때문이다.
+
+**테스트**
+
+| 계층 | 질문 | 무엇을 |
 |---|---|---|
-| 요구사항 분석 / 기능 분해 / Agent 구성·배정 / 작업 순서 / 의존성 관리 / 병렬 실행 / 결과 통합 | 🟢 | ⚪ |
-| 코드 작성 | 🟡(Agent 실행) | 🟢(품질 기준) |
-| Architecture | 🟢(시스템 관점) | 🟢(코드 관점) — 둘 다 주 역할, 관점이 다름 |
-| TDD / Unit Test / Security / Code Review / Refactoring / Coding Standard | ⚪ | 🟢 |
-| Integration Test / Build 오류 | 🟡 | 🟢 |
-| E2E | ⚪ | 🟡(품질 기준만 — 실행은 Playwright) |
-| 전체 프로젝트 상태 | 🟢 | ⚪ |
-| 전체 완료 판단 | 🟢 | 🟡 |
+| 📐 명세 | **무엇을** 만족해야 하는가 | 수용 기준. 예: "회원 위치 5km 이내 + 시간 가능 + 선호 장르 일치" |
+| 🛡 공구 | **어떻게** 테스트할 것인가 | 단위·통합·E2E 테스트 작성. 실제 브라우저 실행은 Playwright |
+| 🧱 환경 | **언제** 돌리고 통과를 **어떻게 강제**하는가 | Hooks·Quality Gates |
+
+**보안**
+
+| 계층 | 질문 | 무엇을 |
+|---|---|---|
+| 📐 명세 | 무엇을 지켜야 하는가 | 보안 요구사항. 예: 개인정보 보호, 인증 필요, 민감정보 로그 금지 |
+| 🛡 공구 | 어떻게 구현·검사하는가 | 입력 검증, 인증·권한, SQL 주입·XSS·프롬프트 주입 점검 |
+| 🧱 환경 | 무엇을 아예 막는가 | secret 출력 금지, production DB 위험 명령 차단, secrets 커밋 차단 |
+
+**공구가 테스트를 만들고, 환경이 그 테스트를 언제 강제할지 정한다.** 둘을 한 계층에 두면 "테스트는 썼는데 아무도 안 돌린다" 가 된다.
 
 ### 비유로 이해하기
-- **자동차**: Harness = 주행 시스템(어디로 갈까 → 어떤 경로 → 누가 운전 → 어떤 순서 → 언제 멈출까). ECC = 품질/안전 시스템(브레이크? 엔진? 안전벨트? 경고등? 검사?). 둘 다 있어야 목적지에 안전하게 도착한다.
-- **사람 역할**: 사용자 = Product Owner, Harness = Tech Lead/PM, 각 Agent = 개발자, ECC = Senior Engineer + QA/Code Quality 체계, Playwright = 실제 사용자 테스트 담당.
-- **왜 혼자 개발할 때 특히 중요한가**: 사람 팀이면 "DB 담당·프론트 담당·결제 담당·QA 담당"으로 저절로 역할이 나뉘지만, 혼자 Claude Code로 개발할 때는 그 역할 분담을 Harness가 대신 해줘야 한다.
+- **건축**: 환경 = 공사장과 안전 규정 · 명세 = 건축주가 원하는 집 · 파이프라인 = 현장소장 · 공구(ECC) = 기술자와 연장.
+- **사람 역할**: 사용자 = Product Owner, 명세 = 기획자, 파이프라인 = Tech Lead/PM, 각 `kdance-*` 에이전트 = 개발자, ECC = Senior Engineer + QA 체계, Playwright = 실제 사용자 테스트 담당.
+- **왜 혼자 개발할 때 특히 중요한가**: 사람 팀이면 "DB 담당·프론트 담당·결제 담당·QA 담당"으로 저절로 역할이 나뉘지만, 혼자 Claude Code로 개발할 때는 그 역할 분담을 파이프라인이 대신 해줘야 한다.
 
 ### 프로젝트 규모가 커질 때 — 팀 단위 조직
-kdance는 예약 취소/환불 슬라이스를 넘어 수업·결제·캘린더·알림·학원·공지·대회·파티·뉴스·관리자·비용관리·PDF/이미지 등록·AI 검색·추천까지 넓어질 예정이다(`docs/*` 기획 문서 참고). 이 규모에서는 Task를 개별 나열하지 않고 **팀 단위**로 먼저 묶는다(Harness Phase 3~4가 결정, 팀 내부 실행은 여전히 ECC에 위임):
+kdance는 예약 취소/환불 슬라이스를 넘어 수업·결제·캘린더·알림·학원·공지·대회·파티·뉴스·관리자·비용관리·PDF/이미지 등록·AI 검색·추천까지 넓어질 예정이다(`docs/*` 기획 문서 참고). 이 규모에서는 Task를 개별 나열하지 않고 **팀 단위**로 먼저 묶는다(파이프라인 Phase 3~4가 결정, 팀 내부 실행은 여전히 공구(ECC)에 위임):
 - **Frontend Team**: Android(mobile), Next.js(admin-web), Admin — ECC 기준: TDD/Review/Refactor
 - **Backend Team**: API, Auth, Reservation, Notification — ECC 기준: Security/API Review/DB Review
 - **Data Team**: PostgreSQL, pgvector(`CLAUDE.md`의 Backend DB와 동일)
 - **AI Team**: Search, RAG, Recommendation, Agent — ECC 기준: Evaluation/Prompt Review/RAG Test
 - **QA Team**: Unit, Integration, E2E — 위 세 팀의 결과가 전부 여기로 수렴
 
-### MCP 도구 계층 + 전체 4계층 구조
-Harness(WORKFLOW)와 ECC(QUALITY) 둘 다 아래 MCP를 호출해 실제 작업을 한다 — MCP를 직접 고르지 않고 Harness/ECC 어느 쪽 일이냐로 자동으로 정해진다:
-- `mcp__context7__*` 문서 · `mcp__postgres-kdance__*` DB 작업 · `mcp__playwright__*` E2E · `mcp__mindpilot__*` 구조도 시각화 **실행 도구** · `mcp__plugin_ecc_chrome-devtools__*` 브라우저 · `mcp__memory__*` 세션 간 기억(지식 그래프)
+### MCP 도구 — 어느 계층이 부르나
+파이프라인과 공구(ECC) 둘 다 아래 MCP를 호출한다. MCP를 직접 고르지 않고 **어느 계층의 일이냐**로 자동으로 정해진다. MCP **구성**(어느 서버를 켤지, 무엇을 금지할지)은 환경 계층의 몫이다:
+- `mcp__context7__*` 문서 · `mcp__postgres-kdance__*` DB 작업 · `mcp__playwright__*` E2E · `mcp__mindpilot__*` 구조도 시각화 **실행 도구** · `mcp__plugin_ecc_chrome-devtools__*` 브라우저 · claude-mem `mem-search` 스킬(플러그인 MCP `mcp-search`) 세션 간 기억 검색 — memory MCP(지식 그래프)는 2026-09-23 삭제, 근거는 `CLAUDE-decisions.md` ADR-001
 
 > **`mcp__mindpilot__*`는 다이어그램·아키텍처·구조도 시각화 요청의 실행 도구로 명시한다.** "다이어그램 보여줘", "구조도 그려줘", "mindpilot UI로 보여줘" 같은 요청에는 mindpilot-mcp를 우선 실행 도구로 사용한다(연결 여부는 아래 절차로 먼저 확인). 안정성이 더 중요한 반복 작업이면 `diagram-this` 스킬로 대체한다(절차 5번).
 
@@ -174,72 +293,76 @@ Harness(WORKFLOW)와 ECC(QUALITY) 둘 다 아래 MCP를 호출해 실제 작업�
 >    - **프론트엔드 3개는 폴백이 아니라 역할별 직접 호출**: 화면 구조·상태관리 등 판단이 필요한 작업 → `kiro/claude-sonnet-4.5`(월 50회 한도라 아무 데나 먼저 쓰지 않음); 실제 컴포넌트/UI 코드 작성 **및 비슷한 화면 다수·일괄 스타일 같은 대량 반복** → `zai/glm-4.7-flash`(기본값 겸 물량 담당 — 만료 없는 영구 무료라 프론트엔드에서 볼륨을 받아낼 수 있는 유일한 모델); `gemini/gemini-3.8-flash`는 **예비(비상용)** — 하루 20건뿐이라 대량 작업에 쓸 수 없고 GLM이 막혔을 때 중요한 몇 건에만 쓴다. 지정한 모델의 한도가 막혔을 때만 안전망 Combo `fe-fallback`(`kiro/claude-sonnet-4.5 → zai/glm-4.7-flash → gemini/gemini-3.8-flash`, Priority, 아직 미생성)으로 대체한다.
 >    - 3개월마다(다음: 2026-12-18) 클라우드 루틴이 이 구성의 최신성을 재검증한다 — 결과는 보고서만 남기고 자동 반영은 안 하므로, 다음 세션에서 사람이 확인 후 직접 반영한다.
 
-**전체 4계층**: 1) 핵심 조합 — Harness + ECC  2) 도구 계층 — 위 MCP 6종  3) UI 계층 — `frontend-design` + `ui-ux-pro-max` 스킬군(admin-web·mobile 화면 작업)  4) 왕초보 설명 계층 — SCH별 학습 주석(`beginner-comment-style.md`) + 왕초보 완벽분석가이드(`sch-guide-template.md`, `_workspace/guides/SCH-XX(기능명).html`) + **진행 리뷰(`docs/Review.md`)** + MindPilot  5) 에이전트 설명 계층 — 스택 개요(`docs/ai-coding-agent.html`) + SCH별 버전 맞춤 문서(`agent-sch-doc-template.md`, `_workspace/guides/SCH-XX(기능명).md`). 4번은 사람이, 5번은 에이전트가 읽는다.
+**부가 계층(계층 0~3 위에 얹히는 것)**: 1) 도구 — 위 MCP 6종  2) UI — `frontend-design` + `ui-ux-pro-max` 스킬군(admin-web·mobile 화면 작업)  3) 왕초보 설명 계층 — SCH별 학습 주석(`beginner-comment-style.md`) + 왕초보 완벽분석가이드(`sch-guide-template.md`, `_workspace/guides/SCH-XX(기능명).html`) + **진행 리뷰(`docs/Review.md`)** + MindPilot  4) 에이전트 설명 계층 — 스택 개요(`docs/ai-coding-agent.html`) + SCH별 버전 맞춤 문서(`agent-sch-doc-template.md`, `_workspace/guides/SCH-XX(기능명).md`). 3번은 사람이, 4번은 에이전트가 읽는다.
 
-4번(왕초보 설명 계층)은 1~3번이 끝난 결과를 설명만 할 뿐, 의사결정에 관여하지 않는다 — Visual Guide Skill과 MindPilot은 Harness/ECC와 경쟁·대체 관계가 아니라 그 위에 얹는 부가 계층이다.
+설명 계층(3·4번)은 계층 0~3이 끝난 결과를 설명만 할 뿐, 의사결정에 관여하지 않는다 — Visual Guide Skill과 MindPilot은 파이프라인·공구와 경쟁·대체 관계가 아니라 그 위에 얹는 부가 도구다.
 
 전체 그림(다이어그램 중심 설명)은 `docs/가이드/harness-ecc-guide.html` 참고.
 
 **설치된 범용 `harness:harness` 메타스킬(harness-marketplace 플러그인)과 절대 혼동하지 않는다.** 이 메타스킬은 새 도메인에 처음부터 하네스를 만들어주는 범용 도구이고, "하네스 점검/감사/현황/에이전트-스킬 동기화" 같은 문구에 트리거된다. kdance는 이미 `kdance-dev-harness`가 만들어져 있고 Phase 9.5(학습 주석 재구성·SCH 가이드 생성)·SCH 표기 규칙·beginner-comment-style.md 등 이 프로젝트 전용으로 커스터마이징돼 있다 — 범용 메타스킬은 이 커스터마이징을 모른 채 자기 템플릿으로 재구성하려 들 수 있으므로, kdance에서 하네스를 점검·수정·확장할 때는 **범용 `harness:harness`를 호출하지 말고 `.claude/skills/kdance-dev-harness/`와 `.claude/agents/kdance-*.md`를 직접 Read/Edit한다.**
 
-## spec-kit 과의 역할 분리 (2026-09-21 확정)
+## spec-kit 과의 역할 분리 (2026-09-21 확정, 같은 날 축소)
 
-GitHub spec-kit(`specify` CLI, `.specify/`, `/speckit-*` 스킬)을 설치했다. 그런데
-spec-kit 의 `specify → plan → tasks → implement → converge` 는 `kdance-dev-harness`
-의 9단계와 거의 같은 일을 한다. 그대로 두면 파이프라인이 둘이 되어 「Harness / ECC
-역할 분리」의 **절대 금지 패턴**(같은 파이프라인을 따로 도는 구조)에 그대로 걸린다.
+GitHub spec-kit 의 `specify → plan → tasks → implement → analyze → converge` 는
+`kdance-dev-harness` 의 9단계와 거의 같은 일을 한다. 그대로 두면 **파이프라인이 둘**이
+되어 「4계층 역할 정의」의 **절대 금지 패턴**에 그대로 걸린다.
 
-그래서 **앞단만 쓴다.**
+그래서 **맨 앞 하나만 쓴다.**
 
-```
-spec-kit          "무엇을 왜"      →  spec.md
-     ↓ 인계
-kdance-dev-harness "어떻게"        →  Phase 1(요구사항 분석) ~ Phase 9.5
-     ↕
-ECC                "제대로"        →  품질 기준
-```
-
-### 쓰는 것 — 3개
+### 쓰는 것 — 1개
 
 | 스킬 | 무엇 |
 |---|---|
 | `/speckit-specify` | 기능 명세. user story(P1~P3) · edge case · **측정 가능한 성공 기준** |
-| `/speckit-clarify` | 모호한 부분을 질문으로 좁힌다 (선택) |
-| `/speckit-checklist` | 요구사항 완전성 검증 (선택) |
 
-### 쓰지 않는 것 — 7개
+### 쓰지 않는 것 — 9개
 
 | 스킬 | 왜 안 쓰나 |
 |---|---|
+| `/speckit-clarify` | **사용자가 현장에 있다.** clarify 는 답할 사람이 없을 때 spec 을 심문하는 도구다. 직접 물으면 더 빠르고 정확하다 — 실측: Q1(대학생 인증)·Q2(정원 기준)·Q3(강사 정산)를 몇 분 만에 확정했다 |
+| `/speckit-checklist` | `/speckit-specify` 가 이미 `checklists/requirements.md` 를 낸다 |
 | `/speckit-constitution` | `core-rules.md` 가 그 자리다. 실행하면 규칙 원본이 둘로 갈라진다 |
-| `/speckit-plan` | Phase 3(구현 계획)과 중복 |
-| `/speckit-tasks` | Phase 4(Task 분리)와 중복 |
+| `/speckit-plan` | Phase 3(구현 계획)과 중복 — **단 산출물 규격은 빌려 온다**(아래 참고) |
+| `/speckit-tasks` | Phase 4(Task 분리)와 중복 — **단 US 단위 묶기는 빌려 온다** |
 | `/speckit-implement` | Phase 5(구현)와 중복 |
 | `/speckit-analyze` | Phase 8(코드 리뷰)과 중복 |
 | `/speckit-converge` | Phase 9(완료 검증)와 중복 |
 | `/speckit-taskstoissues` | 이 프로젝트는 GitHub 이슈로 작업을 관리하지 않는다 |
 
+### 도구는 안 쓰되 규격은 빌려 온다
+
+`speckit-plan`·`speckit-tasks` 의 **템플릿이 우리 Phase 3·4 보다 낫다.** 그래서 도구를
+갈아타는 대신 산출물 규격만 올렸다(근거: `docs/role-split-analysis.md` §4-1).
+
+| Phase | 빌려 온 것 |
+|---|---|
+| **Phase 3(구현 계획)** | 산출물을 **4종으로 분리** — `plan.md`(요약·결정) · `data-model.md`(엔티티·제약) · `contracts/`(API 계약) · `research.md`(미확정 조사). 「공유 계약 §N」 번호 체계는 그대로 유지한다 |
+| **Phase 4(Task 분리)** | **User Story 단위 수직 슬라이스.** P1 만 구현해도 굴러가야 한다. `[P]` 병렬 마커, MVP-first 절 |
+
 ### 인계 지점
 
-spec-kit 이 만든 `specs/{번호}-{기능명}/spec.md` 가 **하네스 Phase 1(요구사항 분석)의
-입력**이 된다. Phase 1 은 그 spec 을 처음부터 다시 쓰지 않고, kdance 고유의 것으로
-**번역**한다.
+`specs/{번호}-{기능명}/spec.md` 가 **Phase 1(요구사항 분석)의 입력**이 된다. Phase 1 은
+그 spec 을 다시 쓰지 않고 kdance 고유의 것으로 **번역**한다.
 
 | Phase 1 이 spec 에 더하는 것 |
 |---|
+| **슬라이스 절단** — spec 전체 중 이번 회차 범위와 그 근거 |
 | 버전 정책·검증선 제약 (`next build` 로 검증한다 등) |
 | 수용 기준을 실행 가능한 명령과 기대 결과로 |
 | 리스크(`R1~`)와 미해결 질문(`Q1~`) |
 | SCH 대응 관계 |
 
+**spec 전체를 한 번에 넘기지 않는다.** kdance 의 spec 은 FR 205개(하위 번호 포함, 2026-09-24) 규모라 통째로는 어느
+Phase 도 삼킬 수 없다. Phase 1 의 첫 일이 **어디를 자를지 정하는 것**이다.
+
 spec 이 없으면 Phase 1 은 기존대로 처음부터 분석한다 — spec-kit 사용은 선택이다.
 
 ### 왜 이렇게 나눴나
 
-spec-kit 의 강점은 **"무엇을 왜"를 사용자 시나리오로 풀어내는 템플릿**이다. 하네스의
-강점은 Phase 9.5(학습 주석 재구성·SCH 가이드 생성)가 만드는 학습 산출물 3종과 SCH
-추적이며, 이건 이 프로젝트 전용으로 손질한 것이라 대체물이 없다. 겹치는 구간
-(plan·tasks·implement)만 하네스에 맡기면 서로 잡아먹지 않는다.
+spec-kit 의 강점은 **"무엇을 왜"를 사용자 시나리오로 풀어내는 템플릿**이다. 파이프라인의
+강점은 Phase 2(기존 코드 구조 확인)·Phase 6~8(테스트·수정·리뷰)·Phase 9.5(학습 산출물
+3종과 SCH 추적)이며, **spec-kit 에는 이 넷이 아예 없다.** 단계 수로 보면 파이프라인이
+spec-kit 의 상위집합이다 — spec-kit 에만 있고 파이프라인에 없는 단계는 하나도 없다.
 
 ## 진행 리뷰 (`docs/Review.md`) — 핵심 기능
 

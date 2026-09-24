@@ -71,25 +71,35 @@ Git 작업(커밋/브랜치)은 오케스트레이터(리더)가 사용자 승�
    - `_workspace/guides/SCH-{번호}({기능명}).md` 신규 생성(`agent-sch-doc-template.md`의 9개 절 구성 그대로) — 독자가 AI 에이전트다. 「쓰면 안 되는 것」 절(학습 데이터 함정)이 핵심이며, 버전은 `package.json`·`node_modules` 실측값을 쓴다. 이 문서는 윤문(humanize) 대상이 아니다.
 3. `kdance-test-runner`로 관련 테스트만 가볍게 재실행해 그린 유지를 확인한다. 실패하면 로직이 바뀐 것이므로 Phase 7로 되돌린다(예외적 재진입).
 4. `_workspace/kdance.html`에서 해당 SCH 항목을 "완료"로 갱신하고, 그 `.item` 블록에 새 가이드로 연결되는 `가이드 보기` 링크를 추가한다.
+5. **claude-mem → git 문서로 옮기기** (오케스트레이터가 직접). claude-mem 은 이 PC 의 로컬 캐시라 PC·도구가 바뀌면 사라진다 — 오래 남길 것만 git 으로 옮긴다(근거: `CLAUDE-decisions.md` ADR-001).
+   - claude-mem `mem-search` 스킬로 이번 작업 기간을 검색한다(`search` → `timeline` → `get_observations` 순, `project="kdance"`). 전체를 가져오지 말고 제목 목록에서 거른 뒤 필요한 것만 연다.
+   - 설계 판단(버린 대안이 있는 것) → `CLAUDE-decisions.md` 에 ADR 항목 추가
+   - 원인 파악에 시간이 든 에러·오진 → `CLAUDE-troubleshooting.md` 에 항목 추가
+   - 각 파일 머리의 「적는 기준」에 맞는 것만 옮긴다. 옮길 게 없으면 없다고 보고하고 넘어간다. 이미 다른 문서에 원본이 있으면 복제하지 말고 색인 표에 위치만 적는다.
+   - 근거 칸에 claude-mem 관찰 ID(`#12345`)를 남긴다 — 캐시가 살아 있는 동안은 원문을 다시 찾을 수 있다.
 
 ### 정리
 1. `_workspace/`는 삭제하지 않고 보존한다(감사 추적용).
-2. 변경된 파일 목록과 최종 판정을 사용자에게 요약 보고한다.
-3. Git 커밋은 **사용자가 명시적으로 요청할 때만** 수행한다. 커밋 메시지/PR 설명은 core-rules.md "Git 커밋 / PR 설명 (왕초보 기준)"을 따른다 — SCH 관련 작업이면 `SCH-XX(기능명)` 표기 + 이슈/해결/테스트 요약 + 해당 가이드(`_workspace/guides/SCH-XX(기능명).html`) 링크를 포함한다.
-4. 사용자에게 개선 피드백 기회를 제공한다 — "결과에서 개선할 부분이 있나요?"
+2. SCH 미부여 작업이라 Phase 9.5(학습 주석 재구성·SCH 가이드 생성)를 건너뛰었다면, 그 5번 단계(claude-mem → git 문서로 옮기기)만은 여기서 수행한다.
+3. 변경된 파일 목록과 최종 판정을 사용자에게 요약 보고한다.
+4. Git 커밋은 **사용자가 명시적으로 요청할 때만** 수행한다. 커밋 메시지/PR 설명은 core-rules.md "Git 커밋 / PR 설명 (왕초보 기준)"을 따른다 — SCH 관련 작업이면 `SCH-XX(기능명)` 표기 + 이슈/해결/테스트 요약 + 해당 가이드(`_workspace/guides/SCH-XX(기능명).html`) 링크를 포함한다.
+5. 사용자에게 개선 피드백 기회를 제공한다 — "결과에서 개선할 부분이 있나요?"
 
 ## 데이터 흐름
 
 ```
-[사용자 요청]
+[사용자 요청]  또는  specs/{번호}-{기능명}/spec.md  (명세 계층 산출물)
    ↓
 Phase1 req-analyst ──→ 01_requirements.md
+                       (슬라이스 절단 근거 · 검증선 · R1~ · Q1~ · SCH 대응)
    ↓
 Phase2 code-searcher ─→ 02_structure.md
    ↓
-Phase3 impl-planner ──→ 03_plan.md
+Phase3 impl-planner ──→ 03_plan.md · 03_data-model.md
+                        03_contracts/ · 03_research.md   ← 설계 산출물 4종(SDD)
    ↓
 Phase4 task-splitter ─→ 04_tasks.md (+TaskCreate)
+                        US 단위 수직 슬라이스 · [P] 병렬 마커 · MVP-first
    ↓
 Phase5 implementer×N ─→ 05_implementer_{task}_summary.md
    ↓
