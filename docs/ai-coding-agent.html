@@ -66,7 +66,7 @@
 <header class="hero">
   <h1>AI Coding Agent</h1>
   <p class="sub">최신 버전에서만 되는 기술을 정의하고, 그 기술을 소스에 어떻게 반영하는지 적어 둔 문서</p>
-  <p class="asof">기준일 2026-09-20 · 버전표는 <code>docs/kdancex4_service_definition_and_tech_stack.md</code> 「11. 기술 스택 고정표」가 원본이다</p>
+  <p class="asof">기준일 2026-09-20 (AI 패키지 3종은 2026-09-24 패치 갱신) · 버전표는 <code>docs/kdancex4_service_definition_and_tech_stack.md</code> 「11. 기술 스택 고정표」가 원본이다</p>
 </header>
 
 <nav class="toc">
@@ -98,7 +98,7 @@
    │
    ├── Next.js 16.3.5 ────── Web · App Router · Route Handler
    │      ├── React 19.3.0
-   │      ├── TypeScript 7.0.2
+   │      ├── TypeScript 6.0.3
    │      ├── Tailwind 4.3.3        (설치됨 · 아직 연결 안 함)
    │      ├── shadcn/ui             (CLI — 설치가 아니라 실행해서 쓴다)
    │      └── Vercel AI SDK 7 ── Streaming Chat UI
@@ -106,9 +106,14 @@
    ├── Prisma 8 RC ───────── DB 접근 (@prisma/orm-postgres)
    │      └── PostgreSQL 18.6 + pgvector 0.8.6
    │
-   ├── LangGraph 1.4.16 ──── Agent workflow runtime
+   └── Expo SDK 58 ───────── Mobile (React Native 0.88.0-rc.0)
+
+Node.js 24 — AI 에이전트 서버 (별도 프로세스, ADR-003, 아직 없음)
    │
-   └── Expo SDK 58 ───────── Mobile (React Native 0.88.0-rc.0)</code></pre>
+   └── Hono 4.13.9 ──────── T2 추론 · 포스터 읽기 · 임베딩 계산
+          ├── LangGraph 1.4.17 ──────── Agent workflow runtime
+          ├── AI SDK 7 + openai-compatible ── llama-server 호출 (구조화 출력)
+          └── MCP 클라이언트 ─────────── Next.js 의 도구로만 데이터를 읽는다 (DB 직접 접속 없음)</code></pre>
 
   <h3>상태를 어디에 두는가</h3>
 
@@ -119,7 +124,7 @@
     <tbody>
       <tr><td>화면 · UI 상태</td><td>Zustand 5.0.15</td><td>휘발. 새로고침하면 사라져도 된다</td></tr>
       <tr><td>서버 데이터 · 캐시</td><td>TanStack Query 5.103.1</td><td>서버가 원본. 캐시는 사본일 뿐</td></tr>
-      <tr><td>Agent 실행 상태</td><td>LangGraph 1.4.16</td><td>장기 실행. 중간에 끊겨도 이어져야 한다</td></tr>
+      <tr><td>Agent 실행 상태</td><td>LangGraph 1.4.17 (에이전트 서버)</td><td>장기 실행. 중간에 끊겨도 이어져야 한다</td></tr>
       <tr><td>영속 데이터</td><td>PostgreSQL 18.6</td><td>진실의 원천</td></tr>
     </tbody>
   </table>
@@ -172,19 +177,19 @@ LangGraph</code></pre>
 
   <p><strong>Clerk</strong> 은 보류다. 관리형 인증이라 붙이기는 더 간단하지만 유료다. <strong>사용자가 크게 늘어 직접 운영 부담이 커지면 그때 넘어간다</strong> — 지금 미리 넘어갈 이유는 없다.</p>
 
-  <p>다만 Better Auth 는 Prisma 8 과 설치 단계에서 충돌한다. 자세한 내용과 대응은 <a href="#cost">최신을 고른 값</a>에 있다.</p>
+  <p>다만 Better Auth 는 Prisma 8 과 설치 단계에서 충돌한다. <code>package.json</code> 의 <code>overrides</code> 로 설치는 풀었고, 인증은 Prisma 를 거치지 않고 Kysely 로 같은 DB 에 붙는다(2026-09-24 스모크 통과). 자세한 내용은 <a href="#cost">최신을 고른 값</a>에 있다.</p>
 
   <h3>붙여준 자료와 다른 값</h3>
 
-  <p>이 개요는 사전 조사 자료를 바탕으로 쓰되, <strong>숫자는 2026-09-20 실측으로 맞췄다.</strong> 어긋난 곳을 남겨 둔다 — 나중에 같은 자료를 다시 보고 헷갈리지 않도록.</p>
+  <p>이 개요는 사전 조사 자료를 바탕으로 쓰되, <strong>숫자는 2026-09-20 실측으로 맞췄다</strong>(AI 패키지 3종은 2026-09-24 재실측). 어긋난 곳을 남겨 둔다 — 나중에 같은 자료를 다시 보고 헷갈리지 않도록.</p>
 
   <table>
     <thead><tr><th>사전 조사 자료</th><th>실측 · 고정표</th><th>왜</th></tr></thead>
     <tbody>
       <tr><td>Next.js 16.3.3</td><td><strong>16.3.5</strong></td><td>npm <code>latest</code></td></tr>
-      <tr><td>TypeScript 5.9.x</td><td><strong>7.0.2</strong></td><td>npm <code>latest</code>. admin-web·mobile 둘 다 타입체크 통과</td></tr>
-      <tr><td>Vercel AI SDK 6</td><td><strong>7.0.107</strong></td><td>6 은 구세대 에이전트 API</td></tr>
-      <tr><td>LangGraph 1.2.x</td><td><strong>1.4.16</strong></td><td>1.2 에서 두 마이너 앞섬</td></tr>
+      <tr><td>TypeScript 5.9.x</td><td><strong>6.0.3</strong></td><td>npm <code>latest</code> 는 7.0.2 지만 <code>typescript-eslint</code>(&lt;6.1.0)·Expo 58(~6.0.3)이 6 을 요구한다. 7 을 요구하는 패키지는 없다(2026-09-23 실측)</td></tr>
+      <tr><td>Vercel AI SDK 6</td><td><strong>7.0.113</strong></td><td>6 은 구세대 에이전트 API</td></tr>
+      <tr><td>LangGraph 1.2.x</td><td><strong>1.4.17</strong></td><td>1.2 에서 두 마이너 앞섬</td></tr>
       <tr><td>React Native 0.87</td><td><strong>0.88.0-rc.0</strong></td><td>Expo 58 preview 가 고정. 0.87 을 핀하는 SDK 가 없다</td></tr>
       <tr><td>"Prisma 8 은 Node 24.11+ 요구"</td><td><strong>&gt;=22.18.0</strong></td><td><code>prisma/package.json</code> 의 <code>engines.node</code> 실측</td></tr>
       <tr><td>React 19.3 · Prisma 8 RC · Tailwind 4.x · Zustand 5.x</td><td>일치</td><td>—</td></tr>
@@ -196,7 +201,7 @@ LangGraph</code></pre>
 <section id="status">
   <h2>지금 어디까지 왔나</h2>
 
-  <p><strong>2026-09-20 기준 실제 설치 현황이다.</strong> 고정표에 적힌 목표값이 아니라
+  <p><strong>2026-09-20 기준 실제 설치 현황이다</strong>(AI 패키지 3종은 2026-09-24 재확인). 고정표에 적힌 목표값이 아니라
   <code>package.json</code> 과 <code>node_modules</code> 를 읽은 결과다. 둘이 다를 때는 이 표가
   현실이고 고정표가 목표다.</p>
 
@@ -206,21 +211,21 @@ LangGraph</code></pre>
       <tr><td>Runtime</td><td>Node.js</td><td class="v">24.21.0 LTS</td><td><span class="st ok">설치됨</span></td></tr>
       <tr><td>Web</td><td>Next.js</td><td class="v">16.3.5</td><td><span class="st ok">설치됨</span></td></tr>
       <tr><td>UI</td><td>React</td><td class="v">19.3.0</td><td><span class="st ok">설치됨</span></td></tr>
-      <tr><td>Language</td><td>TypeScript</td><td class="v">7.0.2</td><td><span class="st ok">설치됨</span></td></tr>
+      <tr><td>Language</td><td>TypeScript</td><td class="v">6.0.3</td><td><span class="st ok">설치됨</span></td></tr>
       <tr><td>Mobile</td><td>Expo SDK</td><td class="v">58.0.0-preview.3</td><td><span class="st ok">설치됨</span></td></tr>
       <tr><td>Mobile</td><td>React Native</td><td class="v">0.88.0-rc.0</td><td><span class="st ok">설치됨</span></td></tr>
       <tr><td>ORM</td><td>prisma (CLI)</td><td class="v">8.0.0-rc.15</td><td><span class="st ok">설치됨</span></td></tr>
       <tr><td>ORM</td><td>@prisma/orm-postgres</td><td class="v">8.0.0-rc.11</td><td><span class="st wait">스캐폴딩 전</span></td></tr>
       <tr><td>DB</td><td>PostgreSQL</td><td class="v">18.6</td><td><span class="st ok">가동 중</span></td></tr>
       <tr><td>Vector</td><td>pgvector</td><td class="v">0.8.6</td><td><span class="st wait">확장 미생성</span></td></tr>
-      <tr><td>Auth</td><td>better-auth</td><td class="v">1.7.5</td><td><span class="st warn">런타임 미검증</span></td></tr>
+      <tr><td>Auth</td><td>better-auth</td><td class="v">1.7.5</td><td><span class="st ok">스모크 통과</span></td></tr>
       <tr><td>Schema</td><td>zod</td><td class="v">4.6.5</td><td><span class="st ok">설치됨</span></td></tr>
       <tr><td>Client State</td><td>zustand</td><td class="v">5.0.15</td><td><span class="st ok">설치됨</span></td></tr>
       <tr><td>Server State</td><td>@tanstack/react-query</td><td class="v">5.103.1</td><td><span class="st ok">설치됨</span></td></tr>
-      <tr><td>AI UI</td><td>ai (Vercel AI SDK)</td><td class="v">7.0.107</td><td><span class="st ok">설치됨</span></td></tr>
-      <tr><td>Agent</td><td>@langchain/langgraph</td><td class="v">1.4.16</td><td><span class="st ok">설치됨</span></td></tr>
-      <tr><td>Agent Core</td><td>@langchain/core</td><td class="v">1.2.12</td><td><span class="st ok">설치됨</span></td></tr>
-      <tr><td>Protocol</td><td>@modelcontextprotocol/sdk</td><td class="v">1.30.0</td><td><span class="st ok">설치됨</span></td></tr>
+      <tr><td>AI UI</td><td>ai (Vercel AI SDK)</td><td class="v">7.0.113</td><td><span class="st ok">설치됨</span></td></tr>
+      <tr><td>Agent</td><td>@langchain/langgraph</td><td class="v">1.4.17</td><td><span class="st warn">설치됨 · 에이전트 서버로 이동 예정(ADR-003)</span></td></tr>
+      <tr><td>Agent Core</td><td>@langchain/core</td><td class="v">1.2.12</td><td><span class="st warn">설치됨 · 에이전트 서버로 이동 예정(ADR-003)</span></td></tr>
+      <tr><td>Protocol</td><td>@modelcontextprotocol/sdk</td><td class="v">1.30.1</td><td><span class="st ok">설치됨</span></td></tr>
       <tr><td>CSS</td><td>tailwindcss</td><td class="v">4.3.3</td><td><span class="st wait">연결 대기</span></td></tr>
       <tr><td>UI System</td><td>shadcn/ui</td><td class="v">4.21.0</td><td><span class="st no">CLI — 실행해 쓴다</span></td></tr>
       <tr><td>LLM 3종</td><td>Qwen · Nemotron ×2</td><td class="v">—</td><td><span class="st warn">미검증</span></td></tr>
@@ -506,19 +511,19 @@ postgres&lt;Contract&gt;({ contractJson, url })   ← 계약서를 쥔 db 객체
       </tr>
       <tr>
         <td>Vercel AI SDK</td>
-        <td>7.0.107 (<code>ai</code>)</td>
+        <td>7.0.113 (<code>ai</code>)</td>
         <td>agent 루프와 tool 호출 구조가 6 과 다르다. 6 은 구세대 에이전트 API 다</td>
         <td><span class="tag unverified">미검증</span></td>
       </tr>
       <tr>
         <td>LangGraph</td>
-        <td>1.4.16</td>
+        <td>1.4.17</td>
         <td>1.2 에서 두 마이너 앞선 agent workflow</td>
         <td><span class="tag unverified">미검증</span></td>
       </tr>
       <tr>
         <td>MCP SDK</td>
-        <td>1.30.0</td>
+        <td>1.30.1</td>
         <td>외부 도구를 에이전트에 붙이는 표준 경로</td>
         <td><span class="tag unverified">미검증</span></td>
       </tr>
@@ -606,15 +611,20 @@ export const db = postgres&lt;Contract&gt;({
 <section id="ai">
   <h2>AI SDK 7 · LangGraph · MCP</h2>
 
+  <div class="callout warn">
+    <div class="callout-label">2026-09-24 — 에이전트는 별도 TypeScript 서버에서 돈다</div>
+    <p style="margin:0"><code>CLAUDE-decisions.md</code> ADR-003. 에이전트 런타임은 Next.js 안이 아니라 <strong>별도 Node 프로세스(Hono + LangGraph JS + AI SDK)</strong>다. 중간에 Python 안(ADR-002)을 거쳤지만, Qwen 비전이 포스터를 OCR 없이 읽고 그 호출이 AI SDK 로 된다는 실측으로 되돌렸다. 이 절의 <code>@langchain/langgraph</code>·<code>@langchain/core</code> 는 에이전트 서버로 옮긴다. <code>ai</code>(채팅 UI)와 MCP SDK(도구 서버)는 Next.js 에도 남는다. llama-server 를 부를 때는 <code>@ai-sdk/openai-compatible</code> 에 <code>supportsStructuredOutputs: true</code> 를 준다 — 빠뜨리면 스키마 없이 <code>json_object</code> 만 가서 마크다운이 돌아온다. <strong>에이전트에게:</strong> Next.js 코드에 LangGraph 그래프를 새로 만들지 않는다. 에이전트 서버는 DB 에 접속하지 않는다 — 데이터는 Next.js 가 여는 도구로만 읽고, 벡터는 계산만 해서 Next.js 에 넘긴다.</p>
+  </div>
+
   <p>세 패키지 모두 라인 자체를 올렸다. <code>ai</code> 6.x 와 <code>@langchain/langgraph</code> 1.2.x 는 구세대 에이전트 API 라, 에이전트 기능을 쓰려면 올려야 한다. <span class="tag unverified">미검증</span> — 릴리스 노트 기준이고 이 프로젝트에서 아직 코드로 확인하지 않았다.</p>
 
   <table>
     <thead><tr><th>패키지</th><th>버전</th><th>요구 Node</th></tr></thead>
     <tbody>
-      <tr><td><code>ai</code></td><td>7.0.107</td><td>&gt;=22</td></tr>
-      <tr><td><code>@langchain/langgraph</code></td><td>1.4.16</td><td>&gt;=18</td></tr>
+      <tr><td><code>ai</code></td><td>7.0.113</td><td>&gt;=22</td></tr>
+      <tr><td><code>@langchain/langgraph</code></td><td>1.4.17</td><td>&gt;=18</td></tr>
       <tr><td><code>@langchain/core</code></td><td>1.2.12</td><td>langgraph 가 <code>^1.1.48</code> 로 요구</td></tr>
-      <tr><td><code>@modelcontextprotocol/sdk</code></td><td>1.30.0</td><td>&gt;=18</td></tr>
+      <tr><td><code>@modelcontextprotocol/sdk</code></td><td>1.30.1</td><td>&gt;=18</td></tr>
     </tbody>
   </table>
 
@@ -626,9 +636,9 @@ export const db = postgres&lt;Contract&gt;({
 
   <p>위 세 패키지가 <strong>전부 zod 를 peer 로 요구한다.</strong> 각자 범위가 달라서 하나라도 어긋나면 조용히 깨진다.</p>
 
-<pre><code>ai@7.0.107                        ^3.25.76 || ^4.1.8
-@langchain/langgraph@1.4.16       ^3.25.32 || ^4.2.0
-@modelcontextprotocol/sdk@1.30.0  ^3.25    || ^4.0
+<pre><code>ai@7.0.113                        ^3.25.76 || ^4.1.8
+@langchain/langgraph@1.4.17       ^3.25.32 || ^4.2.0
+@modelcontextprotocol/sdk@1.30.1  ^3.25    || ^4.0
                        교집합  →  zod >= 4.2.0</code></pre>
 
   <p>그래서 <code>zod 4.6.5</code> 를 고정표에 명시적으로 올렸다. 설치 후 실제로 하나로 수렴했는지 확인했다. <span class="tag measured">실측</span></p>
@@ -653,7 +663,7 @@ export const db = postgres&lt;Contract&gt;({
   <p>Prisma CLI 출력을 줄글로 파싱하지 않는다. <code>envelope.ok</code> 로 성공을 판정하고, <code>envelope.diagnostics</code> 를 경고로 올리고, <code>envelope.nextActions</code> 가 비어 있지 않으면 그걸 다음 단계 후보로 쓴다.</p>
 
   <h3>3. 스키마는 zod 한 곳에서 정의한다</h3>
-  <p><code>ai</code> 의 tool 정의, LangGraph 의 상태, MCP 도구 스키마가 전부 zod 를 쓴다. 같은 개념을 세 번 정의하지 않고 한 번 정의해 세 곳에서 재사용한다. 버전이 하나로 수렴해 있어야 이게 성립한다.</p>
+  <p><code>ai</code> 의 tool 정의, LangGraph 의 상태, MCP 도구 스키마가 전부 zod 를 쓴다. 에이전트 서버와 Next.js 가 같은 언어라 이 스키마를 두 서버가 그대로 나눠 쓴다(ADR-003). 같은 개념을 세 번 정의하지 않고 한 번 정의해 세 곳에서 재사용한다. 버전이 하나로 수렴해 있어야 이게 성립한다.</p>
 
   <h3>4. 버전을 소스에 하드코딩하지 않는다</h3>
   <p>런타임에서 버전을 문자열로 비교하는 코드를 쓰지 않는다. RC 라 값이 자주 바뀐다. 필요하면 기능 존재 여부로 분기한다.</p>
@@ -710,24 +720,35 @@ npm error Found: prisma@8.0.0-rc.15</code></pre>
 <pre><code>import('@better-auth/kysely-adapter')
 → createKyselyAdapter, kyselyAdapter, getPostgresSchema, ...</code></pre>
 
-  <p><strong>Postgres 직결은 임시방편이 아니라 정식 지원 경로다.</strong> Prisma 8 이 앱 ORM 을 맡고, 인증은 같은 DB 에 kysely/pg 로 붙어 스키마만 공유한다. 다만 실제 인증 동작(세션·스키마 생성·로그인 흐름)은 아직 돌려보지 않았다. <span class="tag unverified">미검증</span></p>
+  <p><strong>Postgres 직결은 임시방편이 아니라 정식 지원 경로다.</strong> Prisma 8 이 앱 ORM 을 맡고, 인증은 같은 DB 에 kysely/pg 로 붙어 스키마만 공유한다. 실제 인증 동작도 돌려 봤다. <span class="tag measured">실측</span></p>
 
-  <h3>Expo 58 은 TypeScript 6 을 기대한다 <span class="tag measured">실측</span></h3>
+<pre><code>kdance_test · 임시 스키마 auth_smoke · database: new pg.Pool(...)   (2026-09-24)
+PASS  테이블 생성 — account,session,user,verification
+PASS  재실행 시 추가 변경 없음
+PASS  회원가입 · 비밀번호 해시 저장(평문 아님)
+PASS  로그인 + 세션 쿠키 발급 · 쿠키로 세션 조회
+PASS  틀린 비밀번호 거부 · 로그아웃 후 세션 무효
+PASS  public 스키마 침범 없음</code></pre>
 
-  <p>고정표는 TypeScript 7.0.2 인데 Expo 58 preview 의 검증은 6 을 요구한다.</p>
+  <p>드라이버 <code>pg@8.22.0</code> 은 따로 깐 게 아니라 <code>@prisma/orm-postgres</code> 가 가져온 것이다. <strong>Prisma 8 과 Better Auth 가 같은 드라이버를 쓴다.</strong> 초기화 때 찍히는 <code>Database schema mismatch</code> 로그는 테이블이 생기기 전이라 나오는 것이고, 마이그레이션 뒤에는 사라진다.</p>
 
-<pre><code>$ npx expo install --check
-typescript@7.0.2 - expected version: ~6.0.3
-Your project may not work correctly until you install the expected versions.</code></pre>
+  <p><strong>아직 확인하지 않은 것:</strong> Prisma 8 계약과 인증 테이블의 관계다. 계약에 없는 <code>user</code>·<code>session</code> 을 Prisma 마이그레이션이 어떻게 다루는지, 예약·결제가 <code>user</code> 를 외래키로 어떻게 참조할지는 Phase 3(구현 계획)에서 정한다. <span class="tag unverified">미검증</span></p>
 
-  <p>다만 <code>tsc --noEmit</code> 은 7.0.2 로 통과한다(exit 0). Expo 의 경고는 버전표 대조 결과이지 실제 실패가 아니다. 어느 쪽을 따를지는 아직 정하지 않았다.</p>
+  <h3>TypeScript 는 6.0.3 이다 — 7 로 올리지 않는다 <span class="tag measured">실측</span></h3>
 
-  <h3>typescript-eslint 가 TypeScript 7 을 배제한다 <span class="tag measured">실측</span></h3>
+  <p>npm <code>latest</code> 는 7.0.2 지만, 설치된 패키지 두 곳이 6 을 요구한다.</p>
 
 <pre><code>peer typescript@"&gt;=4.8.4 &lt;6.1.0" from typescript-eslint@8.70.0
-Conflicting peer dependency: typescript@6.0.3</code></pre>
+$ npx expo install --check   # 7.0.2 일 때
+typescript@7.0.2 - expected version: ~6.0.3</code></pre>
 
-  <p>npm 이 경고만 내고 덮어썼다. admin-web 의 <code>npm run lint</code> 는 별도 사유(eslint-config-next 16 × eslint 9 순환 설정)로 이미 깨져 있으므로, <strong>타입 검증은 <code>next build</code> 로 한다.</strong> 둘을 동시에 건드리지 않는다.</p>
+  <p>반대로 7 을 요구하는 패키지는 하나도 없다. Next.js 16.3.5 는 TypeScript peer 를 선언하지 않고 코드상 최소 5.1.0 만 검사한다. 설치된 16.3 문서(<code>dist/docs/.../02-typescript.md</code>)도 TS 6 을 기본으로 두고, 7 은 JavaScript API 가 없어 <code>tsc</code> CLI 로 돌려 쓰는 방식으로 설명한다. Instant Navigations·개발 서버 메모리 절감·<code>dist/docs</code>/<code>AGENTS.md</code> 는 Next 런타임·번들러 기능이라 TS 버전과 관계없다. 2026-09-23 에 6.0.3(<code>~6.0.3</code>)으로 내렸고 <code>next build</code> 성공, mobile <code>tsc --noEmit</code> exit 0, Expo 의 TS 경고가 사라졌다.</p>
+
+  <p><strong>에이전트에게:</strong> <code>typescript</code> 를 7 로 "최신화"하지 않는다. <code>typescript-eslint</code> 가 7 을 지원하면 그때 함께 올린다.</p>
+
+  <h3>admin-web lint 는 설정 파일 문제로 아직 깨져 있다 <span class="tag measured">실측</span></h3>
+
+  <p>TS 를 내린 뒤에도 <code>npm run lint</code> 는 <code>Converting circular structure to JSON</code> 으로 죽는다. <code>eslint.config.mjs</code> 가 <code>FlatCompat</code> 으로 <code>next/core-web-vitals</code> 를 감싸는 옛 방식이라서다. 16.3 문서는 <code>eslint-config-next/core-web-vitals</code> 를 직접 import 한다. 그 전까지 <strong>타입 검증은 <code>next build</code> 로 한다.</strong></p>
 
   <h3>RC 를 두 개 쓰고 있다</h3>
 
