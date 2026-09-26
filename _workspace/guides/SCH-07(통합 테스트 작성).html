@@ -159,6 +159,15 @@
   </ol>
 </nav>
 
+<div class="callout warn" id="status">
+  <div class="callout-label">현재 상태 (2026-09-26)</div>
+  <p><b>이 가이드는 끝난 작업의 기록이다.</b> 여기서 설명하는 FastAPI 코드와 테스트는 SCH-21(FastAPI→Next.js 전환)에서 Next.js + Prisma 8 로 교체된다. 1~5절은 2026-09-15 작업 당시 그대로 두었고 지금과 달라진 곳에는 「2026-09-26 주」를 달았다.</p>
+  <p><b>그 뒤에 일어난 일:</b> 이 SCH 가 준비한 DB 테스트 27개는 2026-09-23 DB 를 켜고 실제로 돌았다 — 전체 186 passed. 5절이 "아직 실행되지 않았다"고 적은 부분이 그날 풀렸다.</p>
+  <p><b>이어지는 것:</b> 이 가이드가 다음 순서로 적은 SCH-11(마이그레이션 검증)·SCH-12(DB 통합 테스트)는 FastAPI 를 대상으로 해서 SCH-21 의 완료 기준으로 흡수됐다. SCH-21 은 Prisma 마이그레이션 적용과 DB 통합 테스트를 완료 기준에 넣는다. 테스트 DB 를 어떻게 돌릴지는 Q7(DB 테스트 전략)로 열려 있다. <code>test_admin_refund_policy.py</code>가 검증하던 비율표 API 는 옮기지 않는다.</p>
+  <p><b>지금 환불 규칙:</b> 정규·일반 수업은 회원이 문의하고 업주가 금액을 정해 직접 실행한다(FR-098(업주 처리 환불 방식)·FR-293(업주 환불 입력)). 이벤트·원데이·파티·공연·대회는 회원이 예약 상세에서 취소하면 시스템이 FR-099c(이벤트·원데이·파티·공연·대회 취소 규정) 표대로 환불액을 계산하고 업주가 실행한다. 업주가 공지한 처리 기간(최대 3영업일)이 지나면 시스템이 자동으로 실행한다(FR-295(수단별 환불 실행)). 행사를 통째로 취소하면 결제자 전원에게 PG 로 일괄 전액 환불한다(FR-099e(행사 일괄 취소)).</p>
+  <p><b>테스트 실측:</b> 2026-09-26 <code>uv run pytest -q</code> → 159 passed · 27 skipped. Docker Desktop 이 꺼져 있어 DB 테스트 27개가 skip 됐다 — 이 SCH 의 <code>conftest.py</code>가 설계대로 error 없이 건너뛴 것이다. DB 를 켠 2026-09-23 에는 186 passed 였다.</p>
+</div>
+
 <section id="overview">
   <h2>1. 개요</h2>
   <p>SCH-01(기반 배선)부터 SCH-06(Pydantic 스키마 + 라우터 + main.py)까지, 모든 테스트는 <b>실제 PostgreSQL 연결 없이</b> 통과해 왔습니다. 트랜잭션이 정말 한 덩어리로 커밋되는지, 같은 예약에 취소 요청이 동시에 2건 들어와도 환불이 1번만 나가는지는 진짜 DB가 있어야만 확인할 수 있는데, 이 환경에는 Docker가 없어서 그동안은 "코드상으로는 맞다"까지만 말할 수 있었습니다.</p>
@@ -235,6 +244,7 @@
   <div class="callout warn">
     <div class="callout-label">이 테스트가 아직 증명하지 못하는 것</div>
     27건은 전부 <b>아직 실행되지 않았습니다.</b> 코드는 준비됐지만, "정말로 두 커넥션이 경합하는지", "SAVEPOINT 롤백이 실제로 데이터를 지우는지", "JSONB UPDATE가 정말 반영되는지"는 <b>SCH-12(DB 통합 테스트 실행)</b>가 실제 PostgreSQL을 붙여야 비로소 증명됩니다. 지금까지는 "실행 가능한 형태로 잘 짜여 있다"까지만 확인된 것입니다.
+    <p><i>(2026-09-26 주: 2026-09-23 DB 를 켜고 27건을 실제로 돌려 전체 186 passed 를 확인했다. SCH-12(DB 통합 테스트)는 SCH-21(FastAPI→Next.js 전환)에 흡수됐다.)</i></p>
   </div>
 </section>
 
@@ -246,7 +256,7 @@
     <div class="arrow">→</div>
     <div class="step dim"><b><a href="SCH-02(도메인 모델).html" style="color:inherit;text-decoration:none">SCH-02</a></b>도메인 모델 7개<br><span class="badge done">완료</span></div>
     <div class="arrow">→</div>
-    <div class="step dim"><b><a href="SCH-03(환불액 산정).html" style="color:inherit;text-decoration:none">SCH-03</a></b>환불액 산정 함수<br><span class="badge done">완료</span></div>
+    <div class="step dim"><b><a href="SCH-03(환불액 산정).html" style="color:inherit;text-decoration:none">SCH-03</a></b>환불액 산정 함수<br><span class="badge done">완료 · 옮기지 않음</span></div>
     <div class="arrow">→</div>
     <div class="step dim"><b><a href="SCH-04(어댑터 3종).html" style="color:inherit;text-decoration:none">SCH-04</a></b>어댑터 3종<br><span class="badge done">완료</span></div>
   </div>
@@ -257,26 +267,28 @@
     <div class="arrow">→</div>
     <div class="step here"><b>SCH-07</b>conftest + DB 통합 테스트 작성 (이 문서)<br><span class="badge done">완료</span></div>
     <div class="arrow">→</div>
-    <div class="step dim"><b>SCH-12</b>DB 통합 테스트 실행<br><span class="badge wait">Docker 대기</span></div>
+    <div class="step dim"><b>SCH-12</b>DB 통합 테스트 실행<br><span class="badge wait">SCH-21 에 흡수</span></div>
   </div>
   <table>
     <tr><th>관계</th><th>왜 이 순서/구조인가</th></tr>
     <tr><td>SCH-01~06 → SCH-07</td><td>SCH-07은 SCH-01~06이 만든 모델·서비스·라우터를 그대로 <code>api_client</code> 하나로 호출해 검증한다 — 새 계층이 아니라 기존 계층들의 통합 지점이다. 그래서 이 SCH는 대상 파일에 있던 서비스/스키마 로직을 하나도 고치지 않았다.</td></tr>
-    <tr><td>SCH-07 → SCH-11(마이그레이션 실적용) / SCH-12(DB 통합 테스트 실행)</td><td>SCH-11이 실제 스키마를 DB에 반영하고, SCH-12가 이 SCH가 준비한 27개 테스트를 실제로 돌린다. 셋 다 Docker(kdance-db 컨테이너)가 있어야 하므로 이 환경에서는 "쓰기"까지만 가능했다.</td></tr>
+    <tr><td>SCH-07 → SCH-11(마이그레이션 실적용) / SCH-12(DB 통합 테스트 실행)</td><td>SCH-11이 실제 스키마를 DB에 반영하고 SCH-12가 이 SCH가 준비한 27개 테스트를 실제로 돌린다. 셋 다 Docker(kdance-db 컨테이너)가 있어야 하므로 이 환경에서는 "쓰기"까지만 가능했다. <i>(2026-09-26 주: SCH-11(마이그레이션 검증)·SCH-12(DB 통합 테스트) 번호는 FastAPI 를 대상으로 해서 SCH-21(FastAPI→Next.js 전환)의 완료 기준으로 흡수됐고 다시 쓰지 않는다. 27건은 2026-09-23 에 실제로 돌았다.)</i></td></tr>
+    <tr><td>SCH-07 → SCH-21(FastAPI→Next.js 전환) <span class="badge b">2026-09-26</span></td><td>SCH-21 의 완료 기준에 Prisma 마이그레이션 적용과 DB 통합 테스트가 들어 있다. "DB 가 없으면 skip, 있으면 실제 검증"이라는 이 SCH 의 안전장치 설계와, 두 커넥션 경합·SAVEPOINT 같은 검증 항목이 그쪽으로 이어진다. 방식은 Q7(DB 테스트 전략)로 정한다.</td></tr>
+    <tr><td>SCH-07 → SCH-37(S0 정합성 E2E) <span class="badge b">2026-09-26</span></td><td>결제·출석·수강 완료·정산·취소·환불을 한 건씩 끝에서 끝까지 Playwright 로 판정한다. 이 SCH 는 API 단위까지만 봤고 화면까지 잇는 검증은 그쪽 몫이다.</td></tr>
   </table>
 </section>
 
 <section id="handoff">
   <h2>7. 다음 SCH로 이어지는 것</h2>
   <ul>
-    <li><b>1. SCH-12(DB 통합 테스트 실행)이 할 일.</b> Docker로 <code>kdance-db</code>를 띄운 뒤 <code>uv run pytest</code>를 다시 돌리면, 지금 27건 <code>skipped</code>였던 테스트가 실제로 실행된다. 실패가 나온다면 이번 SCH가 짠 테스트 코드 자체보다 SCH-01~06의 실제 DB 동작(제약 조건, 트랜잭션 경계)을 먼저 의심해야 한다 — 이 SCH는 그 계층들을 수정하지 않았다.</li>
-    <li><b>2. SCH-11(마이그레이션 실적용)이 선행돼야 한다.</b> <code>test_admin_refund_policy.py</code>·<code>test_cancel_api.py</code> 모두 <code>Base.metadata.create_all()</code>로 스키마를 만들지만, 이건 SCH-02의 마이그레이션 파일과 별개 경로다. SCH-11의 "autogenerate 빈 diff" 검증이 실패하면 두 경로(마이그레이션 vs. 모델)가 어긋났다는 뜻이므로 SCH-07의 테스트보다 먼저 고쳐야 한다.</li>
+    <li><b>1. SCH-12(DB 통합 테스트 실행)이 할 일.</b> Docker로 <code>kdance-db</code>를 띄운 뒤 <code>uv run pytest</code>를 다시 돌리면, 지금 27건 <code>skipped</code>였던 테스트가 실제로 실행된다. 실패가 나온다면 이번 SCH가 짠 테스트 코드 자체보다 SCH-01~06의 실제 DB 동작(제약 조건, 트랜잭션 경계)을 먼저 의심해야 한다 — 이 SCH는 그 계층들을 수정하지 않았다. <i>(2026-09-26 주: 2026-09-23 DB 를 켜고 돌려 186 passed 가 나왔다. SCH-12 는 SCH-21(FastAPI→Next.js 전환)에 흡수됐다.)</i></li>
+    <li><b>2. SCH-11(마이그레이션 실적용)이 선행돼야 한다.</b> <code>test_admin_refund_policy.py</code>·<code>test_cancel_api.py</code> 모두 <code>Base.metadata.create_all()</code>로 스키마를 만들지만, 이건 SCH-02의 마이그레이션 파일과 별개 경로다. SCH-11의 "autogenerate 빈 diff" 검증이 실패하면 두 경로(마이그레이션 vs. 모델)가 어긋났다는 뜻이므로 SCH-07의 테스트보다 먼저 고쳐야 한다. <i>(2026-09-26 주: SCH-11 도 SCH-21 에 흡수됐다. 새 스택에서는 스키마 원본이 Prisma 계약 하나라, 마이그레이션 적용을 SCH-21 이 다시 검증한다. SCH-02(도메인 모델)의 마이그레이션은 오프라인 SQL 생성까지만 검증됐다.)</i></li>
     <li><b>3. Phase 7(자체 오류 수정) 불필요.</b> 빌드/문법 오류 0, 기존 159건 전체 초록 유지 — 이번 SCH가 유발한 회귀는 없다.</li>
   </ul>
 </section>
 
 <footer>
-  작성 기준: <code>_workspace/05_implementer_TS-07_summary.md</code>, <code>backend/tests/conftest.py</code>·<code>test_cancel_api.py</code>·<code>test_admin_refund_policy.py</code>의 학습 주석, <code>_workspace/kdance.html</code> · kdance 프로젝트 내부 문서 · 2026-09-15 작성.
+  작성 기준: <code>_workspace/05_implementer_TS-07_summary.md</code>, <code>backend/tests/conftest.py</code>·<code>test_cancel_api.py</code>·<code>test_admin_refund_policy.py</code>의 학습 주석, <code>_workspace/kdance.html</code> · kdance 프로젝트 내부 문서 · 2026-09-15 작성 · 2026-09-26 현재 상태 갱신(<code>_workspace/kdance.html</code> 2026-09-26 판, spec 변경 이력 2026-09-20~26).
 </footer>
 
 </div>

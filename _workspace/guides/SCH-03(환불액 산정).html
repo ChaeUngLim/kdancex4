@@ -165,6 +165,20 @@
   </ol>
 </nav>
 
+<div class="callout warn" id="status-2026-09-26">
+  <div class="callout-label">현재 상태 (2026-09-26)</div>
+  <p>이 가이드는 2026-09-15 에 끝난 작업의 기록이다. 1~5절은 그때 쓴 그대로 둔다. 헤맨 과정도 배울 거리라서다. 다만 <b>이 가이드가 설명하는 환불 규칙은 지금 kdance 의 규칙이 아니다.</b> 지금 사정은 이 상자에 모았다.</p>
+  <ul>
+    <li><b>규칙이 폐기됐다.</b> "수업 24시간 전 취소는 전액, 그 안은 학원 비율표 자동 적용" 규칙은 2026-09-25 에 없어졌다. 환불 규정이 학원마다 달라 공통 규칙 하나로 묶을 수 없어서다. 기존 계산 코드도 버리기로 확정했다 — Q11(환불 방식 변경의 뒤처리) ②. 그래서 이 SCH 의 상태는 「완료 · 옮기지 않음」이다.</li>
+    <li><b>정규·일반 수업은 업주가 금액을 정한다.</b> 수강생이 문의로 환불을 요청하면 업주가 환불 여부·금액·근거 공지 항목을 입력한다 — FR-098(업주 처리 환불 방식)·FR-293(업주 환불 입력). 이 흐름은 SCH-32(정규 과정 환불)가 만든다.</li>
+    <li><b>이벤트·원데이·파티·공연·대회는 시스템이 계산한다. 하지만 이 코드가 아니다.</b> 회원이 예약 상세에서 취소를 신청하면 FR-099c(이벤트·원데이·파티·공연·대회 취소 규정)의 날짜 구간 표대로 환불액을 계산한다. 업주는 실행만 하고 환불액은 올리는 쪽으로만 고칠 수 있다. 이 계산은 SCH-33(이벤트형 취소)이 새로 만든다. <code>calculate_refund</code> 의 24시간 경계·비율표 해석을 가져다 쓰지 않는다.</li>
+    <li><b>이 코드는 교체된다.</b> SCH-21(FastAPI→Next.js 전환)이 백엔드를 Next.js + Prisma 8 로 옮길 때 24시간 규칙·비율표·<code>refund_policy_tiers</code> 는 옮기지 않는다. 이관이 끝나면 사용자 승인을 받아 <code>backend/</code> 폴더와 함께 지운다.</li>
+    <li><b>이어지는 것 — 코드가 아니라 원칙.</b> 돈은 정수로 계산한다. 환불액은 결제액을 넘지 않는다(FR-293(업주 환불 입력)도 같은 상한을 둔다). 경계 시각 같은 핵심 결정은 테스트 단정문으로 못박는다. 이 셋은 SCH-33(이벤트형 취소)의 새 계산에도 그대로 필요하다.</li>
+    <li><b>수수료 상수도 옛 값이다.</b> <code>fee_policy.py</code> 의 값은 2026-09-25 결정과 다르다. 자세한 대조는 <a href="#handoff">7절</a> 마지막 항목의 주석에 있다.</li>
+    <li><b>테스트 실측.</b> 2026-09-26 <code>uv run pytest -q tests/test_refund_policy.py</code> 결과 50 passed. 백엔드 전체는 159 passed · 27 skipped — Docker Desktop 이 꺼져 있어 DB 테스트 27개가 skip 됐다. DB 를 켠 2026-09-23 에는 186 passed 였다. 테스트가 통과한다는 것은 폐기된 규칙을 코드가 정확히 구현한다는 뜻일 뿐, 지금 규칙에 맞는다는 뜻이 아니다.</li>
+  </ul>
+</div>
+
 <section id="overview">
   <h2>1. 개요</h2>
   <p>SCH-03은 <b>"예약을 취소하면 얼마를 돌려줄지 계산하는 함수"</b> 하나(<code>calculate_refund</code>)와, 그 계산이 지켜야 할 규칙을 50개의 구체적인 상황(테스트)으로 고정하는 작업입니다. "수업 시작 24시간 전"이라는 경계, 학원마다 다른 환불 비율표, 원 단위 반올림 방식처럼 돈이 걸린 세부 규칙을 코드로 정확히 옮기고, 그 규칙이 앞으로 절대 조용히 깨지지 않도록 테스트로 못박아 두는 것이 목표입니다.</p>
@@ -316,12 +330,13 @@ def test_24h_boundary_is_inclusive_of_full_refund(label, before, expected_rate_b
 <section id="relations">
   <h2>6. 다른 SCH와의 연관관계</h2>
   <p>SCH-03은 SCH-01·SCH-02 <b>다음</b>에 실행됐지만, 실제로는 그 둘의 결과물(모델, DB 배선)을 <b>전혀 import하지 않습니다.</b> 순서상 뒤에 있을 뿐, 코드 상으로는 독립적입니다. 반대로 SCH-04(어댑터 3종: PG/알림/슬롯락) 이후의 여러 작업은 이 SCH-03의 계산 함수를 그대로 가져다 씁니다.</p>
+  <p><i>(2026-09-26 주: 위 문장과 아래 그림은 1회차 슬라이스(FastAPI 예약 취소·환불) 당시의 관계다. 이 계산 함수는 폐기돼 새 스택으로 옮기지 않는다. SCH-05(취소 오케스트레이션)의 실행부(잠금·멱등키·감사 로그·PG 어댑터)만 SCH-32(정규 과정 환불)·SCH-33(이벤트형 취소)에서 다시 쓴다.)</i></p>
   <div class="flow">
     <div class="step dim"><b><a href="SCH-01(기반 배선).html" style="color:inherit;text-decoration:none">SCH-01</a></b>기반 배선<br><span class="badge done">완료</span></div>
     <div class="arrow">→</div>
     <div class="step dim"><b><a href="SCH-02(도메인 모델).html" style="color:inherit;text-decoration:none">SCH-02</a></b>도메인 모델 7개<br><span class="badge done">완료</span></div>
     <div class="arrow">→</div>
-    <div class="step here"><b>SCH-03</b>환불액 산정 함수 (이 문서)<br><span class="badge done">완료</span></div>
+    <div class="step here"><b>SCH-03</b>환불액 산정 함수 (이 문서)<br><span class="badge done">완료</span><span class="badge b">옮기지 않음</span></div>
   </div>
   <div class="flow">
     <div class="step dim"><b>SCH-04</b>어댑터 3종(PG/알림/슬롯락)<br><span class="badge done">완료</span></div>
@@ -335,6 +350,8 @@ def test_24h_boundary_is_inclusive_of_full_refund(label, before, expected_rate_b
     <tr><td>SCH-01·SCH-02 → SCH-03 (순서상 후행이지만 코드상 독립)</td><td>작업 순서는 뒤지만, <code>refund_policy.py</code>는 모델이나 DB 배선을 import하지 않는다. 그래서 이 가이드는 SCH-01·SCH-02 가이드가 설명한 개념(ORM, Base, Mixin 등)을 반복하지 않되, 억지로 연결 짓지도 않았다.</td></tr>
     <tr><td>SCH-03 → SCH-05 (취소 오케스트레이션)</td><td>실제로 취소를 처리하는 서비스가 <code>calculate_refund</code>를 호출해 얼마를 돌려줄지 얻은 뒤, 그 값으로 PG 어댑터에 송금을 지시하고 감사 로그를 남긴다.</td></tr>
     <tr><td>SCH-03 → SCH-06 (API 스키마·라우터)</td><td>회원이 취소하기 전에 "예상 환불액"을 미리 보여주는 조회 API도 같은 계산 함수를 쓴다 — 그래서 4.3절의 <code>ValueError</code> 경고가 SCH-06에도 그대로 전달됐다.</td></tr>
+    <tr><td>SCH-03(환불액 산정) → SCH-21(FastAPI→Next.js 전환) <b>(옮기지 않음)</b></td><td>전환 때 24시간 규칙·비율표·<code>refund_policy_tiers</code> 를 옮기지 않는다고 정했다. 이 SCH 의 코드와 테스트는 <code>backend/</code> 와 함께 사라진다.</td></tr>
+    <tr><td>SCH-03(환불액 산정) ↔ SCH-32(정규 과정 환불) · SCH-33(이벤트형 취소) <b>(대체)</b></td><td>이 함수가 하던 "환불액 정하기"를 둘이 나눠 맡는다. 정규·일반 수업은 업주가 금액을 입력하고(FR-293(업주 환불 입력)), 이벤트·원데이·파티·공연·대회는 FR-099c(이벤트·원데이·파티·공연·대회 취소 규정) 표로 시스템이 계산한다. 둘 다 이 코드를 재사용하지 않는다.</td></tr>
   </table>
 </section>
 
@@ -342,15 +359,25 @@ def test_24h_boundary_is_inclusive_of_full_refund(label, before, expected_rate_b
   <h2>7. 다음 SCH로 이어지는 것</h2>
   <p>SCH-03이 이후 작업에 남긴 인터페이스와 주의사항입니다.</p>
   <ul>
-    <li><b>SCH-05·SCH-06에게:</b> <code>calculate_refund</code>는 비율표가 구조나 범위를 벗어나면 <code>ValueError</code>를 던집니다(<a href="#issues">4.3절</a>). 이 예외를 잡아서 422 같은 명시적인 오류 응답으로 바꾸지 않으면, 취소·환불 미리보기 API가 500 오류를 그대로 노출할 위험이 있습니다.</li>
+    <li><b>SCH-05·SCH-06에게:</b> <code>calculate_refund</code>는 비율표가 구조나 범위를 벗어나면 <code>ValueError</code>를 던집니다(<a href="#issues">4.3절</a>). 이 예외를 잡아서 422 같은 명시적인 오류 응답으로 바꾸지 않으면, 취소·환불 미리보기 API가 500 오류를 그대로 노출할 위험이 있습니다. <i>(2026-09-26 주: 비율표가 폐기돼 이 경고는 <code>backend/</code> 가 남아 있는 동안에만 뜻이 있다.)</i></li>
     <li><b>SCH-05(취소 오케스트레이션 서비스 + deps.py)에게:</b> <code>app/services/__init__.py</code>를 추가할지 말지는 이 디렉터리에 취소 오케스트레이션 서비스를 넣게 될 작업이 패키지 구조 전체를 보고 판단하는 편이 맞습니다(4.2절).</li>
     <li><b>SCH-05(취소 오케스트레이션 서비스 + deps.py)에게(권고):</b> 취소 처리 시 감사 로그에 <code>RefundCalculation</code>의 <code>seconds_before_start</code>·<code>applied_tier_hours</code>까지 함께 남기면, 나중에 "왜 이 금액이 나왔는지"를 초 단위로 재현할 수 있습니다(4.4절).</li>
-    <li><b>정산 모듈을 만들 작업에게:</b> <code>fee_policy.py</code>의 상수 4개(수수료 부담 주체, 플랫폼 수수료율, 베타 면제, 정산 후 환불 회수 방식)는 이미 확정된 값입니다. 재논의 없이 이 값을 그대로 따르면 됩니다.</li>
+    <li><b>정산 모듈을 만들 작업에게:</b> <code>fee_policy.py</code>의 상수 4개(수수료 부담 주체, 플랫폼 수수료율, 베타 면제, 정산 후 환불 회수 방식)는 이미 확정된 값입니다. 재논의 없이 이 값을 그대로 따르면 됩니다.
+      <br><i>(2026-09-26 주: 이 문장은 더 이상 맞지 않는다. 2026-09-25 결정으로 값이 바뀌었는데 <code>backend/app/services/fee_policy.py</code> 는 옛 값 그대로다(2026-09-26 확인). 정산 모듈은 SCH-31(정산 원장)이 만들고 아래 spec 값을 따른다.)</i>
+      <table>
+        <tr><th>상수</th><th><code>fee_policy.py</code> 의 값</th><th>지금 spec</th></tr>
+        <tr><td><code>PLATFORM_FEE_RATE_BP</code></td><td><code>800</code> (8%)</td><td>모든 수업 결제 5% — FR-124(플랫폼 수수료 5%·1년 면제)</td></tr>
+        <tr><td><code>BETA_FEE_WAIVED</code></td><td><code>True</code> (베타 6개월 면제)</td><td>학원 입점일부터 1년 면제 — FR-124(플랫폼 수수료 5%·1년 면제)</td></tr>
+        <tr><td><code>PG_FEE_BEARER</code></td><td><code>"platform"</code> (플랫폼 부담)</td><td>수업 결제의 PG 수수료와 환불로 못 돌려받은 PG 수수료는 업주 부담. 월·연 구독 환불분만 플랫폼 — FR-125c(환불 PG 수수료 업주 부담)·FR-125d(PG 결제 수수료 업주 부담)</td></tr>
+        <tr><td><code>SETTLEMENT_REFUND_RECOVERY</code></td><td><code>"next_month_deduction"</code> (다음 달 정산에서 차감)</td><td>학원 정산금에서 상계하고 남은 금액은 다음 정산으로 넘긴다 — FR-253(정산 상계). 방향은 같고 범위가 넓어졌다</td></tr>
+      </table>
+      <i>취소 수수료 배분도 새로 생겼다. 이벤트·원데이·파티·공연·대회 취소로 남은 금액은 플랫폼과 업주가 5:5 로 나눈다 — FR-125e(취소 수수료 5:5·판매 수수료 5%).</i>
+    </li>
   </ul>
 </section>
 
 <footer>
-  작성 기준: <code>_workspace/05_implementer_TS-03_summary.md</code>, <code>backend/app/services/refund_policy.py</code>·<code>fee_policy.py</code>·<code>backend/tests/test_refund_policy.py</code>의 학습 주석, <code>docs/payment-method-policy.md</code>, <code>_workspace/kdance.html</code> · kdance 프로젝트 내부 문서 · 2026-09-15 작성.
+  작성 기준: <code>_workspace/05_implementer_TS-03_summary.md</code>, <code>backend/app/services/refund_policy.py</code>·<code>fee_policy.py</code>·<code>backend/tests/test_refund_policy.py</code>의 학습 주석, <code>docs/payment-method-policy.md</code>, <code>_workspace/kdance.html</code> · kdance 프로젝트 내부 문서 · 2026-09-15 작성 · 2026-09-26 현재 상태 갱신(<code>_workspace/kdance.html</code> 2026-09-26 판, <code>specs/001-ai-dance-class-platform/spec.md</code> 변경 이력 2026-09-25~26, <code>fee_policy.py</code> 실제 값 대조).
 </footer>
 
 </div>

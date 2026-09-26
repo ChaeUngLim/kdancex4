@@ -165,6 +165,14 @@
   </ol>
 </nav>
 
+<div class="callout warn" id="status">
+  <div class="callout-label">현재 상태 (2026-09-26)</div>
+  <p><b>이 가이드는 끝난 작업의 기록이다.</b> 여기서 설명하는 FastAPI 코드는 SCH-21(FastAPI→Next.js 전환)에서 Next.js + Prisma 8 로 교체된다. 1~5절은 2026-09-15 작업 당시 그대로 두었고 지금과 달라진 곳에는 「2026-09-26 주」를 달았다.</p>
+  <p><b>새 스택으로 이어지는 것:</b> 이 SCH 의 실행부 — 행 잠금·멱등키·감사 로그·PG 어댑터 호출 — 는 SCH-32(정규 과정 환불)·SCH-33(이벤트형 취소)에서 다시 쓴다. 반대로 <b>회원이 취소 버튼을 누르면 곧바로 환불까지 가던 흐름은 쓰지 않는다.</b> 5단계에서 부르던 SCH-03(환불액 산정)의 24시간 규칙·비율표 계산도 2026-09-25 에 폐기됐다(Q11(환불 방식 변경의 뒤처리) ②).</p>
+  <p><b>지금 환불 규칙:</b> 정규·일반 수업은 회원이 문의하고 업주가 금액을 정해 직접 실행한다(FR-098(업주 처리 환불 방식)·FR-293(업주 환불 입력)). 이벤트·원데이·파티·공연·대회는 회원이 예약 상세에서 취소하면 시스템이 FR-099c(이벤트·원데이·파티·공연·대회 취소 규정) 표대로 환불액을 계산하고 업주가 실행한다. 업주가 공지한 처리 기간(최대 3영업일)이 지나면 시스템이 자동으로 실행한다(FR-295(수단별 환불 실행)). 행사를 통째로 취소하면 결제자 전원에게 PG 로 일괄 전액 환불한다(FR-099e(행사 일괄 취소)).</p>
+  <p><b>테스트 실측:</b> 2026-09-26 <code>uv run pytest -q</code> → 159 passed · 27 skipped. Docker Desktop 이 꺼져 있어 DB 테스트 27개가 skip 됐다. DB 를 켠 2026-09-23 에는 186 passed 였다 — 4.7절이 "미검증"이라 적은 실제 DB 동작을 그날 SCH-07(통합 테스트 작성)의 테스트가 돌려 확인했다.</p>
+</div>
+
 <section id="overview">
   <h2>1. 개요</h2>
   <p>SCH-05는 예약 취소 1건을 처음부터 끝까지 책임지는 <b><code>backend/app/services/cancellation.py</code></b>와, 그 함수가 필요로 하는 어댑터·인증을 실제로 꽂아 넣는 <b><code>backend/app/deps.py</code></b>를 만든 작업입니다. SCH-02(모델)·SCH-03(환불액 산정 순수 함수)·SCH-04(어댑터 3종: PG/알림/슬롯락)가 각자 만든 부품이 여기서 처음으로 한 함수 안에 모입니다.</p>
@@ -298,14 +306,14 @@
   </div>
 
   <h3>4.5 [조용한 기본값] 학원 행이 없으면 환불 비율표를 빈 표로 취급한다 (§6-3)</h3>
-  <p><b>현상:</b> <code>_academy_tiers()</code>는 <code>academies</code> 행이 없거나 <code>refund_policy_tiers</code>가 리스트가 아니면 빈 리스트를 돌려준다. 결과적으로 이 경우 "24시간 이내 취소는 0% 환불"과 똑같이 처리된다.<br>
+  <p><b>현상:</b> <code>_academy_tiers()</code>는 <code>academies</code> 행이 없거나 <code>refund_policy_tiers</code>가 리스트가 아니면 빈 리스트를 돌려준다. 결과적으로 이 경우 "24시간 이내 취소는 0% 환불"과 똑같이 처리된다. <i>(2026-09-26 주: 24시간 규칙과 비율표는 2026-09-25 에 폐기됐다(FR-098(업주 처리 환불 방식)). 이 조용한 기본값 문제는 새 스택으로 옮기지 않는다.)</i><br>
   <b>원인 파악:</b> FK 제약이 있어서 정상적인 데이터 흐름에서는 이 경로에 도달할 수 없다. 하지만 도달한다면 <b>금액이 걸린 조용한 기본값</b>이 된다 — 아무 에러도 없이 회원이 예상보다 적은 환불을 받게 될 수 있다.<br>
   <b>해결(미해결로 남김):</b> FK로 방어되는 경로라 이번 SCH에서 예외로 바꾸지 않고 그대로 두었다. 예외로 바꾸는 편이 더 안전한지는 코드 리뷰(Phase 8)에서 판단하도록 넘겼다.</p>
 
   <h3>4.6 [이중 방어] <code>Idempotency-Key</code> 헤더와 부분 유니크 인덱스의 관계 (§6-4)</h3>
   <p><b>현상:</b> 클라이언트가 <code>Idempotency-Key</code> 헤더를 <b>매번 다른 값으로</b> 새로 보내면, "헤더가 없으면 결정적 키를 쓴다"는 방어가 무력해진다 — 서버는 헤더가 오면 그 값을 그대로 신뢰하기 때문이다.<br>
   <b>원인 파악:</b> 결정적 키(<code>sha256("cancel:" + 예약ID)</code>)는 "헤더를 안 보내는 클라이언트"를 위한 방어일 뿐, 헤더 자체의 값을 검증하는 장치는 아니다.<br>
-  <b>해결:</b> 방어가 애초에 <b>2겹</b>이었다는 점이 여기서 드러난다. 결정적 키가 우회되더라도, <code>refunds</code> 테이블의 부분 유니크 인덱스(<code>UNIQUE (reservation_id) WHERE status &lt;&gt; 'failed'</code>)는 헤더 값과 무관하게 살아있으므로 <b>이중 환불은 여전히 불가능</b>하다. 다만 이 경로는 실제 DB가 있어야 실증되므로, "매번 다른 <code>Idempotency-Key</code>로 동시 2건 요청" 케이스를 <a href="#relations">SCH-12(DB 통합 테스트 실행)</a> 통합 테스트에 추가할 것을 권고했다 — 현재 SCH-07 테스트 목록에는 없는 케이스다.</p>
+  <b>해결:</b> 방어가 애초에 <b>2겹</b>이었다는 점이 여기서 드러난다. 결정적 키가 우회되더라도, <code>refunds</code> 테이블의 부분 유니크 인덱스(<code>UNIQUE (reservation_id) WHERE status &lt;&gt; 'failed'</code>)는 헤더 값과 무관하게 살아있으므로 <b>이중 환불은 여전히 불가능</b>하다. 다만 이 경로는 실제 DB가 있어야 실증되므로, "매번 다른 <code>Idempotency-Key</code>로 동시 2건 요청" 케이스를 <a href="#relations">SCH-12(DB 통합 테스트 실행)</a> 통합 테스트에 추가할 것을 권고했다 — 현재 SCH-07 테스트 목록에는 없는 케이스다. <i>(2026-09-26 주: SCH-12(DB 통합 테스트)는 SCH-21(FastAPI→Next.js 전환)의 완료 기준으로 흡수됐다. 이 케이스도 SCH-21 의 DB 검증에서 챙긴다.)</i></p>
 
   <h3>4.7 [검증 한계] 실행 경로 자체는 아직 미검증 — Docker 차단 (§6-5)</h3>
   <div class="callout warn">
@@ -348,7 +356,7 @@
     <div class="arrow">→</div>
     <div class="step dim"><b><a href="SCH-02(도메인 모델).html" style="color:inherit;text-decoration:none">SCH-02</a></b>도메인 모델 7개<br><span class="badge done">완료</span></div>
     <div class="arrow">→</div>
-    <div class="step dim"><b><a href="SCH-03(환불액 산정).html" style="color:inherit;text-decoration:none">SCH-03</a></b>환불액 산정 함수<br><span class="badge done">완료</span></div>
+    <div class="step dim"><b><a href="SCH-03(환불액 산정).html" style="color:inherit;text-decoration:none">SCH-03</a></b>환불액 산정 함수<br><span class="badge done">완료 · 옮기지 않음</span></div>
     <div class="arrow">→</div>
     <div class="step dim"><b><a href="SCH-04(어댑터 3종).html" style="color:inherit;text-decoration:none">SCH-04</a></b>어댑터 3종<br><span class="badge done">완료</span></div>
     <div class="arrow">→</div>
@@ -357,15 +365,18 @@
   <div class="flow">
     <div class="step here"><b>SCH-05</b>취소 오케스트레이션 서비스 (이 문서)<br><span class="badge done">완료</span></div>
     <div class="arrow">→</div>
-    <div class="step dim"><b>SCH-06</b>Pydantic 스키마 + 라우터 + main.py</div>
+    <div class="step dim"><b><a href="SCH-06(스키마·라우터).html" style="color:inherit;text-decoration:none">SCH-06</a></b>Pydantic 스키마 + 라우터 + main.py<br><span class="badge done">완료</span></div>
   </div>
   <table>
     <tr><th>관계</th><th>왜 이 순서/구조인가</th></tr>
     <tr><td>SCH-02(도메인 모델) → SCH-05</td><td><code>Reservation</code>·<code>ClassSchedule</code>·<code>Order</code>·<code>Payment</code>·<code>Refund</code>·<code>RefundEvent</code>·<code>Academy</code> — 7개 모델 중 6개를 이 서비스가 직접 조회·수정한다.</td></tr>
-    <tr><td>SCH-03(환불액 산정) → SCH-05</td><td>금액 계산은 여전히 <code>calculate_refund()</code> 순수 함수의 몫이다. 이 서비스는 그 함수를 5단계에서 호출만 할 뿐, 금액 계산 로직을 다시 만들지 않는다.</td></tr>
+    <tr><td>SCH-03(환불액 산정) → SCH-05</td><td>금액 계산은 여전히 <code>calculate_refund()</code> 순수 함수의 몫이다. 이 서비스는 그 함수를 5단계에서 호출만 할 뿐, 금액 계산 로직을 다시 만들지 않는다. <i>(2026-09-26 주: SCH-03 은 폐기돼 새 스택으로 옮기지 않는다. 정규 과정은 업주가 금액을 입력하고(FR-293(업주 환불 입력)), 이벤트형은 FR-099c(이벤트·원데이·파티·공연·대회 취소 규정) 표로 새로 계산한다.)</i></td></tr>
     <tr><td>SCH-04(어댑터 3종) → SCH-05</td><td>이 서비스는 <code>PaymentGateway</code>·<code>NotificationSender</code>·<code>SlotLock</code> Protocol만 알고, 구상 클래스는 <code>deps.py</code>가 주입한다. 서비스 코드에 <code>FakePaymentGateway</code>가 등장하면 이 SCH의 완료 기준 위반이다(테스트로 단정됨).</td></tr>
     <tr><td>SCH-05 → SCH-06(Pydantic 스키마 + 라우터 + main.py)</td><td>SCH-06은 이 서비스가 이미 확정한 <code>CancellationOutcome</code>/<code>CancellationPreview</code>/<code>CancellationError.status_code</code>를 그대로 HTTP 응답·예외로 옮기기만 하면 된다 — 7절에서 자세히 다룬다.</td></tr>
-    <tr><td>SCH-05 → SCH-07(conftest + DB 통합 테스트 작성) / SCH-12(DB 통합 테스트 실행)</td><td>4.7절의 "미검증" 항목(행 잠금·SAVEPOINT·정원 복구·감사 로그의 실제 DB 동작)을 실제로 증명하는 것은 이 두 SCH의 몫이다.</td></tr>
+    <tr><td>SCH-05 → SCH-07(conftest + DB 통합 테스트 작성) / SCH-12(DB 통합 테스트 실행)</td><td>4.7절의 "미검증" 항목(행 잠금·SAVEPOINT·정원 복구·감사 로그의 실제 DB 동작)을 실제로 증명하는 것은 이 두 SCH의 몫이다. <i>(2026-09-26 주: SCH-07 의 테스트는 2026-09-23 DB 를 켜고 186 passed 로 돌았다. SCH-12 번호는 SCH-21(FastAPI→Next.js 전환)에 흡수돼 쓰지 않는다.)</i></td></tr>
+    <tr><td>SCH-05 → SCH-21(FastAPI→Next.js 전환) <span class="badge b">2026-09-26</span></td><td>이 서비스는 SCH-21 에서 Next.js + Prisma 8 로 옮겨진다. 행 잠금(<code>FOR UPDATE</code>)과 SAVEPOINT 를 Prisma 8 로 어떻게 쓸지는 R2(Prisma 8 트랜잭션·행 잠금 미검증)로 남아 있다.</td></tr>
+    <tr><td>SCH-05 → SCH-32(정규 과정 환불)·SCH-33(이벤트형 취소) <span class="badge b">2026-09-26</span></td><td>잠금·멱등키·감사 로그·PG 호출 순서는 두 SCH 가 그대로 가져간다. 바뀌는 것은 앞단이다. 정규 과정은 업주가 금액을 넣고 실행하고 이벤트형은 시스템이 계산한 금액을 업주가 실행하거나 기한이 지나 시스템이 실행한다(FR-295(수단별 환불 실행)).</td></tr>
+    <tr><td>SCH-33 → SCH-34(행사 일괄 취소) <span class="badge b">2026-09-26</span></td><td>한 건씩 돌던 이 실행부를 결제자 전원에게 반복한다. 건마다 멱등키를 두고 실패한 건은 재시도 목록에 남긴다(FR-099e(행사 일괄 취소)).</td></tr>
   </table>
 </section>
 
@@ -380,10 +391,20 @@
     <li><b>5. <code>preview_cancellation()</code>은 <code>CancellationPreview</code>를 돌려준다.</b> <code>cancellable=False</code>일 때 <code>reason_code</code>가 거부 사유다(4.1절).</li>
     <li><b>6. 환불계좌("가상계좌면 필수") 검증은 스키마 계층 몫이다.</b> 서비스는 <code>refund_account=None</code>을 받아도 그대로 진행하고, 어댑터가 2차 방어로 <code>failed</code> 결과를 돌려준다.</li>
   </ul>
+  <div class="callout">
+    <div class="callout-label">2026-09-26 — 새 스택에서 이어받는 곳</div>
+    <p>위 여섯 가지는 SCH-06(스키마·라우터)에게 남긴 것이고 SCH-06 도 끝났다. 지금은 이렇게 이어진다.</p>
+    <ul>
+      <li><b>SCH-21(FastAPI→Next.js 전환)</b> — 이 서비스를 Next.js + Prisma 8 로 옮긴다. 24시간 규칙·비율표를 읽던 부분(<code>_academy_tiers()</code>, SCH-03 호출)은 옮기지 않는다.</li>
+      <li><b>SCH-32(정규 과정 환불)</b> — 회원 문의 → 업주가 금액 입력 → 업주가 PG 환불 실행. 이 서비스의 잠금·멱등키·감사 로그를 쓴다.</li>
+      <li><b>SCH-33(이벤트형 취소)</b> — 예약 상세 취소 → 시스템 계산 → 업주 실행, 처리 기간(최대 3영업일)이 지나면 자동 실행. 업주는 환불액을 올리기만 하고 거절할 수 없다.</li>
+      <li>"PG 환불이 실패하면 예약을 취소하지 않는다"(4.2절)와 "실 연동 PG 어댑터는 네트워크 예외를 <code>failed</code>로 바꿔 돌려준다"(4.4절)는 옮길 때 다시 확인할 규칙이다.</li>
+    </ul>
+  </div>
 </section>
 
 <footer>
-  작성 기준: <code>_workspace/05_implementer_TS-05_summary.md</code>, <code>backend/app/services/cancellation.py</code>·<code>backend/app/deps.py</code>·<code>backend/tests/test_cancellation_service.py</code>의 학습 주석, <code>_workspace/kdance.html</code> · kdance 프로젝트 내부 문서 · 2026-09-15 작성.
+  작성 기준: <code>_workspace/05_implementer_TS-05_summary.md</code>, <code>backend/app/services/cancellation.py</code>·<code>backend/app/deps.py</code>·<code>backend/tests/test_cancellation_service.py</code>의 학습 주석, <code>_workspace/kdance.html</code> · kdance 프로젝트 내부 문서 · 2026-09-15 작성 · 2026-09-26 현재 상태 갱신(<code>_workspace/kdance.html</code> 2026-09-26 판, spec 변경 이력 2026-09-20~26).
 </footer>
 
 </div>

@@ -163,6 +163,18 @@
   </ol>
 </nav>
 
+<div class="callout warn" id="status-2026-09-26">
+  <div class="callout-label">현재 상태 (2026-09-26)</div>
+  <p>이 가이드는 2026-09-15 에 끝난 작업의 기록이다. 1~5절은 그때 쓴 그대로 둔다. 헤맨 과정도 배울 거리라서다. 지금 사정은 이 상자에 모았다.</p>
+  <ul>
+    <li><b>이 코드는 교체된다.</b> SCH-21(FastAPI→Next.js 전환)이 백엔드를 Next.js + Prisma 8 로 옮긴다. 이관이 끝나면 사용자 승인을 받아 <code>backend/</code> 폴더를 지운다. SCH-21 은 아직 착수 전(대기)이다.</li>
+    <li><b>이어지는 것 — 자리와 원칙.</b> 이 SCH 가 깐 바닥 4개는 새 스택에서도 같은 자리가 있다. SCH-21 조사 문서(<code>_workspace/01_req-analyst_requirements.md</code> §2.1)의 대응표는 이렇다. 설정(<code>config.py</code>)은 admin-web 환경변수 + zod 검증, DB 연결(<code>db.py</code>)은 <code>src/prisma/db.ts</code>, 모델의 공통 부모(<code>Base</code>)는 Prisma 계약 파일(<code>contract.prisma</code>), alembic 마이그레이션은 Prisma 마이그레이션. "스키마 원본은 한 곳에만 둔다"는 생각은 그대로 간다.</li>
+    <li><b>이어지지 않는 것 — 코드.</b> <code>Base</code>·<code>TimestampMixin</code>·<code>get_db</code>·<code>alembic/env.py</code> 는 Python 코드라 옮기지 않는다. 4.1절의 <code>app.dependency_overrides</code> 방식도 Next.js 에는 없어서 테스트 때 DB 를 바꾸는 방법을 새로 정해야 한다.</li>
+    <li><b>테스트 실측.</b> 2026-09-26 <code>uv run pytest -q</code> 결과 159 passed · 27 skipped. Docker Desktop 이 꺼져 있어 DB 테스트 27개가 skip 됐다. DB 를 켠 2026-09-23 에는 186 passed 였다.</li>
+    <li><b>5~7절에 나오는 SCH-11(마이그레이션 검증)·SCH-12(DB 통합 테스트)는 없어졌다.</b> SCH-11(마이그레이션 검증)·SCH-12(DB 통합 테스트)는 FastAPI 를 대상으로 해서 SCH-21 의 완료 기준으로 흡수됐다. 번호는 다시 쓰지 않는다.</li>
+  </ul>
+</div>
+
 <section id="overview">
   <h2>1. 개요</h2>
   <p>SCH-01(기반 배선)은 <b>"기반 배선"</b> 작업입니다. 아직 실제 데이터(학원, 수업, 주문 같은 것)를 다루는 코드는 하나도 없습니다. 대신 앞으로 만들 모든 도메인 모델과 API가 공통으로 딛고 설 <b>바닥 4개</b>를 깝니다 — ①모든 DB 모델의 공통 부모 클래스, ②환경변수(.env)를 읽는 설정 시스템, ③DB 연결을 관리하는 엔진과 세션, ④마이그레이션 도구(Alembic)가 그 모델들을 인식하게 만드는 배선.</p>
@@ -201,7 +213,7 @@
         DateTime(timezone=True), server_default=func.now(),
         onupdate=func.now(), nullable=False,
     )</code></pre>
-  <p><code>server_default=func.now()</code>는 "값을 안 넣으면 DB 서버가 지금 시각을 넣어라"는 뜻이고, <code>onupdate=func.now()</code>는 "이 행을 수정할 때마다 자동으로 지금 시각으로 갱신해라"는 뜻입니다. 이 컬럼 두 개가 필요한 모델은 <code>class Refund(TimestampMixin, Base):</code>처럼 <code>TimestampMixin</code>과 <code>Base</code>를 같이 상속하면 됩니다. 참고로 SCH-02(도메인 모델 7개 + 초기 마이그레이션)의 <code>RefundEvent</code>는 일부러 이 Mixin을 <b>쓰지 않는데</b>, 그 이유는 <a href="SCH-02.html#concept-append-only">SCH-02 가이드</a>에서 설명합니다.</p>
+  <p><code>server_default=func.now()</code>는 "값을 안 넣으면 DB 서버가 지금 시각을 넣어라"는 뜻이고 <code>onupdate=func.now()</code>는 "이 행을 수정할 때마다 자동으로 지금 시각으로 갱신해라"는 뜻입니다. 이 컬럼 두 개가 필요한 모델은 <code>class Refund(TimestampMixin, Base):</code>처럼 <code>TimestampMixin</code>과 <code>Base</code>를 같이 상속하면 됩니다. 참고로 SCH-02(도메인 모델 7개 + 초기 마이그레이션)의 <code>RefundEvent</code>는 일부러 이 Mixin을 <b>쓰지 않는데</b>, 그 이유는 <a href="SCH-02(도메인 모델).html#concept-append-only">SCH-02 가이드</a>에서 설명합니다.</p>
 
   <h3 id="concept-settings">pydantic-settings(환경변수 설정)가 뭔가요?</h3>
   <p>비밀번호나 DB 주소 같은 값은 코드에 직접 적지 않고 <code>.env</code> 파일(환경변수)에 따로 둡니다. 문제는 환경변수는 전부 <b>문자열</b>이라는 점입니다 — 숫자를 기대하는 곳에 문자열이 들어가도 실행 전까지는 모릅니다. <code>pydantic-settings</code>는 클래스에 타입 힌트로 필드를 선언하면, 같은 이름의 환경변수를 찾아 그 타입으로 변환·검증해주는 라이브러리입니다.</p>
@@ -362,18 +374,20 @@ target_metadata = Base.metadata</code></pre>
   <div class="callout warn">
     <div class="callout-label">아직 검증 안 된 것</div>
     이번 SCH가 확인한 것은 전부 <b>"코드가 문법적으로 옳고, DB 연결 없이도 동작한다"</b>는 것까지입니다. <b>실제 PostgreSQL 컨테이너(kdance-db)에 진짜로 연결해서 쿼리가 도는지</b>는 이번 SCH에서 검증하지 않았습니다 — Docker가 꺼져 있는 상태로 작업이 진행됐기 때문입니다. 이 부분은 SCH-11(마이그레이션 실제 적용)과 SCH-12(DB 통합 테스트)가 Docker를 켠 뒤에 확인합니다.
+    <br><br><i>(2026-09-26 주: SCH-11(마이그레이션 검증)·SCH-12(DB 통합 테스트)는 폐기됐다. DB 연결은 SCH-07(통합 테스트 작성)의 DB 테스트가 2026-09-23 에 186 passed 로 확인했고 마이그레이션 실제 적용 검증은 SCH-21(FastAPI→Next.js 전환)이 Prisma 마이그레이션으로 다시 한다.)</i>
   </div>
 </section>
 
 <section id="relations">
   <h2>6. 다른 SCH와의 연관관계</h2>
   <p>SCH-01(기반 배선)은 이 프로젝트에서 <b>가장 먼저</b> 실행된 SCH입니다 — 선행 SCH가 없습니다. 대신 이후 거의 모든 백엔드 SCH가 이 SCH-01의 결과물(<code>Base</code>, <code>get_settings</code>, <code>get_db</code>, <code>target_metadata</code> 배선) 위에서 동작합니다.</p>
+  <p><i>(2026-09-26 주: 아래 그림은 1회차 슬라이스(FastAPI 예약 취소·환불) 당시의 흐름이다. SCH-01(기반 배선)~SCH-10(환불 정책 문서)은 모두 끝났고 이 코드 전체는 SCH-21(FastAPI→Next.js 전환)에서 교체된다. SCH-11·SCH-12 는 폐기돼 SCH-21 의 완료 기준으로 들어갔다.)</i></p>
   <div class="flow">
     <div class="step"><b>SCH-01</b>기반 배선 (이 문서)<br><span class="badge done">완료</span></div>
     <div class="arrow">→</div>
     <div class="step"><b><a href="SCH-02(도메인 모델).html" style="color:inherit;text-decoration:none">SCH-02</a></b>도메인 모델 7개 + 마이그레이션<br><span class="badge done">완료</span></div>
     <div class="arrow">→</div>
-    <div class="step dim"><b>SCH-03</b>환불 산정 순수 함수<br><span class="badge done">완료</span></div>
+    <div class="step dim"><b>SCH-03</b>환불 산정 순수 함수<br><span class="badge done">완료</span><span class="badge b">옮기지 않음</span></div>
     <div class="arrow">→</div>
     <div class="step dim"><b>SCH-04</b>어댑터 3종<br><span class="badge done">완료</span></div>
   </div>
@@ -382,16 +396,17 @@ target_metadata = Base.metadata</code></pre>
     <div class="arrow">→</div>
     <div class="step dim"><b>SCH-06</b>스키마+라우터+main.py<br><span class="badge done">완료</span></div>
     <div class="arrow">→</div>
-    <div class="step dim"><b>SCH-07</b>conftest+DB 통합테스트<br><span class="badge b">진행 중</span></div>
+    <div class="step dim"><b>SCH-07</b>conftest+DB 통합테스트<br><span class="badge done">완료</span></div>
     <div class="arrow">→</div>
-    <div class="step dim"><b>SCH-11 · SCH-12</b>마이그레이션 실적용 · DB 통합테스트<br><span class="badge b">Docker 대기</span></div>
+    <div class="step dim"><b>SCH-11 · SCH-12</b>마이그레이션 실적용 · DB 통합테스트<br><span class="badge b">폐기 · SCH-21 에 흡수</span></div>
   </div>
   <table>
     <tr><th>관계</th><th>왜 이 순서인가</th></tr>
     <tr><td>SCH-01(기반 배선) → SCH-02(도메인 모델 7개 + 초기 마이그레이션)</td><td><code>Base</code>·<code>TimestampMixin</code>이 없으면 도메인 모델 클래스를 정의할 부모가 없다.</td></tr>
     <tr><td>SCH-01(기반 배선) → SCH-03~06 (간접)</td><td>이 SCH들이 쓰는 <code>get_db</code>·<code>get_settings</code> 배선이 전부 SCH-01 산출물이다.</td></tr>
     <tr><td>SCH-01(기반 배선) → SCH-07(conftest + DB 통합 테스트 작성)</td><td><code>db.py</code>의 엔진이 import 시점에 고정되는 구조라, 테스트 DB로 바꾸려면 <code>get_db</code> 오버라이드가 필요하다(4.1절 참고) — 이 오버라이드를 실제로 구현하는 것이 SCH-07이다.</td></tr>
-    <tr><td>SCH-01(기반 배선) → SCH-11(마이그레이션 up/autogenerate-빈diff/down 검증)</td><td><code>alembic/env.py</code>의 <code>target_metadata</code> 배선이 실제 DB 위에서 동작하는지(upgrade/autogenerate/downgrade)를 최종 확인하는 것이 SCH-11이다.</td></tr>
+    <tr><td>SCH-01(기반 배선) → <s>SCH-11(마이그레이션 검증)</s> <b>폐기</b></td><td><code>alembic/env.py</code>의 <code>target_metadata</code> 배선이 실제 DB 위에서 동작하는지(upgrade/autogenerate/downgrade)를 최종 확인하는 것이 SCH-11이다. <i>(2026-09-26 주: SCH-11 은 한 번도 실행되지 않고 폐기됐다. 마이그레이션 검증은 SCH-21(FastAPI→Next.js 전환)의 완료 기준으로 흡수됐고 대상도 alembic 이 아니라 Prisma 마이그레이션이다.)</i></td></tr>
+    <tr><td>SCH-01(기반 배선) → SCH-21(FastAPI→Next.js 전환)</td><td>이 SCH 가 만든 설정·DB 연결·모델 공통 부모·마이그레이션 배선을 Next.js + Prisma 8 쪽 대응물(zod 환경변수 검증, <code>src/prisma/db.ts</code>, <code>contract.prisma</code>, Prisma 마이그레이션)로 바꾼다. 코드는 옮기지 않고 자리만 이어진다.</td></tr>
   </table>
 </section>
 
@@ -401,13 +416,14 @@ target_metadata = Base.metadata</code></pre>
   <ul>
     <li><b>SCH-02(도메인 모델 7개 + 초기 마이그레이션)에게:</b> <code>backend/app/models/__init__.py</code>에 새 모델을 반드시 import해야 <code>Base.metadata</code>에 등록됩니다. 빠뜨리면 autogenerate가 에러 없이 조용히 그 테이블만 빼먹습니다(4.3절).</li>
     <li><b>SCH-07(conftest + DB 통합 테스트 작성)에게:</b> 테스트에서 다른 DB를 쓰려면 <code>db.py</code>의 <code>engine</code>을 바꾸는 게 아니라 <code>app.dependency_overrides[get_db]</code>를 오버라이드해야 합니다(4.1절). <code>db.py</code>에는 테스트 분기가 전혀 없습니다.</li>
-    <li><b>SCH-11(마이그레이션 up/autogenerate-빈diff/down 검증)에게:</b> alembic 명령은 반드시 <code>backend/</code> 디렉터리 안에서 실행해야 합니다(<code>cd backend &amp;&amp; uv run alembic ...</code>) — <code>prepend_sys_path = .</code>가 cwd 기준 상대경로이기 때문입니다(4.2절).</li>
-    <li><b>모든 후속 SCH에게:</b> <code>.env</code> 로딩 경로가 두 개(alembic의 <code>python-dotenv</code>, 앱의 <code>pydantic-settings</code>)로 남아 있습니다. 지금은 값이 어긋나지 않지만, 언젠가 하나로 통일하는 정리 작업이 필요할 수 있습니다(4.4절, 별도 태스크 필요).</li>
+    <li><b>SCH-11(마이그레이션 up/autogenerate-빈diff/down 검증)에게:</b> alembic 명령은 반드시 <code>backend/</code> 디렉터리 안에서 실행해야 합니다(<code>cd backend &amp;&amp; uv run alembic ...</code>) — <code>prepend_sys_path = .</code>가 cwd 기준 상대경로이기 때문입니다(4.2절). <i>(2026-09-26 주: SCH-11 은 폐기됐다. 이 주의사항은 <code>backend/</code> 가 남아 있는 동안 alembic 을 직접 돌릴 때만 쓸모가 있다.)</i></li>
+    <li><b>모든 후속 SCH에게:</b> <code>.env</code> 로딩 경로가 두 개(alembic의 <code>python-dotenv</code>, 앱의 <code>pydantic-settings</code>)로 남아 있습니다. 지금은 값이 어긋나지 않지만, 언젠가 하나로 통일하는 정리 작업이 필요할 수 있습니다(4.4절, 별도 태스크 필요). <i>(2026-09-26 주: 이 정리는 따로 하지 않는다. 두 경로 모두 <code>backend/</code> 와 함께 사라진다.)</i></li>
+    <li><b>SCH-21(FastAPI→Next.js 전환)에게:</b> 새 스택에서도 "모델을 등록하지 않으면 마이그레이션이 조용히 그 테이블을 빼먹는" 종류의 함정(4.3절)이 있는지 확인한다. 스키마 원본을 <code>contract.prisma</code> 하나로 두면 등록 누락 문제 자체가 없어지는지가 확인할 점이다. 테스트 때 DB 를 바꾸는 방법도 <code>dependency_overrides</code> 대신 새로 정해야 한다(4.1절).</li>
   </ul>
 </section>
 
 <footer>
-  작성 기준: <code>_workspace/05_implementer_TS-01_summary.md</code>, <code>backend/app/models/base.py</code>, <code>backend/app/config.py</code>, <code>backend/app/db.py</code>, <code>backend/alembic/env.py</code>의 학습 주석 · kdance 프로젝트 내부 문서 · 2026-09-15 작성.
+  작성 기준: <code>_workspace/05_implementer_TS-01_summary.md</code>, <code>backend/app/models/base.py</code>, <code>backend/app/config.py</code>, <code>backend/app/db.py</code>, <code>backend/alembic/env.py</code>의 학습 주석 · kdance 프로젝트 내부 문서 · 2026-09-15 작성 · 2026-09-26 현재 상태 갱신(<code>_workspace/kdance.html</code> 2026-09-26 판 기준).
 </footer>
 
 </div>

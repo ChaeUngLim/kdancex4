@@ -163,6 +163,19 @@
   </ol>
 </nav>
 
+<div class="callout warn" id="status-2026-09-26">
+  <div class="callout-label">현재 상태 (2026-09-26)</div>
+  <p>이 가이드는 2026-09-15 에 끝난 작업의 기록이다. 1~5절은 그때 쓴 그대로 둔다. 헤맨 과정도 배울 거리라서다. 지금 사정은 이 상자에 모았다.</p>
+  <ul>
+    <li><b>이 코드는 교체된다.</b> SCH-21(FastAPI→Next.js 전환)이 Next.js + Prisma 8 스키마 계약을 새로 만들고 기존 7테이블을 옮긴다. 이관이 끝나면 사용자 승인을 받아 <code>backend/</code> 폴더를 지운다. SCH-21 은 아직 착수 전(대기)이다.</li>
+    <li><b>이어지는 것 — 테이블과 제약.</b> 7개 테이블과 돈을 지키는 제약은 새 스키마로 옮긴다. 이중 환불을 막는 부분 유니크 인덱스(<code>uq_refunds_reservation_id_active</code>), <code>idempotency_key</code> UNIQUE, 상태·금액 CHECK, 정원 CHECK, 시간대가 붙은 타임스탬프, append-only 감사 로그 성격이 그렇다(SCH-21 조사 문서 <code>_workspace/01_req-analyst_requirements.md</code> §3.6). 부분 유니크 인덱스를 Prisma 스키마 언어로 표현할 수 있는지는 아직 확인하지 않았다 — R3(부분 유니크 인덱스 PSL 표현 미검증).</li>
+    <li><b>이어지지 않는 것.</b> <code>academies.refund_policy_tiers</code>(학원 환불 비율표 JSONB)는 옮기지 않는다. 2026-09-25 비율표 규칙이 폐기됐다(Q11(환불 방식 변경의 뒤처리) ②). 손으로 쓴 alembic 마이그레이션 파일도 Prisma 마이그레이션으로 바뀐다. 반대로 <code>Order(주문)</code>에는 수업료·예매 수수료·합계 CHECK 와 주문 시점 수수료율이 새로 들어간다.</li>
+    <li><b>실제 DB 적용은 끝내 검증하지 못했다.</b> 이 마이그레이션은 오프라인 SQL 생성까지만 확인했다. DB 테스트는 마이그레이션이 아니라 <code>Base.metadata.create_all()</code> 로 만든 스키마 위에서 돈다. SCH-21 이 Prisma 마이그레이션으로 다시 검증한다.</li>
+    <li><b>테스트 실측.</b> 2026-09-26 <code>uv run pytest -q</code> 결과 159 passed · 27 skipped. Docker Desktop 이 꺼져 있어 DB 테스트 27개가 skip 됐다. DB 를 켠 2026-09-23 에는 186 passed 였다.</li>
+    <li><b>5~7절에 나오는 SCH-11(마이그레이션 검증)·SCH-12(DB 통합 테스트)는 없어졌다.</b> SCH-11(마이그레이션 검증)·SCH-12(DB 통합 테스트)는 SCH-21 의 완료 기준으로 흡수됐다. 번호는 다시 쓰지 않는다.</li>
+  </ul>
+</div>
+
 <section id="overview">
   <h2>1. 개요</h2>
   <p>SCH-02(도메인 모델 7개 + 초기 마이그레이션)는 이 프로젝트의 <b>실제 데이터 모델 7개</b>(<code>Academy</code> 학원, <code>ClassSchedule</code> 수업 시간표, <code>Order</code> 주문, <code>Payment</code> 결제, <code>Reservation</code> 예약, <code>Refund</code> 환불, <code>RefundEvent</code> 환불 감사 로그)를 <a href="SCH-01(기반 배선).html">SCH-01(기반 배선)</a>이 만든 <code>Base</code> 위에 올리고, 이 7개 테이블을 실제 PostgreSQL에 만드는 <b>초기 마이그레이션 파일 1개</b>를 손으로 작성한 SCH입니다.</p>
@@ -175,7 +188,7 @@
 
 <section id="concepts">
   <h2>2. 사전 개념</h2>
-  <p>ORM/<code>Base</code>/<code>TimestampMixin</code>/Alembic·<code>target_metadata</code> 기본 개념은 <a href="SCH-01.html#concept-base">SCH-01(기반 배선)에서 설명함</a>. 여기서는 SCH-02(도메인 모델 7개 + 초기 마이그레이션)에서 새로 나오는 개념만 설명합니다.</p>
+  <p>ORM/<code>Base</code>/<code>TimestampMixin</code>/Alembic·<code>target_metadata</code> 기본 개념은 <a href="SCH-01(기반 배선).html#concept-base">SCH-01(기반 배선)에서 설명함</a>. 여기서는 SCH-02(도메인 모델 7개 + 초기 마이그레이션)에서 새로 나오는 개념만 설명합니다.</p>
 
   <h3 id="concept-check">CHECK 제약이 뭔가요?</h3>
   <p>컬럼에 들어갈 수 있는 값의 범위나 허용 목록을 <b>DB 스스로가</b> 강제하는 규칙입니다. 애플리케이션 코드가 검증을 깜빡하거나 버그가 있어도, DB가 마지막 방어선 역할을 합니다. 예를 들어 <code>refunds.status</code> 컬럼에는 이런 CHECK가 붙어 있습니다.</p>
@@ -214,7 +227,7 @@
   <p>존재하지 않는 <code>reservation_id</code>로 환불 행을 만들려고 하면 DB가 거부합니다. <code>ondelete="CASCADE"</code>는 "그 예약 행이 삭제되면, 이 환불 행도 자동으로 같이 삭제해라"는 뜻입니다.</p>
 
   <h3 id="concept-append-only">append-only(추가 전용) 감사 로그 패턴이 뭔가요?</h3>
-  <p>한 번 쓴 행을 절대 UPDATE·DELETE하지 않고, 상태가 바뀔 때마다 <b>새 행을 INSERT만</b> 하는 테이블 설계입니다. "언제 무슨 일이 있었는지" 이력을 그대로 남겨야 하는 감사 로그에 씁니다. <code>RefundEvent</code>가 이 패턴을 따릅니다 — 그리고 바로 이 이유로 <a href="SCH-01.html#concept-mixin">SCH-01(기반 배선)의 TimestampMixin</a>을 <b>일부러 상속하지 않습니다.</b></p>
+  <p>한 번 쓴 행을 절대 UPDATE·DELETE하지 않고 상태가 바뀔 때마다 <b>새 행을 INSERT만</b> 하는 테이블 설계입니다. "언제 무슨 일이 있었는지" 이력을 그대로 남겨야 하는 감사 로그에 씁니다. <code>RefundEvent</code>가 이 패턴을 따릅니다 — 그리고 바로 이 이유로 <a href="SCH-01(기반 배선).html#concept-mixin">SCH-01(기반 배선)의 TimestampMixin</a>을 <b>일부러 상속하지 않습니다.</b></p>
   <pre><code>class RefundEvent(Base):  # TimestampMixin을 쓰지 않음
     ...
     created_at: Mapped[datetime] = mapped_column(
@@ -223,7 +236,7 @@
   <p><code>TimestampMixin</code>은 <code>created_at</code>과 <code>updated_at</code>을 함께 주는데, <code>updated_at</code> 컬럼이 있으면 "이 행은 나중에 고쳐질 수도 있다"는 인상을 줍니다. 그래서 <code>RefundEvent</code>는 <code>updated_at</code> 없이 <code>created_at</code>만 직접 선언해서, 컬럼 목록만 봐도 "이 테이블은 append-only다"라는 설계 의도가 드러나게 만들었습니다.</p>
 
   <h3 id="concept-revision">마이그레이션 리비전 파일 구조가 뭔가요?</h3>
-  <p>Alembic 자체의 개념(무엇이고 왜 쓰는지)은 <a href="SCH-01.html#concept-alembic">SCH-01(기반 배선)에서 설명함</a>. 여기서는 리비전 파일 <b>한 개</b>의 내부 구조를 설명합니다. <code>backend/alembic/versions/0001_initial_domain.py</code> 파일 상단은 이렇게 생겼습니다.</p>
+  <p>Alembic 자체의 개념(무엇이고 왜 쓰는지)은 <a href="SCH-01(기반 배선).html#concept-alembic">SCH-01(기반 배선)에서 설명함</a>. 여기서는 리비전 파일 <b>한 개</b>의 내부 구조를 설명합니다. <code>backend/alembic/versions/0001_initial_domain.py</code> 파일 상단은 이렇게 생겼습니다.</p>
   <pre><code>revision: str = "0001_initial_domain"
 down_revision: str | None = None
 branch_labels: str | Sequence[str] | None = None
@@ -314,7 +327,7 @@ depends_on: str | Sequence[str] | None = None</code></pre>
     <tr>
       <td><code>alembic upgrade head --sql</code> / <code>downgrade 0001_initial_domain:base --sql</code> (둘 다 오프라인, DB 불필요)</td>
       <td>문법 오류 없이 SQL 생성 성공</td>
-      <td>손작성 마이그레이션 파일 자체에 문법 오류가 없다는 것. DB 연결 없이도 SQL을 미리 뽑아볼 수 있다는 <a href="SCH-01.html#concept-alembic">SCH-01(기반 배선)에서 설명한 offline 모드</a>를 실제로 활용한 것.</td>
+      <td>손작성 마이그레이션 파일 자체에 문법 오류가 없다는 것. DB 연결 없이도 SQL을 미리 뽑아볼 수 있다는 <a href="SCH-01(기반 배선).html#concept-alembic">SCH-01(기반 배선)에서 설명한 offline 모드</a>를 실제로 활용한 것.</td>
     </tr>
     <tr>
       <td>마이그레이션 DDL과 모델 DDL 문자 단위 대조</td>
@@ -332,17 +345,19 @@ depends_on: str | Sequence[str] | None = None</code></pre>
     <div class="callout-label">아직 검증 안 된 것 — 통과로 오해하면 안 됨</div>
     위 검증은 전부 <b>"SQL을 생성해봤더니 문법과 내용이 맞다"</b>는 것까지입니다. <b>실제로 이 SQL을 진짜 PostgreSQL에 실행</b>해서 테이블이 만들어지는지, <code>alembic revision --autogenerate</code>가 정말로 "빈 diff"(추가 변경사항 없음)를 내는지, <code>downgrade base</code>까지 왕복이 실제로 되는지는 <b>이번 SCH에서 검증하지 못했습니다.</b> Docker(kdance-db)가 꺼져 있었기 때문입니다. 이 실행 검증은 <b>SCH-11(마이그레이션 up/autogenerate-빈diff/down 검증)</b>의 몫입니다.<br><br>
     마찬가지로 CHECK 제약이 실제로 잘못된 값을 거부하는지, partial unique index가 실제로 중복 INSERT를 막는지 같은 <b>제약의 실동작</b>도 이번 SCH에서는 확인하지 못했습니다. 이건 <b>SCH-12</b>(DB 통합 테스트)에서만 실측 가능합니다.
+    <br><br><i>(2026-09-26 주: SCH-11(마이그레이션 검증)·SCH-12(DB 통합 테스트)는 폐기됐다. 마이그레이션의 실제 적용 검증은 SCH-21(FastAPI→Next.js 전환)이 Prisma 마이그레이션으로 다시 한다.)</i>
   </div>
 </section>
 
 <section id="relations">
   <h2>6. 다른 SCH와의 연관관계</h2>
+  <p><i>(2026-09-26 주: 아래 그림은 1회차 슬라이스(FastAPI 예약 취소·환불) 당시의 흐름이다. SCH-01(기반 배선)~SCH-10(환불 정책 문서)은 모두 끝났고 이 코드 전체는 SCH-21(FastAPI→Next.js 전환)에서 교체된다. SCH-11·SCH-12 는 폐기돼 SCH-21 의 완료 기준으로 들어갔다.)</i></p>
   <div class="flow">
     <div class="step dim"><b><a href="SCH-01(기반 배선).html" style="color:inherit;text-decoration:none">SCH-01</a></b>기반 배선<br><span class="badge done">완료</span></div>
     <div class="arrow">→</div>
     <div class="step"><b>SCH-02</b>도메인 모델 7개 + 마이그레이션 (이 문서)<br><span class="badge done">완료</span></div>
     <div class="arrow">→</div>
-    <div class="step dim"><b>SCH-03</b>환불 산정 순수 함수<br><span class="badge done">완료</span></div>
+    <div class="step dim"><b>SCH-03</b>환불 산정 순수 함수<br><span class="badge done">완료</span><span class="badge b">옮기지 않음</span></div>
     <div class="arrow">→</div>
     <div class="step dim"><b>SCH-04</b>어댑터 3종<br><span class="badge done">완료</span></div>
   </div>
@@ -351,33 +366,35 @@ depends_on: str | Sequence[str] | None = None</code></pre>
     <div class="arrow">→</div>
     <div class="step dim"><b>SCH-06</b>스키마+라우터+main.py<br><span class="badge done">완료</span></div>
     <div class="arrow">→</div>
-    <div class="step dim"><b>SCH-07</b>conftest+DB 통합테스트<br><span class="badge b">진행 중</span></div>
+    <div class="step dim"><b>SCH-07</b>conftest+DB 통합테스트<br><span class="badge done">완료</span></div>
     <div class="arrow">→</div>
-    <div class="step dim"><b>SCH-11 · SCH-12</b>마이그레이션 실적용 · DB 통합테스트<br><span class="badge b">Docker 대기</span></div>
+    <div class="step dim"><b>SCH-11 · SCH-12</b>마이그레이션 실적용 · DB 통합테스트<br><span class="badge b">폐기 · SCH-21 에 흡수</span></div>
   </div>
   <table>
     <tr><th>관계</th><th>왜 이 순서/관계인가</th></tr>
     <tr><td>SCH-01(기반 배선) → SCH-02(도메인 모델 7개 + 초기 마이그레이션) (선행)</td><td><code>Base</code>·<code>TimestampMixin</code>이 없으면 <code>Refund</code>·<code>RefundEvent</code> 클래스를 정의할 부모가 없다.</td></tr>
     <tr><td>SCH-02(도메인 모델 7개 + 초기 마이그레이션) → SCH-03·04 (후속)</td><td>환불 산정 함수(SCH-03)와 어댑터(SCH-04)가 다루는 <code>Refund</code>·<code>Payment</code> 등 테이블 구조가 이 SCH에서 확정된다.</td></tr>
     <tr><td>SCH-02(도메인 모델 7개 + 초기 마이그레이션) → SCH-05·06 (간접 후속)</td><td>취소 오케스트레이션 서비스(SCH-05)와 API 스키마·라우터(SCH-06)가 이 7개 모델을 직접 다룬다.</td></tr>
-    <tr><td>SCH-02(도메인 모델 7개 + 초기 마이그레이션) → SCH-11(마이그레이션 up/autogenerate-빈diff/down 검증) (직접 후속)</td><td>이 SCH가 손으로 작성한 마이그레이션이 실제 DB 위에서 진짜로 동작하는지(upgrade/autogenerate 빈 diff/downgrade)를 최종 확인하는 것이 SCH-11이다. <code>kdance.html</code>에도 "SCH-11 — SCH-02 선행 충족"으로 기록돼 있다.</td></tr>
-    <tr><td>SCH-02(도메인 모델 7개 + 초기 마이그레이션) → SCH-12(DB 통합 테스트 실행) (간접 후속)</td><td>CHECK·partial unique index 같은 제약의 <b>실동작</b> 검증은 실제 DB가 있어야 하는 SCH-12의 몫이다.</td></tr>
+    <tr><td>SCH-02(도메인 모델 7개 + 초기 마이그레이션) → <s>SCH-11(마이그레이션 검증)</s> <b>폐기</b></td><td>이 SCH가 손으로 작성한 마이그레이션이 실제 DB 위에서 진짜로 동작하는지(upgrade/autogenerate 빈 diff/downgrade)를 최종 확인하는 것이 SCH-11이다. <code>kdance.html</code>에도 "SCH-11 — SCH-02 선행 충족"으로 기록돼 있다. <i>(2026-09-26 주: SCH-11 은 실행되지 않고 폐기됐다. <code>kdance.html</code> 2026-09-26 판에는 이 기록이 없다. 검증은 SCH-21(FastAPI→Next.js 전환)의 완료 기준으로 흡수됐다.)</i></td></tr>
+    <tr><td>SCH-02(도메인 모델 7개 + 초기 마이그레이션) → <s>SCH-12(DB 통합 테스트)</s> <b>폐기</b></td><td>CHECK·partial unique index 같은 제약의 <b>실동작</b> 검증은 실제 DB가 있어야 하는 SCH-12의 몫이다. <i>(2026-09-26 주: SCH-12 는 폐기됐다. DB 통합 테스트는 SCH-07(통합 테스트 작성)이 만들었고 2026-09-23 DB 를 켜고 186 passed 를 확인했다. 새 스택의 DB 통합 테스트는 SCH-21 의 완료 기준이다.)</i></td></tr>
+    <tr><td>SCH-02(도메인 모델 7개 + 초기 마이그레이션) → SCH-21(FastAPI→Next.js 전환)</td><td>7개 테이블과 제약을 Prisma 8 스키마 계약으로 옮긴다. 비율표 컬럼(<code>refund_policy_tiers</code>)은 빼고 <code>Order(주문)</code>에 수업료·예매 수수료·합계 CHECK 와 주문 시점 수수료율을 처음부터 넣는다.</td></tr>
   </table>
 </section>
 
 <section id="handoff">
   <h2>7. 다음 SCH로 이어지는 것</h2>
   <ul>
-    <li><b>SCH-03(환불 산정 함수)에게:</b> "환불액이 결제액을 넘을 수 없다"는 규칙은 DB CHECK가 <code>refunded_amount &lt;= requested_amount</code>까지만 강제하고, <b>결제액(<code>payments.amount</code>) 대비 상한은 CHECK로 표현할 수 없다</b>(4.2절). 산정 함수의 clamp 로직이 이 상한을 지키는 유일한 방어선이라는 점을 반드시 알아야 한다.</li>
+    <li><b>SCH-03(환불 산정 함수)에게:</b> "환불액이 결제액을 넘을 수 없다"는 규칙은 DB CHECK가 <code>refunded_amount &lt;= requested_amount</code>까지만 강제하고 <b>결제액(<code>payments.amount</code>) 대비 상한은 CHECK로 표현할 수 없다</b>(4.2절). 산정 함수의 clamp 로직이 이 상한을 지키는 유일한 방어선이라는 점을 반드시 알아야 한다. <i>(2026-09-26 주: SCH-03 의 산정 함수는 폐기돼 옮기지 않는다. 그래도 이 상한은 남는다 — 업주가 환불액을 입력하는 FR-293(업주 환불 입력)도 "결제액을 넘을 수 없다"고 정한다. 새 스택에서는 이 상한을 어디서 막을지 다시 정해야 한다.)</i></li>
     <li><b>SCH-07(conftest)에게:</b> 마이그레이션의 Primary Key에는 이름을 붙이지 않았다(모델과 일치시키기 위해). <code>Base.metadata.create_all()</code>로 테스트 스키마를 만들 때 이 점이 <code>alembic upgrade</code> 결과와 제약 이름 수준까지 일치해야 한다.</li>
-    <li><b>SCH-11(마이그레이션 실적용)에게:</b> 이번 SCH는 SQL <b>생성</b>까지만 검증했다. <code>upgrade head</code> 실제 실행, <code>--autogenerate</code> 빈 diff 확인, <code>downgrade base</code> 왕복은 전부 SCH-11이 Docker를 켠 뒤 처음으로 실행해야 한다.</li>
-    <li><b>SCH-12(DB 통합 테스트)에게:</b> CHECK 제약 위반 시 실제로 INSERT가 거부되는지, partial unique index가 실제로 중복을 막는지는 이번 SCH에서 검증하지 못했다. 실제 DB를 띄운 뒤 이 제약들의 실동작을 처음 확인하는 것이 SCH-12다.</li>
+    <li><b>SCH-11(마이그레이션 실적용)에게:</b> 이번 SCH는 SQL <b>생성</b>까지만 검증했다. <code>upgrade head</code> 실제 실행, <code>--autogenerate</code> 빈 diff 확인, <code>downgrade base</code> 왕복은 전부 SCH-11이 Docker를 켠 뒤 처음으로 실행해야 한다. <i>(2026-09-26 주: SCH-11 은 폐기됐다. 이 왕복 검증은 끝내 하지 않았고 SCH-21(FastAPI→Next.js 전환)이 Prisma 마이그레이션으로 대신한다.)</i></li>
+    <li><b>SCH-12(DB 통합 테스트)에게:</b> CHECK 제약 위반 시 실제로 INSERT가 거부되는지, partial unique index가 실제로 중복을 막는지는 이번 SCH에서 검증하지 못했다. 실제 DB를 띄운 뒤 이 제약들의 실동작을 처음 확인하는 것이 SCH-12다. <i>(2026-09-26 주: SCH-12 는 폐기돼 SCH-21 의 완료 기준으로 흡수됐다.)</i></li>
+    <li><b>SCH-21(FastAPI→Next.js 전환)에게:</b> 4.2절의 "CHECK 로 표현할 수 없는 상한"과 이름 붙인 제약(3절)은 Prisma 스키마로 옮길 때 다시 따져야 한다. 특히 부분 유니크 인덱스가 빠지면 이중 환불을 DB 가 막지 못한다 — R3(부분 유니크 인덱스 PSL 표현 미검증).</li>
     <li><b>후속 SCH 전반에게:</b> <code>class_schedules</code>에는 <code>ends_at</code> 컬럼이 없다(4.3절). "종료" 여부를 별도로 판정해야 하는 로직이 필요하면 <code>starts_at</code> 단일 기준으로 처리해야 한다.</li>
   </ul>
 </section>
 
 <footer>
-  작성 기준: <code>_workspace/05_implementer_TS-02_summary.md</code>, <code>backend/app/models/refund.py</code>, <code>backend/app/models/refund_event.py</code>, <code>backend/app/models/__init__.py</code>, <code>backend/alembic/versions/0001_initial_domain.py</code>의 학습 주석 · kdance 프로젝트 내부 문서 · 2026-09-15 작성.
+  작성 기준: <code>_workspace/05_implementer_TS-02_summary.md</code>, <code>backend/app/models/refund.py</code>, <code>backend/app/models/refund_event.py</code>, <code>backend/app/models/__init__.py</code>, <code>backend/alembic/versions/0001_initial_domain.py</code>의 학습 주석 · kdance 프로젝트 내부 문서 · 2026-09-15 작성 · 2026-09-26 현재 상태 갱신(<code>_workspace/kdance.html</code> 2026-09-26 판 기준).
 </footer>
 
 </div>

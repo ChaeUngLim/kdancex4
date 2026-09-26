@@ -165,6 +165,15 @@
   </ol>
 </nav>
 
+<div class="callout warn" id="status">
+  <div class="callout-label">현재 상태 (2026-09-26)</div>
+  <p><b>이 가이드는 끝난 작업의 기록이다.</b> 여기서 설명하는 FastAPI 코드는 SCH-21(FastAPI→Next.js 전환)에서 Next.js + Prisma 8 로 교체된다. 1~5절은 2026-09-15 작업 당시 그대로 두었고 지금과 달라진 곳에는 「2026-09-26 주」를 달았다.</p>
+  <p><b>옮기지 않는 것:</b> 비율표로 예상 환불액을 보여 주던 미리보기(<code>GET /reservations/{id}/cancellation-preview</code>)와 admin 비율표 API(<code>GET</code>·<code>PUT /admin/academies/{id}/refund-policy</code>, <code>schemas/academy.py</code>)는 새 스택으로 옮기지 않는다. 2026-09-25 에 24시간 규칙·비율표가 폐기됐기 때문이다(Q11(환불 방식 변경의 뒤처리) ②). 이 API 를 쓰던 SCH-08(admin-web 환불 비율표) 화면도 옮기지 않는다. 그 자리에는 업주 환불 처리 화면(SCH-32(정규 과정 환불)·SCH-33(이벤트형 취소))과 행사 일괄 취소 화면(SCH-34(행사 일괄 취소))이 들어선다.</p>
+  <p><b>이어지는 것:</b> "경계에서 형태를 검증하고 서비스가 정한 상태 코드를 그대로 옮긴다"는 원칙은 SCH-21 의 Next.js 라우트에서도 쓴다. <code>X-User-Id</code> 임시 인증(F7)은 SCH-24(인증·역할)에서 Better Auth 로 바뀐다.</p>
+  <p><b>지금 환불 규칙:</b> 정규·일반 수업은 회원이 문의하고 업주가 금액을 정해 직접 실행한다(FR-098(업주 처리 환불 방식)·FR-293(업주 환불 입력)). 이벤트·원데이·파티·공연·대회는 회원이 예약 상세에서 취소하면 시스템이 FR-099c(이벤트·원데이·파티·공연·대회 취소 규정) 표대로 환불액을 계산하고 업주가 실행한다. 업주가 공지한 처리 기간(최대 3영업일)이 지나면 시스템이 자동으로 실행한다(FR-295(수단별 환불 실행)). 행사를 통째로 취소하면 결제자 전원에게 PG 로 일괄 전액 환불한다(FR-099e(행사 일괄 취소)).</p>
+  <p><b>테스트 실측:</b> 2026-09-26 <code>uv run pytest -q</code> → 159 passed · 27 skipped. Docker Desktop 이 꺼져 있어 DB 테스트 27개가 skip 됐다. DB 를 켠 2026-09-23 에는 186 passed 였다.</p>
+</div>
+
 <section id="overview">
   <h2>1. 개요</h2>
   <p>SCH-06은 예약 취소 기능이 실제로 앱 밖에서 "HTTP API"로 보이게 만드는 마지막 조각입니다. <b><code>backend/app/schemas/</code></b>가 요청·응답 데이터의 형태를 검증하는 Pydantic 클래스들을, <b><code>backend/app/routers/</code></b>가 그 데이터를 받아 SCH-05(취소 오케스트레이션 서비스 + deps.py)의 서비스 함수로 옮기는 엔드포인트 4개를, <b><code>backend/app/main.py</code></b>가 그 라우터들과 CORS 설정을 하나의 FastAPI 앱으로 조립하는 코드를 담당합니다.</p>
@@ -203,10 +212,10 @@
     <tr><th>파일</th><th>구분</th><th>무엇을 왜</th></tr>
     <tr><td><code>backend/app/schemas/__init__.py</code></td><td>신규</td><td>패키지 docstring만. 하위 모듈을 import하지 않는다 — 모델과 달리 <code>Base.metadata</code> 같은 등록 이유가 없다.</td></tr>
     <tr><td><code>backend/app/schemas/cancellation.py</code></td><td>신규</td><td><code>RefundAccountIn</code>(+<code>to_domain()</code>)·<code>CancelRequest</code>(<code>model_validator</code>)·<code>CancelResponse</code>(+<code>from_outcome</code>)·<code>CancellationPreviewResponse</code>(+<code>from_preview</code>).</td></tr>
-    <tr><td><code>backend/app/schemas/academy.py</code></td><td>신규</td><td><code>RefundPolicyTier</code>(<code>StrictInt</code>, 1~720시간 / 0~10000bp)·<code>RefundPolicyUpdate</code>(내림차순·중복·개수 검증 + <code>to_jsonb()</code>)·<code>RefundPolicyResponse</code>.</td></tr>
+    <tr><td><code>backend/app/schemas/academy.py</code></td><td>신규</td><td><code>RefundPolicyTier</code>(<code>StrictInt</code>, 1~720시간 / 0~10000bp)·<code>RefundPolicyUpdate</code>(내림차순·중복·개수 검증 + <code>to_jsonb()</code>)·<code>RefundPolicyResponse</code>. <i>(2026-09-26 주: 비율표 폐기로 옮기지 않는다.)</i></td></tr>
     <tr><td><code>backend/app/routers/__init__.py</code></td><td>신규</td><td>패키지 docstring만.</td></tr>
     <tr><td><code>backend/app/routers/reservations.py</code></td><td>신규</td><td><code>POST /reservations/{id}/cancel</code>, <code>GET /reservations/{id}/cancellation-preview</code>. 예외 → HTTP 매핑(<code>exc.status_code</code> 그대로 + <code>ValueError</code> → 422).</td></tr>
-    <tr><td><code>backend/app/routers/admin_academies.py</code></td><td>신규</td><td><code>GET</code>·<code>PUT /admin/academies/{id}/refund-policy</code>.</td></tr>
+    <tr><td><code>backend/app/routers/admin_academies.py</code></td><td>신규</td><td><code>GET</code>·<code>PUT /admin/academies/{id}/refund-policy</code>. <i>(2026-09-26 주: 옮기지 않는다.)</i></td></tr>
     <tr><td><code>backend/app/main.py</code></td><td>수정</td><td><code>include_router</code> 2줄 + CORS(5173·3000). 기존 <code>GET /health</code> 데코레이터는 손대지 않았다.</td></tr>
     <tr><td><code>backend/app/services/cancellation.py</code></td><td>수정 (2줄 + 주석)</td><td><code>CancellationPreview</code> dataclass에 <code>payment_method: str | None</code> 추가 — 아래 표 참고.</td></tr>
     <tr><td><code>backend/tests/test_schemas.py</code></td><td>신규</td><td>DB 없이 도는 검증 39건(스키마 경계 + 라우터 배선 + 예외 매핑 + CORS).</td></tr>
@@ -249,6 +258,7 @@
     <p><b>원인 파악:</b> 이번 슬라이스에 "이 사람이 이 학원의 관리자인가"를 판정할 모델 자체가 없다(인증·회원·권한 체계 부재). 예약 취소 쪽은 <code>X-User-Id</code> 헤더라는 임시 인증(F7)이라도 있지만, admin 쪽은 그 헤더를 요구해도 아무 UUID나 넣으면 통과하므로 검증 흉내만 내는 셈이다.</p>
     <p><b>해결(이번 SCH 범위):</b> <code>X-User-Id</code>를 요구하지 <b>않기로</b> 했다 — <b>있는 척하는 검사보다 없는 게 낫다</b>고 판단했다. 대신 <code>admin_academies.py</code> 모듈 docstring 최상단에 경고와 붙일 자리(<code>dependencies=[Depends(require_academy_admin)]</code>)를 명시해 두었다.</p>
     <p><b>지금 상태:</b> 이 경로는 <b>프로덕션에 노출하면 안 된다.</b> TS-08의 admin-web은 <code>userId</code>를 선택값으로 보내므로 지금 구성 그대로 동작은 하지만, 그건 "동작한다"이지 "안전하다"가 아니다.</p>
+    <p><i>(2026-09-26 주: 이 API 는 비율표와 함께 폐기돼 새 스택으로 옮기지 않는다. "있는 척하는 검사보다 없는 게 낫다"는 판단 대신, 새 스택에서는 SCH-24(인증·역할)가 먼저 선다 — FR-005(역할별 데이터 범위)가 이후 모든 조회의 전제이기 때문이다. 업주 환불 입력(FR-293(업주 환불 입력)) 같은 돈이 걸린 화면도 그 위에 올라간다.)</i></p>
   </div>
 
   <h3>4.3 mobile이 <code>preview.cancellable</code> / <code>reason_code</code>를 보지 않는다 (I-3)</h3>
@@ -301,7 +311,7 @@
     <div class="arrow">→</div>
     <div class="step dim"><b><a href="SCH-02(도메인 모델).html" style="color:inherit;text-decoration:none">SCH-02</a></b>도메인 모델 7개<br><span class="badge done">완료</span></div>
     <div class="arrow">→</div>
-    <div class="step dim"><b><a href="SCH-03(환불액 산정).html" style="color:inherit;text-decoration:none">SCH-03</a></b>환불액 산정 함수<br><span class="badge done">완료</span></div>
+    <div class="step dim"><b><a href="SCH-03(환불액 산정).html" style="color:inherit;text-decoration:none">SCH-03</a></b>환불액 산정 함수<br><span class="badge done">완료 · 옮기지 않음</span></div>
     <div class="arrow">→</div>
     <div class="step dim"><b><a href="SCH-04(어댑터 3종).html" style="color:inherit;text-decoration:none">SCH-04</a></b>어댑터 3종<br><span class="badge done">완료</span></div>
   </div>
@@ -310,13 +320,16 @@
     <div class="arrow">→</div>
     <div class="step here"><b>SCH-06</b>Pydantic 스키마 + 라우터 + main.py (이 문서)<br><span class="badge done">완료</span></div>
     <div class="arrow">→</div>
-    <div class="step dim"><b>SCH-07</b>conftest + DB 통합 테스트 작성</div>
+    <div class="step dim"><b><a href="SCH-07(통합 테스트 작성).html" style="color:inherit;text-decoration:none">SCH-07</a></b>conftest + DB 통합 테스트 작성<br><span class="badge done">완료</span></div>
   </div>
   <table>
     <tr><th>관계</th><th>왜 이 순서/구조인가</th></tr>
     <tr><td>SCH-05(취소 오케스트레이션 서비스 + deps.py) → SCH-06</td><td>SCH-05가 이미 확정한 <code>CancellationOutcome</code>/<code>CancellationPreview</code>/<code>CancellationError.status_code</code>를 이 SCH가 그대로 HTTP 응답·예외로 옮기기만 한다. 새 판정이 필요했다면(예: <code>payment_method</code> 필드) SCH-05 파일에 최소 변경만 요청했다(3절 참고).</td></tr>
-    <tr><td>SCH-03(환불액 산정) → SCH-06</td><td><code>calculate_refund</code>의 <code>ValueError</code>를 어떻게 HTTP로 바꿀지가 이 SCH의 몫이다(I-1과는 다른, TS-03이 미리 경고해 둔 사항) — 라우터가 422로 접고 원인은 로그로 돌린다.</td></tr>
-    <tr><td>SCH-06 → SCH-07(conftest + DB 통합 테스트 작성) / SCH-12(DB 통합 테스트 실행)</td><td>5절의 "미검증" 항목(실제 DB를 붙인 취소 정상 경로·403·409·admin 저장 반영)을 실제로 증명하는 것은 이 두 SCH의 몫이다.</td></tr>
+    <tr><td>SCH-03(환불액 산정) → SCH-06</td><td><code>calculate_refund</code>의 <code>ValueError</code>를 어떻게 HTTP로 바꿀지가 이 SCH의 몫이다(I-1과는 다른, TS-03이 미리 경고해 둔 사항) — 라우터가 422로 접고 원인은 로그로 돌린다. <i>(2026-09-26 주: SCH-03 은 폐기돼 이 매핑도 옮기지 않는다.)</i></td></tr>
+    <tr><td>SCH-06 → SCH-07(conftest + DB 통합 테스트 작성) / SCH-12(DB 통합 테스트 실행)</td><td>5절의 "미검증" 항목(실제 DB를 붙인 취소 정상 경로·403·409·admin 저장 반영)을 실제로 증명하는 것은 이 두 SCH의 몫이다. <i>(2026-09-26 주: SCH-07 의 테스트는 2026-09-23 DB 를 켜고 186 passed 로 돌았다. SCH-12 번호는 SCH-21(FastAPI→Next.js 전환)에 흡수돼 쓰지 않는다.)</i></td></tr>
+    <tr><td>SCH-06 → SCH-21(FastAPI→Next.js 전환) <span class="badge b">2026-09-26</span></td><td>취소 라우터와 스키마는 Next.js 라우트로 옮겨진다. 비율표 미리보기와 admin 비율표 API 는 옮기지 않는다.</td></tr>
+    <tr><td>SCH-06 → SCH-24(인증·역할) <span class="badge b">2026-09-26</span></td><td><code>X-User-Id</code> 헤더로 신원을 주장하던 임시 인증을 Better Auth 와 역할별 범위로 바꾼다. I-2(admin 인증 부재)가 가리킨 빈자리를 채우는 곳이다.</td></tr>
+    <tr><td>SCH-06 → SCH-32(정규 과정 환불)·SCH-33(이벤트형 취소)·SCH-34(행사 일괄 취소) <span class="badge b">2026-09-26</span></td><td>회원이 누르는 취소 API 하나 대신, 업주 환불 입력·이벤트형 취소 신청·행사 일괄 취소 경로가 새로 생긴다. 이 SCH 의 라우터를 고쳐 쓰는 것이 아니라 새 흐름으로 만든다.</td></tr>
   </table>
 </section>
 
@@ -324,16 +337,16 @@
   <h2>7. 다음 SCH로 이어지는 것</h2>
   <p>SCH-06이 SCH-07(conftest + DB 통합 테스트 작성, 아직 가이드 없음)과 그 이후 단계에 남긴 인터페이스·주의사항입니다. <code>_workspace/05_implementer_TS-06_summary.md</code> §6(미해결/인계)을 그대로 옮깁니다.</p>
   <ul>
-    <li><b>1. 실DB 통합 미검증.</b> <code>localhost:5433</code> 연결 거부(이 환경에 docker CLI 없음)로, 취소 정상 경로·403·409·멱등 재생은 <b>코드상으로만</b> 맞춰져 있다. SCH-07이 테스트를 작성하고 SCH-12가 실행해야 한다. 특히 <code>routers/reservations.py</code>의 예외 매핑과 <code>schemas/academy.py</code>의 JSONB 문지기 역할이 DB 없이 검증 가능했던 지점이자, 실 DB로도 반드시 재확인해야 할 지점이다.</li>
-    <li><b>2. (후속 권고, I-2) admin 인증 — 배포 전 필수.</b> <code>dependencies=[Depends(require_academy_admin)]</code>를 붙일 자리는 마련해 두었지만, 그 의존성 자체(인증·회원·권한 모델)는 아직 없다. 이 API를 외부에 노출하기 전에 반드시 채워야 한다.</li>
-    <li><b>3. (후속 권고, I-3) mobile이 <code>cancellable</code>/<code>reason_code</code>를 무시한다.</b> <code>mobile/App.tsx</code>의 <code>CancellationPreview</code> 타입에 두 필드를 추가하고 취소 버튼을 <code>canSubmit</code> 기준으로 막는 3줄 수정이 필요하다.</li>
-    <li><b>4. (후속 권고, I-4) 에러 문구 정밀화.</b> <code>cancel</code> 경로의 <code>except ValueError</code>가 비율표 오류 외의 데이터 오류까지 같은 문구로 접는다. 서비스(SCH-05)가 전용 예외를 던지도록 바뀌면 이 라우터도 그때 함께 좁힐 수 있다.</li>
+    <li><b>1. 실DB 통합 미검증.</b> <code>localhost:5433</code> 연결 거부(이 환경에 docker CLI 없음)로, 취소 정상 경로·403·409·멱등 재생은 <b>코드상으로만</b> 맞춰져 있다. SCH-07이 테스트를 작성하고 SCH-12가 실행해야 한다. <i>(2026-09-26 주: 2026-09-23 DB 를 켜고 186 passed 를 확인했다. SCH-12(DB 통합 테스트)는 SCH-21(FastAPI→Next.js 전환)에 흡수됐다.)</i> 특히 <code>routers/reservations.py</code>의 예외 매핑과 <code>schemas/academy.py</code>의 JSONB 문지기 역할이 DB 없이 검증 가능했던 지점이자, 실 DB로도 반드시 재확인해야 할 지점이다.</li>
+    <li><b>2. (후속 권고 I-2) admin 인증 — 배포 전 필수.</b> <code>dependencies=[Depends(require_academy_admin)]</code>를 붙일 자리는 마련해 두었지만, 그 의존성 자체(인증·회원·권한 모델)는 아직 없다. 이 API를 외부에 노출하기 전에 반드시 채워야 한다. <i>(2026-09-26 주: 이 API 는 옮기지 않는다. 인증·권한은 SCH-24(인증·역할)가 만든다.)</i></li>
+    <li><b>3. (후속 권고 I-3) mobile이 <code>cancellable</code>/<code>reason_code</code>를 무시한다.</b> <code>mobile/App.tsx</code>의 <code>CancellationPreview</code> 타입에 두 필드를 추가하고 취소 버튼을 <code>canSubmit</code> 기준으로 막는 3줄 수정이 필요하다. <i>(2026-09-26 주: 이 화면은 SCH-09(mobile 취소·환불계좌) 데모이고 회원이 누르면 곧바로 환불하던 옛 흐름이다. 새 흐름(정규는 문의, 이벤트형은 예약 상세 취소 신청)으로 다시 만든다.)</i></li>
+    <li><b>4. (후속 권고 I-4) 에러 문구 정밀화.</b> <code>cancel</code> 경로의 <code>except ValueError</code>가 비율표 오류 외의 데이터 오류까지 같은 문구로 접는다. 서비스(SCH-05)가 전용 예외를 던지도록 바뀌면 이 라우터도 그때 함께 좁힐 수 있다. <i>(2026-09-26 주: 비율표 오류 경로가 사라져 이 권고는 새 스택에 해당하지 않는다.)</i></li>
     <li><b>5. Phase 7(자체 오류 수정) 불필요했다.</b> 빌드/문법 오류 0, 전체 테스트 초록 — TS-06 자체 수정으로 해소해야 할 항목은 남지 않았다.</li>
   </ul>
 </section>
 
 <footer>
-  작성 기준: <code>_workspace/05_implementer_TS-06_summary.md</code>, <code>backend/app/schemas/</code>·<code>backend/app/routers/</code>·<code>backend/app/main.py</code>·<code>backend/app/services/cancellation.py</code>·<code>backend/tests/test_schemas.py</code>의 학습 주석, <code>_workspace/kdance.html</code> · kdance 프로젝트 내부 문서 · 2026-09-15 작성.
+  작성 기준: <code>_workspace/05_implementer_TS-06_summary.md</code>, <code>backend/app/schemas/</code>·<code>backend/app/routers/</code>·<code>backend/app/main.py</code>·<code>backend/app/services/cancellation.py</code>·<code>backend/tests/test_schemas.py</code>의 학습 주석, <code>_workspace/kdance.html</code> · kdance 프로젝트 내부 문서 · 2026-09-15 작성 · 2026-09-26 현재 상태 갱신(<code>_workspace/kdance.html</code> 2026-09-26 판, spec 변경 이력 2026-09-20~26).
 </footer>
 
 </div>
