@@ -38,7 +38,7 @@
 
 - `docs/` — planning notes and setup guides (pricing/distribution/genre-taxonomy policy, OmniRoute setup guide)
 - `backend/` — FastAPI API server (uv-managed)
-- `admin-web/` — Next.js (App Router) admin console for studio owners. Routes: `app/page.tsx`(대시보드), `app/refund-policy/page.tsx`(환불 비율표 설정 — 2026-09-25 폐기 결정, spec Q11 ②. 업주 환불 입력 화면으로 대체 예정). Client fetch wrapper in `lib/api-client.ts`, env var `NEXT_PUBLIC_API_BASE_URL`. `npm run build`/`dev`/`start`; `npm run lint` currently broken (`eslint.config.mjs` 의 `FlatCompat` 순환 참조 — TS 7 원인은 6.0.3 다운그레이드로 해소됨. 타입 검증은 `next build`).
+- `admin-web/` — Next.js (App Router) admin console for studio owners. Routes: `app/page.tsx`(대시보드), `app/refund-policy/page.tsx`(환불 비율표 설정 — 2026-09-25 폐기 결정, spec Q11(환불 방식 변경의 뒤처리) ②. 업주 환불 입력 화면으로 대체 예정 — 이벤트형은 계산값 미리 채움(올리기만), 행사 일괄 취소 화면 포함). Client fetch wrapper in `lib/api-client.ts`, env var `NEXT_PUBLIC_API_BASE_URL`. `npm run build`/`dev`/`start`; `npm run lint` currently broken (`eslint.config.mjs` 의 `FlatCompat` 순환 참조 — TS 7 원인은 6.0.3 다운그레이드로 해소됨. 타입 검증은 `next build`).
 - `mobile/` — Expo consumer app
 - `infra/` — `docker-compose.yml` for local Postgres+pgvector and Redis
 
