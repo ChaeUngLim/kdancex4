@@ -15,7 +15,7 @@
 |---|---|
 | `app/layout.tsx` | 공통 레이아웃 |
 | `app/page.tsx` | 대시보드 |
-| `app/refund-policy/page.tsx` | 환불 비율표 설정 |
+| `app/refund-policy/page.tsx` | 환불 비율표 설정 — **폐기 예정**(2026-09-25 환불이 업주 결정 방식으로 바뀜, spec Q11(환불 방식 변경의 뒤처리) ②) |
 | `lib/api-client.ts` | 백엔드 호출 래퍼 |
 | `app/globals.css` | 전역 스타일 |
 

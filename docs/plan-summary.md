@@ -4,6 +4,18 @@
 - 목적: `docs/` 아래 흩어진 기획 자료(정책 문서·개발 가이드·화면 명세·인프라 가이드·입점 피치)를 하나로 종합. 개별 원문은 그대로 두고, 이 문서는 요약·상호 참조용.
 - 원문 출처: `docs/pricing-policy.md`, `docs/distribution-policy.md`, `docs/genre-taxonomy-policy.md`, `docs/admin-input-policy.md`, `docs/payment-method-policy.md`, `docs/social-dance-app-dev-guide.html`, `docs/kdance-screens-spec.html`, `docs/kdance-beta-infra.html`, `docs/social-dance-academy-pitch.html`, `docs/superpowers/specs/2026-09-13-kdance-scaffold-design.md`
 
+> ⚠ **이 문서의 금액·결제·환불 규칙은 2026-09-25 에 대체됐다.** 본문은 당시 기록으로 남긴다. 지금 규칙은 아래 표와 spec(`specs/001-ai-dance-class-platform/spec.md`)을 본다.
+
+> | 항목 | 지금 규칙(2026-09-25) | 근거 |
+> |---|---|---|
+> | 결제 경로 | 모든 유료 결제는 PG 한 경로. 딥링크(방식 A)·9만원 분기 폐지. 카드는 모든 결제에서 받는다 | spec FR-110(PG 단일 결제 경로) · FR-111a(모든 결제 카드 허용) |
+> | 환불 | 셀프 환불·24시간 전액·비율표 폐지. 앱 문의 → 강사 확인 → **업주가 금액 결정·PG 환불 실행**. 회사는 구독권만 환불 | FR-098b(환불 요청 경로) · FR-295(수단별 환불 실행) |
+> | 이벤트형 상품 | 원데이·이벤트·파티·공연·대회는 환불 마감일 필수, 인터파크식 취소 수수료, 예매 수수료 2,000원(환불 안 됨) | FR-099c(이벤트·원데이·파티·공연·대회 취소 규정) · FR-099d(환불 마감일 필수 입력·결제 적용) · FR-282a(예매 수수료 2,000원) |
+> | 수수료 | 플랫폼 5%(입점 1년 면제), 결제·카드 수수료는 업주 부담, 취소로 남은 금액 5:5 | FR-124(플랫폼 수수료 5%·1년 면제) · FR-125e(취소 수수료 5:5·판매 수수료 5%) |
+> | 대학생 | 첫 결제 1회 50%, 차액 학원 부담 | FR-118(대학생 첫 결제 50%) |
+> | 구독 | 월·연(10% 할인), 14일 이내만 환불, 1+1 할인권은 3개월 유지마다 1장 | FR-112a(연 구독 10% 할인) · FR-297a(구독 환불 14일 이내) · FR-120a(쿠폰 생성 조건) |
+> | 약관 | `docs/terms-of-service.md` · `docs/merchant-terms.md` · `docs/privacy-policy.md` | — |
+
 ## 1. 프로젝트 개요 / 비전
 
 소셜댄스(댄스스포츠·아르헨티나 탱고·스윙댄스·살사·바차타) 장르를 묶어, 검색·추천·경로안내로 회원을 학원까지 데려오고, 학원이 스케줄을 등록하면 바로 예약·결제까지 열리는 예약·멤버십 앱. (출처: `social-dance-app-dev-guide.html`)
