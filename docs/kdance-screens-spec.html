@@ -201,12 +201,21 @@
           <div class="app-header"><div class="title">회원가입</div></div>
           <div class="app-body">
             <div class="field"><div class="flabel">휴대폰 번호</div><div class="fval">010-••••-5521 · 인증완료</div></div>
-            <div class="field"><div class="flabel">관심 장르 (복수 선택)</div></div>
+            <div class="field"><div class="flabel">성별 · 본인확인으로 자동 체크</div><div class="fval">● 여 &nbsp; ○ 남</div></div>
+            <div class="field"><div class="flabel">관심 장르 · 필수 · 여러 개</div></div>
             <div class="chip-row">
               <span class="mini-chip" style="background:var(--ballroom)">댄스스포츠</span>
-              <span class="mini-chip" style="background:var(--tango)">탱고</span>
-              <span class="mini-chip outline">스윙</span>
-              <span class="mini-chip outline">살사</span>
+              <span class="mini-chip outline">아르헨티나 탱고</span>
+              <span class="mini-chip outline">스윙댄스</span>
+              <span class="mini-chip" style="background:var(--salsa)">살사/바차타</span>
+            </div>
+            <div class="field"><div class="flabel">관심 지역 · 선택 · 여러 개</div><div class="fval">서울 › 강남구 · 서초구</div></div>
+            <div class="field"><div class="flabel">가능한 시간대 · 선택</div><div class="fval">평일 19:00 ~ 22:00</div></div>
+            <div class="field"><div class="flabel">관심 세부 장르 · 선택 · 여러 개</div></div>
+            <div class="chip-row">
+              <span class="mini-chip" style="background:var(--ballroom)">라틴</span>
+              <span class="mini-chip outline">스탠다드</span>
+              <span class="mini-chip" style="background:var(--salsa)">살사</span>
               <span class="mini-chip outline">바차타</span>
             </div>
             <div class="divider"></div>
@@ -218,24 +227,62 @@
           <div class="cta-fixed"><div class="btn-pill">다음</div></div>
         </div></div>
         <div class="g-cap"><div class="g-num">01</div><div class="g-title">회원가입 · 대학생 인증</div>
-        <div class="g-desc">장르 선호를 가입 시점에 받아 첫 추천부터 개인화한다. 대학생 인증은 선택 — 나중에 마이페이지에서도 가능.</div></div>
+        <div class="g-desc">성별은 본인확인 결과로 자동 체크되고 수강 신청 때 정원 자리(남·여)의 기본값이 된다 — 신청할 때 바꿀 수 있다(FR-002(가입 정보 수집·고지)·FR-092(성별 정원)). 관심 장르(필수·여러 개)와 세부 장르(선택·여러 개)를 받아 첫 추천부터 개인화한다(FR-022(사용자 프로필)). 이 값은 추천용이고, 메인 화면의 기준 장르는 가입 직후 01b 에서 하나만 고른다. 대학생 인증은 선택 — 나중에 마이페이지에서도 가능.</div></div>
+      </div>
+
+      <!-- 1b. 가입 직후 · 메인 장르 선택 -->
+      <div class="g-item">
+        <div class="phone"><div class="notch"></div><div class="screen">
+          <div class="status"><span>9:41</span><span>●●●</span></div>
+          <div class="app-header"><div class="title">메인에서 어떤 춤을 볼까요?</div></div>
+          <div class="app-body">
+            <div style="font-size:0.62rem;color:#8A8194;margin-bottom:8px">딱 하나만 골라요. 이 장르 기준으로 메인을 보여 드려요. 나중에 메인에서 바꿀 수 있어요.</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+              <div style="border-radius:14px;overflow:hidden;border:1px solid #EEE6F0;background:#fff">
+                <div style="height:62px;background:linear-gradient(135deg,var(--ballroom),#1c1426)" role="img" aria-label="댄스스포츠 사진"></div>
+                <div style="padding:6px 8px"><div style="font-weight:700;font-size:0.72rem">댄스스포츠</div><div style="font-size:0.56rem;color:#8A8194;margin-top:1px">우아한 커플 댄스</div></div>
+              </div>
+              <div style="border-radius:14px;overflow:hidden;border:1px solid #EEE6F0;background:#fff">
+                <div style="height:62px;background:linear-gradient(135deg,var(--tango),#1c1426)" role="img" aria-label="아르헨티나 탱고 사진"></div>
+                <div style="padding:6px 8px"><div style="font-weight:700;font-size:0.72rem">아르헨티나 탱고</div><div style="font-size:0.56rem;color:#8A8194;margin-top:1px">밀착 즉흥 춤</div></div>
+              </div>
+              <div style="border-radius:14px;overflow:hidden;border:1px solid #EEE6F0;background:#fff">
+                <div style="height:62px;background:linear-gradient(135deg,var(--swing),#1c1426)" role="img" aria-label="스윙댄스 사진"></div>
+                <div style="padding:6px 8px"><div style="font-weight:700;font-size:0.72rem">스윙댄스</div><div style="font-size:0.56rem;color:#8A8194;margin-top:1px">경쾌한 재즈 리듬</div></div>
+              </div>
+              <div style="border-radius:14px;overflow:hidden;border:1px solid #EEE6F0;background:#fff">
+                <div style="height:62px;background:linear-gradient(135deg,var(--salsa),#1c1426)" role="img" aria-label="살사/바차타 사진"></div>
+                <div style="padding:6px 8px"><div style="font-weight:700;font-size:0.72rem">살사/바차타</div><div style="font-size:0.56rem;color:#8A8194;margin-top:1px">라틴 소셜 파티</div></div>
+              </div>
+            </div>
+          </div>
+        </div></div>
+        <div class="g-cap"><div class="g-num">01b</div><div class="g-title">가입 직후 — 메인 장르 1개 선택</div>
+        <div class="g-desc">FR-022a(첫 화면 장르 선택·유지). 가입을 마친 뒤 사진 카드 4장 가운데 <b>딱 하나</b>를 골라야 넘어간다(여러 개 선택 불가, 건너뛰기 없음). 가입 때 받은 관심 장르(여러 개, 추천용)와 별개로 메인 화면의 기준이 된다. 계정에 저장돼 다음 접속에도 유지된다. 사진은 직접 찍었거나 사용 허락받은 것만 쓴다.</div></div>
       </div>
 
       <!-- 2. 홈/검색 -->
       <div class="g-item">
         <div class="phone"><div class="notch"></div><div class="screen">
           <div class="status"><span>9:41</span><span>●●●</span></div>
-          <div class="app-header"><div class="title">학원 찾기</div></div>
+          <div class="app-header"><div class="title">홈</div></div>
           <div class="app-body">
-            <div class="search-bar">🔍 강남 · 살사 · 평일 저녁</div>
             <div class="chip-row">
-              <span class="mini-chip" style="background:var(--salsa)">살사</span>
-              <span class="mini-chip" style="background:var(--bachata)">바차타</span>
+              <span class="mini-chip outline">댄스스포츠</span>
+              <span class="mini-chip outline">탱고</span>
+              <span class="mini-chip outline">스윙</span>
+              <span class="mini-chip" style="background:var(--salsa)">살사/바차타</span>
             </div>
-            <div class="studio-card"><div class="name">라 클라베 스튜디오 <span>★4.9</span></div>
-              <div class="meta">강남역 3번 출구 · 도보 5분</div><span class="badge-50">첫 결제 50%(대학생)</span></div>
-            <div class="studio-card"><div class="name">소셜살사 강남점 <span>★4.7</span></div>
-              <div class="meta">역삼역 1번 출구 · 도보 9분</div></div>
+            <div class="search-bar">🔍 살사/바차타 수업 검색</div>
+            <div style="font-size:0.52rem;color:#5C5266;margin:4px 0 6px">정렬 ▾ <b>[추천순]</b> [검색순] [인기순] [마감 임박순] [잔여석 임박순]</div>
+            <div style="display:flex;align-items:baseline;gap:6px;margin:8px 0 2px"><b style="font-size:0.74rem">실시간 인기 수업</b><span style="font-size:0.5rem;color:#8A8194">Updated every 3 hours</span></div>
+            <div style="font-size:0.52rem;color:#8A8194;margin-bottom:6px">검색 조회수 기준</div>
+            <div class="studio-card"><div class="name"><span><span class="badge-50" style="margin-right:4px">1+1 참여학원</span>라 클라베 스튜디오</span></div>
+              <div class="meta">처음 참여 후 한 달 · 10초마다 다음 학원 · 이름표를 누르면 참여 학원 목록</div></div>
+            <div style="overflow:hidden;white-space:nowrap;border:1px solid #EEE6F0;border-radius:10px;background:#fff;padding:6px 8px;font-size:0.58rem;margin-bottom:8px" aria-label="실시간 인기 수업 전광판">
+              <span style="display:inline-block">◀ <b>1.</b> K댄스학원 / 룸바 중급 / 10월 1일 개강 / 19:30 / 잔여 남 1석·여 3석 &nbsp;·&nbsp; <b>2.</b> 라 클라베 스튜디오 / 살사 온원 기초 / 10월 5일 개강 / 20:00 / 마감 · 대기 가능 &nbsp;·&nbsp; <b>3.</b> …</span>
+            </div>
+            <div style="font-size:0.5rem;color:#8A8194;margin-bottom:6px">한 줄로 흘러가며 1~10위를 반복. 손을 대면 멈춤</div>
           </div>
           <div class="nav-tab">
             <a class="on"><svg class="tab-ic" viewBox="0 0 24 24"><path d="M4 12 12 5l8 7M6 11v8h5v-5h2v5h5v-8"/></svg><span class="tab-lbl">홈</span></a>
@@ -244,8 +291,8 @@
             <a><svg class="tab-ic" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.4"/><path d="M5 20c0-4 3-6 7-6s7 2 7 6"/></svg><span class="tab-lbl">마이</span></a>
           </div>
         </div></div>
-        <div class="g-cap"><div class="g-num">02</div><div class="g-title">홈 — 카테고리 검색</div>
-        <div class="g-desc">장르·지역·시간대 필터. 배지는 사용자별 자격(대학생/신규)에 맞게 문구가 바뀐다.</div></div>
+        <div class="g-cap"><div class="g-num">02</div><div class="g-title">홈 — 장르 전환 · 실시간 인기 수업</div>
+        <div class="g-desc">위쪽 한 줄 버튼으로 장르를 한 번에 바꾼다(FR-022a(첫 화면 장르 선택·유지)). 검색·순위판·1+1 참여학원은 고른 장르만 다룬다. 실시간 인기 수업은 위쪽 한 줄 전광판으로 1~10위가 흘러간다. 항목은 "학원명 / 수업명 레벨 / 개강일 / 시작 시각 / 잔여 남·여 석"이고, 순위는 최근 24시간 검색 조회수로 3시간마다 갱신한다(FR-121d(1+1 참여 학원 실시간 수업 검색 순위)). 잔여 자리는 볼 때마다 새로 읽고, 손을 대면 멈춘다. 맨 위 "1+1 참여학원"은 처음 참여한 학원을 10초마다 골고루 바꿔 보여 준다(FR-121e(신규 참여 학원 NEW 영역)).</div></div>
       </div>
 
       <!-- 3. 학원 상세 -->
