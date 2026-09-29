@@ -77,7 +77,7 @@
       "**Primary use of Claude Code**: 소프트웨어 개발 — kdance-dev-harness 9단계 파이프라인(요구사항 → 구조 확인 → 계획 → Task 분리 → 구현 → 테스트 → 수정 → 리뷰 → 완료 검증, 그리고 Phase 9.5 학습 주석·SCH 가이드)을 지휘한다. 스택은 FastAPI + SQLAlchemy2 + Alembic + psycopg3(uv / Python 3.12), Next.js App Router, Expo SDK 57",
       "**Trusted repo**: /home/user/kdance 와 그 remote origin(github.com/ChaeUngLim/kdancex4, private)",
       "**Org-specific CLIs**: uv(backend 툴체인·pytest·alembic), npm/npx(admin-web·mobile), docker / docker compose(infra), gh, graphify(지식 그래프 — PreToolUse 훅 hook-guard 가 이 CLI 를 부른다), explorer.exe(WSL 에서 HTML 열기). Makefile 은 없다",
-      "**Routine under this repo**: 하네스 산출물은 _workspace/ 에 쓴다 — 01_~05_*.md 14개와 guides/*.html, kdance.html 은 git 이 추적하고 나머지 중간물은 .gitignore 가 막는다. 커밋·푸시는 사용자가 명시적으로 요청할 때만 한다"
+      "**Routine under this repo**: 하네스 산출물은 _workspace/ 에 쓴다 — 01_~05_*.md 14개와 guides/*.html, SCH_kdance.html 은 git 이 추적하고 나머지 중간물은 .gitignore 가 막는다. 커밋·푸시는 사용자가 명시적으로 요청할 때만 한다"
     ]
   }
 }

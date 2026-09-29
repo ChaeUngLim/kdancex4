@@ -4,7 +4,7 @@
 - 담당: kdance-req-analyst
 - 입력: `_workspace/00_input/request.md`("Prisma 8 RC 스택 전환 해줘")
 - 근거 문서: `docs/kdancex4_service_definition_and_tech_stack.md` 「11 · 11-1 · 11-2 · 11-3」, `docs/ai-coding-agent.html`, `.claude/rules/core-rules.md` 「버전 정책」
-- 직전 회차 산출물: `_workspace_20260920_183143/01_req-analyst_requirements.md`, `03_impl-planner_plan.md`
+- 직전 회차 산출물: 커밋 `7f28ab1^` 의 `_workspace/01_req-analyst_requirements.md`, `03_impl-planner_plan.md`(백업 폴더 `_workspace_20260920_183143/` 은 2026-09-29 에 지웠다)
 - 상태: **Q1~Q5 미해결 (BLOCKING). Phase 2(기존 코드 구조 확인) 탐색은 병행 가능하나 Phase 3(구현 계획) 착수 전에 답이 필요하다.**
 
 ---
@@ -301,7 +301,7 @@ DB는 그대로 둔다. PostgreSQL 18.6 + pgvector 0.8.6 에 담길 스키마는
 | **R4** | **Better Auth 런타임 미검증** | 「11-2」 — 설치·import 는 확인했지만 세션·스키마 생성·로그인 흐름을 돌려보지 않았다 | 인증을 이번 전환에 포함하면(§8 Q5) 미검증 영역이 전환의 임계 경로에 들어온다 |
 | **R5** | **테스트 러너가 transitive 다** | 실측: `vitest@4.1.11` 은 `better-auth` 의 의존성으로만 들어와 있고 `package.json` 에 없다. `pg@8.22.0`·`kysely@0.29.6` 도 마찬가지 | better-auth 가 의존성을 바꾸면 테스트 인프라가 사라진다. 명시 선언 필요 |
 | **R6** | **프로세스 싱글턴 전제가 서버리스에서 깨진다** | `deps.py` 가 `@lru_cache` 로 어댑터를 프로세스 싱글턴으로 잡는다. `FakePaymentGateway` 의 멱등 원장이 **인메모리**라, 요청마다 새로 만들면 재시도가 매번 "처음 호출"로 보인다 | Vercel 서버리스는 인스턴스가 여러 개다. 멱등성의 실제 권위는 DB 제약이므로 치명적이진 않지만, **Fake 어댑터 기반 테스트가 환경에 따라 다르게 나올 수 있다** |
-| **R7** | **`SCH-01(기반 배선)`~`SCH-07(통합 테스트 작성)` 가이드의 대상이 사라진다** | 7개 HTML(224KB, git 추적 중)이 전부 FastAPI 코드를 줄 단위로 설명한다. `_workspace/kdance.html` 의 진행표도 같은 코드를 가리킨다 | 방치하면 **틀린 설명을 가리키는 문서가 git 에 남는다.** 왕초보 학습 계층이 무너진다. §8 Q2 |
+| **R7** | **`SCH-01(기반 배선)`~`SCH-07(통합 테스트 작성)` 가이드의 대상이 사라진다** | 7개 HTML(224KB, git 추적 중)이 전부 FastAPI 코드를 줄 단위로 설명한다. `_workspace/SCH_kdance.html` 의 진행표도 같은 코드를 가리킨다 | 방치하면 **틀린 설명을 가리키는 문서가 git 에 남는다.** 왕초보 학습 계층이 무너진다. §8 Q2 |
 | **R8** | **검증선이 `next build` 하나뿐이다** | lint 가 깨져 있고 TypeScript 7 은 메이저 1단계 앞선다(「11-2」 — "순서 분리") | 타입 오류 외의 회귀를 잡을 그물이 얇다. 테스트를 일찍 세워야 한다 |
 | **R9** | **Pydantic 422 응답 형태가 바뀐다** | `api-client.ts` 의 `extractMessage()` 가 `{"detail":[{"msg":...}]}` 를 파싱한다 | 조용한 회귀. 화면에 에러 메시지가 안 뜨는 형태로 나타난다 |
 | **R10** | **한 번에 다 옮기면 원인 분리가 안 된다** | 7,335줄 · 계층 11개 | request.md 「진행 방식」이 이미 대응책을 지시했다(단계마다 `next build` 그린) |
@@ -325,7 +325,7 @@ git 추적 파일 47개(`.venv` 제외), 소스 7,335줄.
 
 ### Q2. `SCH-01(기반 배선)`~`SCH-07(통합 테스트 작성)` 과 그 가이드를 어떻게 하나? (BLOCKING)
 
-대상: `_workspace/guides/` 의 7개 HTML(git 추적 중) + `_workspace/kdance.html` 의 진행표 + 각 소스 파일 안의 학습 주석.
+대상: `_workspace/guides/` 의 7개 HTML(git 추적 중) + `_workspace/SCH_kdance.html` 의 진행표 + 각 소스 파일 안의 학습 주석.
 
 - **A안 — 폐기.** 가이드를 지우고 SCH 번호를 새로 시작한다. 가장 깨끗하지만 224KB 분량의 학습 자산이 사라진다.
 - **B안 — "FastAPI 시절 기록"으로 보존 + 헤더에 경고 배너.** 문서를 남기되 "이 코드는 2026-09-20 전환으로 대체됐다"를 각 가이드 상단에 명시한다. 왜 전환했는지의 맥락이 같이 남는다.
@@ -417,7 +417,7 @@ BLOCKING 질문 Q1~Q3 이 해소되었다. Phase 3(구현 계획) 착수 가능.
 - **`backend/` 는 읽기 전용이다.** Phase 5(구현)에서 `backend/` 의 파일을 수정·삭제하지 않는다.
   삭제는 전환 완료 후 사용자 승인을 받아 별도로 수행한다.
 - **FastAPI 가 계속 떠야 한다.** 전환 중 `backend/` 의 의존성·설정을 깨뜨리는 변경을 하지 않는다.
-- **`SCH-21(FastAPI→Next.js 전환)`** 을 `_workspace/kdance.html` 에 신규 항목으로 추가해야 한다.
+- **`SCH-21(FastAPI→Next.js 전환)`** 을 `_workspace/SCH_kdance.html` 에 신규 항목으로 추가해야 한다.
   Phase 9.5(학습 주석 재구성·SCH 가이드 생성) 에서 이 SCH 기준으로 산출물 3종(학습 주석 · 사람용 HTML 가이드 · 에이전트용 `.md`)을 만든다.
 - 기존 가이드 7개에 경고 배너를 추가하는 작업이 범위에 포함된다.
 

@@ -375,7 +375,7 @@ depends_on: str | Sequence[str] | None = None</code></pre>
     <tr><td>SCH-01(기반 배선) → SCH-02(도메인 모델 7개 + 초기 마이그레이션) (선행)</td><td><code>Base</code>·<code>TimestampMixin</code>이 없으면 <code>Refund</code>·<code>RefundEvent</code> 클래스를 정의할 부모가 없다.</td></tr>
     <tr><td>SCH-02(도메인 모델 7개 + 초기 마이그레이션) → SCH-03·04 (후속)</td><td>환불 산정 함수(SCH-03)와 어댑터(SCH-04)가 다루는 <code>Refund</code>·<code>Payment</code> 등 테이블 구조가 이 SCH에서 확정된다.</td></tr>
     <tr><td>SCH-02(도메인 모델 7개 + 초기 마이그레이션) → SCH-05·06 (간접 후속)</td><td>취소 오케스트레이션 서비스(SCH-05)와 API 스키마·라우터(SCH-06)가 이 7개 모델을 직접 다룬다.</td></tr>
-    <tr><td>SCH-02(도메인 모델 7개 + 초기 마이그레이션) → <s>SCH-11(마이그레이션 검증)</s> <b>폐기</b></td><td>이 SCH가 손으로 작성한 마이그레이션이 실제 DB 위에서 진짜로 동작하는지(upgrade/autogenerate 빈 diff/downgrade)를 최종 확인하는 것이 SCH-11이다. <code>kdance.html</code>에도 "SCH-11 — SCH-02 선행 충족"으로 기록돼 있다. <i>(2026-09-26 주: SCH-11 은 실행되지 않고 폐기됐다. <code>kdance.html</code> 2026-09-26 판에는 이 기록이 없다. 검증은 SCH-21(FastAPI→Next.js 전환)의 완료 기준으로 흡수됐다.)</i></td></tr>
+    <tr><td>SCH-02(도메인 모델 7개 + 초기 마이그레이션) → <s>SCH-11(마이그레이션 검증)</s> <b>폐기</b></td><td>이 SCH가 손으로 작성한 마이그레이션이 실제 DB 위에서 진짜로 동작하는지(upgrade/autogenerate 빈 diff/downgrade)를 최종 확인하는 것이 SCH-11이다. <code>SCH_kdance.html</code>에도 "SCH-11 — SCH-02 선행 충족"으로 기록돼 있다. <i>(2026-09-26 주: SCH-11 은 실행되지 않고 폐기됐다. <code>SCH_kdance.html</code> 2026-09-26 판에는 이 기록이 없다. 검증은 SCH-21(FastAPI→Next.js 전환)의 완료 기준으로 흡수됐다.)</i></td></tr>
     <tr><td>SCH-02(도메인 모델 7개 + 초기 마이그레이션) → <s>SCH-12(DB 통합 테스트)</s> <b>폐기</b></td><td>CHECK·partial unique index 같은 제약의 <b>실동작</b> 검증은 실제 DB가 있어야 하는 SCH-12의 몫이다. <i>(2026-09-26 주: SCH-12 는 폐기됐다. DB 통합 테스트는 SCH-07(통합 테스트 작성)이 만들었고 2026-09-23 DB 를 켜고 186 passed 를 확인했다. 새 스택의 DB 통합 테스트는 SCH-21 의 완료 기준이다.)</i></td></tr>
     <tr><td>SCH-02(도메인 모델 7개 + 초기 마이그레이션) → SCH-21(FastAPI→Next.js 전환)</td><td>7개 테이블과 제약을 Prisma 8 스키마 계약으로 옮긴다. 비율표 컬럼(<code>refund_policy_tiers</code>)은 빼고 <code>Order(주문)</code>에 수업료·예매 수수료·합계 CHECK 와 주문 시점 수수료율을 처음부터 넣는다.</td></tr>
   </table>
@@ -394,7 +394,7 @@ depends_on: str | Sequence[str] | None = None</code></pre>
 </section>
 
 <footer>
-  작성 기준: <code>_workspace/05_implementer_TS-02_summary.md</code>, <code>backend/app/models/refund.py</code>, <code>backend/app/models/refund_event.py</code>, <code>backend/app/models/__init__.py</code>, <code>backend/alembic/versions/0001_initial_domain.py</code>의 학습 주석 · kdance 프로젝트 내부 문서 · 2026-09-15 작성 · 2026-09-26 현재 상태 갱신(<code>_workspace/kdance.html</code> 2026-09-26 판 기준).
+  작성 기준: <code>_workspace/05_implementer_TS-02_summary.md</code>, <code>backend/app/models/refund.py</code>, <code>backend/app/models/refund_event.py</code>, <code>backend/app/models/__init__.py</code>, <code>backend/alembic/versions/0001_initial_domain.py</code>의 학습 주석 · kdance 프로젝트 내부 문서 · 2026-09-15 작성 · 2026-09-26 현재 상태 갱신(<code>_workspace/SCH_kdance.html</code> 2026-09-26 판 기준).
 </footer>
 
 </div>

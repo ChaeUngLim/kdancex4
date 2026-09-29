@@ -50,7 +50,7 @@ bash docs/handoff/apply-settings.sh --apply    # 실제로 적용한다
 | 커맨드 17개 | `.claude/commands/` |
 | 스킬 on/off 판단 근거 | `docs/claude-skills-checklist.md` |
 | **설정 스냅샷** | `docs/handoff/` — 아래 3-2 절 |
-| SCH 스케줄표 | `_workspace/kdance.html` |
+| SCH 스케줄표 | `_workspace/SCH_kdance.html` |
 | SCH 가이드 7개 | `_workspace/guides/SCH-01(기반 배선)`~`SCH-07(통합 테스트 작성).html` |
 | 하네스 작업 기록 14개 | `_workspace/01_`~`05_*.md` — `Q1~Q5`(요구사항 결정 근거)·`D1~D4`(설계 결정)의 **유일한 출처** |
 
@@ -191,12 +191,12 @@ Claude Code 안에서 `/mcp` 로 9종 연결을, `/plugin` 으로 플러그인�
 
 1. `CLAUDE.md` — 개요·스택·하네스 구성
 2. `.claude/rules/core-rules.md` — 행동 규칙 전부 (언어·표기·윤문·Harness/ECC 역할 분리·Git)
-3. `_workspace/kdance.html` — 전체 작업 현황판
+3. `_workspace/SCH_kdance.html` — 전체 작업 현황판
 4. `docs/가이드/harness-ecc-guide.html` — Harness/ECC 구조 그림
 5. `docs/claude-skills-checklist.md` — 스킬을 언제 켜고 끌지
 
 HTML 은 에디터가 아니라 브라우저로 연다.
 
 ```bash
-explorer.exe "$(wslpath -w ~/kdance/_workspace/kdance.html)"
+explorer.exe "$(wslpath -w ~/kdance/_workspace/SCH_kdance.html)"
 ```

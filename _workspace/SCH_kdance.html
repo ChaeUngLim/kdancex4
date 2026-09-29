@@ -1,0 +1,683 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>KDANCE SCH 스케줄</title>
+<style>
+:root{--paper:#f7f9fc;--card:#fff;--ink:#0d1b2a;--ink-2:#2b3d52;--ink-3:#5a6b80;--rule:#d9e0ec;--rule-2:#edf1f7;--navy:#1c2340;
+--todo:#2d6cdf;--wip:#e8a33d;--review:#7a5af8;--done:#2f9e44;--block:#d64545;
+--todo-bg:#e8f0fe;--wip-bg:#fdf3e2;--review-bg:#efeafe;--done-bg:#e7f6ec;--block-bg:#fceaea;--acc:#0e7c86;--acc-bg:#e3f4f5}
+@media (prefers-color-scheme:dark){:root{--paper:#0c1219;--card:#141c26;--ink:#eef3f9;--ink-2:#c3cedc;--ink-3:#8c9aac;--rule:#25313f;--rule-2:#1b2532;--navy:#c6d0e4;
+--todo:#7fa8f5;--wip:#f0be6a;--review:#a88cff;--done:#5fc97a;--block:#f08080;--todo-bg:#16233a;--wip-bg:#30240f;--review-bg:#241b3d;--done-bg:#12301c;--block-bg:#341617;--acc:#5fc4cc;--acc-bg:#0f2a2d}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink-2);font:15px/1.7 'Pretendard','Apple SD Gothic Neo','Malgun Gothic',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+code{font-family:'D2Coding','SFMono-Regular',Menlo,monospace;font-size:.88em;background:var(--rule-2);padding:1px 5px;border-radius:3px;color:var(--ink)}
+h1,h2,h3{color:var(--ink);margin:0}a{color:var(--todo)}
+.layout{max-width:1280px;margin:0 auto;padding:32px 20px 80px;display:grid;grid-template-columns:1fr;gap:28px}
+@media (min-width:1100px){.layout{grid-template-columns:230px minmax(0,1fr)}}
+nav.toc{font-size:13px;align-self:start}
+@media (min-width:1100px){nav.toc{position:sticky;top:16px;max-height:calc(100vh - 32px);overflow:auto}}
+nav.toc .tt{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);margin:0 0 8px}
+nav.toc ol{list-style:none;margin:0 0 14px;padding:0}nav.toc li{margin:0 0 4px}nav.toc a{text-decoration:none;color:var(--ink-2)}nav.toc a:hover{color:var(--todo)}
+nav.toc .sub{padding-left:12px;font-size:12px;color:var(--ink-3)}
+header{border-bottom:3px solid var(--navy);padding-bottom:22px}
+.eyebrow{font-size:12px;letter-spacing:.16em;color:var(--ink-3);text-transform:uppercase}
+h1{font-size:clamp(26px,4.5vw,38px);letter-spacing:-.02em;line-height:1.15;margin:8px 0 10px}
+.lede{max-width:74ch;margin:0}
+.stamp{display:flex;flex-wrap:wrap;gap:6px 18px;margin-top:16px;font-size:12.5px;color:var(--ink-3)}.stamp b{color:var(--ink);font-weight:600}
+section{margin-top:48px;scroll-margin-top:16px}h2{font-size:clamp(19px,2.8vw,24px);letter-spacing:-.015em}
+.sub{color:var(--ink-3);font-size:13.5px;margin:6px 0 0;max-width:78ch}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-top:22px}
+.tile{background:var(--card);border:1px solid var(--rule);border-radius:4px;padding:14px 16px}
+.tile .n{font-size:26px;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums}.tile .k{font-size:12.5px;color:var(--ink-3)}.tile .s{font-size:11.5px;color:var(--ink-3);margin-top:6px;padding-top:6px;border-top:1px solid var(--rule-2)}
+.howto{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin-top:18px}
+.how{background:var(--card);border:1px solid var(--rule);border-radius:4px;padding:14px 16px;font-size:13.5px}.how b{display:block;color:var(--ink);margin-bottom:4px}
+.legend{display:flex;flex-wrap:wrap;gap:8px 16px;margin-top:14px;font-size:12.5px;color:var(--ink-3)}.legend i{display:inline-block;width:11px;height:11px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+.sys{margin-top:18px;display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+.box{background:var(--card);border:1px solid var(--rule);border-radius:6px;padding:12px 14px;font-size:13px}
+.box b{display:block;color:var(--ink);font-size:14px}.box .who{font-size:11.5px;color:var(--acc);letter-spacing:.06em}.box .x{color:var(--ink-3);margin-top:4px;font-size:12.5px}
+.box.core{border-color:var(--navy);border-width:2px}.box.ext{border-style:dashed}
+.sysnote{font-size:12.5px;color:var(--ink-3);margin-top:8px}
+.loop{margin-top:16px;overflow-x:auto}
+.loop .row{display:flex;align-items:stretch;min-width:900px;gap:0}
+.step{flex:1;background:var(--card);border:1px solid var(--rule);border-radius:6px;padding:10px 10px;text-align:center;font-size:13px;position:relative;margin-right:22px}
+.step:last-child{margin-right:0}.step::after{content:'→';position:absolute;right:-19px;top:50%;transform:translateY(-50%);color:var(--ink-3);font-weight:700}
+.step:last-child::after{content:''}.step b{display:block;color:var(--ink)}.step small{display:block;color:var(--todo);font-weight:600;margin-top:4px}
+.band{display:flex;gap:10px;min-width:900px;margin-top:10px}.band .step{margin-right:0}.band .step::after{content:''}.band .step.base{background:var(--rule-2)}
+.bandlbl{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);margin:14px 0 4px}
+.waves{display:flex;align-items:stretch;gap:0;margin-top:16px;overflow-x:auto;padding-bottom:6px}
+.wave{min-width:150px;flex:1;background:var(--card);border:1px solid var(--rule);border-radius:6px;padding:10px}
+.warrow{align-self:center;padding:0 6px;color:var(--ink-3);font-weight:700}
+.wn{font-size:11px;letter-spacing:.12em;color:var(--ink-3);font-weight:700}.chips{display:flex;flex-direction:column;gap:5px;margin:6px 0}
+.chip{display:block;text-decoration:none;font-size:12px;padding:4px 8px;border-radius:4px;border-left:3px solid var(--rule);background:var(--paper);color:var(--ink)}
+.chip b{display:block;font-size:11.5px}.chip.s-todo{border-left-color:var(--todo)}.chip.s-block{border-left-color:var(--block);background:var(--block-bg)}.chip.s-done{border-left-color:var(--done)}.chip.s-wip{border-left-color:var(--wip)}
+.wd{font-size:12.5px;color:var(--ink);margin-top:4px}.wp{font-size:11px;color:var(--ink-3)}
+.scroller{overflow-x:auto;margin-top:16px}table.grid{border-collapse:collapse;width:100%;min-width:720px;font-size:13.5px}
+table.grid th{text-align:left;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);font-weight:600;padding:0 12px 8px 0;border-bottom:2px solid var(--navy);white-space:nowrap}
+table.grid td{padding:8px 12px 8px 0;border-bottom:1px solid var(--rule-2);vertical-align:top}table.grid td.k{color:var(--ink);font-weight:500;white-space:nowrap}table.grid td.k a{text-decoration:none;color:var(--ink)}table.grid td.k a:hover{color:var(--todo)}
+table.grid tbody tr:hover td{background:var(--rule-2)}
+.dot{display:inline-block;width:9px;height:9px;border-radius:99px;margin-right:6px;vertical-align:-1px}.d-done{background:var(--done)}.d-review{background:var(--review)}.d-todo{background:var(--todo)}.d-block{background:var(--block)}.d-wip{background:var(--wip)}
+.trh{font-size:15px;margin:26px 0 10px;padding-bottom:6px;border-bottom:1px solid var(--rule);display:flex;justify-content:space-between;align-items:baseline;gap:10px;scroll-margin-top:16px}.trh span{font-size:11.5px;font-weight:500;color:var(--ink-3)}
+.card{background:var(--card);border:1px solid var(--rule);border-left:4px solid var(--rule);border-radius:4px;padding:14px 16px;margin-bottom:12px;scroll-margin-top:16px}
+.card .head{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}.card .sch{font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums}
+.card .tr{font-size:11.5px;color:var(--ink-3);margin-left:auto}
+.badge{font-size:10.5px;font-weight:700;padding:1px 7px;border-radius:99px;white-space:nowrap}
+.card .t{margin:4px 0 8px;color:var(--ink);font-size:14px}.card p{margin:0;font-size:13px}.card .d{color:var(--ink-3);font-size:12.5px;line-height:1.55}
+.lbl{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--acc);margin:10px 0 4px;font-weight:600}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:8px 18px}
+.meta{display:flex;flex-wrap:wrap;gap:6px 18px;margin-top:10px;padding-top:8px;border-top:1px solid var(--rule-2);font-size:12px;color:var(--ink-3)}.meta b{color:var(--ink);font-weight:600}.meta b.blk{color:var(--block)}
+.mini{display:flex;flex-wrap:wrap;gap:6px 0;align-items:center}
+.mini span{background:var(--acc-bg);color:var(--ink);border:1px solid transparent;border-radius:4px;padding:3px 9px;font-size:12.5px;line-height:1.4}
+.mini span+span::before{content:'→';color:var(--ink-3);margin:0 7px 0 1px;font-weight:700}
+.mini.small span{font-size:11.5px;padding:2px 7px;background:var(--rule-2)}
+.card.compact .t{margin-bottom:6px}.card.compact .d{margin-top:6px}
+.s-todo{border-left-color:var(--todo)}.s-todo .badge{background:var(--todo-bg);color:var(--todo)}
+.s-wip{border-left-color:var(--wip)}.s-wip .badge{background:var(--wip);color:#fff}
+.s-review{border-left-color:var(--review)}.s-review .badge{background:var(--review-bg);color:var(--review)}
+.s-done{border-left-color:var(--done)}.s-done .badge{background:var(--done-bg);color:var(--done)}
+.s-block{border-left-color:var(--block)}.s-block .badge{background:var(--block-bg);color:var(--block)}
+.guide-link{display:inline-block;margin-top:6px;font-size:11.5px;font-weight:600;text-decoration:none}
+.cards2{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px;margin-top:14px}.cards2 .card{margin:0}
+.decisions{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;margin-top:18px}
+.dec{background:var(--card);border:1px solid var(--rule);border-left:4px solid var(--block);border-radius:4px;padding:14px 16px}.dec.open{border-left-color:var(--todo)}
+.dec .id{font-size:11.5px;font-weight:700;letter-spacing:.08em;color:var(--block)}.dec.open .id{color:var(--todo)}.dec h3{font-size:15px;margin:4px 0 6px;line-height:1.4}.dec p{margin:0;font-size:13px;color:var(--ink-3)}
+.dec .blocks{display:block;margin-top:8px;padding-top:8px;border-top:1px solid var(--rule-2);font-size:12px;color:var(--ink-3)}.dec .blocks b{color:var(--block)}
+ul.notes{margin:14px 0 0;padding:0;list-style:none;max-width:78ch}ul.notes li{position:relative;padding-left:20px;margin-bottom:9px;font-size:14px}ul.notes li::before{content:'▸';position:absolute;left:0;color:var(--todo);font-size:12px}ul.notes b{color:var(--ink)}
+footer{margin-top:60px;padding-top:18px;border-top:1px solid var(--rule);font-size:12.5px;color:var(--ink-3)}
+@media print{body{background:#fff}nav.toc{display:none}.card,.tile,.dec,.wave{break-inside:avoid}}
+</style>
+</head>
+<body>
+<div class="layout">
+
+      <nav class="toc" aria-label="목차">
+        <p class="tt">목차</p>
+        <ol>
+          <li><a href="#howto">0. 이 문서 읽는 법</a></li>
+          <li><a href="#overview">1. 한눈에 보기 — 무엇을 만드나</a></li>
+          <li><a href="#now">2. 지금 어디인가</a></li>
+          <li><a href="#loop">3. S0 한 바퀴 — 과정의 흐름</a></li>
+          <li><a href="#waves">4. 착수 순서 W1~W10</a></li>
+          <li><a href="#list">5. SCH 전체 목록</a></li>
+          <li><a href="#s0">6. S0 경로 SCH-21~37 상세</a>
+            <ol class="sub"><li><a href="#track-base">기반</a></li><li><a href="#track-flow">거래 흐름</a></li><li><a href="#track-money">돈</a></li><li><a href="#track-ai">AI · 문의</a></li><li><a href="#track-qa">QA</a></li></ol></li>
+          <li><a href="#s1">7. S1 이후 SCH-38~49</a></li>
+          <li><a href="#decisions">8. 먼저 닫아야 하는 결정</a></li>
+          <li><a href="#done">9. 완료 기록 SCH-01~10</a></li>
+          <li><a href="#measured">10. 실측 근거</a></li>
+          <li><a href="#refs">11. 참고 자료</a></li>
+          <li><a href="#rules">12. 이 문서의 규칙</a></li>
+        </ol>
+      </nav>
+<main>
+      <header>
+        <div class="eyebrow">개인 프로젝트 · 베타(S0) 첫 거래까지의 전체 스케줄</div>
+        <h1>KDANCE SCH 스케줄</h1>
+        <p class="lede">
+          <b>SCH 관리는 이 문서에서만 한다.</b> 제품 요구사항의 원본은 <code>specs/001-ai-dance-class-platform/spec.md</code>이고,
+          이 문서는 그 요구사항을 「무엇 다음에 무엇」 순서로 자른 작업 목록과 상태다. SCH-01~10 은 1회차 슬라이스(FastAPI
+          예약 취소·환불)의 완료 기록이고, <b>SCH-21 부터가 앞으로 할 일</b>이다.
+        </p>
+        <div class="stamp">
+          <span><b>기준</b> 2026-09-29</span>
+          <span><b>backend</b> 159 passed · 27 skipped (Docker Desktop 꺼짐, DB 테스트 skip)</span>
+          <span><b>admin-web</b> <code>npm run build</code> 성공 · 라우트 2개</span>
+          <span><b>mobile</b> <code>tsc --noEmit</code> 통과</span>
+          <span><b>담당</b> 1인</span>
+        </div>
+      </header>
+
+      <section id="howto">
+        <h2>0. 이 문서 읽는 법</h2>
+        <p class="sub">처음 읽으면 1 → 3 → 4 순서로 그림만 보고, 그다음 5 의 표에서 궁금한 조각을 눌러 6 의 카드로 간다.</p>
+        <div class="howto">
+          <div class="how"><b>SCH 가 무엇인가</b>기능을 세로로 얇게 썬 조각이다. "백엔드 다 만들고 → 프론트 다 만들고"가 아니라, 조각 하나가 처음부터 끝까지 동작하게 쌓아 간다. 조각마다 번호와 기능명이 붙고, 완료 기준은 그 조각의 FR(요구사항) 범위다.</div>
+          <div class="how"><b>카드 한 장의 구성</b>번호(기능명) · 상태 · 한 줄 → 핵심 그림(이 조각이 끝나면 데이터가 어떻게 흐르나) → 왜 이 자리인가 · 완료 기준 → 범위와 규칙(FR 번호) → 선행과 막는 것.</div>
+          <div class="how"><b>트랙과 웨이브</b>트랙은 성격별 묶음(기반·거래 흐름·돈·AI·QA)이고 웨이브(W1~W10)는 착수 순서다. 같은 웨이브 안의 조각은 서로 막지 않아 동시에 간다.</div>
+          <div class="how"><b>S0 · S1 이 무엇인가</b>규모 단계다. S0 은 베타 1~10명, 노트북 한 대로 첫 거래 한 바퀴를 돌리는 단계. S1 은 파일럿·오픈 베타. S0 통과 조건에 없는 기능은 7 절에 모아 두고 S0 판정 뒤 순서를 다시 정한다.</div>
+        </div>
+        <div class="legend">
+          <span><i style="background:var(--done)"></i>완료</span>
+          <span><i style="background:var(--review)"></i>완료 · 코드 교체 예정(옮기지 않음)</span>
+          <span><i style="background:var(--wip)"></i>진행 중</span>
+          <span><i style="background:var(--todo)"></i>대기</span>
+          <span><i style="background:var(--block)"></i>외부 결정에 막힘</span>
+        </div>
+      </section>
+
+      <section id="overview">
+        <h2>1. 한눈에 보기 — 무엇을 만드나</h2>
+        <p class="sub">댄스 학원의 수업을 찾고, 예약하고, 결제하고, 환불받는 앱이다. 여덟 덩어리가 이렇게 이어진다. 굵은 테두리가 우리가 만드는 것, 점선이 남의 서비스다.</p>
+        <div class="sys">
+          <div class="box core"><span class="who">회원 · 강사</span><b>mobile (Expo · React Native)</b><div class="x">수업 검색 · 예약 · 결제 · 문의</div></div>
+          <div class="box core"><span class="who">업주 · 운영자</span><b>admin-web (Next.js)</b><div class="x">입점 · 수업 등록 · 환불 처리 · 정산 조회</div></div>
+          <div class="box core"><span class="who">유일한 DB 쓰기 주체</span><b>Next.js API + Prisma 8</b><div class="x">예약·결제·정산 원장. 인증은 Better Auth. SCH-21 이 FastAPI 를 여기로 옮긴다</div></div>
+          <div class="box core"><span class="who">읽기 전용(MCP)</span><b>에이전트 서버 (Python · LangGraph)</b><div class="x">문의 분류 · AI 검색·추천. DB 에 직접 닿지 않는다</div></div>
+          <div class="box"><span class="who">저장</span><b>PostgreSQL 18 + pgvector · Redis</b><div class="x">데이터 · 벡터 검색 · 슬롯 락</div></div>
+          <div class="box"><span class="who">로컬 GPU</span><b>kdance-llm (llama-server 10슬롯)</b><div class="x">채팅·포스터 읽기. 임베딩·리랭커는 NVIDIA 호스팅</div></div>
+          <div class="box ext"><span class="who">외부 · 미선정</span><b>PG(결제대행사)</b><div class="x">결제 → 정산 분배로 학원·플랫폼 계좌에 나눠 지급</div></div>
+          <div class="box ext"><span class="who">외부</span><b>본인확인 기관 · 소셜 로그인 3사</b><div class="x">CI 로 한 사람 한 계정</div></div>
+        </div>
+        <p class="sysnote">돈의 길: 회원 → PG → (수수료는 플랫폼 계좌 / 나머지는 학원 계좌). 플랫폼은 돈을 쥐지 않고 "누구에게 얼마"만 지시한다(FR-282d(정산 분배로 학원 직접 지급)).</p>
+      </section>
+
+      <section id="now">
+        <h2>2. 지금 어디인가</h2>
+        <p class="sub">2026-09-29 에 코드와 문서를 실제로 조사한 값이다. 09-26 뒤로 코드는 한 줄도 바뀌지 않았고 바뀐 것은 spec·약관의 결정이다. 추정은 추정이라 적었다.</p>
+        <div class="tiles">
+          <div class="tile"><div class="n">10</div><div class="k">완료 기록 (SCH-01~10)</div><div class="s">FastAPI 취소·환불 슬라이스. SCH-21 에서 교체된다</div></div>
+          <div class="tile"><div class="n">17</div><div class="k">S0 경로 (SCH-21~37)</div><div class="s">베타 1~10명, 첫 거래 한 바퀴 + AI 수용량</div></div>
+          <div class="tile"><div class="n">12</div><div class="k">S1 이후 (SCH-38~49)</div><div class="s">파일럿·오픈 베타에서 켜는 기능</div></div>
+          <div class="tile"><div class="n">0</div><div class="k">진행 중</div><div class="s">다음 착수: SCH-21 · SCH-22 · SCH-23</div></div>
+          <div class="tile"><div class="n">3</div><div class="k">외부 결정에 막힘</div><div class="s">PG 미선정 2개 · 공휴일 달력 1개</div></div>
+          <div class="tile"><div class="n">6</div><div class="k">먼저 닫을 결정</div><div class="s">PG 선정 · 전환 세부 · 본인확인 등</div></div>
+          <div class="tile"><div class="n">0</div><div class="k">품질 게이트 훅</div><div class="s">lint 를 먼저 고쳐야 건다 (SCH-23)</div></div>
+        </div>
+      </section>
+
+      <section id="loop">
+        <h2>3. S0 한 바퀴 — 과정의 흐름</h2>
+        <p class="sub">S0 의 목표는 "첫 거래 한 바퀴"다. 학원이 들어와 수업을 올리고, 회원이 찾아 예약·결제하고, 출석하고, 정산되고, 취소·환불까지 되돌아오는 길. 각 칸 아래 번호가 그 칸을 만드는 SCH 다.</p>
+        <div class="loop">
+          <div class="bandlbl">거래 — 왼쪽에서 오른쪽으로 한 바퀴</div>
+          <div class="row">
+            <div class="step"><b>입점</b>학원·약관 동의<small>SCH-25</small></div>
+            <div class="step"><b>수업 등록</b>회차·환불 마감일<small>SCH-26</small></div>
+            <div class="step"><b>검색</b>정렬 5종<small>SCH-27</small></div>
+            <div class="step"><b>예약</b>남·여 정원·대기<small>SCH-28</small></div>
+            <div class="step"><b>결제</b>PG · 예매 수수료<small>SCH-29</small></div>
+            <div class="step"><b>출석</b>수강 완료<small>SCH-30</small></div>
+            <div class="step"><b>정산</b>원장·지급<small>SCH-31</small></div>
+            <div class="step"><b>취소·환불</b>정규 · 이벤트형 · 일괄<small>SCH-32 · 33 · 34</small></div>
+          </div>
+          <div class="bandlbl">그 옆에서 — 묻고 답한다 · 판정한다</div>
+          <div class="band">
+            <div class="step"><b>문의 분류 · 사람 이관</b><small>SCH-35</small></div>
+            <div class="step"><b>AI 동시 질문 · 평가 세트</b><small>SCH-36</small></div>
+            <div class="step"><b>S0 정합성 E2E 판정</b><small>SCH-37</small></div>
+          </div>
+          <div class="bandlbl">그 아래에서 — 전부를 받치는 바닥</div>
+          <div class="band">
+            <div class="step base"><b>FastAPI → Next.js 전환</b><small>SCH-21</small></div>
+            <div class="step base"><b>에이전트 서버 뼈대</b><small>SCH-22</small></div>
+            <div class="step base"><b>품질 게이트 훅</b><small>SCH-23</small></div>
+            <div class="step base"><b>인증·역할</b><small>SCH-24</small></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="waves">
+        <h2>4. 착수 순서 W1~W10</h2>
+        <p class="sub">왼쪽에서 오른쪽으로. 같은 칸(웨이브)에 있는 조각은 서로 막지 않으므로 동시에 간다. 빨간 조각은 외부 결정(PG·달력)이 먼저 닫혀야 실제 연동이 된다 — 가짜 어댑터로 먼저 만들 수는 있다.</p>
+        <div class="waves"><div class="wave"><div class="wn">W1</div><div class="chips"><a class="chip s-todo" href="#sch-21"><b>SCH-21</b>전환</a><a class="chip s-todo" href="#sch-22"><b>SCH-22</b>에이전트</a><a class="chip s-todo" href="#sch-23"><b>SCH-23</b>훅</a></div><div class="wd">바닥 공사 — 스키마·에이전트 뼈대·훅</div><div class="wp">선행 —</div></div><div class="warrow">→</div><div class="wave"><div class="wn">W2</div><div class="chips"><a class="chip s-todo" href="#sch-24"><b>SCH-24</b>인증</a></div><div class="wd">누가 무엇을 보나</div><div class="wp">선행 SCH-21</div></div><div class="warrow">→</div><div class="wave"><div class="wn">W3</div><div class="chips"><a class="chip s-todo" href="#sch-25"><b>SCH-25</b>입점</a></div><div class="wd">학원이 들어온다</div><div class="wp">선행 SCH-24</div></div><div class="warrow">→</div><div class="wave"><div class="wn">W4</div><div class="chips"><a class="chip s-todo" href="#sch-26"><b>SCH-26</b>수업</a></div><div class="wd">수업이 생긴다</div><div class="wp">선행 SCH-25</div></div><div class="warrow">→</div><div class="wave"><div class="wn">W5</div><div class="chips"><a class="chip s-todo" href="#sch-27"><b>SCH-27</b>검색</a><a class="chip s-todo" href="#sch-28"><b>SCH-28</b>예약</a></div><div class="wd">찾고 예약한다</div><div class="wp">선행 SCH-26</div></div><div class="warrow">→</div><div class="wave"><div class="wn">W6</div><div class="chips"><a class="chip s-block" href="#sch-29"><b>SCH-29</b>결제</a></div><div class="wd">돈이 들어온다 (PG)</div><div class="wp">선행 SCH-28 · PG</div></div><div class="warrow">→</div><div class="wave"><div class="wn">W7</div><div class="chips"><a class="chip s-todo" href="#sch-30"><b>SCH-30</b>출석</a><a class="chip s-block" href="#sch-31"><b>SCH-31</b>원장</a></div><div class="wd">출석과 원장</div><div class="wp">선행 SCH-28 · 29</div></div><div class="warrow">→</div><div class="wave"><div class="wn">W8</div><div class="chips"><a class="chip s-todo" href="#sch-32"><b>SCH-32</b>정규 환불</a><a class="chip s-block" href="#sch-33"><b>SCH-33</b>이벤트 취소</a><a class="chip s-todo" href="#sch-34"><b>SCH-34</b>일괄 취소</a></div><div class="wd">돌려준다</div><div class="wp">선행 SCH-29 · 31</div></div><div class="warrow">→</div><div class="wave"><div class="wn">W9</div><div class="chips"><a class="chip s-todo" href="#sch-35"><b>SCH-35</b>문의</a><a class="chip s-todo" href="#sch-36"><b>SCH-36</b>AI 동시</a></div><div class="wd">묻고 답한다</div><div class="wp">선행 SCH-22 · 24 · 29</div></div><div class="warrow">→</div><div class="wave"><div class="wn">W10</div><div class="chips"><a class="chip s-todo" href="#sch-37"><b>SCH-37</b>E2E</a></div><div class="wd">S0 판정</div><div class="wp">선행 W1~W9</div></div></div>
+      </section>
+
+      <section id="list">
+        <h2>5. SCH 전체 목록</h2>
+        <p class="sub">번호를 누르면 카드로 간다. 11~20 번은 비어 있다 — SCH-11·12 는 SCH-21 에 흡수했고 SCH-13~20 은 2026-09-25 딥링크 폐지로 폐기했다.</p>
+        <div class="scroller"><table class="grid">
+          <thead><tr><th>SCH</th><th>트랙</th><th>상태</th><th>선행</th><th>막는 것</th></tr></thead>
+          <tbody>
+<tr class="r-done"><td class="k"><a href="#sch-1">SCH-01(기반 배선)</a></td><td>완료 기록</td><td><span class="dot d-done"></span>완료</td><td>—</td><td>—</td></tr>
+<tr class="r-done"><td class="k"><a href="#sch-2">SCH-02(도메인 모델)</a></td><td>완료 기록</td><td><span class="dot d-done"></span>완료</td><td>—</td><td>—</td></tr>
+<tr class="r-review"><td class="k"><a href="#sch-3">SCH-03(환불액 산정)</a></td><td>완료 기록</td><td><span class="dot d-review"></span>완료 · 옮기지 않음</td><td>—</td><td>—</td></tr>
+<tr class="r-done"><td class="k"><a href="#sch-4">SCH-04(어댑터 3종)</a></td><td>완료 기록</td><td><span class="dot d-done"></span>완료</td><td>—</td><td>—</td></tr>
+<tr class="r-done"><td class="k"><a href="#sch-5">SCH-05(취소 오케스트레이션)</a></td><td>완료 기록</td><td><span class="dot d-done"></span>완료</td><td>—</td><td>—</td></tr>
+<tr class="r-done"><td class="k"><a href="#sch-6">SCH-06(스키마·라우터)</a></td><td>완료 기록</td><td><span class="dot d-done"></span>완료</td><td>—</td><td>—</td></tr>
+<tr class="r-done"><td class="k"><a href="#sch-7">SCH-07(통합 테스트 작성)</a></td><td>완료 기록</td><td><span class="dot d-done"></span>완료</td><td>—</td><td>—</td></tr>
+<tr class="r-review"><td class="k"><a href="#sch-8">SCH-08(admin-web 환불 비율표)</a></td><td>완료 기록</td><td><span class="dot d-review"></span>완료 · 옮기지 않음</td><td>—</td><td>—</td></tr>
+<tr class="r-review"><td class="k"><a href="#sch-9">SCH-09(mobile 취소·환불계좌)</a></td><td>완료 기록</td><td><span class="dot d-review"></span>완료 · 옮기지 않음</td><td>—</td><td>—</td></tr>
+<tr class="r-done"><td class="k"><a href="#sch-10">SCH-10(환불 정책 문서)</a></td><td>완료 기록</td><td><span class="dot d-done"></span>완료</td><td>—</td><td>—</td></tr>
+<tr class="r-todo"><td class="k"><a href="#sch-21">SCH-21(FastAPI→Next.js 전환)</a></td><td>기반</td><td><span class="dot d-todo"></span>대기</td><td>—</td><td>Q4~Q8(전환 세부) · R2(Prisma 8 트랜잭션·행 잠금 미검증)</td></tr>
+<tr class="r-todo"><td class="k"><a href="#sch-22">SCH-22(에이전트 서버 뼈대)</a></td><td>기반</td><td><span class="dot d-todo"></span>대기</td><td>—</td><td>—</td></tr>
+<tr class="r-todo"><td class="k"><a href="#sch-23">SCH-23(품질 게이트 훅)</a></td><td>기반</td><td><span class="dot d-todo"></span>대기</td><td>—</td><td>—</td></tr>
+<tr class="r-todo"><td class="k"><a href="#sch-24">SCH-24(인증·역할)</a></td><td>기반</td><td><span class="dot d-todo"></span>대기</td><td>SCH-21</td><td>본인확인 기관 · 소셜 로그인 3사 키</td></tr>
+<tr class="r-todo"><td class="k"><a href="#sch-25">SCH-25(학원 입점·약관 동의)</a></td><td>거래 흐름</td><td><span class="dot d-todo"></span>대기</td><td>SCH-24</td><td>Q11(환불 방식 변경의 뒤처리) ①③④</td></tr>
+<tr class="r-todo"><td class="k"><a href="#sch-26">SCH-26(수업·회차 등록)</a></td><td>거래 흐름</td><td><span class="dot d-todo"></span>대기</td><td>SCH-25</td><td>—</td></tr>
+<tr class="r-todo"><td class="k"><a href="#sch-27">SCH-27(검색·필터)</a></td><td>거래 흐름</td><td><span class="dot d-todo"></span>대기</td><td>SCH-26</td><td>—</td></tr>
+<tr class="r-todo"><td class="k"><a href="#sch-28">SCH-28(예약·정원·대기)</a></td><td>거래 흐름</td><td><span class="dot d-todo"></span>대기</td><td>SCH-26</td><td>—</td></tr>
+<tr class="r-block"><td class="k"><a href="#sch-29">SCH-29(PG 결제)</a></td><td>돈</td><td><span class="dot d-block"></span>외부 결정에 막힘</td><td>SCH-28</td><td>PG 미선정</td></tr>
+<tr class="r-todo"><td class="k"><a href="#sch-30">SCH-30(출석·수강 완료)</a></td><td>거래 흐름</td><td><span class="dot d-todo"></span>대기</td><td>SCH-28</td><td>—</td></tr>
+<tr class="r-block"><td class="k"><a href="#sch-31">SCH-31(정산 원장)</a></td><td>돈</td><td><span class="dot d-block"></span>외부 결정에 막힘</td><td>SCH-29 · SCH-30</td><td>PG 미선정</td></tr>
+<tr class="r-todo"><td class="k"><a href="#sch-32">SCH-32(정규 과정 환불)</a></td><td>돈</td><td><span class="dot d-todo"></span>대기</td><td>SCH-29 · SCH-31</td><td>Q11(환불 방식 변경의 뒤처리) ③④</td></tr>
+<tr class="r-block"><td class="k"><a href="#sch-33">SCH-33(이벤트형 취소)</a></td><td>돈</td><td><span class="dot d-block"></span>외부 결정에 막힘</td><td>SCH-29 · SCH-31</td><td>공휴일 달력 출처</td></tr>
+<tr class="r-todo"><td class="k"><a href="#sch-34">SCH-34(행사 일괄 취소)</a></td><td>돈</td><td><span class="dot d-todo"></span>대기</td><td>SCH-33</td><td>—</td></tr>
+<tr class="r-todo"><td class="k"><a href="#sch-35">SCH-35(문의·사람 이관)</a></td><td>AI · 문의</td><td><span class="dot d-todo"></span>대기</td><td>SCH-24 · SCH-29</td><td>—</td></tr>
+<tr class="r-todo"><td class="k"><a href="#sch-36">SCH-36(AI 동시 질문)</a></td><td>AI · 문의</td><td><span class="dot d-todo"></span>대기</td><td>SCH-22 · SCH-35</td><td>평가 세트 없음</td></tr>
+<tr class="r-todo"><td class="k"><a href="#sch-37">SCH-37(S0 정합성 E2E)</a></td><td>QA</td><td><span class="dot d-todo"></span>대기</td><td>W1~W9 전부</td><td>법률 검토 묶음(외부 공개 전)</td></tr>
+<tr class="r-todo"><td class="k"><a href="#sch-38">SCH-38(알림)</a></td><td>S1 이후</td><td><span class="dot d-todo"></span>대기</td><td>SCH-28 · Push 발송 수단 미정</td><td>—</td></tr>
+<tr class="r-todo"><td class="k"><a href="#sch-39">SCH-39(포스터 읽기)</a></td><td>S1 이후</td><td><span class="dot d-todo"></span>대기</td><td>SCH-26·SCH-22 · 자동 추출 정확도 목표 미정</td><td>—</td></tr>
+<tr class="r-todo"><td class="k"><a href="#sch-40">SCH-40(정산 화면·강사 지급)</a></td><td>S1 이후</td><td><span class="dot d-todo"></span>대기</td><td>SCH-31 · 원천징수·개인 레슨 수수료율</td><td>—</td></tr>
+<tr class="r-todo"><td class="k"><a href="#sch-41">SCH-41(대학생 혜택)</a></td><td>S1 이후</td><td><span class="dot d-todo"></span>대기</td><td>SCH-24·SCH-29</td><td>—</td></tr>
+<tr class="r-todo"><td class="k"><a href="#sch-42">SCH-42(쿠폰·구독)</a></td><td>S1 이후</td><td><span class="dot d-todo"></span>대기</td><td>SCH-29 · Q13(구독 판매 주체·요금) 월 구독료</td><td>—</td></tr>
+<tr class="r-todo"><td class="k"><a href="#sch-43">SCH-43(홍보 이미지·소개 문구)</a></td><td>S1 이후</td><td><span class="dot d-todo"></span>대기</td><td>SCH-26·SCH-22 · FLUX.1-dev·SDXL 라이선스 · 장당 실제 차감액 실측(월 약 80장은 미검증)</td><td>—</td></tr>
+<tr class="r-todo"><td class="k"><a href="#sch-44">SCH-44(AI 검색·추천)</a></td><td>S1 이후</td><td><span class="dot d-todo"></span>대기</td><td>SCH-27·SCH-36 · 임베딩·리랭커 호스팅 약관</td><td>—</td></tr>
+<tr class="r-todo"><td class="k"><a href="#sch-45">SCH-45(파티·공연·대회 피드)</a></td><td>S1 이후</td><td><span class="dot d-todo"></span>대기</td><td>SCH-26·SCH-33 · 개인·동호회 승인 기준·사업자등록 조건 미정</td><td>—</td></tr>
+<tr class="r-todo"><td class="k"><a href="#sch-46">SCH-46(레벨·강사 대시보드·후기)</a></td><td>S1 이후</td><td><span class="dot d-todo"></span>대기</td><td>SCH-30 · Q7(경험 수준 구간) ② 점수 레벨과의 관계</td><td>—</td></tr>
+<tr class="r-todo"><td class="k"><a href="#sch-47">SCH-47(관리자 정산 콘솔)</a></td><td>S1 이후</td><td><span class="dot d-todo"></span>대기</td><td>SCH-31 · FR-303(관리자 2단계 인증)</td><td>—</td></tr>
+<tr class="r-todo"><td class="k"><a href="#sch-48">SCH-48(운영자 시스템 관리)</a></td><td>S1 이후</td><td><span class="dot d-todo"></span>대기</td><td>SCH-24</td><td>—</td></tr>
+<tr class="r-todo"><td class="k"><a href="#sch-49">SCH-49(부하 시험)</a></td><td>S1 이후</td><td><span class="dot d-todo"></span>대기</td><td>S2 통과 뒤</td><td>—</td></tr>
+          </tbody></table></div>
+      </section>
+
+      <section id="s0">
+        <h2>6. S0 경로 SCH-21~37 상세</h2>
+        <p class="sub">혼자 하는 프로젝트라 「누가」가 아니라 <b>「무엇 다음에 무엇」</b>이 축이다. 트랙 이름은 core-rules 의 팀 단위 조직(기반·Backend·AI·Frontend·QA)을 따랐다. 각 카드의 FR 범위가 곧 완료 기준이다.</p>
+        <h3 class="trh" id="track-base">기반 <span>스택 전환 · 인증 · 품질 게이트 · 에이전트 서버</span></h3>
+        <article class="card s-todo" id="sch-21">
+          <div class="head"><span class="sch">SCH-21(FastAPI→Next.js 전환)</span><span class="badge">대기</span><span class="tr">기반</span></div>
+          <p class="t">Next.js + Prisma 8 스키마 계약, 기존 7테이블 이관</p>
+          <div class="lbl">핵심 그림 — 이 조각이 끝나면 이렇게 흐른다</div>
+          <div class="mini "><span>FastAPI 7테이블</span><span>Prisma 8 스키마 계약</span><span>마이그레이션 적용</span><span>DB 통합 테스트</span><span>backend/ 삭제(승인 뒤)</span></div>
+          <div class="grid2">
+            <div><div class="lbl">왜 이 자리인가</div><p>스키마 원본을 Prisma 계약 하나로 두는 일이 모든 것의 바닥이다.</p></div>
+            <div><div class="lbl">완료 기준</div><p>Prisma 마이그레이션이 실제 DB 에 적용되고 기존 DB 통합 테스트 27개가 새 스택에서 통과한다.</p></div>
+          </div>
+          <div class="lbl">범위와 규칙</div>
+          <p class="d">폐기 코드(24시간 규칙·비율표·<code>refund_policy_tiers</code>)는 옮기지 않는다. <code>Order(주문)</code>에 수업료·예매 수수료·합계 CHECK 와 주문 시점 수수료율을 처음부터 넣는다. Temporal 폴리필 주입 위치를 정한다. 완료 기준에 Prisma 마이그레이션 적용과 DB 통합 테스트를 포함한다(옛 SCH-11·12 를 흡수). 이관이 끝나면 사용자 승인 뒤 <code>backend/</code>를 지운다.</p>
+          <div class="meta"><span>선행 <b>—</b></span><span>막는 것 <b class="blk">Q4~Q8(전환 세부) · R2(Prisma 8 트랜잭션·행 잠금 미검증)</b></span></div>
+        </article>
+        <article class="card s-todo" id="sch-22">
+          <div class="head"><span class="sch">SCH-22(에이전트 서버 뼈대)</span><span class="badge">대기</span><span class="tr">기반</span></div>
+          <p class="t">Python FastAPI + LangGraph, 스트림 한 바퀴</p>
+          <div class="lbl">핵심 그림 — 이 조각이 끝나면 이렇게 흐른다</div>
+          <div class="mini "><span>질문</span><span>Next.js Route Handler</span><span>에이전트 서버(Python)</span><span>kdance-llm</span><span>SSE 자체 이벤트</span><span>Next.js 번역</span><span>화면</span></div>
+          <div class="grid2">
+            <div><div class="lbl">왜 이 자리인가</div><p>DB 에 닿지 않아 SCH-21 과 병렬로 갈 수 있다.</p></div>
+            <div><div class="lbl">완료 기준</div><p>질문 하나가 Python 서버를 거쳐 화면에 글자 단위로 흘러 들어온다.</p></div>
+          </div>
+          <div class="lbl">범위와 규칙</div>
+          <p class="d">ADR-004(에이전트 서버는 Python)·ADR-005(자체 스트림, 번역은 Next.js)를 끝에서 끝까지 1회 통과시킨다. DB 에 닿지 않아 SCH-21 과 병렬. 실측 RAM 136MB·VRAM 0(뼈대 기준).</p>
+          <div class="meta"><span>선행 <b>—</b></span><span>막는 것 <b class="">—</b></span></div>
+        </article>
+        <article class="card s-todo" id="sch-23">
+          <div class="head"><span class="sch">SCH-23(품질 게이트 훅)</span><span class="badge">대기</span><span class="tr">기반</span></div>
+          <p class="t">lint 수리 → format·lint·typecheck·test 훅</p>
+          <div class="lbl">핵심 그림 — 이 조각이 끝나면 이렇게 흐른다</div>
+          <div class="mini "><span>lint 수리(FlatCompat 순환 참조)</span><span>format 훅</span><span>lint 훅</span><span>typecheck 훅</span><span>test 훅</span><span>코드가 바뀔 때 자동 실행</span></div>
+          <div class="grid2">
+            <div><div class="lbl">왜 이 자리인가</div><p>훅은 lint 를 고친 뒤 건다. 거꾸로 하면 정상 작업까지 매번 막힌다.</p></div>
+            <div><div class="lbl">완료 기준</div><p>파일을 고치면 네 검사가 자동으로 돌고 실패하면 작업이 멈춘다.</p></div>
+          </div>
+          <div class="lbl">범위와 규칙</div>
+          <p class="d">지금 품질 게이트 훅이 0개다. admin-web <code>npm run lint</code>의 <code>FlatCompat</code> 순환 참조를 먼저 고치고 훅을 건다.</p>
+          <div class="meta"><span>선행 <b>—</b></span><span>막는 것 <b class="">—</b></span></div>
+        </article>
+        <article class="card s-todo" id="sch-24">
+          <div class="head"><span class="sch">SCH-24(인증·역할)</span><span class="badge">대기</span><span class="tr">기반</span></div>
+          <p class="t">Better Auth(Kysely 경로) · 소셜 로그인 · 역할별 범위</p>
+          <div class="lbl">핵심 그림 — 이 조각이 끝나면 이렇게 흐른다</div>
+          <div class="mini "><span>소셜 로그인(카카오·구글·네이버)</span><span>휴대폰 본인확인(CI)</span><span>역할 부여(회원·강사·업주·운영자)</span><span>역할별 데이터 범위</span></div>
+          <div class="grid2">
+            <div><div class="lbl">왜 이 자리인가</div><p>역할별 데이터 범위가 이후 모든 조회의 전제다.</p></div>
+            <div><div class="lbl">완료 기준</div><p>네 역할로 로그인해 각자 허용된 데이터만 조회된다.</p></div>
+          </div>
+          <div class="lbl">범위와 규칙</div>
+          <p class="d">FR-001(소셜 로그인)~FR-011(강사·업주 계정 승인), FR-020(장르 4종)~FR-029(경험 수준 구간). 지금은 <code>X-User-Id</code> 헤더로 신원을 주장한다. FR-005(역할별 데이터 범위)가 이후 모든 조회의 전제다. 나이·성별·연락처는 필수 수집(Q4(개인정보 수집 방식) 2026-09-29 확정), 만 14세 미만은 보호자 계정의 자녀(FR-009a(보호자 계정 자녀 등록)).</p>
+          <div class="meta"><span>선행 <b>SCH-21</b></span><span>막는 것 <b class="blk">본인확인 기관 · 소셜 로그인 3사 키</b></span></div>
+        </article>
+<h3 class="trh" id="track-flow">거래 흐름 <span>입점 → 수업 → 검색 → 예약 → 출석</span></h3>
+        <article class="card s-todo" id="sch-25">
+          <div class="head"><span class="sch">SCH-25(학원 입점·약관 동의)</span><span class="badge">대기</span><span class="tr">거래 흐름</span></div>
+          <p class="t">입점 심사 · 등록 형태 · 환불 규정·공지 양식 · 약관 동의 기록</p>
+          <div class="lbl">핵심 그림 — 이 조각이 끝나면 이렇게 흐른다</div>
+          <div class="mini "><span>사업자 정보·정산 계좌</span><span>등록 형태·증빙</span><span>환불 규정·공지 양식</span><span>약관 동의 기록</span><span>입점 승인</span><span>수업 게시 가능</span></div>
+          <div class="grid2">
+            <div><div class="lbl">왜 이 자리인가</div><p>환불 규정을 등록하지 않은 학원은 수업을 게시할 수 없다.</p></div>
+            <div><div class="lbl">완료 기준</div><p>업주가 입점 절차를 끝내면 학원 안내 화면에 등록 형태와 환불 규정이 보인다.</p></div>
+          </div>
+          <div class="lbl">범위와 규칙</div>
+          <p class="d">FR-070(학원 정보 등록)~FR-072(강의실 중복 배정 거부), FR-085(학원 등록 형태·증빙)~FR-088(등록 형태 표시), FR-099(환불 규정 등록·표시)~FR-099b(공지 자동 입력), FR-240(통신판매중개자 고지)~FR-259(입점 약관 변경 통지). 이벤트형 처리 기간은 3영업일을 넘길 수 없다. 규정 없는 학원은 게시할 수 없다.</p>
+          <div class="meta"><span>선행 <b>SCH-24</b></span><span>막는 것 <b class="blk">Q11(환불 방식 변경의 뒤처리) ①③④</b></span></div>
+        </article>
+        <article class="card s-todo" id="sch-26">
+          <div class="head"><span class="sch">SCH-26(수업·회차 등록)</span><span class="badge">대기</span><span class="tr">거래 흐름</span></div>
+          <p class="t">강사 수업 등록 · 회차 · 환불 마감일 필수</p>
+          <div class="lbl">핵심 그림 — 이 조각이 끝나면 이렇게 흐른다</div>
+          <div class="mini "><span>강사가 수업 등록</span><span>회차·일정</span><span>환불 마감일(이벤트형 필수)</span><span>레벨 구간</span><span>공개</span></div>
+          <div class="grid2">
+            <div><div class="lbl">왜 이 자리인가</div><p>공급이 없으면 검색·예약은 빈 화면이다.</p></div>
+            <div><div class="lbl">완료 기준</div><p>마감일이 빈 이벤트형 수업은 등록이 막히고 등록된 수업이 검색에 나온다.</p></div>
+          </div>
+          <div class="lbl">범위와 규칙</div>
+          <p class="d">FR-050(강사 수업 등록)~FR-060(대타 요청), FR-065(회차 휴강·폐강 선택), FR-099d(환불 마감일 필수 입력·결제 적용). 이벤트·원데이·파티·공연·대회는 마감일이 비면 등록도 결제도 안 된다. 레벨 구간은 2026-09-29 확정 — 입문 0~6개월 · 초급 6개월~2년 · 중급 2~4년 · 고급 4년 초과(Q7(경험 수준 구간) ①).</p>
+          <div class="meta"><span>선행 <b>SCH-25</b></span><span>막는 것 <b class="">—</b></span></div>
+        </article>
+        <article class="card s-todo" id="sch-27">
+          <div class="head"><span class="sch">SCH-27(검색·필터)</span><span class="badge">대기</span><span class="tr">거래 흐름</span></div>
+          <p class="t">조건 필터 검색 · 정렬 5종</p>
+          <div class="lbl">핵심 그림 — 이 조각이 끝나면 이렇게 흐른다</div>
+          <div class="mini "><span>조건 입력(날짜·지역·장르·레벨)</span><span>정렬 5종(추천·검색·인기·마감·잔여석)</span><span>결과 목록</span></div>
+          <div class="grid2">
+            <div><div class="lbl">왜 이 자리인가</div><p>수업만 있으면 된다. SCH-28 과 병렬.</p></div>
+            <div><div class="lbl">완료 기준</div><p>다섯 정렬이 각각 다른 순서를 내고 업주·강사 행동은 인기에 세지 않는다.</p></div>
+          </div>
+          <div class="lbl">범위와 규칙</div>
+          <p class="d">FR-030(수업 검색)~FR-036(입문자 입문 수업), FR-036a(검색 결과 정렬 5종 — 인기는 최근 7일 합산, 2026-09-29). 지도 API 가 정해지기 전에는 이동 범위 탐색을 뺀다.</p>
+          <div class="meta"><span>선행 <b>SCH-26</b></span><span>막는 것 <b class="">—</b></span></div>
+        </article>
+        <article class="card s-todo" id="sch-28">
+          <div class="head"><span class="sch">SCH-28(예약·정원·대기)</span><span class="badge">대기</span><span class="tr">거래 흐름</span></div>
+          <p class="t">남·여 정원 · 슬롯 락 · 대기 순번</p>
+          <div class="lbl">핵심 그림 — 이 조각이 끝나면 이렇게 흐른다</div>
+          <div class="mini "><span>수업 선택</span><span>남·여 자리 선택(본인 성별 기본)</span><span>슬롯 락</span><span>예약 확정</span><span>정원 초과면 대기 순번</span></div>
+          <div class="grid2">
+            <div><div class="lbl">왜 이 자리인가</div><p>수업만 있으면 된다. SCH-27 과 병렬.</p></div>
+            <div><div class="lbl">완료 기준</div><p>마지막 한 자리에 두 명이 동시에 신청해도 한 명만 확정된다.</p></div>
+          </div>
+          <div class="lbl">범위와 규칙</div>
+          <p class="d">FR-090(정원·신청 인원 표시)~FR-097(먼저 입금 건 확정), FR-104a(사전 불참 표시)~FR-109(회차 옮기기). FR-093(대기 신청·순번)은 구독 전용이라 S0 에서는 기본 대기만 켠다.</p>
+          <div class="meta"><span>선행 <b>SCH-26</b></span><span>막는 것 <b class="">—</b></span></div>
+        </article>
+        <article class="card s-todo" id="sch-30">
+          <div class="head"><span class="sch">SCH-30(출석·수강 완료)</span><span class="badge">대기</span><span class="tr">거래 흐름</span></div>
+          <p class="t">출석 기록 · 분쟁 근거</p>
+          <div class="lbl">핵심 그림 — 이 조각이 끝나면 이렇게 흐른다</div>
+          <div class="mini "><span>출석 체크</span><span>출석 기록</span><span>수강 완료</span><span>정산의 근거</span></div>
+          <div class="grid2">
+            <div><div class="lbl">왜 이 자리인가</div><p>출석이 정산의 근거라 첫 거래부터 원장과 함께 남긴다.</p></div>
+            <div><div class="lbl">완료 기준</div><p>회차마다 누가 왔는지 남고 기간이 끝나면 수강 완료로 바뀐다.</p></div>
+          </div>
+          <div class="lbl">범위와 규칙</div>
+          <p class="d">FR-104(출석 기록), FR-135b(출석은 분쟁 근거), FR-166(오프라인 출석 확인). 출석은 정산의 근거라 첫 거래부터 남긴다.</p>
+          <div class="meta"><span>선행 <b>SCH-28</b></span><span>막는 것 <b class="">—</b></span></div>
+        </article>
+<h3 class="trh" id="track-money">돈 <span>결제 · 정산 원장 · 환불 · 행사 취소</span></h3>
+        <article class="card s-block" id="sch-29">
+          <div class="head"><span class="sch">SCH-29(PG 결제)</span><span class="badge">PG 대기</span><span class="tr">돈</span></div>
+          <p class="t">PG 단일 경로 · 예매 수수료 · 수수료 안분 · 판매자별 영수증</p>
+          <div class="lbl">핵심 그림 — 이 조각이 끝나면 이렇게 흐른다</div>
+          <div class="mini "><span>결제 화면(수업료 + 예매 수수료 2,000원)</span><span>PG 결제</span><span>금액 대조</span><span>정산 분배(학원 몫 / 플랫폼 몫)</span><span>영수증 2장</span></div>
+          <div class="grid2">
+            <div><div class="lbl">왜 이 자리인가</div><p>매출이 생기는 유일한 경로. PG 계약 전에는 가짜 어댑터로.</p></div>
+            <div><div class="lbl">완료 기준</div><p>요청 금액·PG 응답 금액·저장 금액이 일치하는 결제만 예약을 확정한다.</p></div>
+          </div>
+          <div class="lbl">범위와 규칙</div>
+          <p class="d">FR-110(PG 단일 결제 경로)~FR-117(체크아웃 가격 내역), FR-280(결제수단 결정)~FR-299(결제 정보 보안), FR-282a(예매 수수료 2,000원)~FR-282c(판매자별 영수증·정산 분배), FR-114(결제 확인 앱 알림), FR-138(영수증·현금영수증). PG 계약 전에는 가짜 어댑터로 만든다.</p>
+          <div class="meta"><span>선행 <b>SCH-28</b></span><span>막는 것 <b class="blk">PG 미선정</b></span></div>
+        </article>
+        <article class="card s-block" id="sch-31">
+          <div class="head"><span class="sch">SCH-31(정산 원장)</span><span class="badge">PG 대기</span><span class="tr">돈</span></div>
+          <p class="t">학원 정산 원장 · 3단계 전이 · 보류 · 상계</p>
+          <div class="lbl">핵심 그림 — 이 조각이 끝나면 이렇게 흐른다</div>
+          <div class="mini "><span>결제·환불·수수료 사건</span><span>원장에 추가만</span><span>보류 → 예정 → 완료</span><span>지급(이벤트형: 환불 마감일 뒤 / 정규형: 매월 5일)</span><span>상계</span></div>
+          <div class="grid2">
+            <div><div class="lbl">왜 이 자리인가</div><p>출석과 함께 첫 거래부터 남긴다.</p></div>
+            <div><div class="lbl">완료 기준</div><p>원장 합계가 PG 분배 결과와 매일 맞아떨어진다.</p></div>
+          </div>
+          <div class="lbl">범위와 규칙</div>
+          <p class="d">FR-124(플랫폼 수수료 5%·1년 면제)~FR-125e(취소 수수료 5:5·판매 수수료 5%), FR-252(정산 보류), FR-253(정산 상계), <code>AcademyLedgerEntry(학원 정산 원장)</code>. 지급 시점(2026-09-29 확정): 이벤트형은 환불 마감일 다음 날(FR-282e(이벤트형 환불 마감 뒤 즉시 지급), 신규 개인·동호회 주최자는 첫 2번 행사 30% 보관), 정규·단기 과정과 개인 레슨은 수업 기간이 끝난 몫을 매월 5일(FR-282d(정산 분배로 학원 직접 지급)). S0 은 원장과 상태 전이만, 정산 화면은 SCH-40.</p>
+          <div class="meta"><span>선행 <b>SCH-29 · SCH-30</b></span><span>막는 것 <b class="blk">PG 미선정</b></span></div>
+        </article>
+        <article class="card s-todo" id="sch-32">
+          <div class="head"><span class="sch">SCH-32(정규 과정 환불)</span><span class="badge">대기</span><span class="tr">돈</span></div>
+          <p class="t">문의 → 업주가 금액 입력 → 업주가 PG 환불 실행</p>
+          <div class="lbl">핵심 그림 — 이 조각이 끝나면 이렇게 흐른다</div>
+          <div class="mini "><span>회원 문의</span><span>업주가 학원 규정대로 금액 입력</span><span>업주가 PG 환불 실행</span><span>원장 반영</span></div>
+          <div class="grid2">
+            <div><div class="lbl">왜 이 자리인가</div><p>환불은 결제와 원장이 있어야 되돌릴 수 있다.</p></div>
+            <div><div class="lbl">완료 기준</div><p>같은 환불 요청을 두 번 눌러도 한 번만 실행된다.</p></div>
+          </div>
+          <div class="lbl">범위와 규칙</div>
+          <p class="d">FR-098(업주 처리 환불 방식), FR-293(업주 환불 입력)~FR-295(수단별 환불 실행). 기존 실행부(잠금·멱등키·감사 로그·PG 어댑터)를 재사용한다.</p>
+          <div class="meta"><span>선행 <b>SCH-29 · SCH-31</b></span><span>막는 것 <b class="blk">Q11(환불 방식 변경의 뒤처리) ③④</b></span></div>
+        </article>
+        <article class="card s-block" id="sch-33">
+          <div class="head"><span class="sch">SCH-33(이벤트형 취소)</span><span class="badge">달력 대기</span><span class="tr">돈</span></div>
+          <p class="t">예약 상세 취소 → 시스템 계산 → 업주 실행 · 3영업일 뒤 자동 실행</p>
+          <div class="lbl">핵심 그림 — 이 조각이 끝나면 이렇게 흐른다</div>
+          <div class="mini "><span>회원이 예약 상세에서 취소 신청</span><span>시스템이 계산(취소 규정 표·환불 마감일)</span><span>업주 실행(올리기만)</span><span>3영업일 안 미실행이면 자동 실행</span></div>
+          <div class="grid2">
+            <div><div class="lbl">왜 이 자리인가</div><p>행사 일괄 취소(SCH-34)가 이 위에 선다.</p></div>
+            <div><div class="lbl">완료 기준</div><p>마감일 전 취소는 표대로 계산되고 마감일 뒤에는 취소 버튼이 사라진다.</p></div>
+          </div>
+          <div class="lbl">범위와 규칙</div>
+          <p class="d">FR-098(업주 처리 환불 방식) 예외, FR-099a(환불·취소 공지 양식) 처리 기간 상한, FR-099c(이벤트·원데이·파티·공연·대회 취소 규정). 업주는 환불액을 올리기만 하고 거절할 수 없다. 5:5 배분은 실제로 남은 금액으로 계산한다.</p>
+          <div class="meta"><span>선행 <b>SCH-29 · SCH-31</b></span><span>막는 것 <b class="blk">공휴일 달력 출처</b></span></div>
+        </article>
+        <article class="card s-todo" id="sch-34">
+          <div class="head"><span class="sch">SCH-34(행사 일괄 취소)</span><span class="badge">대기</span><span class="tr">돈</span></div>
+          <p class="t">업주가 사유 골라 확정 → 결제자 전원 PG 일괄 환불</p>
+          <div class="lbl">핵심 그림 — 이 조각이 끝나면 이렇게 흐른다</div>
+          <div class="mini "><span>업주가 사유 선택(불가항력 / 업주 사정)</span><span>확정</span><span>결제자 전원 PG 일괄 환불(예매 수수료 포함)</span><span>실패 건 재시도 목록</span><span>이미 지급한 돈은 상계·반환 청구</span></div>
+          <div class="grid2">
+            <div><div class="lbl">왜 이 자리인가</div><p>이벤트형 취소(SCH-33)의 계산·실행부를 그대로 쓴다.</p></div>
+            <div><div class="lbl">완료 기준</div><p>한 번 확정으로 결제자 전원이 환불되고 실패 건은 사유와 함께 목록에 남는다.</p></div>
+          </div>
+          <div class="lbl">범위와 규칙</div>
+          <p class="d">FR-099e(행사 일괄 취소). 연기 선택지는 없다. 예매 수수료까지 전액 돌려주고, 그 2,000원 몫의 PG 수수료만 사유에 따라 플랫폼 또는 업주가 낸다. 학원 계좌 직접 송금은 막는다.</p>
+          <div class="meta"><span>선행 <b>SCH-33</b></span><span>막는 것 <b class="">—</b></span></div>
+        </article>
+<h3 class="trh" id="track-ai">AI · 문의 <span>Triage · 동시 질문 · 평가 세트</span></h3>
+        <article class="card s-todo" id="sch-35">
+          <div class="head"><span class="sch">SCH-35(문의·사람 이관)</span><span class="badge">대기</span><span class="tr">AI · 문의</span></div>
+          <p class="t">T0(내 데이터 조회) · T3(사람) — 출시 게이트</p>
+          <div class="lbl">핵심 그림 — 이 조각이 끝나면 이렇게 흐른다</div>
+          <div class="mini "><span>질문</span><span>4등급 분류(T0~T3)</span><span>T0: 내 데이터 조회 답변</span><span>T3: 업주에게 이관</span><span>문의 이력 보관</span></div>
+          <div class="grid2">
+            <div><div class="lbl">왜 이 자리인가</div><p>T0·T3 는 출시 게이트다.</p></div>
+            <div><div class="lbl">완료 기준</div><p>"내 예약 언제야" 는 즉시 답하고 환불 요청은 업주 화면에 도착한다.</p></div>
+          </div>
+          <div class="lbl">범위와 규칙</div>
+          <p class="d">FR-200(질문 4등급 분류)~FR-232(문의 이력 보관). 사람에게 가는 문의는 업주에게만 간다. 운영자는 FR-204(운영자 역할 한정) 범위만.</p>
+          <div class="meta"><span>선행 <b>SCH-24 · SCH-29</b></span><span>막는 것 <b class="">—</b></span></div>
+        </article>
+        <article class="card s-todo" id="sch-36">
+          <div class="head"><span class="sch">SCH-36(AI 동시 질문)</span><span class="badge">대기</span><span class="tr">AI · 문의</span></div>
+          <p class="t">T2 판단형 동시 10건 · 고정 평가 세트</p>
+          <div class="lbl">핵심 그림 — 이 조각이 끝나면 이렇게 흐른다</div>
+          <div class="mini "><span>판단형 질문 10건 동시</span><span>에이전트 서버</span><span>kdance-llm 10슬롯</span><span>고정 평가 세트로 채점</span><span>S0 수용량 판정</span></div>
+          <div class="grid2">
+            <div><div class="lbl">왜 이 자리인가</div><p>T2 는 평가 세트가 있어야 판정할 수 있다.</p></div>
+            <div><div class="lbl">완료 기준</div><p>동시 10명 답 완료 p95 가 목표 안이고 비한국어 답·없는 사실 주장이 0건이다.</p></div>
+          </div>
+          <div class="lbl">범위와 규칙</div>
+          <p class="d">FR-260(판단형 동시 10건)~FR-279(심층 추론 기본 금지), FR-276(고정 평가 세트). SC-040~SC-048(S0 수용량)이 S0 통과 조건이다. 시험 데이터로 먼저 켜고, 실사용자에게는 게시 데이터가 쌓인 S1 에 연다.</p>
+          <div class="meta"><span>선행 <b>SCH-22 · SCH-35</b></span><span>막는 것 <b class="blk">평가 세트 없음</b></span></div>
+        </article>
+<h3 class="trh" id="track-qa">QA <span>S0 판정</span></h3>
+        <article class="card s-todo" id="sch-37">
+          <div class="head"><span class="sch">SCH-37(S0 정합성 E2E)</span><span class="badge">대기</span><span class="tr">QA</span></div>
+          <p class="t">결제·출석·수강 완료·정산·취소·환불 각 1건</p>
+          <div class="lbl">핵심 그림 — 이 조각이 끝나면 이렇게 흐른다</div>
+          <div class="mini "><span>Playwright 시나리오</span><span>결제 1건</span><span>출석 1건</span><span>수강 완료 1건</span><span>정산 1건</span><span>취소·환불 1건</span><span>S0 판정</span></div>
+          <div class="grid2">
+            <div><div class="lbl">왜 이 자리인가</div><p>S0 통과 조건을 판정한다.</p></div>
+            <div><div class="lbl">완료 기준</div><p>여섯 시나리오가 실제 브라우저에서 전부 통과한다.</p></div>
+          </div>
+          <div class="lbl">범위와 규칙</div>
+          <p class="d">SC-005 이후 정합성 지표와 SC-040~SC-048(S0 수용량)을 Playwright 로 판정한다. 통과하면 S1(파일럿)으로 넘어간다. 외부 공개 전에 법률 검토 묶음을 닫는다.</p>
+          <div class="meta"><span>선행 <b>W1~W9 전부</b></span><span>막는 것 <b class="blk">법률 검토 묶음(외부 공개 전)</b></span></div>
+        </article>
+      </section>
+
+      <section id="s1">
+        <h2>7. S1 이후 SCH-38~49 — 파일럿·오픈 베타에서 켠다</h2>
+        <p class="sub">S0 통과 조건에 들어 있지 않은 기능이다. 순서는 의존 관계를 따르고, 실제 착수 시점은 S0 판정 뒤에 다시 정한다.</p>
+        <div class="cards2">
+
+        <article class="card s-todo compact" id="sch-38">
+          <div class="head"><span class="sch">SCH-38(알림)</span><span class="badge">S1 이후</span></div>
+          <div class="mini small"><span>사건 발생</span><span>알림 규칙</span><span>Push 발송</span><span>동의 확인</span></div>
+          <p class="d">US4(일정 충돌·알림), FR-140(수업 전 알림 시점)~FR-146(광고성 알림 동의)</p>
+          <div class="meta"><span>선행 · 막는 것 <b>SCH-28 · Push 발송 수단 미정</b></span></div>
+        </article>
+        <article class="card s-todo compact" id="sch-39">
+          <div class="head"><span class="sch">SCH-39(포스터 읽기)</span><span class="badge">S1 이후</span></div>
+          <div class="mini small"><span>포스터 업로드</span><span>비전 모델이 읽음</span><span>수업 정보 자동 채움</span><span>강사 검토</span></div>
+          <p class="d">US3(포스터 등록·공간 충돌), FR-073(포스터 자동 추출)~FR-077(업로드 양식 재사용)</p>
+          <div class="meta"><span>선행 · 막는 것 <b>SCH-26·SCH-22 · 자동 추출 정확도 목표 미정</b></span></div>
+        </article>
+        <article class="card s-todo compact" id="sch-40">
+          <div class="head"><span class="sch">SCH-40(정산 화면·강사 지급)</span><span class="badge">S1 이후</span></div>
+          <div class="mini small"><span>정산 원장</span><span>업주·강사 화면</span><span>강사 전용 계좌 지급</span></div>
+          <p class="d">US9(수강 완료분 정산), FR-127(강사 프리랜서)~FR-135e(강사 정산 내역)</p>
+          <div class="meta"><span>선행 · 막는 것 <b>SCH-31 · 원천징수·개인 레슨 수수료율</b></span></div>
+        </article>
+        <article class="card s-todo compact" id="sch-41">
+          <div class="head"><span class="sch">SCH-41(대학생 혜택)</span><span class="badge">S1 이후</span></div>
+          <div class="mini small"><span>.ac.kr 이메일 인증</span><span>첫 결제 50%</span><span>차액은 업주 부담</span><span>남용 감시</span></div>
+          <p class="d">US5(대학생 혜택), FR-006(대학생 이메일 인증)~FR-008(학교 이메일 미보관), FR-118(대학생 첫 결제 50%)~FR-118b(대학생 할인 업주 부담)</p>
+          <div class="meta"><span>선행 · 막는 것 <b>SCH-24·SCH-29</b></span></div>
+        </article>
+        <article class="card s-todo compact" id="sch-42">
+          <div class="head"><span class="sch">SCH-42(쿠폰·구독)</span><span class="badge">S1 이후</span></div>
+          <div class="mini small"><span>구독 결제(카드·간편결제·계좌)</span><span>1+1 쿠폰 발급</span><span>참여 학원 순위판</span><span>해지·환불</span></div>
+          <p class="d">FR-112(구독 결제수단)·FR-113(정기결제 재시도), FR-119(쿠폰·할인 차액 업주 부담)~FR-123(쿠폰 양도 금지), FR-297(구독 해지)·FR-297a(구독 환불 14일 이내), FR-121d(1+1 참여 학원 실시간 수업 검색 순위)~FR-121h(1+1 참여학원 목록)</p>
+          <div class="meta"><span>선행 · 막는 것 <b>SCH-29 · Q13(구독 판매 주체·요금) 월 구독료</b></span></div>
+        </article>
+        <article class="card s-todo compact" id="sch-43">
+          <div class="head"><span class="sch">SCH-43(홍보 이미지·소개 문구)</span><span class="badge">S1 이후</span></div>
+          <div class="mini small"><span>강사가 문장 입력</span><span>이미지 생성(하루 3회)</span><span>앱이 글자 얹음</span><span>강사 검토·게시</span></div>
+          <p class="d">FR-061(수업 소개 문구 생성)·FR-061a(홍보 이미지 생성 조건), FR-258(AI 생성 표시)</p>
+          <div class="meta"><span>선행 · 막는 것 <b>SCH-26·SCH-22 · FLUX.1-dev·SDXL 라이선스 · 장당 실제 차감액 실측(월 약 80장은 미검증)</b></span></div>
+        </article>
+        <article class="card s-todo compact" id="sch-44">
+          <div class="head"><span class="sch">SCH-44(AI 검색·추천)</span><span class="badge">S1 이후</span></div>
+          <div class="mini small"><span>자연어 질문</span><span>조건 분해</span><span>임베딩 검색</span><span>리랭커</span><span>근거 달린 추천</span></div>
+          <p class="d">US6(AI 근거 추천), FR-037(자연어 조건 분해)~FR-043(선택 이력 학습)</p>
+          <div class="meta"><span>선행 · 막는 것 <b>SCH-27·SCH-36 · 임베딩·리랭커 호스팅 약관</b></span></div>
+        </article>
+        <article class="card s-todo compact" id="sch-45">
+          <div class="head"><span class="sch">SCH-45(파티·공연·대회 피드)</span><span class="badge">S1 이후</span></div>
+          <div class="mini small"><span>주최자 등록(학원 / 승인받은 개인·동호회)</span><span>통합 피드</span><span>참가 신청·결제</span><span>외부 예매 링크</span></div>
+          <p class="d">US8(파티·공연·대회 연결), FR-150(파티·공연·대회 피드)~FR-157(공연 출연자)</p>
+          <div class="meta"><span>선행 · 막는 것 <b>SCH-26·SCH-33 · 개인·동호회 승인 기준·사업자등록 조건 미정</b></span></div>
+        </article>
+        <article class="card s-todo compact" id="sch-46">
+          <div class="head"><span class="sch">SCH-46(레벨·강사 대시보드·후기)</span><span class="badge">S1 이후</span></div>
+          <div class="mini small"><span>강사가 레벨 0~10 부여</span><span>수강 이력</span><span>대시보드 집계</span><span>후기</span></div>
+          <p class="d">US7(레벨 관리·개강 인원), FR-160(레벨 0~10 부여)~FR-168(연령대 표시), FR-062(빈 강의실 수업 제안)~FR-064(강사 대시보드 집계), FR-175(수강·참여 이력)~FR-178(단체 신청)</p>
+          <div class="meta"><span>선행 · 막는 것 <b>SCH-30 · Q7(경험 수준 구간) ② 점수 레벨과의 관계</b></span></div>
+        </article>
+        <article class="card s-todo compact" id="sch-47">
+          <div class="head"><span class="sch">SCH-47(관리자 정산 콘솔)</span><span class="badge">S1 이후</span></div>
+          <div class="mini small"><span>관리자 로그인(2단계 인증)</span><span>원장 대사</span><span>월 마감</span><span>장르별 결산</span></div>
+          <p class="d">US13(관리자 결산·수수료), FR-300(역할별 로그인 분기)~FR-319(기준 시각·월 마감)</p>
+          <div class="meta"><span>선행 · 막는 것 <b>SCH-31 · FR-303(관리자 2단계 인증)</b></span></div>
+        </article>
+        <article class="card s-todo compact" id="sch-48">
+          <div class="head"><span class="sch">SCH-48(운영자 시스템 관리)</span><span class="badge">S1 이후</span></div>
+          <div class="mini small"><span>운영자 조작</span><span>감사 기록</span><span>이용 제한 절차</span><span>삭제 요청 처리</span></div>
+          <p class="d">US10(운영자 시스템 관리), FR-185(조작 감사 기록)~FR-190(데이터 삭제 요청), FR-254(이용 제한 절차)</p>
+          <div class="meta"><span>선행 · 막는 것 <b>SCH-24</b></span></div>
+        </article>
+        <article class="card s-todo compact" id="sch-49">
+          <div class="head"><span class="sch">SCH-49(부하 시험)</span><span class="badge">S1 이후</span></div>
+          <div class="mini small"><span>부하 시나리오</span><span>동시 신청 시험</span><span>규모 부하</span><span>S3 판정</span></div>
+          <p class="d">S3 통과 조건 — 동시 신청·규모 부하 시험</p>
+          <div class="meta"><span>선행 · 막는 것 <b>S2 통과 뒤</b></span></div>
+        </article>
+        </div>
+      </section>
+
+      <section id="decisions">
+        <h2>8. 먼저 닫아야 하는 결정</h2>
+        <p class="sub">S0 경로를 실제로 막는 것만 골랐다. 전체 미해결 질문은 spec 의 Status 줄과 「미해결 질문」 표에 있다. 2026-09-29 에 Q4(개인정보 수집 방식)·Q7(경험 수준 구간) ①·Q9(파티 주최 주체)·Q10(강사 소개 영상)이 닫혔다.</p>
+        <div class="decisions">
+<div class="dec "><div class="id">외부 · PG 미선정</div><h3>결제대행사를 고른다 — 정산 분배 · 판매자별 영수증 · 구독 결제수단 전부 · 지정일 지급이 조건</h3><p>예매 수수료가 붙은 결제는 판매자가 둘(학원·회사)이다. FR-282c(판매자별 영수증·정산 분배)가 정산 분배(지급대행) 지원 PG 를 우선하라고 정했다. 2026-09-29 추가 조건 — ① 구독 결제수단 전부: 카드 정기결제(빌링키)·계좌 자동이체·일반 계좌이체·가상계좌·간편결제 일반 결제(FR-112(구독 결제수단)). 간편결제 정기결제는 PG 가 지원하는 것만 쓴다 — 토스페이먼츠 공식 문서 기준 네이버페이·토스페이만 되고(별도 심사) 카카오페이는 안 된다. ② 결제분을 보관했다가 정한 날 지급하는 기능(FR-282e(이벤트형 환불 마감 뒤 즉시 지급)). 포트원의 결제수단별 지원 범위는 공식 문서로 확인하지 못했다.</p><span class="blocks">막는 것 <b>SCH-29 · SCH-31 · SCH-33 · SCH-34 · SCH-42</b></span></div><div class="dec "><div class="id">SCH-21 · Q4~Q8</div><h3>전환 세부 다섯 가지 — <code>/api</code> 접두어 · 인증 포함 · Redis 슬롯 락 · DB 테스트 전략 · 가짜 결제 원장</h3><p>Q1~Q3(기존 backend 처리 · SCH-01~07 가이드 · 병행 운영)는 2026-09-20 에 닫혔다. 남은 다섯은 Phase 3(구현 계획) 결과를 보고 닫기로 했다.</p><span class="blocks">막는 것 <b>SCH-21 Phase 4(Task 분리)</b></span></div><div class="dec open"><div class="id">외부 · 본인확인</div><h3>휴대폰 본인확인 기관</h3><p>1인 1계정·미성년자 확인(FR-003(본인확인 계정 식별))이 여기에 걸린다. 소셜 로그인 3사 키도 필요하다. Q4(개인정보 수집 방식)는 2026-09-29 에 닫혔다 — 나이·성별·연락처는 필수다.</p><span class="blocks">막는 것 <b>SCH-24</b></span></div><div class="dec open"><div class="id">Q11 · ①③④</div><h3>Q11(환불 방식 변경의 뒤처리) — 법정 하한 · 업주 응답 기한 · 폐업·무응답 때 경로</h3><p>정규 과정 환불은 업주가 정한다. 그 규정의 법정 하한과, 업주가 답하지 않을 때의 경로가 아직 없다.</p><span class="blocks">막는 것 <b>SCH-25 · SCH-32</b></span></div><div class="dec open"><div class="id">데이터 · 공휴일 달력</div><h3>영업일 계산에 쓸 공휴일 달력 출처</h3><p>이벤트형 취소의 처리 기간 상한(3영업일)과 자동 실행 시점이 토·일·공휴일을 뺀 날로 계산된다.</p><span class="blocks">막는 것 <b>SCH-33</b></span></div><div class="dec "><div class="id">법률 검토 묶음</div><h3>출시 전 변호사 검토 — 약관 · 취소 규정 · 예매 수수료 · 3영업일 · 결제 흐름</h3><p>FR-099c(이벤트·원데이·파티·공연·대회 취소 규정) 두 항목, FR-099d(환불 마감일 필수 입력·결제 적용), FR-282a(예매 수수료 2,000원), 3영업일 상한의 적용 범위, 5:5 배분, FR-121d(1+1 참여 학원 실시간 수업 검색 순위)의 순위 기준 공개·광고 표시 의무, 개인·동호회 파티 주최자(FR-155(주최자 표시))의 통신판매업 신고 대상 여부. 구현은 막지 않지만 출시는 막는다.</p><span class="blocks">막는 것 <b>SCH-37 (S0 판정 → 외부 공개)</b></span></div>
+        </div>
+      </section>
+
+      <section id="done">
+        <h2>9. 완료 기록 — 1회차 슬라이스 SCH-01~10 (FastAPI 예약 취소·환불)</h2>
+        <p class="sub">2026-09-14~15 에 끝냈다. 이 코드는 SCH-21(FastAPI→Next.js 전환)에서 교체된다. 번호는 소스 학습 주석과 가이드에 박혀 있어 그대로 둔다. 보라색은 요구사항이 바뀌어 새 스택으로 옮기지 않는 코드다.</p>
+        <div class="cards2">
+
+        <article class="card s-done compact" id="sch-1">
+          <div class="head"><span class="sch">SCH-01(기반 배선)</span><span class="badge">완료</span></div>
+          <p class="t">models/base, env.py, config, db</p>
+          <div class="mini small"><span>설정(.env)</span><span>DB 연결</span><span>의존성 주입</span></div>
+          <a class="guide-link" href="guides/SCH-01(기반 배선).html">가이드 보기 →</a>
+        </article>
+        <article class="card s-done compact" id="sch-2">
+          <div class="head"><span class="sch">SCH-02(도메인 모델)</span><span class="badge">완료</span></div>
+          <p class="t">7개 + 초기 마이그레이션</p>
+          <div class="mini small"><span>테이블 7종 정의</span><span>Alembic 마이그레이션</span><span>SQL 생성</span></div>
+          <p class="d">실제 DB 적용은 검증하지 못했다(오프라인 SQL 생성까지만). SCH-21 이 Prisma 마이그레이션으로 다시 검증한다.</p><a class="guide-link" href="guides/SCH-02(도메인 모델).html">가이드 보기 →</a>
+        </article>
+        <article class="card s-review compact" id="sch-3">
+          <div class="head"><span class="sch">SCH-03(환불액 산정)</span><span class="badge">완료 · 옮기지 않음</span></div>
+          <p class="t">24시간 경계·비율표 계산 순수 함수</p>
+          <div class="mini small"><span>취소 시각</span><span>24시간 경계·비율표</span><span>환불액</span></div>
+          <p class="d">2026-09-25 환불이 업주 결정 방식으로 바뀌어 폐기가 확정됐다(Q11(환불 방식 변경의 뒤처리) ②). 이벤트형의 새 계산(SCH-33)은 이 코드가 아니라 FR-099c 표를 따른다.</p><a class="guide-link" href="guides/SCH-03(환불액 산정).html">가이드 보기 →</a>
+        </article>
+        <article class="card s-done compact" id="sch-4">
+          <div class="head"><span class="sch">SCH-04(어댑터 3종)</span><span class="badge">완료</span></div>
+          <p class="t">PG/알림/슬롯락</p>
+          <div class="mini small"><span>인터페이스(약속)</span><span>가짜 구현(개발용)</span><span>진짜 구현(나중에 교체)</span></div>
+          <a class="guide-link" href="guides/SCH-04(어댑터 3종).html">가이드 보기 →</a>
+        </article>
+        <article class="card s-done compact" id="sch-5">
+          <div class="head"><span class="sch">SCH-05(취소 오케스트레이션)</span><span class="badge">완료</span></div>
+          <p class="t">잠금·멱등키·감사 로그</p>
+          <div class="mini small"><span>잠금</span><span>멱등키 검사</span><span>환불 실행</span><span>감사 로그</span></div>
+          <p class="d">실행부는 SCH-32·SCH-33 에서 재사용한다. 회원이 누르면 곧바로 환불하던 흐름은 쓰지 않는다.</p><a class="guide-link" href="guides/SCH-05(취소 오케스트레이션).html">가이드 보기 →</a>
+        </article>
+        <article class="card s-done compact" id="sch-6">
+          <div class="head"><span class="sch">SCH-06(스키마·라우터)</span><span class="badge">완료</span></div>
+          <p class="t">Pydantic 스키마 + 라우터 + main.py</p>
+          <div class="mini small"><span>요청 형태</span><span>라우터(API 경로)</span><span>응답 형태</span></div>
+          <a class="guide-link" href="guides/SCH-06(스키마·라우터).html">가이드 보기 →</a>
+        </article>
+        <article class="card s-done compact" id="sch-7">
+          <div class="head"><span class="sch">SCH-07(통합 테스트 작성)</span><span class="badge">완료</span></div>
+          <p class="t">conftest + DB 통합 테스트</p>
+          <div class="mini small"><span>테스트 DB 기동</span><span>시나리오 실행</span><span>186 passed</span></div>
+          <p class="d">2026-09-23 DB 를 켜고 186 passed 를 확인했다. 09-26·09-29 는 Docker Desktop 이 꺼져 있어 27개가 skip 이다.</p><a class="guide-link" href="guides/SCH-07(통합 테스트 작성).html">가이드 보기 →</a>
+        </article>
+        <article class="card s-review compact" id="sch-8">
+          <div class="head"><span class="sch">SCH-08(admin-web 환불 비율표)</span><span class="badge">완료 · 옮기지 않음</span></div>
+          <p class="t">비율표 설정 화면·API</p>
+          <div class="mini small"><span>비율표 화면</span><span>저장 API</span></div>
+          <p class="d">비율표 자체를 쓰지 않는다(Q11(환불 방식 변경의 뒤처리) ②). 대신 업주 환불 처리 화면(SCH-32·SCH-33)과 행사 일괄 취소 화면(SCH-34)을 만든다.</p>
+        </article>
+        <article class="card s-review compact" id="sch-9">
+          <div class="head"><span class="sch">SCH-09(mobile 취소·환불계좌)</span><span class="badge">완료 · 데모</span></div>
+          <p class="t">데모 화면</p>
+          <div class="mini small"><span>취소 버튼</span><span>환불 계좌 입력</span></div>
+          <p class="d">회원이 누르면 곧바로 환불하던 옛 흐름의 데모다. 새 흐름(정규는 문의, 이벤트형은 예약 상세 취소 신청)으로 다시 만든다.</p>
+        </article>
+        <article class="card s-done compact" id="sch-10">
+          <div class="head"><span class="sch">SCH-10(환불 정책 문서)</span><span class="badge">완료</span></div>
+          <p class="t">payment-method-policy.md</p>
+          <div class="mini small"><span>결제수단 정책</span><span>환불 정책 문서</span></div>
+          <p class="d">문서는 2026-09-25·26 결정으로 갱신했고, 옛 절에는 대체 표시가 달려 있다.</p>
+        </article>
+        </div>
+      </section>
+
+      <section id="measured">
+        <h2>10. 실측 근거 (2026-09-29)</h2>
+        <p class="sub">실제로 실행하거나 조회한 값. 추정은 「추정」이라 적는다.</p>
+        <div class="scroller"><table class="grid">
+          <thead><tr><th>무엇</th><th>값</th><th>어떻게 쟀나 · 단서</th></tr></thead>
+          <tbody><tr><td class="k">backend pytest</td><td>159 passed · 27 skipped</td><td><code>uv run pytest -q</code>(09-29 재실행). skip 27개는 <code>requires_db</code> — DB 가 없으면 전부 skip 된다</td></tr><tr><td class="k">DB 통합 테스트</td><td>2026-09-23: 186 passed</td><td>09-26·09-29 모두 Docker Desktop 이 꺼져 WSL 에서 <code>docker</code> 명령을 찾지 못했다(직접 확인 불가)</td></tr><tr><td class="k">admin-web build</td><td>성공 · 라우트 <code>/</code> · <code>/refund-policy</code></td><td><code>npm run build</code>(09-29 재실행). <code>/refund-policy</code>는 SCH-08 코드로 옮기지 않는다</td></tr><tr><td class="k">admin-web 의존성</td><td>prisma 8 RC · better-auth 설치, 스키마·사용 코드 없음</td><td><code>package.json</code>. <code>@langchain/*</code>·AI SDK 도 설치만 돼 있다(사용처 없음 — 추정)</td></tr><tr><td class="k">admin-web lint</td><td>깨짐</td><td><code>eslint.config.mjs</code>의 <code>FlatCompat</code> 순환 참조. SCH-23 의 첫 일</td></tr><tr><td class="k">mobile tsc</td><td>통과</td><td><code>npx tsc --noEmit</code>(09-29 재실행, exit 0). 화면은 데모 <code>App.tsx</code> 하나</td></tr><tr><td class="k">에이전트 서버</td><td>코드 없음</td><td>저장소 전체에 LangGraph 를 쓰는 <code>.py</code> 0건(09-29 재확인). SCH-22 가 처음 만든다</td></tr><tr><td class="k">AI 생성 서버</td><td>동시 10명 첫 글자 p95 약 9초 (2026-09-23)</td><td><code>infra/ai-bench/bench_pipeline.py</code>. <code>kdance-llm</code>(llama-server, 11436)</td></tr><tr><td class="k">코드 변경</td><td>09-26 이후 0건</td><td><code>git log --since=2026-09-26 -- backend admin-web mobile infra</code>. 바뀐 것은 spec·약관의 결정뿐</td></tr></tbody></table></div>
+      </section>
+
+      <section id="refs">
+        <h2>11. 참고 자료</h2>
+        <div class="scroller"><table class="grid">
+          <thead><tr><th>무엇</th><th>설명</th><th>원본 문서</th></tr></thead>
+          <tbody><tr><td class="k">요구사항</td><td>US·FR·SC·규모 단계·미해결 질문의 원본</td><td><code>specs/001-ai-dance-class-platform/spec.md</code></td></tr><tr><td class="k">기술 스택</td><td>버전 고정표 · 알려진 위험 · 백엔드 교체 · 엔티티</td><td><code>docs/kdancex4_service_definition_and_tech_stack.md</code></td></tr><tr><td class="k">결정 기록</td><td>ADR-001~005</td><td><code>CLAUDE-decisions.md</code></td></tr><tr><td class="k">SCH-21 조사</td><td>전환 요구사항·코드 조사(Phase 1·2), Q1~Q8</td><td><code>_workspace/01_req-analyst_requirements.md</code> · <code>02_code-searcher_structure.md</code></td></tr><tr><td class="k">1회차 슬라이스</td><td>SCH-01~10 의 계획·태스크 원본</td><td>커밋 <code>7f28ab1^</code> 의 <code>_workspace/03_*</code>·<code>04_*</code></td></tr><tr><td class="k">약관</td><td>회원·입점 약관(현행)과 조문별 근거 보관본</td><td><code>docs/terms-of-service.md</code> · <code>docs/merchant-terms.md</code> · <code>docs/archive/terms-2026-09-25/</code></td></tr><tr><td class="k">진행 리뷰</td><td>날짜별 판단과 막힌 것</td><td><code>docs/Review.md</code></td></tr></tbody></table></div>
+      </section>
+
+      <section id="rules">
+        <h2>12. 이 문서의 규칙</h2>
+        <ul class="notes">
+          <li><b>SCH 상태 관리는 이 문서에서만 한다.</b> 무엇을 만들지는 spec 이 정하고, 이 문서는 순서와 상태를 정한다. 각 SCH 의 FR 범위가 완료 기준이다.</li>
+          <li><b>번호는 다시 쓰지 않는다.</b> SCH-11(마이그레이션 검증)·SCH-12(DB 통합 테스트)는 FastAPI 를 대상으로 해서 SCH-21 의 완료 기준으로 흡수했다. SCH-13~20 은 2026-09-25 딥링크 폐지로 폐기했다. 11~20 번은 비워 두고 쓰지 않는다.</li>
+          <li><b>SCH 하나는 파이프라인 한 회차다.</b> 착수하면 <code>kdance-dev-harness</code> Phase 1(요구사항 분석)부터 돌고, 끝나면 Phase 9.5(학습 주석 재구성·SCH 가이드 생성)에서 가이드와 학습 주석을 만든다.</li>
+          <li><b>실시간 반영.</b> 완료 보고가 들어올 때마다 해당 카드의 클래스(s-todo→s-wip→s-done)와 상단 타일·목록 표·웨이브 칩을 갱신한다.</li>
+          <li><b>실측은 실측이라고 적는다.</b> 「실측 근거」의 값은 그 날짜에 실행·조회한 것이고, 미검증은 미검증이라 표시한다.</li>
+          <li><b>외부 결정에 막힌 항목은 가짜로 먼저 만들 수 있다.</b> 다만 「완료」 표시는 실제 연동까지 끝났을 때만 한다.</li>
+          <li><b>이 파일은 생성물이다.</b> <code>_workspace/build_sch_kdance.py</code> 의 데이터에서 목록 표(5)·웨이브(4)·카드(6·7·9)가 함께 나온다. 상태를 바꿀 때는 HTML 이 아니라 스크립트의 데이터를 고치고 다시 돌린다.</li>
+        </ul>
+      </section>
+
+      <footer><p>KDANCE · 개인 프로젝트 · 2026-09-29 기준<br />요구사항은 <code>specs/001-ai-dance-class-platform/spec.md</code>, 기술 스택은 <code>docs/kdancex4_service_definition_and_tech_stack.md</code>, 진행 기록은 <code>docs/Review.md</code>.</p></footer>
+</main>
+</div>
+</body>
+</html>

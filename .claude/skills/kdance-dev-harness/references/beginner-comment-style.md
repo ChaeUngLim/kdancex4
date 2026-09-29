@@ -10,7 +10,7 @@
 
 ## 적용 시점 (트리거)
 
-`_workspace/kdance.html`에서 특정 SCH 항목이 "완료"로 바뀌는 시점에, 그 SCH가 건드린
+`_workspace/SCH_kdance.html`에서 특정 SCH 항목이 "완료"로 바뀌는 시점에, 그 SCH가 건드린
 파일들에 한해 이 표준으로 주석을 재구성한다.
 
 - 로직은 절대 바꾸지 않는다 — 주석만 추가/수정한다.
@@ -29,7 +29,7 @@
 가리키는지 알 수 없어서 지도바둑 취지(왜/무엇인지 설명)에 어긋난다. 항상
 `SCH-04(어댑터 3종: PG/알림/슬롯락)`처럼 **번호 바로 뒤 괄호에 기능명**을 붙인다.
 
-- 기능명은 `_workspace/kdance.html`에 적힌 그 SCH의 공식 한 줄 설명(`<span class="t">`
+- 기능명은 `_workspace/SCH_kdance.html`에 적힌 그 SCH의 공식 한 줄 설명(`<span class="t">`
   안의 문구)을 그대로 쓴다 — 새로 지어내지 않는다. 문구가 길면 핵심만 축약해도 되지만
   같은 SCH를 가리킬 때는 프로젝트 전체에서 같은 축약을 일관되게 쓴다.
 - "SCH-05 참고", "SCH-01에서 설명함" 같은 상호 참조 문구도 예외 없이
@@ -60,12 +60,12 @@
 ## 하네스 연계 (kdance-dev-harness 오케스트레이터)
 
 - **트리거**: Phase 9(`kdance-completion-verifier`)가 COMPLETE 판정을 내리고, 해당
-  작업이 `_workspace/kdance.html`의 SCH 항목에 대응할 때.
+  작업이 `_workspace/SCH_kdance.html`의 SCH 항목에 대응할 때.
 - **실행**: 오케스트레이터가 `kdance-implementer`를 "주석 재구성" 태스크로 재호출한다.
   입력은 Phase 5 산출물의 변경 파일 목록 + 이 문서 경로. 새 파일 생성이나 로직
   변경은 금지하고 주석만 추가/수정하도록 명시한다.
 - **완료 후**: Phase 6(`kdance-test-runner`)로 관련 테스트만 가볍게 재실행해 그린
-  유지를 확인한 뒤, `_workspace/kdance.html`의 해당 SCH 항목을 "완료"로 갱신한다
+  유지를 확인한 뒤, `_workspace/SCH_kdance.html`의 해당 SCH 항목을 "완료"로 갱신한다
   (SCH 관리는 그 문서에서만 한다는 기존 원칙 유지).
 - SCH 대응 관계를 알 수 없는 임시/실험적 작업(예: SCH 미부여 버그 수정)은 이 단계를
   건너뛰고 사용자에게 "이 작업은 SCH가 없어 학습 주석 재구성을 생략했다"고 보고한다.

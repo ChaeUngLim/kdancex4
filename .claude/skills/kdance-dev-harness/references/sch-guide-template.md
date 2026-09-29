@@ -9,7 +9,7 @@
 
 ## 적용 시점 (트리거)
 
-`beginner-comment-style.md`의 트리거와 동일 — `_workspace/kdance.html`에서 특정 SCH 항목이
+`beginner-comment-style.md`의 트리거와 동일 — `_workspace/SCH_kdance.html`에서 특정 SCH 항목이
 "완료"로 바뀌는 시점에, Phase 9.5(학습 주석 재구성·SCH 가이드 생성)의 일부로 함께 생성한다(소스 학습 주석 재구성과 같은 단계,
 별도 승인 불필요).
 
@@ -18,13 +18,13 @@
 `beginner-comment-style.md`의 "SCH 표기 규칙"과 동일 — 번호만 단독으로 쓰지 않는다.
 목차, "다른 SCH와의 연관관계"의 `.flow` 다이어그램/표, 본문 어디서든 SCH를 새로
 언급할 때는 `SCH-04(어댑터 3종: PG/알림/슬롯락)`처럼 기능명을 괄호로 붙인다. 기능명은
-`_workspace/kdance.html`의 해당 SCH 공식 문구를 그대로 쓴다. 같은 문단/같은 다이어그램
+`_workspace/SCH_kdance.html`의 해당 SCH 공식 문구를 그대로 쓴다. 같은 문단/같은 다이어그램
 박스 안에서 반복 언급할 때만 번호 단독 표기를 허용한다.
 
 ## 저장 위치 / 네이밍
 
 - `_workspace/guides/SCH-{번호}({기능명}).html` (예: `_workspace/guides/SCH-05.html`)
-- `_workspace/kdance.html`의 해당 SCH `.item` 블록에 `가이드 보기` 링크를 추가해 연결한다
+- `_workspace/SCH_kdance.html`의 해당 SCH `.item` 블록에 `가이드 보기` 링크를 추가해 연결한다
   (`<a class="guide-link" href="guides/SCH-05.html">가이드 보기 →</a>`).
 - 시각 스타일은 기존 `docs/payment-system-guide-for-beginners.html`의 다크 테마 CSS를
   그대로 재사용한다(`:root` 색상 변수, `.callout`, `.flow`, `.badge`, `details` 등) —
@@ -32,7 +32,7 @@
 
 ## 필수 구성 (섹션 순서)
 
-1. **개요** — 이 SCH가 무엇을 만들었는지 2~3문장. `_workspace/kdance.html`의 해당 SCH
+1. **개요** — 이 SCH가 무엇을 만들었는지 2~3문장. `_workspace/SCH_kdance.html`의 해당 SCH
    한 줄 설명을 확장한 수준.
 2. **사전 개념** — 이 SCH를 이해하는 데 필요한 배경 개념. `beginner-comment-style.md`의
    "사전 개념 요약"과 내용은 같되, 여기서는 왕초보 독자를 위해 문단 형태로 더 풀어써도
@@ -75,7 +75,7 @@ Phase 9.5(학습 주석 재구성·SCH 가이드 생성) 안에서 `beginner-com
 
 1. `kdance-implementer`를 "주석 재구성" 태스크로 재호출할 때, 이 문서 경로도 함께 입력으로
    전달하고 `_workspace/guides/SCH-{번호}({기능명}).html` 생성까지 같은 태스크에 포함한다.
-2. 생성 후 `_workspace/kdance.html`의 해당 SCH `.item`에 가이드 링크를 추가한다(SCH 완료
+2. 생성 후 `_workspace/SCH_kdance.html`의 해당 SCH `.item`에 가이드 링크를 추가한다(SCH 완료
    갱신과 같은 시점).
 3. SCH 대응 관계를 알 수 없는 작업은 `beginner-comment-style.md`와 동일하게 이 단계를
    건너뛴다.

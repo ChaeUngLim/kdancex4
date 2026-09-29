@@ -29,14 +29,14 @@ Next.js 16.3 이 `node_modules/next/dist/docs/` 와 `AGENTS.md` 를 깔아 주�
 
 ## 적용 시점 (트리거)
 
-`beginner-comment-style.md`·`sch-guide-template.md` 와 동일하다. `_workspace/kdance.html`
+`beginner-comment-style.md`·`sch-guide-template.md` 와 동일하다. `_workspace/SCH_kdance.html`
 에서 SCH 가 "완료"로 바뀔 때, Phase 9.5(학습 주석 재구성·SCH 가이드 생성) 안에서
 **같은 호출로** 세 산출물을 함께 만든다.
 
 ## SCH 표기 규칙
 
 `beginner-comment-style.md` 의 「SCH 표기 규칙」과 동일하다. 번호만 단독으로 쓰지 않고
-`SCH-04(어댑터 3종: PG/알림/슬롯락)` 형태로 쓴다. 기능명은 `_workspace/kdance.html` 의
+`SCH-04(어댑터 3종: PG/알림/슬롯락)` 형태로 쓴다. 기능명은 `_workspace/SCH_kdance.html` 의
 공식 문구를 그대로 가져온다.
 
 ## 저장 위치 / 네이밍
@@ -136,7 +136,7 @@ Phase 9.5(학습 주석 재구성·SCH 가이드 생성)에서 `kdance-implement
 `beginner-comment-style.md`·`sch-guide-template.md` 와 **함께 이 문서 경로도 입력으로**
 전달하고 `_workspace/guides/SCH-{번호}({기능명}).md` 생성까지 같은 태스크에 포함한다.
 
-생성 후 `_workspace/kdance.html` 의 해당 SCH `.item` 에 HTML 가이드 링크와 나란히
+생성 후 `_workspace/SCH_kdance.html` 의 해당 SCH `.item` 에 HTML 가이드 링크와 나란히
 에이전트 문서 링크를 추가한다.
 
 SCH 대응 관계를 알 수 없는 작업은 다른 두 표준과 동일하게 이 단계를 건너뛴다.

@@ -4,7 +4,7 @@
 - 관련 문서: `docs/payment-method-policy.md`(정책 결정), `docs/payment-deeplink-reference.md`(코드 레퍼런스)
 - 성격: 핵심 구현 태스크 스케줄. `kdance-dev-harness`의 Phase 4(Task 분리)가 그대로 가져다 쓸 수 있는 형태로 작성했다 — 아직 Phase 5(구현) 착수 전이다.
 
-> ⛔ **2026-09-25 폐기 — 딥링크(방식 A)를 없애고 모든 결제를 PG 로 통일했다**(spec FR-110(PG 단일 결제 경로)). 이 문서의 태스크·코드는 착수하지 않는다. SCH-13~20(외부 계정·승인 절차 ~ 딥링크 테스트)도 `_workspace/kdance.html` 에서 폐기로 표시했다. 기록으로만 남긴다.
+> ⛔ **2026-09-25 폐기 — 딥링크(방식 A)를 없애고 모든 결제를 PG 로 통일했다**(spec FR-110(PG 단일 결제 경로)). 이 문서의 태스크·코드는 착수하지 않는다. SCH-13~20(외부 계정·승인 절차 ~ 딥링크 테스트)도 `_workspace/SCH_kdance.html` 에서 폐기로 표시했다. 기록으로만 남긴다.
 
 ## 목표
 
