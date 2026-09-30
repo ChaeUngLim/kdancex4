@@ -1,0 +1,18 @@
+flowchart TB
+  classDef coral fill:#ff6b6b,stroke:#c92a2a,color:#fff
+  classDef ocean fill:#4c6ef5,stroke:#364fc7,color:#fff
+  classDef forest fill:#51cf66,stroke:#2f9e44,color:#fff
+  classDef grape fill:#845ef7,stroke:#5f3dc4,color:#fff
+  classDef amber fill:#ff922b,stroke:#e8590c,color:#fff
+  classDef teal fill:#20c997,stroke:#12b886,color:#fff
+  classDef sky fill:#74c0fc,stroke:#339af0,color:#000
+  classDef lavender fill:#d0bfff,stroke:#9775fa,color:#000
+  classDef rose fill:#ffa8a8,stroke:#ff6b6b,color:#000
+  classDef lemon fill:#ffe066,stroke:#ffd43b,color:#000
+  classDef mint fill:#8ce99a,stroke:#51cf66,color:#000
+  S["명세 (payment-method-policy.md)"]:::lemon --> V["기존 refund_policy.py 를<br/>한 줄씩 대조 전수 검증<br/>계산 로직은 한 글자도 안 바꿈"]:::sky
+  V --> G["명세에 없던 동작 2건을<br/>테스트로 직접 결정 (4.5)"]:::amber
+  G --> T["test_refund_policy.py<br/>함수 24개 → 파라미터라이즈 50케이스 · skip 0"]:::forest
+  T --> R["규칙이 조용히 깨지지 않게 못박음"]:::teal
+  FEE["fee_policy.py — 정산 상수 4개<br/>환불 계산과 파일을 분리해 섞이지 않게"]:::grape -.-> V
+  NOTE["2026-09-25 환불 방식이 업주 결정으로 바뀌어<br/>이 함수는 새 스택으로 옮기지 않는다"]:::rose -.-> R

@@ -1,0 +1,30 @@
+flowchart TB
+  classDef coral fill:#ff6b6b,stroke:#c92a2a,color:#fff
+  classDef ocean fill:#4c6ef5,stroke:#364fc7,color:#fff
+  classDef forest fill:#51cf66,stroke:#2f9e44,color:#fff
+  classDef grape fill:#845ef7,stroke:#5f3dc4,color:#fff
+  classDef amber fill:#ff922b,stroke:#e8590c,color:#fff
+  classDef teal fill:#20c997,stroke:#12b886,color:#fff
+  classDef sky fill:#74c0fc,stroke:#339af0,color:#000
+  classDef lavender fill:#d0bfff,stroke:#9775fa,color:#000
+  classDef rose fill:#ffa8a8,stroke:#ff6b6b,color:#000
+  classDef lemon fill:#ffe066,stroke:#ffd43b,color:#000
+  classDef mint fill:#8ce99a,stroke:#51cf66,color:#000
+  subgraph A["판단 1 — 멱등 검사를 상태 검증보다 앞에"]
+    direction LR
+    A1["같은 취소 요청이 두 번 온다"]:::rose --> A2["④를 먼저 보면 이미 취소됨 → 409"]:::amber --> A3["③을 먼저 보면 기존 환불 → 200<br/>수용 기준 그대로"]:::forest
+  end
+  subgraph B["판단 2 — PG 실패해도 예약은 산다"]
+    direction LR
+    B1["PG 환불 실패"]:::rose --> B2["예약까지 취소하면<br/>자리도 돈도 잃는 최악"]:::amber --> B3["failed 기록만 커밋 · 예약 유지<br/>예외 대신 결과값으로 반환"]:::forest
+  end
+  subgraph C["판단 3 — 락 해제 결과는 버린다"]
+    direction LR
+    C1["Redis release() 가 false 나 예외"]:::rose --> C2["이미 commit 뒤 · 정원의 권위는<br/>reserved_count 컬럼"]:::amber --> C3["로그만 남기고 삼킨다<br/>테스트가 소스 문자열까지 검사"]:::forest
+  end
+  subgraph D["확인"]
+    T["test_cancellation_service.py<br/>DB 없이 불변식 36건"]:::teal
+  end
+  A --> D
+  B --> D
+  C --> D

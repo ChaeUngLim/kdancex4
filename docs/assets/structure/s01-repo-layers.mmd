@@ -1,0 +1,53 @@
+flowchart LR
+  classDef ocean fill:#4c6ef5,stroke:#364fc7,color:#fff
+  classDef teal fill:#20c997,stroke:#12b886,color:#fff
+  classDef grape fill:#845ef7,stroke:#5f3dc4,color:#fff
+  classDef amber fill:#ff922b,stroke:#e8590c,color:#fff
+  classDef sky fill:#74c0fc,stroke:#339af0,color:#000
+  classDef lavender fill:#d0bfff,stroke:#9775fa,color:#000
+  classDef rose fill:#ffa8a8,stroke:#ff6b6b,color:#000
+  classDef lemon fill:#ffe066,stroke:#ffd43b,color:#000
+  classDef mint fill:#8ce99a,stroke:#51cf66,color:#000
+  classDef forest fill:#51cf66,stroke:#2f9e44,color:#fff
+  subgraph L0["🧱 환경 — 규칙과 권한 (코드를 다루지 않는다)"]
+    direction TB
+    A1["CLAUDE.md<br/>프로젝트 문맥 · 빌드·검증 명령"]:::sky
+    A2[".claude/rules/core-rules.md<br/>언어 · 4계층 · 식별자 · 버전 정책"]:::sky
+    A3[".claude/settings.json<br/>graphify 훅 2개"]:::sky
+    A4["CLAUDE-decisions.md · CLAUDE-troubleshooting.md<br/>ADR-001~005 · 알려진 오류"]:::sky
+    A5["docs/handoff/<br/>다른 PC 로 옮기는 설정 묶음"]:::sky
+  end
+  subgraph L1["📐 명세 — 무엇을 왜 (코드를 보지 않는다)"]
+    direction TB
+    B1["specs/001-ai-dance-class-platform/spec.md<br/>FR·US·SC 원본 (294KB)"]:::lemon
+    B2["docs/kdancex4_service_definition_and_tech_stack.md<br/>서비스 정의 · 기술 스택 고정표 (136KB)"]:::lemon
+    B3["docs/*-policy.md · terms · privacy<br/>정책 · 약관 (법률 검토 전)"]:::lemon
+    B4[".specify/<br/>spec-kit — specify 만 쓴다"]:::lemon
+  end
+  subgraph L2["🏗 파이프라인 — 어떤 순서로 (코드를 보되 고치지 않는다)"]
+    direction TB
+    C1[".claude/skills/kdance-dev-harness/<br/>Phase 1~9.5 오케스트레이터 + 산출물 표준 3종"]:::teal
+    C2[".claude/agents/kdance-*.md<br/>Phase 별 담당 8종"]:::teal
+    C3["_workspace/SCH_kdance.html ← build_sch_kdance.py<br/>SCH 목록·순서·상태 (유일한 SCH 관리처)"]:::teal
+    C4["_workspace/01_·02_*.md<br/>SCH-21 회차의 Phase 1·2 산출물"]:::teal
+    C5["_workspace/guides/SCH-0N(…).html + diagrams/<br/>끝난 조각의 왕초보 가이드"]:::teal
+  end
+  subgraph L3["🛡 공구 — 어떻게 제대로 (코드를 고친다)"]
+    direction TB
+    D1["backend/ FastAPI + SQLAlchemy<br/>1회차 슬라이스 — SCH-21 에서 교체 예정"]:::grape
+    D2["admin-web/ Next.js 16<br/>업주 콘솔 — 앞으로 API 도 여기로"]:::grape
+    D3["mobile/ Expo 58 · RN 0.88<br/>회원 앱 — 데모 화면 1개"]:::grape
+    D4["infra/ docker-compose · ai-bench<br/>DB · Redis · llama-server 측정"]:::grape
+    D5["scripts/claude-free.sh<br/>OmniRoute 무료 체인으로 Claude 실행"]:::grape
+  end
+  subgraph L4["설명 계층 — 사람과 에이전트가 읽는다 (결정하지 않는다)"]
+    direction TB
+    E1["docs/Review.md (로컬 전용)<br/>일별 · SCH별 진행 리뷰 + 그림"]:::lavender
+    E2["docs/가이드/*.html · docs/*.html<br/>왕초보 가이드 · 화면 명세 · 인프라"]:::lavender
+    E3["docs/ai-coding-agent.html · guides/*.md<br/>에이전트용 버전 맞춤 문서"]:::lavender
+    E4["graphify-out/ (재생성)<br/>코드·문서 지식 그래프"]:::lavender
+  end
+  L0 --> L1
+  L1 --> L2
+  L2 --> L3
+  L3 --> L4

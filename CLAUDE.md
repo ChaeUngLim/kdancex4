@@ -7,7 +7,7 @@
 ## Project Overview
 
 - Name: kdance (Android package `com.kdancex3`, product name K-DanceX3). **2026-09-14: "k-dancex4" confirmed as app working title / domain name** (`docs/distribution-policy.md` — relationship to existing K-DanceX3 product name not yet clarified, both recorded)
-- Stack: FastAPI + SQLAlchemy2 + Alembic + psycopg3 (backend, uv/Python 3.12) · **Next.js (App Router) + TS (admin-web, confirmed 2026-09-14 — replaces earlier Vite scaffold)** · Expo SDK 57 + React Native + TS (mobile) · **AI 에이전트 서버만 Python(FastAPI + LangGraph) 별도 프로세스 — 웹·제품 API·모바일은 TypeScript. DB 쓰기는 Next.js 하나, 에이전트는 도구(MCP)로만 읽고 모델은 에이전트 서버만 부른다(2026-09-24, `CLAUDE-decisions.md` ADR-004 — ADR-003 의 언어만 대체)**
+- Stack: FastAPI + SQLAlchemy2 + Alembic + psycopg3 (backend, uv/Python 3.12) · **Next.js (App Router) + TS (admin-web, confirmed 2026-09-14 — replaces earlier Vite scaffold)** · Expo SDK 58 (58.0.0-preview.6) + React Native 0.88.0-rc.1 + TS (mobile — 2026-09-25 올림, 값의 원본은 기술 스택 문서 「11. 기술 스택 고정표」) · **AI 에이전트 서버만 Python(FastAPI + LangGraph) 별도 프로세스 — 웹·제품 API·모바일은 TypeScript. DB 쓰기는 Next.js 하나, 에이전트는 도구(MCP)로만 읽고 모델은 에이전트 서버만 부른다(2026-09-24, `CLAUDE-decisions.md` ADR-004 — ADR-003 의 언어만 대체)**
 - Description: dance studio booking/membership app (Android). See `docs/pricing-policy.md` and `docs/distribution-policy.md` for business decisions made so far.
 - Backend DB: PostgreSQL 18 + pgvector, local dev container `kdance-db` (port 5433, db name `kdance`). Redis is `kdance-redis` (port 6380). Both are defined in `infra/docker-compose.yml`
 

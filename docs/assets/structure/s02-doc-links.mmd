@@ -1,0 +1,38 @@
+flowchart TB
+  classDef ocean fill:#4c6ef5,stroke:#364fc7,color:#fff
+  classDef teal fill:#20c997,stroke:#12b886,color:#fff
+  classDef grape fill:#845ef7,stroke:#5f3dc4,color:#fff
+  classDef amber fill:#ff922b,stroke:#e8590c,color:#fff
+  classDef sky fill:#74c0fc,stroke:#339af0,color:#000
+  classDef lavender fill:#d0bfff,stroke:#9775fa,color:#000
+  classDef rose fill:#ffa8a8,stroke:#ff6b6b,color:#000
+  classDef lemon fill:#ffe066,stroke:#ffd43b,color:#000
+  classDef mint fill:#8ce99a,stroke:#51cf66,color:#000
+  classDef forest fill:#51cf66,stroke:#2f9e44,color:#fff
+  SPEC["spec.md<br/>요구사항 원본 · FR 색인"]:::lemon
+  STACK["기술 스택 문서<br/>11. 고정표 = 버전 원본"]:::lemon
+  RULES["core-rules.md<br/>규칙 원본"]:::sky
+  CLM["CLAUDE.md<br/>문맥 · 명령"]:::sky
+  ADR["CLAUDE-decisions.md<br/>ADR-001~005"]:::sky
+  SCH["SCH_kdance.html<br/>SCH 상태 원본"]:::teal
+  HAR["kdance-dev-harness<br/>SKILL + 템플릿 3종"]:::teal
+  GUIDE["guides/SCH-0N.html"]:::lavender
+  REV["Review.md"]:::lavender
+  TERMS["약관 3종 · 정책 md"]:::lemon
+  PKG["package.json · pyproject · compose<br/>실제 설치본"]:::grape
+  README["README.md<br/>진입점"]:::lavender
+  SPEC -- "FR 이름을 그대로 쓴다" --> SCH
+  SPEC -- "FR 번호로 근거" --> TERMS
+  STACK -- "버전 값 복제 금지 · 참조만" --> CLM
+  STACK -- "요구사항 분석 에이전트가 읽음" --> HAR
+  PKG -- "실측 → 표를 고친다" --> STACK
+  RULES -- "식별자 표기 · 윤문 · 계층" --> HAR
+  RULES -- "SCH 기능명은 여기서" --> SCH
+  ADR -- "ADR-004·005 → 에이전트 서버" --> STACK
+  HAR -- "Phase 9.5 가 만든다" --> GUIDE
+  HAR -- "Phase 9.5 가 갱신" --> SCH
+  SCH -- "2부 표의 원본" --> REV
+  SCH -- "가이드 보기 링크" --> GUIDE
+  README -- "학습 진입 순서" --> GUIDE
+  README --> SCH
+  CLM -- "메모리 뱅크 · 규칙 위치" --> RULES

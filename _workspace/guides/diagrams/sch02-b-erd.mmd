@@ -1,0 +1,31 @@
+erDiagram
+  ACADEMIES ||--o{ CLASS_SCHEDULES : "학원이 수업을 연다"
+  ORDERS ||--o{ PAYMENTS : "주문에 결제가 붙는다"
+  ORDERS ||--o{ RESERVATIONS : "주문이 예약을 만든다"
+  CLASS_SCHEDULES ||--o{ RESERVATIONS : "수업 자리를 잡는다"
+  RESERVATIONS ||--o{ REFUNDS : "예약을 취소하면 환불"
+  PAYMENTS ||--o{ REFUNDS : "어느 결제를 돌려주나"
+  REFUNDS ||--o{ REFUND_EVENTS : "append-only 감사 로그"
+  ACADEMIES { int id PK
+    jsonb refund_policy_tiers "환불 비율표 (09-25 폐기)" }
+  CLASS_SCHEDULES { int id PK
+    int academy_id FK
+    int reserved_count "정원의 진짜 권위" }
+  ORDERS { int id PK
+    string status "CHECK" }
+  PAYMENTS { int id PK
+    int order_id FK
+    string method "card · virtual_account" }
+  RESERVATIONS { int id PK
+    int order_id FK
+    int class_schedule_id FK
+    string status "CHECK" }
+  REFUNDS { int id PK
+    int reservation_id FK
+    int payment_id FK
+    string idempotency_key "UNIQUE 명명 + 부분 유니크 (status가 failed 아닐 때)"
+    string status "CHECK: succeeded · pending · failed"
+    int refunded_amount "CHECK: 결제액 이하" }
+  REFUND_EVENTS { int id PK
+    int refund_id FK
+    jsonb payload "기본값 {}" }

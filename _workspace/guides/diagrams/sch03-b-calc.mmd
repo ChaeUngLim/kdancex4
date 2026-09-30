@@ -1,0 +1,20 @@
+flowchart TB
+  classDef coral fill:#ff6b6b,stroke:#c92a2a,color:#fff
+  classDef ocean fill:#4c6ef5,stroke:#364fc7,color:#fff
+  classDef forest fill:#51cf66,stroke:#2f9e44,color:#fff
+  classDef grape fill:#845ef7,stroke:#5f3dc4,color:#fff
+  classDef amber fill:#ff922b,stroke:#e8590c,color:#fff
+  classDef teal fill:#20c997,stroke:#12b886,color:#fff
+  classDef sky fill:#74c0fc,stroke:#339af0,color:#000
+  classDef lavender fill:#d0bfff,stroke:#9775fa,color:#000
+  classDef rose fill:#ffa8a8,stroke:#ff6b6b,color:#000
+  classDef lemon fill:#ffe066,stroke:#ffd43b,color:#000
+  classDef mint fill:#8ce99a,stroke:#51cf66,color:#000
+  IN["입력 4개<br/>paid_amount · starts_at · now · tiers (+ reason)"]:::lemon --> Q1{"수업 시작 24시간 전<br/>이거나 그 이전?"}
+  Q1 -- "예 (경계 포함)" --> F["플랫폼 고정 규칙 100%<br/>비율표보다 우선 — 회원에게 유리하게"]:::forest
+  Q1 -- "아니오" --> T["티어 선택<br/>남은 시간을 포함하는 티어 중 시간이 가장 짧은 것<br/>저장 순서와 무관"]:::sky
+  T --> CALC["정수 연산으로 계산<br/>basis point(만분율) · 항상 올림"]:::teal
+  F --> CL
+  CALC --> CL["clamp<br/>결제액을 절대 넘지 않게 (DB CHECK 가 한 번 더)"]:::amber
+  CL --> OUT["RefundCalculation<br/>환불액 하나"]:::grape
+  DBX["DB · PG · 모델에 의존하지 않는다<br/>순수 함수 — 노트북에서 0.1초에 50가지 검증"]:::lemon -.-> IN

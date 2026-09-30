@@ -1,0 +1,20 @@
+flowchart TB
+  classDef coral fill:#ff6b6b,stroke:#c92a2a,color:#fff
+  classDef ocean fill:#4c6ef5,stroke:#364fc7,color:#fff
+  classDef forest fill:#51cf66,stroke:#2f9e44,color:#fff
+  classDef grape fill:#845ef7,stroke:#5f3dc4,color:#fff
+  classDef amber fill:#ff922b,stroke:#e8590c,color:#fff
+  classDef teal fill:#20c997,stroke:#12b886,color:#fff
+  classDef sky fill:#74c0fc,stroke:#339af0,color:#000
+  classDef lavender fill:#d0bfff,stroke:#9775fa,color:#000
+  classDef rose fill:#ffa8a8,stroke:#ff6b6b,color:#000
+  classDef lemon fill:#ffe066,stroke:#ffd43b,color:#000
+  classDef mint fill:#8ce99a,stroke:#51cf66,color:#000
+  REQ["HTTP 요청<br/>mobile · admin-web (CORS 5173 · 3000)"]:::ocean --> VAL["Pydantic 스키마 검증<br/>CancelRequest · RefundPolicyUpdate<br/>모양이 틀리면 422 — 서비스에 닿기 전에"]:::sky
+  VAL --> RT["라우터 4개<br/>POST /reservations/{id}/cancel<br/>GET /reservations/{id}/cancellation-preview<br/>GET·PUT /admin/academies/{id}/refund-policy"]:::teal
+  RT --> SVC["서비스 (SCH-05)<br/>cancel_reservation · preview_cancellation"]:::grape
+  SVC --> OUT["CancellationOutcome · Preview"]:::teal --> RES["응답 스키마<br/>CancelResponse.from_outcome<br/>PG 실패도 200 + status=failed"]:::forest
+  SVC -. "예외" .-> MAP["예외 → HTTP 한 줄 매핑<br/>CancellationError.status_code 그대로 (403·404·409)<br/>ValueError → 422, 원문은 로그에만"]:::amber
+  MAP --> ERR["{&quot;detail&quot;: &quot;문장&quot;}"]:::rose
+  MAIN["main.py<br/>include_router 2줄 + CORS · /health 는 그대로"]:::lemon -.-> RT
+  NOTE["admin 환불 비율표 경로는<br/>09-25 폐기 — 옮기지 않는다"]:::rose -.-> RT

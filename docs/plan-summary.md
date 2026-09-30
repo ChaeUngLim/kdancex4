@@ -2,7 +2,7 @@
 
 - 작성일: 2026-09-14
 - 목적: `docs/` 아래 흩어진 기획 자료(정책 문서·개발 가이드·화면 명세·인프라 가이드·입점 피치)를 하나로 종합. 개별 원문은 그대로 두고, 이 문서는 요약·상호 참조용.
-- 원문 출처: `docs/pricing-policy.md`, `docs/distribution-policy.md`, `docs/genre-taxonomy-policy.md`, `docs/admin-input-policy.md`, `docs/payment-method-policy.md`, `docs/social-dance-app-dev-guide.html`, `docs/kdance-screens-spec.html`, `docs/kdance-beta-infra.html`, `docs/social-dance-academy-pitch.html`, `docs/superpowers/specs/2026-09-13-kdance-scaffold-design.md`
+- 원문 출처: `docs/pricing-policy.md`, `docs/distribution-policy.md`, `docs/genre-taxonomy-policy.md`, `docs/admin-input-policy.md`, `docs/payment-method-policy.md`, `docs/가이드/social-dance-app-dev-guide.html`, `docs/kdance-screens-spec.html`, `docs/kdance-beta-infra.html`, `docs/가이드/social-dance-academy-pitch.html`, `docs/superpowers/specs/2026-09-13-kdance-scaffold-design.md`(저장소에 없는 파일 — 2026-09-29 확인)
 
 > ⚠ **이 문서의 금액·결제·환불 규칙은 2026-09-25·2026-09-26 에 대체됐다.** 본문은 당시 기록으로 남긴다. 지금 규칙은 아래 표와 spec(`specs/001-ai-dance-class-platform/spec.md`)을 본다.
 

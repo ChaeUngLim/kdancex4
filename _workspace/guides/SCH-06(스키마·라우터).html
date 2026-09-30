@@ -142,6 +142,13 @@
   .doclink-list a { color: var(--text); text-decoration: none; }
   .doclink-list a:hover { color: var(--accent-a); }
   .doclink-list .path { color: var(--text-dim); font-size: .85rem; }
+
+    /* 그림 (2026-09-29 추가) */
+    figure.fig{margin:22px 0;padding:14px 16px;border:1px solid #d9e0ec;border-radius:8px;background:#fff}
+    figure.fig img{display:block;max-width:100%;height:auto;margin:0 auto}
+    figure.fig figcaption{margin-top:10px;font-size:13px;color:#5a6b80;text-align:center}
+    figure.fig figcaption b{color:#0d1b2a}
+    @media (prefers-color-scheme:dark){figure.fig{background:#fff;border-color:#25313f}}
 </style>
 </head>
 <body>
@@ -185,7 +192,9 @@
 </section>
 
 <section id="concepts">
-  <h2>2. 사전 개념</h2>
+  
+<figure class="fig"><img src="diagrams/sch06-a-position.png" alt="전체 슬라이스 안에서 이 조각의 자리 — 요청이 들어오는 문" loading="lazy"><figcaption><b>그림 1</b> · 전체 슬라이스 안에서 이 조각의 자리 — 요청이 들어오는 문</figcaption></figure>
+<h2>2. 사전 개념</h2>
   <p>Protocol·Fake·포트-어댑터·Redis는 <a href="SCH-04(어댑터 3종).html">SCH-04(어댑터 3종: PG/알림/슬롯락)</a>, 트랜잭션·행 잠금·멱등성·SAVEPOINT·<code>Depends()</code>는 <a href="SCH-05(취소 오케스트레이션).html">SCH-05(취소 오케스트레이션 서비스 + deps.py)</a>에서 이미 설명했으므로 반복하지 않습니다. ORM·CHECK/UNIQUE 제약은 <a href="SCH-01(기반 배선).html">SCH-01(기반 배선)</a>·<a href="SCH-02(도메인 모델).html">SCH-02(도메인 모델 7개)</a> 가이드를 참고하세요. 이번 SCH에서 처음 등장하는 개념 5가지만 설명합니다.</p>
 
   <h3 id="concept-pydantic">Pydantic 스키마가 뭔가요?</h3>
@@ -243,8 +252,10 @@
 </section>
 
 <section id="issues">
-  <h2>4. 이슈 → 원인 파악 → 해결</h2>
-  <p>SCH-06 작업 중 실제로 발견된 사항입니다. <code>_workspace/05_implementer_TS-06_summary.md</code>의 §4(구현 중 발견한 이슈)를 그대로 옮깁니다 — 지어내지 않습니다.</p>
+  
+<figure class="fig"><img src="diagrams/sch06-http.png" alt="요청에서 응답까지 — 스키마 검증, 라우터 4개, 예외의 HTTP 매핑" loading="lazy"><figcaption><b>그림 2</b> · 요청에서 응답까지 — 스키마 검증, 라우터 4개, 예외의 HTTP 매핑</figcaption></figure>
+<h2>4. 이슈 → 원인 파악 → 해결</h2>
+  <p>SCH-06 작업 중 실제로 발견된 사항입니다. <code>_workspace/05_implementer_TS-06_summary.md</code>(커밋 <code>7f28ab1^</code> 에만 있음)의 §4(구현 중 발견한 이슈)를 그대로 옮깁니다 — 지어내지 않습니다.</p>
 
   <h3>4.1 완료 기준의 검증 명령이 이 FastAPI 버전에서 깨진다 (I-1)</h3>
   <p><b>현상:</b> 계획이 지정한 <code>uv run python -c "from app.main import app; print([r.path for r in app.routes])"</code>는 <code>AttributeError</code>로 죽는다.<br>
@@ -304,7 +315,9 @@
 </section>
 
 <section id="relations">
-  <h2>6. 다른 SCH와의 연관관계</h2>
+  
+<figure class="fig"><img src="diagrams/sch06-issues.png" alt="이슈와 판단 — 검증 명령, 임시 인증, payment_method 2줄" loading="lazy"><figcaption><b>그림 3</b> · 이슈와 판단 — 검증 명령, 임시 인증, payment_method 2줄</figcaption></figure>
+<h2>6. 다른 SCH와의 연관관계</h2>
   <p>SCH-06은 <b>SCH-05가 확정한 결과값이 처음으로 HTTP 응답이 되는 지점</b>입니다. 새 판단을 만들지 않고, 이미 정해진 값(상태 코드·필드)을 옮기기만 합니다.</p>
   <div class="flow">
     <div class="step dim"><b><a href="SCH-01(기반 배선).html" style="color:inherit;text-decoration:none">SCH-01</a></b>기반 배선<br><span class="badge done">완료</span></div>
@@ -335,7 +348,7 @@
 
 <section id="handoff">
   <h2>7. 다음 SCH로 이어지는 것</h2>
-  <p>SCH-06이 SCH-07(conftest + DB 통합 테스트 작성, 아직 가이드 없음)과 그 이후 단계에 남긴 인터페이스·주의사항입니다. <code>_workspace/05_implementer_TS-06_summary.md</code> §6(미해결/인계)을 그대로 옮깁니다.</p>
+  <p>SCH-06이 SCH-07(conftest + DB 통합 테스트 작성, 아직 가이드 없음)과 그 이후 단계에 남긴 인터페이스·주의사항입니다. <code>_workspace/05_implementer_TS-06_summary.md</code>(커밋 <code>7f28ab1^</code> 에만 있음) §6(미해결/인계)을 그대로 옮깁니다.</p>
   <ul>
     <li><b>1. 실DB 통합 미검증.</b> <code>localhost:5433</code> 연결 거부(이 환경에 docker CLI 없음)로, 취소 정상 경로·403·409·멱등 재생은 <b>코드상으로만</b> 맞춰져 있다. SCH-07이 테스트를 작성하고 SCH-12가 실행해야 한다. <i>(2026-09-26 주: 2026-09-23 DB 를 켜고 186 passed 를 확인했다. SCH-12(DB 통합 테스트)는 SCH-21(FastAPI→Next.js 전환)에 흡수됐다.)</i> 특히 <code>routers/reservations.py</code>의 예외 매핑과 <code>schemas/academy.py</code>의 JSONB 문지기 역할이 DB 없이 검증 가능했던 지점이자, 실 DB로도 반드시 재확인해야 할 지점이다.</li>
     <li><b>2. (후속 권고 I-2) admin 인증 — 배포 전 필수.</b> <code>dependencies=[Depends(require_academy_admin)]</code>를 붙일 자리는 마련해 두었지만, 그 의존성 자체(인증·회원·권한 모델)는 아직 없다. 이 API를 외부에 노출하기 전에 반드시 채워야 한다. <i>(2026-09-26 주: 이 API 는 옮기지 않는다. 인증·권한은 SCH-24(인증·역할)가 만든다.)</i></li>
@@ -346,7 +359,7 @@
 </section>
 
 <footer>
-  작성 기준: <code>_workspace/05_implementer_TS-06_summary.md</code>, <code>backend/app/schemas/</code>·<code>backend/app/routers/</code>·<code>backend/app/main.py</code>·<code>backend/app/services/cancellation.py</code>·<code>backend/tests/test_schemas.py</code>의 학습 주석, <code>_workspace/SCH_kdance.html</code> · kdance 프로젝트 내부 문서 · 2026-09-15 작성 · 2026-09-26 현재 상태 갱신(<code>_workspace/SCH_kdance.html</code> 2026-09-26 판, spec 변경 이력 2026-09-20~26).
+  작성 기준: <code>_workspace/05_implementer_TS-06_summary.md</code>(커밋 <code>7f28ab1^</code> 에만 있음), <code>backend/app/schemas/</code>·<code>backend/app/routers/</code>·<code>backend/app/main.py</code>·<code>backend/app/services/cancellation.py</code>·<code>backend/tests/test_schemas.py</code>의 학습 주석, <code>_workspace/SCH_kdance.html</code> · kdance 프로젝트 내부 문서 · 2026-09-15 작성 · 2026-09-26 현재 상태 갱신(<code>_workspace/SCH_kdance.html</code> 2026-09-26 판, spec 변경 이력 2026-09-20~26).
 </footer>
 
 </div>

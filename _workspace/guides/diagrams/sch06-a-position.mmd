@@ -1,0 +1,37 @@
+flowchart LR
+  classDef coral fill:#ff6b6b,stroke:#c92a2a,color:#fff
+  classDef ocean fill:#4c6ef5,stroke:#364fc7,color:#fff
+  classDef forest fill:#51cf66,stroke:#2f9e44,color:#fff
+  classDef grape fill:#845ef7,stroke:#5f3dc4,color:#fff
+  classDef amber fill:#ff922b,stroke:#e8590c,color:#fff
+  classDef teal fill:#20c997,stroke:#12b886,color:#fff
+  classDef sky fill:#74c0fc,stroke:#339af0,color:#000
+  classDef lavender fill:#d0bfff,stroke:#9775fa,color:#000
+  classDef rose fill:#ffa8a8,stroke:#ff6b6b,color:#000
+  classDef lemon fill:#ffe066,stroke:#ffd43b,color:#000
+  classDef mint fill:#8ce99a,stroke:#51cf66,color:#000
+  subgraph API["요청이 들어오는 쪽"]
+    S6["SCH-06 스키마·라우터<br/>요청·응답 형태 + API 경로"]:::coral
+  end
+  subgraph SVC["한 함수에 모이는 곳"]
+    S5["SCH-05 취소 오케스트레이션<br/>잠금 · 멱등키 · 감사 로그"]:::sky
+  end
+  subgraph PARTS["부품"]
+    direction TB
+    S3["SCH-03 환불액 산정<br/>24시간 경계·비율표 (09-25 폐기)"]:::sky
+    S4["SCH-04 어댑터 3종<br/>PG · 알림 · 슬롯락 — 가짜 구현"]:::sky
+    S2["SCH-02 도메인 모델<br/>테이블 7종 + 마이그레이션"]:::sky
+  end
+  subgraph BASE["바닥"]
+    S1["SCH-01 기반 배선<br/>설정 · DB 연결 · 의존성 주입"]:::sky
+  end
+  subgraph TEST["검증"]
+    S7["SCH-07 통합 테스트<br/>실제 DB 로 27건 (186 passed)"]:::sky
+  end
+  S6 --> S5
+  S5 --> S3
+  S5 --> S4
+  S5 --> S2
+  S2 --> S1
+  S7 -. "실제 DB 로 전부 실행" .-> S6
+  NOTE["빨간 상자가 이 문서의 조각. 1회차 슬라이스(FastAPI 예약 취소·환불)는 SCH-21 에서 Next.js + Prisma 8 로 교체된다"]:::lemon

@@ -136,6 +136,13 @@
     font-size: .9rem;
   }
   footer a { color: var(--accent-a); }
+
+    /* 그림 (2026-09-29 추가) */
+    figure.fig{margin:22px 0;padding:14px 16px;border:1px solid #d9e0ec;border-radius:8px;background:#fff}
+    figure.fig img{display:block;max-width:100%;height:auto;margin:0 auto}
+    figure.fig figcaption{margin-top:10px;font-size:13px;color:#5a6b80;text-align:center}
+    figure.fig figcaption b{color:#0d1b2a}
+    @media (prefers-color-scheme:dark){figure.fig{background:#fff;border-color:#25313f}}
 </style>
 </head>
 <body>
@@ -179,7 +186,9 @@
 </section>
 
 <section id="concepts">
-  <h2>2. 사전 개념</h2>
+  
+<figure class="fig"><img src="diagrams/sch07-a-position.png" alt="전체 슬라이스 안에서 이 조각의 자리 — 모든 계층을 실제 DB 로 묶어 검증" loading="lazy"><figcaption><b>그림 1</b> · 전체 슬라이스 안에서 이 조각의 자리 — 모든 계층을 실제 DB 로 묶어 검증</figcaption></figure>
+<h2>2. 사전 개념</h2>
   <p>트랜잭션·행 잠금(<code>SELECT ... FOR UPDATE</code>)·멱등성·SAVEPOINT·<code>Depends()</code>는 <a href="SCH-05(취소 오케스트레이션).html">SCH-05(취소 오케스트레이션 서비스 + deps.py)</a>에서, JSONB는 <a href="SCH-02(도메인 모델).html">SCH-02(도메인 모델 7개)</a>에서, Pydantic 스키마 검증은 <a href="SCH-06(스키마·라우터).html">SCH-06(Pydantic 스키마 + 라우터 + main.py)</a>에서 이미 설명했으므로 반복하지 않습니다. 이번 SCH에서 처음 나오는 개념 4가지만 설명합니다.</p>
 
   <h3 id="concept-fixture">pytest fixture(픽스처)가 뭔가요?</h3>
@@ -218,8 +227,10 @@
 </section>
 
 <section id="issues">
-  <h2>4. 이슈 → 원인 파악 → 해결</h2>
-  <p><code>_workspace/05_implementer_TS-07_summary.md</code> 기준입니다. 이번 SCH는 계획대로 진행되어 <b>별도로 기록된 이슈가 없습니다</b> — <code>conftest.py</code>가 스펙(<code>04_task-splitter_tasks.md</code> §TS-07)이 요구한 픽스처를 이미 전부 갖추고 있어서, 실제 작업은 그 위에 테스트 두 파일을 얹는 것뿐이었습니다.</p>
+  
+<figure class="fig"><img src="diagrams/sch07-harness.png" alt="테스트 하네스 — DB 가 없으면 skip, 있으면 SAVEPOINT 격리로 실제 검증" loading="lazy"><figcaption><b>그림 2</b> · 테스트 하네스 — DB 가 없으면 skip, 있으면 SAVEPOINT 격리로 실제 검증</figcaption></figure>
+<h2>4. 이슈 → 원인 파악 → 해결</h2>
+  <p><code>_workspace/05_implementer_TS-07_summary.md</code>(커밋 <code>7f28ab1^</code> 에만 있음) 기준입니다. 이번 SCH는 계획대로 진행되어 <b>별도로 기록된 이슈가 없습니다</b> — <code>conftest.py</code>가 스펙(<code>04_task-splitter_tasks.md</code> §TS-07)이 요구한 픽스처를 이미 전부 갖추고 있어서, 실제 작업은 그 위에 테스트 두 파일을 얹는 것뿐이었습니다.</p>
   <div class="callout">
     <div class="callout-label">참고 — 진행 중 있었던 일</div>
     <p>이 SCH의 구현 작업은 세션 사용량 한도(rate limit)로 중간에 한 번 끊겼습니다. 다만 끊긴 시점은 파일을 다 쓴 <b>뒤</b>였다는 게 실측으로 확인됐습니다(테스트 파일 2개 모두 존재, 전체 테스트 통과) — 오케스트레이터가 완료 기준 3개를 직접 재검증하고 이 요약·가이드 문서를 재구성했습니다. 코드 자체에 이슈가 있었던 건 아닙니다.</p>
@@ -249,7 +260,9 @@
 </section>
 
 <section id="relations">
-  <h2>6. 다른 SCH와의 연관관계</h2>
+  
+<figure class="fig"><img src="diagrams/sch07-run.png" alt="작성에서 실행까지 — 09-15 작성, 09-23 186 passed, 이후 Docker 꺼짐" loading="lazy"><figcaption><b>그림 3</b> · 작성에서 실행까지 — 09-15 작성, 09-23 186 passed, 이후 Docker 꺼짐</figcaption></figure>
+<h2>6. 다른 SCH와의 연관관계</h2>
   <p>SCH-07은 <b>SCH-01~06이 쌓아온 모든 계층을 처음으로 한 번에 실행 경로로 묶어서 검증할 준비</b>를 하는 지점입니다. 새 기능이 아니라 "검증 도구"입니다.</p>
   <div class="flow">
     <div class="step dim"><b><a href="SCH-01(기반 배선).html" style="color:inherit;text-decoration:none">SCH-01</a></b>기반 배선<br><span class="badge done">완료</span></div>
@@ -288,7 +301,7 @@
 </section>
 
 <footer>
-  작성 기준: <code>_workspace/05_implementer_TS-07_summary.md</code>, <code>backend/tests/conftest.py</code>·<code>test_cancel_api.py</code>·<code>test_admin_refund_policy.py</code>의 학습 주석, <code>_workspace/SCH_kdance.html</code> · kdance 프로젝트 내부 문서 · 2026-09-15 작성 · 2026-09-26 현재 상태 갱신(<code>_workspace/SCH_kdance.html</code> 2026-09-26 판, spec 변경 이력 2026-09-20~26).
+  작성 기준: <code>_workspace/05_implementer_TS-07_summary.md</code>(커밋 <code>7f28ab1^</code> 에만 있음), <code>backend/tests/conftest.py</code>·<code>test_cancel_api.py</code>·<code>test_admin_refund_policy.py</code>의 학습 주석, <code>_workspace/SCH_kdance.html</code> · kdance 프로젝트 내부 문서 · 2026-09-15 작성 · 2026-09-26 현재 상태 갱신(<code>_workspace/SCH_kdance.html</code> 2026-09-26 판, spec 변경 이력 2026-09-20~26).
 </footer>
 
 </div>

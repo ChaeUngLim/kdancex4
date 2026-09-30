@@ -1,0 +1,42 @@
+flowchart LR
+  classDef coral fill:#ff6b6b,stroke:#c92a2a,color:#fff
+  classDef ocean fill:#4c6ef5,stroke:#364fc7,color:#fff
+  classDef forest fill:#51cf66,stroke:#2f9e44,color:#fff
+  classDef grape fill:#845ef7,stroke:#5f3dc4,color:#fff
+  classDef amber fill:#ff922b,stroke:#e8590c,color:#fff
+  classDef teal fill:#20c997,stroke:#12b886,color:#fff
+  classDef sky fill:#74c0fc,stroke:#339af0,color:#000
+  classDef lavender fill:#d0bfff,stroke:#9775fa,color:#000
+  classDef rose fill:#ffa8a8,stroke:#ff6b6b,color:#000
+  classDef lemon fill:#ffe066,stroke:#ffd43b,color:#000
+  classDef mint fill:#8ce99a,stroke:#51cf66,color:#000
+  SVC["취소 서비스 (SCH-05)<br/>Protocol 만 import 한다"]:::grape
+  subgraph P["Protocol — 할 수 있어야 하는 일"]
+    direction TB
+    PG["PaymentGateway<br/>refund() 하나"]:::sky
+    NT["NotificationSender<br/>회원용 · 학원 관리자용 2개"]:::sky
+    SL["SlotLock<br/>release()"]:::sky
+  end
+  subgraph F["Fake — 외부 없이 테스트"]
+    direction TB
+    FPG["FakePaymentGateway<br/>포트원 V2 응답 모양을 흉내"]:::mint
+    FNT["FakeNotificationSender"]:::mint
+    NSL["NullSlotLock"]:::mint
+  end
+  subgraph RL["Real — 나중에 갈아끼움"]
+    direction TB
+    RPG["포트원 V2 (당시) → 지금은 PG 미선정"]:::rose
+    RNT["알림 실구현 없음"]:::rose
+    RSL["RedisSlotLock<br/>느슨한 연결 · 예외를 삼킨다"]:::teal
+  end
+  SVC --> PG
+  SVC --> NT
+  SVC --> SL
+  PG -.- FPG
+  PG -.- RPG
+  NT -.- FNT
+  NT -.- RNT
+  SL -.- NSL
+  SL -.- RSL
+  DEPS["deps.py (SCH-05) 가<br/>어느 구현을 꽂을지 정한다"]:::lemon --> F
+  DEPS --> RL

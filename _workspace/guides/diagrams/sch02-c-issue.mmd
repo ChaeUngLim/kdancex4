@@ -1,0 +1,25 @@
+flowchart TB
+  classDef coral fill:#ff6b6b,stroke:#c92a2a,color:#fff
+  classDef ocean fill:#4c6ef5,stroke:#364fc7,color:#fff
+  classDef forest fill:#51cf66,stroke:#2f9e44,color:#fff
+  classDef grape fill:#845ef7,stroke:#5f3dc4,color:#fff
+  classDef amber fill:#ff922b,stroke:#e8590c,color:#fff
+  classDef teal fill:#20c997,stroke:#12b886,color:#fff
+  classDef sky fill:#74c0fc,stroke:#339af0,color:#000
+  classDef lavender fill:#d0bfff,stroke:#9775fa,color:#000
+  classDef rose fill:#ffa8a8,stroke:#ff6b6b,color:#000
+  classDef lemon fill:#ffe066,stroke:#ffd43b,color:#000
+  classDef mint fill:#8ce99a,stroke:#51cf66,color:#000
+  subgraph A["이슈 4.1 — 수정함"]
+    direction LR
+    A1["UNIQUE 제약에 이름이 없었다"]:::rose --> A2["원인: PostgreSQL 이 자동으로 이름을 붙이면<br/>손으로 쓴 마이그레이션과 이름이 어긋나<br/>autogenerate 가 차이 있다고 본다"]:::amber --> A3["해결: uq_refunds_idempotency_key 로 명명<br/>PK 는 일부러 이름 없이 — conftest 의 create_all 과 맞추려고"]:::forest
+  end
+  subgraph B["이슈 4.2 — 이번 범위 밖"]
+    direction LR
+    B1["환불액 ≤ 결제액을 CHECK 만으로<br/>완결할 수 없다"]:::rose --> B2["원인: CHECK 는 한 행만 본다<br/>여러 환불의 합계는 못 본다"]:::amber --> B3["방어 2겹: 서비스 clamp (SCH-03·05)<br/>+ 부분 유니크 인덱스로 이중 환불 차단"]:::forest
+  end
+  subgraph C["확인"]
+    T["마이그레이션 upgrade 17문 · downgrade 역순 17문<br/>실제 DB 적용은 SCH-21 이 다시 검증"]:::teal
+  end
+  A --> C
+  B --> C

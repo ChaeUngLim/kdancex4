@@ -142,6 +142,13 @@
   .doclink-list a { color: var(--text); text-decoration: none; }
   .doclink-list a:hover { color: var(--accent-a); }
   .doclink-list .path { color: var(--text-dim); font-size: .85rem; }
+
+    /* 그림 (2026-09-29 추가) */
+    figure.fig{margin:22px 0;padding:14px 16px;border:1px solid #d9e0ec;border-radius:8px;background:#fff}
+    figure.fig img{display:block;max-width:100%;height:auto;margin:0 auto}
+    figure.fig figcaption{margin-top:10px;font-size:13px;color:#5a6b80;text-align:center}
+    figure.fig figcaption b{color:#0d1b2a}
+    @media (prefers-color-scheme:dark){figure.fig{background:#fff;border-color:#25313f}}
 </style>
 </head>
 <body>
@@ -190,7 +197,9 @@
 </section>
 
 <section id="concepts">
-  <h2>2. 사전 개념</h2>
+  
+<figure class="fig"><img src="diagrams/sch03-a-position.png" alt="전체 슬라이스 안에서 이 조각의 자리 — DB 도 PG 도 모르는 순수 함수" loading="lazy"><figcaption><b>그림 1</b> · 전체 슬라이스 안에서 이 조각의 자리 — DB 도 PG 도 모르는 순수 함수</figcaption></figure>
+<h2>2. 사전 개념</h2>
   <p>이 SCH는 SCH-01·SCH-02(모델·설정·DB 배선)와는 결이 다른 개념이 필요합니다. <code>refund_policy.py</code>는 그 두 SCH가 만든 것을 <b>아예 import하지 않기</b> 때문에, 여기서는 새 개념 4가지만 설명합니다.</p>
 
   <h3 id="concept-pure-function">순수 함수(pure function)가 뭔가요?</h3>
@@ -251,8 +260,10 @@ def test_24h_boundary_is_inclusive_of_full_refund(label, before, expected_rate_b
 </section>
 
 <section id="issues">
-  <h2>4. 이슈 → 원인 파악 → 해결</h2>
-  <p>SCH-03 작업 중 실제로 있었던 발견 사항 5가지입니다. <code>_workspace/05_implementer_TS-03_summary.md</code>의 기록을 그대로 옮깁니다.</p>
+  
+<figure class="fig"><img src="diagrams/sch03-calc.png" alt="환불액 계산 흐름 — 24시간 경계, 티어 선택, 올림, clamp" loading="lazy"><figcaption><b>그림 2</b> · 환불액 계산 흐름 — 24시간 경계, 티어 선택, 올림, clamp</figcaption></figure>
+<h2>4. 이슈 → 원인 파악 → 해결</h2>
+  <p>SCH-03 작업 중 실제로 있었던 발견 사항 5가지입니다. <code>_workspace/05_implementer_TS-03_summary.md</code>(커밋 <code>7f28ab1^</code> 에만 있음)의 기록을 그대로 옮깁니다.</p>
 
   <h3>4.1 <code>refund_policy.py</code>가 착수 시점에 이미 존재했다</h3>
   <p><b>현상:</b> SCH-03을 시작하려고 보니 <code>backend/app/services/refund_policy.py</code>가 이미 파일로 존재했다. 원래 이 SCH가 "신규로 만들" 파일로 배정돼 있었는데도 그랬다.<br>
@@ -328,7 +339,9 @@ def test_24h_boundary_is_inclusive_of_full_refund(label, before, expected_rate_b
 </section>
 
 <section id="relations">
-  <h2>6. 다른 SCH와의 연관관계</h2>
+  
+<figure class="fig"><img src="diagrams/sch03-tests.png" alt="검증 파이프라인 — 명세 대조에서 50케이스 고정까지 (09-25 폐기)" loading="lazy"><figcaption><b>그림 3</b> · 검증 파이프라인 — 명세 대조에서 50케이스 고정까지 (09-25 폐기)</figcaption></figure>
+<h2>6. 다른 SCH와의 연관관계</h2>
   <p>SCH-03은 SCH-01·SCH-02 <b>다음</b>에 실행됐지만, 실제로는 그 둘의 결과물(모델, DB 배선)을 <b>전혀 import하지 않습니다.</b> 순서상 뒤에 있을 뿐, 코드 상으로는 독립적입니다. 반대로 SCH-04(어댑터 3종: PG/알림/슬롯락) 이후의 여러 작업은 이 SCH-03의 계산 함수를 그대로 가져다 씁니다.</p>
   <p><i>(2026-09-26 주: 위 문장과 아래 그림은 1회차 슬라이스(FastAPI 예약 취소·환불) 당시의 관계다. 이 계산 함수는 폐기돼 새 스택으로 옮기지 않는다. SCH-05(취소 오케스트레이션)의 실행부(잠금·멱등키·감사 로그·PG 어댑터)만 SCH-32(정규 과정 환불)·SCH-33(이벤트형 취소)에서 다시 쓴다.)</i></p>
   <div class="flow">
@@ -377,7 +390,7 @@ def test_24h_boundary_is_inclusive_of_full_refund(label, before, expected_rate_b
 </section>
 
 <footer>
-  작성 기준: <code>_workspace/05_implementer_TS-03_summary.md</code>, <code>backend/app/services/refund_policy.py</code>·<code>fee_policy.py</code>·<code>backend/tests/test_refund_policy.py</code>의 학습 주석, <code>docs/payment-method-policy.md</code>, <code>_workspace/SCH_kdance.html</code> · kdance 프로젝트 내부 문서 · 2026-09-15 작성 · 2026-09-26 현재 상태 갱신(<code>_workspace/SCH_kdance.html</code> 2026-09-26 판, <code>specs/001-ai-dance-class-platform/spec.md</code> 변경 이력 2026-09-25~26, <code>fee_policy.py</code> 실제 값 대조).
+  작성 기준: <code>_workspace/05_implementer_TS-03_summary.md</code>(커밋 <code>7f28ab1^</code> 에만 있음), <code>backend/app/services/refund_policy.py</code>·<code>fee_policy.py</code>·<code>backend/tests/test_refund_policy.py</code>의 학습 주석, <code>docs/payment-method-policy.md</code>, <code>_workspace/SCH_kdance.html</code> · kdance 프로젝트 내부 문서 · 2026-09-15 작성 · 2026-09-26 현재 상태 갱신(<code>_workspace/SCH_kdance.html</code> 2026-09-26 판, <code>specs/001-ai-dance-class-platform/spec.md</code> 변경 이력 2026-09-25~26, <code>fee_policy.py</code> 실제 값 대조).
 </footer>
 
 </div>

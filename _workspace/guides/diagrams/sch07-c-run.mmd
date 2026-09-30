@@ -1,0 +1,16 @@
+flowchart TB
+  classDef coral fill:#ff6b6b,stroke:#c92a2a,color:#fff
+  classDef ocean fill:#4c6ef5,stroke:#364fc7,color:#fff
+  classDef forest fill:#51cf66,stroke:#2f9e44,color:#fff
+  classDef grape fill:#845ef7,stroke:#5f3dc4,color:#fff
+  classDef amber fill:#ff922b,stroke:#e8590c,color:#fff
+  classDef teal fill:#20c997,stroke:#12b886,color:#fff
+  classDef sky fill:#74c0fc,stroke:#339af0,color:#000
+  classDef lavender fill:#d0bfff,stroke:#9775fa,color:#000
+  classDef rose fill:#ffa8a8,stroke:#ff6b6b,color:#000
+  classDef lemon fill:#ffe066,stroke:#ffd43b,color:#000
+  classDef mint fill:#8ce99a,stroke:#51cf66,color:#000
+  W["09-15 테스트 작성 완료<br/>test_cancel_api 8+1 · test_admin_refund_policy 5+12"]:::sky --> N["이 환경엔 Docker 가 없었다<br/>쓰기까지만 가능 — 실행은 미검증"]:::amber
+  N --> D["09-23 Docker Desktop 켜고 kdance_test 생성"]:::lemon --> R["uv run pytest -q<br/>186 passed (DB 27건 포함)"]:::forest
+  R --> L["09-26 · 09-29<br/>Docker 꺼짐 → 159 passed · 27 skipped"]:::rose
+  R --> X["SCH-11·12 (실적용·실행) 는 폐기<br/>SCH-21 의 완료 기준으로 흡수"]:::lavender

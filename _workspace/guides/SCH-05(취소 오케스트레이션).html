@@ -142,6 +142,13 @@
   .doclink-list a { color: var(--text); text-decoration: none; }
   .doclink-list a:hover { color: var(--accent-a); }
   .doclink-list .path { color: var(--text-dim); font-size: .85rem; }
+
+    /* 그림 (2026-09-29 추가) */
+    figure.fig{margin:22px 0;padding:14px 16px;border:1px solid #d9e0ec;border-radius:8px;background:#fff}
+    figure.fig img{display:block;max-width:100%;height:auto;margin:0 auto}
+    figure.fig figcaption{margin-top:10px;font-size:13px;color:#5a6b80;text-align:center}
+    figure.fig figcaption b{color:#0d1b2a}
+    @media (prefers-color-scheme:dark){figure.fig{background:#fff;border-color:#25313f}}
 </style>
 </head>
 <body>
@@ -184,7 +191,9 @@
 </section>
 
 <section id="concepts">
-  <h2>2. 사전 개념</h2>
+  
+<figure class="fig"><img src="diagrams/sch05-a-position.png" alt="전체 슬라이스 안에서 이 조각의 자리 — 부품이 처음 한 함수에 모이는 곳" loading="lazy"><figcaption><b>그림 1</b> · 전체 슬라이스 안에서 이 조각의 자리 — 부품이 처음 한 함수에 모이는 곳</figcaption></figure>
+<h2>2. 사전 개념</h2>
   <p>Protocol(구조적 타이핑)·Fake 객체·포트/어댑터 패턴·Redis 관련 개념은 <a href="SCH-04(어댑터 3종).html">SCH-04(어댑터 3종: PG/알림/슬롯락)</a>에서 이미 설명했으므로 반복하지 않습니다. ORM·CHECK/UNIQUE 제약·append-only 감사 로그는 <a href="SCH-01(기반 배선).html">SCH-01(기반 배선)</a>·<a href="SCH-02(도메인 모델).html">SCH-02(도메인 모델 7개)</a> 가이드를 참고하세요. 이번 SCH에서 처음 등장하는 개념 5가지만 설명합니다.</p>
 
   <h3 id="concept-tx">트랜잭션(transaction)이 뭔가요? — commit과 rollback</h3>
@@ -280,8 +289,10 @@
 </section>
 
 <section id="issues">
-  <h2>4. 이슈 → 원인 파악 → 해결</h2>
-  <p>SCH-05 작업 중 실제로 발견된 사항입니다. <code>_workspace/05_implementer_TS-05_summary.md</code>의 §5(계획에 없던 결정)·§6(발견한 불일치/미해결 사항)을 그대로 옮깁니다 — 지어내지 않습니다.</p>
+  
+<figure class="fig"><img src="diagrams/sch05-11steps.png" alt="취소 1건이 밟는 11단계 — 한 트랜잭션 안과 커밋 이후" loading="lazy"><figcaption><b>그림 2</b> · 취소 1건이 밟는 11단계 — 한 트랜잭션 안과 커밋 이후</figcaption></figure>
+<h2>4. 이슈 → 원인 파악 → 해결</h2>
+  <p>SCH-05 작업 중 실제로 발견된 사항입니다. <code>_workspace/05_implementer_TS-05_summary.md</code>(커밋 <code>7f28ab1^</code> 에만 있음)의 §5(계획에 없던 결정)·§6(발견한 불일치/미해결 사항)을 그대로 옮깁니다 — 지어내지 않습니다.</p>
 
   <h3>4.1 [계획 밖 추가] <code>preview_cancellation()</code>을 같은 파일에 추가했다 (§5-1)</h3>
   <p><b>현상:</b> 다음 단계인 SCH-06(Pydantic 스키마 + 라우터 + main.py)이 <code>GET /reservations/{id}/cancellation-preview</code>를 만들어야 하는데, 계획 문서에는 그 엔드포인트가 쓸 서비스 함수가 없었다.<br>
@@ -349,7 +360,9 @@
 </section>
 
 <section id="relations">
-  <h2>6. 다른 SCH와의 연관관계</h2>
+  
+<figure class="fig"><img src="diagrams/sch05-decisions.png" alt="설계 판단 셋 — 멱등 검사의 위치, PG 실패, 락 해제 결과" loading="lazy"><figcaption><b>그림 3</b> · 설계 판단 셋 — 멱등 검사의 위치, PG 실패, 락 해제 결과</figcaption></figure>
+<h2>6. 다른 SCH와의 연관관계</h2>
   <p>SCH-05는 <b>선행 4개 SCH의 산출물이 처음으로 한 함수 안에 합류하는 지점</b>입니다. 그 함수가 만들어내는 결과(<code>CancellationOutcome</code>/<code>CancellationPreview</code>)를 다음 SCH-06이 그대로 HTTP 응답으로 옮깁니다.</p>
   <div class="flow">
     <div class="step dim"><b><a href="SCH-01(기반 배선).html" style="color:inherit;text-decoration:none">SCH-01</a></b>기반 배선<br><span class="badge done">완료</span></div>
@@ -382,7 +395,7 @@
 
 <section id="handoff">
   <h2>7. 다음 SCH로 이어지는 것</h2>
-  <p>SCH-05가 SCH-06(Pydantic 스키마 + 라우터 + main.py, 아직 가이드 없음)에 남긴 인터페이스와 반드시 지켜야 할 규칙입니다. <code>_workspace/05_implementer_TS-05_summary.md</code> §7을 그대로 옮깁니다.</p>
+  <p>SCH-05가 SCH-06(Pydantic 스키마 + 라우터 + main.py, 아직 가이드 없음)에 남긴 인터페이스와 반드시 지켜야 할 규칙입니다. <code>_workspace/05_implementer_TS-05_summary.md</code>(커밋 <code>7f28ab1^</code> 에만 있음) §7을 그대로 옮깁니다.</p>
   <ul>
     <li><b>1. <code>Idempotency-Key</code> 헤더는 라우터가 읽는다.</b> <code>deps.py</code>에는 헤더 의존성을 두지 않았다(태스크가 지정한 4개 의존성만 구현했다). 라우터가 헤더 값을 읽어 <code>cancel_reservation(idempotency_key=...)</code>로 그대로 넘겨야 한다.</li>
     <li><b>2. 예외 처리는 한 줄로 충분하다.</b> <code>except CancellationError as exc: raise HTTPException(exc.status_code, exc.message)</code> — 예외마다 <code>if/elif</code>를 쓸 필요가 없다(§5-3). <code>exc.code</code>는 클라이언트가 참고할 안정적인 식별자다.</li>
@@ -404,7 +417,7 @@
 </section>
 
 <footer>
-  작성 기준: <code>_workspace/05_implementer_TS-05_summary.md</code>, <code>backend/app/services/cancellation.py</code>·<code>backend/app/deps.py</code>·<code>backend/tests/test_cancellation_service.py</code>의 학습 주석, <code>_workspace/SCH_kdance.html</code> · kdance 프로젝트 내부 문서 · 2026-09-15 작성 · 2026-09-26 현재 상태 갱신(<code>_workspace/SCH_kdance.html</code> 2026-09-26 판, spec 변경 이력 2026-09-20~26).
+  작성 기준: <code>_workspace/05_implementer_TS-05_summary.md</code>(커밋 <code>7f28ab1^</code> 에만 있음), <code>backend/app/services/cancellation.py</code>·<code>backend/app/deps.py</code>·<code>backend/tests/test_cancellation_service.py</code>의 학습 주석, <code>_workspace/SCH_kdance.html</code> · kdance 프로젝트 내부 문서 · 2026-09-15 작성 · 2026-09-26 현재 상태 갱신(<code>_workspace/SCH_kdance.html</code> 2026-09-26 판, spec 변경 이력 2026-09-20~26).
 </footer>
 
 </div>

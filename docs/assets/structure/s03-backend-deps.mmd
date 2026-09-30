@@ -1,0 +1,63 @@
+flowchart TB
+  classDef ocean fill:#4c6ef5,stroke:#364fc7,color:#fff
+  classDef teal fill:#20c997,stroke:#12b886,color:#fff
+  classDef grape fill:#845ef7,stroke:#5f3dc4,color:#fff
+  classDef amber fill:#ff922b,stroke:#e8590c,color:#fff
+  classDef sky fill:#74c0fc,stroke:#339af0,color:#000
+  classDef lavender fill:#d0bfff,stroke:#9775fa,color:#000
+  classDef rose fill:#ffa8a8,stroke:#ff6b6b,color:#000
+  classDef lemon fill:#ffe066,stroke:#ffd43b,color:#000
+  classDef mint fill:#8ce99a,stroke:#51cf66,color:#000
+  classDef forest fill:#51cf66,stroke:#2f9e44,color:#fff
+  subgraph ENTRY["요청이 들어오는 문"]
+    MAIN["main.py<br/>FastAPI 앱 조립 · CORS · /health"]:::teal
+    RR["routers/reservations.py<br/>취소 · 취소 미리보기"]:::teal
+    RA["routers/admin_academies.py<br/>환불 비율표 (09-25 폐기 예정)"]:::rose
+  end
+  subgraph SCHEMA["모양 검증"]
+    SC["schemas/cancellation.py"]:::sky
+    SA["schemas/academy.py (폐기 예정)"]:::rose
+  end
+  subgraph SVC["판단"]
+    CS["services/cancellation.py<br/>11단계 오케스트레이션 (45KB)"]:::grape
+    RP["services/refund_policy.py<br/>환불액 순수 함수 (폐기 예정)"]:::rose
+    FP["services/fee_policy.py<br/>정산 상수 4개"]:::sky
+  end
+  subgraph PORT["바깥 경계"]
+    DEPS["deps.py<br/>임시 인증 + 어댑터 주입"]:::amber
+    PG["adapters/payment_gateway.py"]:::amber
+    NT["adapters/notification.py"]:::amber
+    SL["adapters/slot_lock.py (Redis)"]:::amber
+  end
+  subgraph DATA["데이터"]
+    DB["db.py ← config.py ← .env"]:::mint
+    MD["models/ 7종 ← base.py"]:::mint
+    AL["alembic/env.py → 0001_initial_domain.py"]:::mint
+  end
+  subgraph TEST["검증 (tests/)"]
+    T1["test_refund_policy 50 · test_adapters 33<br/>test_cancellation_service 36 · test_schemas 39"]:::forest
+    T2["conftest + test_cancel_api · test_admin_refund_policy<br/>DB 27건 (requires_db)"]:::forest
+  end
+  MAIN --> RR
+  MAIN --> RA
+  RR --> SC
+  RR --> DEPS
+  RR --> CS
+  RA --> SA
+  RA --> DB
+  SC --> CS
+  CS --> RP
+  CS --> PG
+  CS --> NT
+  CS --> SL
+  CS --> MD
+  DEPS --> PG
+  DEPS --> NT
+  DEPS --> SL
+  MD --> AL
+  DB --> MD
+  T1 -.-> SVC
+  T1 -.-> PORT
+  T2 -.-> ENTRY
+  T2 -.-> DATA
+  FE["admin-web/lib/api-client.ts · mobile/App.tsx<br/>둘 다 localhost:8000 의 이 API 를 부른다"]:::lavender --> MAIN

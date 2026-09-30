@@ -1,0 +1,17 @@
+flowchart TB
+  classDef coral fill:#ff6b6b,stroke:#c92a2a,color:#fff
+  classDef ocean fill:#4c6ef5,stroke:#364fc7,color:#fff
+  classDef forest fill:#51cf66,stroke:#2f9e44,color:#fff
+  classDef grape fill:#845ef7,stroke:#5f3dc4,color:#fff
+  classDef amber fill:#ff922b,stroke:#e8590c,color:#fff
+  classDef teal fill:#20c997,stroke:#12b886,color:#fff
+  classDef sky fill:#74c0fc,stroke:#339af0,color:#000
+  classDef lavender fill:#d0bfff,stroke:#9775fa,color:#000
+  classDef rose fill:#ffa8a8,stroke:#ff6b6b,color:#000
+  classDef lemon fill:#ffe066,stroke:#ffd43b,color:#000
+  classDef mint fill:#8ce99a,stroke:#51cf66,color:#000
+  I["이슈 4.1<br/>db.py 의 engine 이 import 시점에<br/>DATABASE_URL 로 고정된다"]:::rose --> C["원인<br/>모듈이 처음 읽힐 때 get_settings() 값으로<br/>딱 한 번 만들어진다"]:::amber
+  C --> X{"db.py 안에<br/>테스트면 이 URL 분기를 넣을까?"}
+  X -- "넣지 않는다" --> F["해결<br/>프로덕션 코드에 흔적을 남기지 않고<br/>테스트가 get_db 를 통째로 갈아끼운다"]:::forest
+  X -. "넣으면" .-> N["운영 코드에 테스트 사정이 새어 들어간다"]:::rose
+  F --> T["확인<br/>pytest 통과 · 오버라이드 구현은 SCH-07 의 몫"]:::teal

@@ -1,0 +1,25 @@
+flowchart TB
+  classDef coral fill:#ff6b6b,stroke:#c92a2a,color:#fff
+  classDef ocean fill:#4c6ef5,stroke:#364fc7,color:#fff
+  classDef forest fill:#51cf66,stroke:#2f9e44,color:#fff
+  classDef grape fill:#845ef7,stroke:#5f3dc4,color:#fff
+  classDef amber fill:#ff922b,stroke:#e8590c,color:#fff
+  classDef teal fill:#20c997,stroke:#12b886,color:#fff
+  classDef sky fill:#74c0fc,stroke:#339af0,color:#000
+  classDef lavender fill:#d0bfff,stroke:#9775fa,color:#000
+  classDef rose fill:#ffa8a8,stroke:#ff6b6b,color:#000
+  classDef lemon fill:#ffe066,stroke:#ffd43b,color:#000
+  classDef mint fill:#8ce99a,stroke:#51cf66,color:#000
+  subgraph CONN["DB 연결 배선 — 요청마다 세션 하나"]
+    direction LR
+    ENV[".env<br/>DATABASE_URL · TEST_DATABASE_URL · REDIS_URL"]:::lemon --> CFG["config.py<br/>Settings + get_settings()<br/>.env 경로를 절대경로로 고정"]:::sky
+    CFG --> ENG["db.py engine<br/>앱 전체에 딱 하나 · import 때 한 번 생성"]:::teal
+    ENG --> SL["SessionLocal"]:::teal --> GD["get_db()<br/>요청 단위 Session 을 열고 닫는 제너레이터"]:::forest
+    GD --> USE["라우터 · 서비스 (SCH-05·06)<br/>Depends(get_db) 로 받는다"]:::grape
+  end
+  subgraph MODEL["모델 배선 — 모든 테이블의 공통 부모"]
+    direction LR
+    BASE["models/base.py<br/>Base(DeclarativeBase) + TimestampMixin"]:::sky --> DM["도메인 모델 7개 (SCH-02)<br/>models/__init__ 에서 import 해야 등록"]:::teal
+    DM --> META["Base.metadata<br/>테이블 정의의 모음"]:::forest --> AL["alembic/env.py<br/>target_metadata = Base.metadata"]:::grape
+  end
+  TEST["테스트는 db.py 를 안 고친다<br/>app.dependency_overrides[get_db] 로 갈아끼움 (SCH-07)"]:::lemon -.-> GD

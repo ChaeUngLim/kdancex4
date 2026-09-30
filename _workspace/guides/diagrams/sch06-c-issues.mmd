@@ -1,0 +1,30 @@
+flowchart TB
+  classDef coral fill:#ff6b6b,stroke:#c92a2a,color:#fff
+  classDef ocean fill:#4c6ef5,stroke:#364fc7,color:#fff
+  classDef forest fill:#51cf66,stroke:#2f9e44,color:#fff
+  classDef grape fill:#845ef7,stroke:#5f3dc4,color:#fff
+  classDef amber fill:#ff922b,stroke:#e8590c,color:#fff
+  classDef teal fill:#20c997,stroke:#12b886,color:#fff
+  classDef sky fill:#74c0fc,stroke:#339af0,color:#000
+  classDef lavender fill:#d0bfff,stroke:#9775fa,color:#000
+  classDef rose fill:#ffa8a8,stroke:#ff6b6b,color:#000
+  classDef lemon fill:#ffe066,stroke:#ffd43b,color:#000
+  classDef mint fill:#8ce99a,stroke:#51cf66,color:#000
+  subgraph A["이슈 4.1"]
+    direction LR
+    A1["완료 기준의 검증 명령이<br/>이 FastAPI 버전에서 깨진다"]:::rose --> A2["원인: 버전에 따라<br/>OpenAPI 출력 방식이 다르다"]:::amber --> A3["해결: 실제 버전에 맞는 명령으로<br/>바꿔 검증"]:::forest
+  end
+  subgraph B["이슈 4.2 — 남긴 위험"]
+    direction LR
+    B1["admin 경로에 인증도<br/>권한 검사도 없다"]:::rose --> B2["원인: 이 슬라이스는<br/>X-User-Id 헤더로 신원을 주장하는 임시 인증"]:::amber --> B3["CORS 를 와일드카드로 두지 않아<br/>구멍을 브라우저에 열지 않음 · 진짜 인증은 SCH-24"]:::forest
+  end
+  subgraph C["계획에서 벗어난 판단"]
+    direction LR
+    C1["mobile 이 payment_method 를 요구"]:::lemon --> C2["라우터가 Payment 를 직접 조회하면<br/>최근 입금 규칙이 복제된다"]:::amber --> C3["서비스 dataclass 에 2줄만 추가"]:::forest
+  end
+  subgraph D["확인"]
+    T["test_schemas.py 39건<br/>스키마 경계 · 배선 · 예외 매핑 · CORS"]:::teal
+  end
+  A --> D
+  B --> D
+  C --> D

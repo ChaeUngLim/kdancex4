@@ -1,0 +1,19 @@
+flowchart TB
+  classDef coral fill:#ff6b6b,stroke:#c92a2a,color:#fff
+  classDef ocean fill:#4c6ef5,stroke:#364fc7,color:#fff
+  classDef forest fill:#51cf66,stroke:#2f9e44,color:#fff
+  classDef grape fill:#845ef7,stroke:#5f3dc4,color:#fff
+  classDef amber fill:#ff922b,stroke:#e8590c,color:#fff
+  classDef teal fill:#20c997,stroke:#12b886,color:#fff
+  classDef sky fill:#74c0fc,stroke:#339af0,color:#000
+  classDef lavender fill:#d0bfff,stroke:#9775fa,color:#000
+  classDef rose fill:#ffa8a8,stroke:#ff6b6b,color:#000
+  classDef lemon fill:#ffe066,stroke:#ffd43b,color:#000
+  classDef mint fill:#8ce99a,stroke:#51cf66,color:#000
+  ST["pytest 시작"]:::lemon --> Q{"kdance_test DB 가<br/>떠 있나?"}
+  Q -- "아니오" --> SK["requires_db 27건 skip<br/>error 는 아니다 — 스위트는 초록"]:::amber
+  Q -- "예" --> ENG["db_engine → db_connection"]:::sky --> SP["db_session<br/>SAVEPOINT 로 테스트마다 격리<br/>끝나면 rollback → 다음 테스트는 깨끗"]:::teal
+  SP --> SC["Scenario 빌더<br/>학원·수업·주문·결제·예약을 한 번에"]:::teal --> API["api_client<br/>dependency_overrides[get_db] 로 세션 주입"]:::grape
+  API --> CHK["응답 + DB 재조회로 확인<br/>계산은 맞았지만 커밋 안 된 거짓 양성을 잡는다"]:::forest
+  SC -. "동시성만" .-> CS["committed_scenario<br/>진짜 커넥션 2개로 동시 취소 → 환불 1건 · 정원 -1 · PG 1회"]:::rose
+  CS --> CHK

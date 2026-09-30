@@ -1,0 +1,27 @@
+flowchart TB
+  classDef coral fill:#ff6b6b,stroke:#c92a2a,color:#fff
+  classDef ocean fill:#4c6ef5,stroke:#364fc7,color:#fff
+  classDef forest fill:#51cf66,stroke:#2f9e44,color:#fff
+  classDef grape fill:#845ef7,stroke:#5f3dc4,color:#fff
+  classDef amber fill:#ff922b,stroke:#e8590c,color:#fff
+  classDef teal fill:#20c997,stroke:#12b886,color:#fff
+  classDef sky fill:#74c0fc,stroke:#339af0,color:#000
+  classDef lavender fill:#d0bfff,stroke:#9775fa,color:#000
+  classDef rose fill:#ffa8a8,stroke:#ff6b6b,color:#000
+  classDef lemon fill:#ffe066,stroke:#ffd43b,color:#000
+  classDef mint fill:#8ce99a,stroke:#51cf66,color:#000
+  subgraph T1["①~⑤ 검사 — 한 트랜잭션 안"]
+    direction LR
+    S1["① 행 잠금<br/>FOR UPDATE"]:::sky --> S2["② 소유권 검증<br/>타인이면 403"]:::sky --> S3["③ 멱등 재생 검사<br/>있으면 200 + 기존 결과"]:::amber --> S4["④ 상태 전이 검증<br/>409"]:::sky --> S5["⑤ 원거래 확인 + 금액 산정<br/>SCH-03"]:::sky
+    NOTE["③이 ④보다 앞: 중복 요청은 이미 cancelled 라도<br/>409 가 아니라 200 으로 같은 결과를 돌려준다"]:::lemon
+  end
+  subgraph T2["⑥~⑩ 실행과 기록 — 같은 트랜잭션"]
+    direction LR
+    S6["⑥ Refund INSERT<br/>SAVEPOINT"]:::teal --> S7["⑦ PG 환불 호출<br/>SCH-04"]:::grape --> S8["⑧ 결과 반영<br/>성공 · 대기 · 실패"]:::teal --> S9["⑨ 감사 로그<br/>append-only"]:::teal --> S10["⑩ commit"]:::forest
+    FAIL["PG 실패면: Refund 는 failed 로 남기고 커밋<br/>예약·정원·주문은 그대로 — 자리와 돈을 동시에 잃지 않게"]:::rose
+  end
+  subgraph T3["⑪ 커밋 이후"]
+    S11["락 해제 + 알림<br/>결과로 분기하지 않는다 · 실패해도 삼킨다"]:::lavender
+  end
+  T1 --> T2
+  T2 --> T3

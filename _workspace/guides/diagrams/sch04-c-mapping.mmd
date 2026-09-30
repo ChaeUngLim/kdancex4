@@ -1,0 +1,28 @@
+flowchart TB
+  classDef coral fill:#ff6b6b,stroke:#c92a2a,color:#fff
+  classDef ocean fill:#4c6ef5,stroke:#364fc7,color:#fff
+  classDef forest fill:#51cf66,stroke:#2f9e44,color:#fff
+  classDef grape fill:#845ef7,stroke:#5f3dc4,color:#fff
+  classDef amber fill:#ff922b,stroke:#e8590c,color:#fff
+  classDef teal fill:#20c997,stroke:#12b886,color:#fff
+  classDef sky fill:#74c0fc,stroke:#339af0,color:#000
+  classDef lavender fill:#d0bfff,stroke:#9775fa,color:#000
+  classDef rose fill:#ffa8a8,stroke:#ff6b6b,color:#000
+  classDef lemon fill:#ffe066,stroke:#ffd43b,color:#000
+  classDef mint fill:#8ce99a,stroke:#51cf66,color:#000
+  subgraph Q["계획과 정책 문서가 어긋났다"]
+    direction LR
+    Q1["계획: PG 미선정이라<br/>메서드를 안 쪼갠다"]:::rose --> Q2["정책 문서: 포트원 확정 ·<br/>응답 스키마를 흉내 내라"]:::amber --> Q3["context7 로 포트원 V2<br/>openapi 를 2회 조회 — 기억 대신 사실"]:::sky --> Q4["결론 유지, 근거 교체:<br/>취소 API 는 하나, refundAccount 유무만 갈린다"]:::forest
+  end
+  subgraph M["상태 매핑 — 가장 틀리기 쉬운 곳"]
+    direction LR
+    S1["SUCCEEDED"]:::mint --> D1["succeeded"]:::teal
+    S2["REQUESTED"]:::lemon --> D2["pending (실패가 아니다)"]:::teal
+    S3["FAILED"]:::rose --> D3["failed"]:::teal
+    D3 -.-> IDX["부분 유니크 인덱스 밖 →<br/>같은 예약을 다시 취소 시도할 수 있다"]:::lavender
+  end
+  subgraph V["확인"]
+    T["test_adapters.py 33건<br/>DB·Redis 없이 전부 통과"]:::forest
+  end
+  Q --> M
+  M --> V

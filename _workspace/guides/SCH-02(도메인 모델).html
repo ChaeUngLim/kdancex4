@@ -140,6 +140,13 @@
   .doclink-list a { color: var(--text); text-decoration: none; }
   .doclink-list a:hover { color: var(--accent-a); }
   .doclink-list .path { color: var(--text-dim); font-size: .85rem; }
+
+    /* 그림 (2026-09-29 추가) */
+    figure.fig{margin:22px 0;padding:14px 16px;border:1px solid #d9e0ec;border-radius:8px;background:#fff}
+    figure.fig img{display:block;max-width:100%;height:auto;margin:0 auto}
+    figure.fig figcaption{margin-top:10px;font-size:13px;color:#5a6b80;text-align:center}
+    figure.fig figcaption b{color:#0d1b2a}
+    @media (prefers-color-scheme:dark){figure.fig{background:#fff;border-color:#25313f}}
 </style>
 </head>
 <body>
@@ -187,7 +194,9 @@
 </section>
 
 <section id="concepts">
-  <h2>2. 사전 개념</h2>
+  
+<figure class="fig"><img src="diagrams/sch02-a-position.png" alt="전체 슬라이스 안에서 이 조각의 자리 — 부품 가운데 데이터 모델" loading="lazy"><figcaption><b>그림 1</b> · 전체 슬라이스 안에서 이 조각의 자리 — 부품 가운데 데이터 모델</figcaption></figure>
+<h2>2. 사전 개념</h2>
   <p>ORM/<code>Base</code>/<code>TimestampMixin</code>/Alembic·<code>target_metadata</code> 기본 개념은 <a href="SCH-01(기반 배선).html#concept-base">SCH-01(기반 배선)에서 설명함</a>. 여기서는 SCH-02(도메인 모델 7개 + 초기 마이그레이션)에서 새로 나오는 개념만 설명합니다.</p>
 
   <h3 id="concept-check">CHECK 제약이 뭔가요?</h3>
@@ -282,7 +291,9 @@ depends_on: str | Sequence[str] | None = None</code></pre>
 </section>
 
 <section id="issues">
-  <h2>4. 이슈 → 원인 파악 → 해결</h2>
+  
+<figure class="fig"><img src="diagrams/sch02-erd.png" alt="테이블 7종과 관계 — 돈이 걸린 refunds 는 DB 가 규칙을 강제한다" loading="lazy"><figcaption><b>그림 2</b> · 테이블 7종과 관계 — 돈이 걸린 refunds 는 DB 가 규칙을 강제한다</figcaption></figure>
+<h2>4. 이슈 → 원인 파악 → 해결</h2>
 
   <h3>4.1 [수정함] 이름 없는 UNIQUE 제약이 autogenerate diff를 유발할 뻔했다</h3>
   <p><b>현상:</b> 초안 코드는 <code>idempotency_key</code>에 <code>mapped_column(..., unique=True)</code>만 썼다.<br>
@@ -350,7 +361,9 @@ depends_on: str | Sequence[str] | None = None</code></pre>
 </section>
 
 <section id="relations">
-  <h2>6. 다른 SCH와의 연관관계</h2>
+  
+<figure class="fig"><img src="diagrams/sch02-issue.png" alt="이슈 4.1·4.2 — UNIQUE 이름과 CHECK 의 한계를 어떻게 다뤘나" loading="lazy"><figcaption><b>그림 3</b> · 이슈 4.1·4.2 — UNIQUE 이름과 CHECK 의 한계를 어떻게 다뤘나</figcaption></figure>
+<h2>6. 다른 SCH와의 연관관계</h2>
   <p><i>(2026-09-26 주: 아래 그림은 1회차 슬라이스(FastAPI 예약 취소·환불) 당시의 흐름이다. SCH-01(기반 배선)~SCH-10(환불 정책 문서)은 모두 끝났고 이 코드 전체는 SCH-21(FastAPI→Next.js 전환)에서 교체된다. SCH-11·SCH-12 는 폐기돼 SCH-21 의 완료 기준으로 들어갔다.)</i></p>
   <div class="flow">
     <div class="step dim"><b><a href="SCH-01(기반 배선).html" style="color:inherit;text-decoration:none">SCH-01</a></b>기반 배선<br><span class="badge done">완료</span></div>
@@ -394,7 +407,7 @@ depends_on: str | Sequence[str] | None = None</code></pre>
 </section>
 
 <footer>
-  작성 기준: <code>_workspace/05_implementer_TS-02_summary.md</code>, <code>backend/app/models/refund.py</code>, <code>backend/app/models/refund_event.py</code>, <code>backend/app/models/__init__.py</code>, <code>backend/alembic/versions/0001_initial_domain.py</code>의 학습 주석 · kdance 프로젝트 내부 문서 · 2026-09-15 작성 · 2026-09-26 현재 상태 갱신(<code>_workspace/SCH_kdance.html</code> 2026-09-26 판 기준).
+  작성 기준: <code>_workspace/05_implementer_TS-02_summary.md</code>(커밋 <code>7f28ab1^</code> 에만 있음), <code>backend/app/models/refund.py</code>, <code>backend/app/models/refund_event.py</code>, <code>backend/app/models/__init__.py</code>, <code>backend/alembic/versions/0001_initial_domain.py</code>의 학습 주석 · kdance 프로젝트 내부 문서 · 2026-09-15 작성 · 2026-09-26 현재 상태 갱신(<code>_workspace/SCH_kdance.html</code> 2026-09-26 판 기준).
 </footer>
 
 </div>

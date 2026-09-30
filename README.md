@@ -1,12 +1,14 @@
 # kdance (k-dancex4)
 
-K-Social Dance 수업·행사·파티 멀티 에이전트 검색·예약·결제 시스템. FastAPI + SQLAlchemy2(backend) · Next.js(admin-web) · Expo(mobile).
+K-Social Dance 수업·행사·파티 멀티 에이전트 검색·예약·결제 시스템. FastAPI + SQLAlchemy2(backend — SCH-21(FastAPI→Next.js 전환)에서 Next.js + Prisma 8 로 교체 예정) · Next.js(admin-web) · Expo(mobile).
+
+저장소 전체의 파일 구조와 파일끼리의 연관성, 정합성 점검 결과는 [`docs/structure-map.md`](docs/structure-map.md)에 있다.
 
 ## 이 저장소를 처음 보신다면 (학습 진입점)
 
 이 프로젝트는 "Harness(작업 지휘) + ECC(품질 보증)" 구조로 개발됩니다. 코드를 훑기 전에 아래 순서로 보시면 전체 흐름과 각 조각이 왜 그렇게 짜였는지 이해하기 쉽습니다.
 
-1. **[Harness × ECC 왕초보 완벽분석가이드](docs/harness-ecc-guide.html)** — 이 프로젝트를 어떤 방식(누가 무엇을, 누가 품질을 검사하는지)으로 개발하는지 그림으로 설명합니다.
+1. **[Harness × ECC 왕초보 완벽분석가이드](docs/가이드/harness-ecc-guide.html)** — 이 프로젝트를 어떤 방식(누가 무엇을, 누가 품질을 검사하는지)으로 개발하는지 그림으로 설명합니다.
 2. **[SCH 진행 스케줄표](_workspace/SCH_kdance.html)** — 지금까지 어떤 조각이 어떤 순서로 만들어졌는지, 각 조각의 완료 상태를 한눈에 보여줍니다.
 3. **SCH별 왕초보 완벽분석가이드** — 각 조각이 "무엇을, 왜, 어떤 이슈를 거쳐" 만들어졌는지 6개월차 비전공자 기준으로 설명합니다(위 스케줄표의 "가이드 보기" 링크로 연결됩니다):
    - [SCH-01 기반 배선](_workspace/guides/SCH-01(기반 배선).html) · [SCH-02 도메인 모델](_workspace/guides/SCH-02(도메인 모델).html) · [SCH-03 환불액 산정](_workspace/guides/SCH-03(환불액 산정).html) · [SCH-04 어댑터 3종](_workspace/guides/SCH-04(어댑터 3종).html) · [SCH-05 취소 오케스트레이션](_workspace/guides/SCH-05(취소 오케스트레이션).html) · [SCH-06 스키마+라우터](_workspace/guides/SCH-06(스키마·라우터).html) · [SCH-07 DB 통합 테스트](_workspace/guides/SCH-07(통합 테스트 작성).html)

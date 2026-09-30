@@ -25,7 +25,7 @@ graphify-out/
 
 # kdance-dev-harness scratch workspace
 # 저장소에 포함하는 것 — 인수인계에 필요한 기록이다:
-#   kdance.html        SCH 스케줄표
+#   SCH_kdance.html    SCH 스케줄표 (build_sch_kdance.py 로 생성)
 #   guides/            왕초보 완벽분석가이드
 #   01_~05_*.md        Q1~Q5(요구사항)·D1~D4(설계 결정) 정의의 유일한 출처
 # 제외하는 것 — 재생성 가능한 중간 산출물:
@@ -50,3 +50,6 @@ _workspace/20[0-9][0-9]-[0-1][0-9]-[0-3][0-9]-[0-9][0-9][0-9]/
 # 진행 리뷰 — 로컬 전용. 원격에 올리지 않는다(2026-09-20 결정)
 # 규칙은 core-rules.md 「진행 리뷰」에 있고, 파일 자체는 각자 로컬에서 이어 쓴다
 /docs/Review.md
+
+# Review.md 의 그림 — Review.md 와 함께 로컬 전용(푸시하지 않는다)
+docs/assets/review/
