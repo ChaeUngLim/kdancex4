@@ -397,7 +397,7 @@ depends_on: str | Sequence[str] | None = None</code></pre>
 <section id="handoff">
   <h2>7. 다음 SCH로 이어지는 것</h2>
   <ul>
-    <li><b>SCH-03(환불 산정 함수)에게:</b> "환불액이 결제액을 넘을 수 없다"는 규칙은 DB CHECK가 <code>refunded_amount &lt;= requested_amount</code>까지만 강제하고 <b>결제액(<code>payments.amount</code>) 대비 상한은 CHECK로 표현할 수 없다</b>(4.2절). 산정 함수의 clamp 로직이 이 상한을 지키는 유일한 방어선이라는 점을 반드시 알아야 한다. <i>(2026-09-26 주: SCH-03 의 산정 함수는 폐기돼 옮기지 않는다. 그래도 이 상한은 남는다 — 업주가 환불액을 입력하는 FR-293(업주 환불 입력)도 "결제액을 넘을 수 없다"고 정한다. 새 스택에서는 이 상한을 어디서 막을지 다시 정해야 한다.)</i></li>
+    <li><b>SCH-03(환불 산정 함수)에게:</b> "환불액이 결제액을 넘을 수 없다"는 규칙은 DB CHECK가 <code>refunded_amount &lt;= requested_amount</code>까지만 강제하고 <b>결제액(<code>payments.amount</code>) 대비 상한은 CHECK로 표현할 수 없다</b>(4.2절). 산정 함수의 clamp 로직이 이 상한을 지키는 유일한 방어선이라는 점을 반드시 알아야 한다. <i>(2026-09-26 주: SCH-03 의 산정 함수는 폐기돼 옮기지 않는다. 그래도 이 상한은 남는다 — 대표가 환불액을 입력하는 FR-293(대표 환불 입력)도 "결제액을 넘을 수 없다"고 정한다. 새 스택에서는 이 상한을 어디서 막을지 다시 정해야 한다.)</i></li>
     <li><b>SCH-07(conftest)에게:</b> 마이그레이션의 Primary Key에는 이름을 붙이지 않았다(모델과 일치시키기 위해). <code>Base.metadata.create_all()</code>로 테스트 스키마를 만들 때 이 점이 <code>alembic upgrade</code> 결과와 제약 이름 수준까지 일치해야 한다.</li>
     <li><b>SCH-11(마이그레이션 실적용)에게:</b> 이번 SCH는 SQL <b>생성</b>까지만 검증했다. <code>upgrade head</code> 실제 실행, <code>--autogenerate</code> 빈 diff 확인, <code>downgrade base</code> 왕복은 전부 SCH-11이 Docker를 켠 뒤 처음으로 실행해야 한다. <i>(2026-09-26 주: SCH-11 은 폐기됐다. 이 왕복 검증은 끝내 하지 않았고 SCH-21(FastAPI→Next.js 전환)이 Prisma 마이그레이션으로 대신한다.)</i></li>
     <li><b>SCH-12(DB 통합 테스트)에게:</b> CHECK 제약 위반 시 실제로 INSERT가 거부되는지, partial unique index가 실제로 중복을 막는지는 이번 SCH에서 검증하지 못했다. 실제 DB를 띄운 뒤 이 제약들의 실동작을 처음 확인하는 것이 SCH-12다. <i>(2026-09-26 주: SCH-12 는 폐기돼 SCH-21 의 완료 기준으로 흡수됐다.)</i></li>

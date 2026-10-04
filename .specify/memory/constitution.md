@@ -16,7 +16,7 @@
 | Harness / ECC 역할 분리 | 같은 파일 「Harness / ECC 역할 분리」 |
 | 버전 정책 | 같은 파일 「버전 정책」 |
 | spec-kit 과의 경계 | 같은 파일 「spec-kit 과의 역할 분리」 |
-| 확정된 기술 스택 | `docs/kdancex4_service_definition_and_tech_stack.md` 「11. 기술 스택 고정표」 |
+| 확정된 기술 스택 | `docs/planning/kdancex4_service_definition_and_tech_stack.md` 「11. 기술 스택 고정표」 |
 | 프로젝트 개요 | `CLAUDE.md` |
 
 ## 이 프로젝트에서 절대 어기지 않는 것

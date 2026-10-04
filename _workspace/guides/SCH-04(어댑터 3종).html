@@ -176,7 +176,7 @@
   <div class="callout-label">현재 상태 (2026-09-26)</div>
   <p><b>이 가이드는 끝난 작업의 기록이다.</b> 여기서 설명하는 FastAPI 코드는 SCH-21(FastAPI→Next.js 전환)에서 Next.js + Prisma 8 로 교체된다. 1~5절은 2026-09-15 작업 당시 그대로 두었고 지금과 달라진 곳에는 「2026-09-26 주」를 달았다.</p>
   <p><b>새 스택으로 이어지는 것:</b> PG 어댑터(Protocol·응답 파서·Fake)는 SCH-05(취소 오케스트레이션)의 실행부와 함께 SCH-32(정규 과정 환불)·SCH-33(이벤트형 취소)에서 다시 쓴다. 다만 전제가 둘 바뀌었다. 첫째, 이 가이드가 "포트원 확정"이라 적은 PG 는 지금 <b>미선정</b>이다. 둘째, 2026-09-25 딥링크(계좌이체 링크)를 없애고 모든 유료 결제를 PG 한 경로로 모았다(FR-110(PG 단일 결제 경로)). 카드도 모든 유료 결제에서 받는다(FR-111a(모든 결제 카드 허용)). PG 계약 전까지는 SCH-29(PG 결제)가 가짜 어댑터로 만든다. 슬롯 락은 SCH-28(예약·정원·대기)이, 알림은 S1 의 SCH-38(알림)이 이어받는다. Q6(Redis 슬롯 락)과 Q8(FakePaymentGateway 멱등 원장)은 아직 열려 있다.</p>
-  <p><b>지금 환불 규칙:</b> 정규·일반 수업은 회원이 문의하고 업주가 금액을 정해 직접 실행한다(FR-098(업주 처리 환불 방식)·FR-293(업주 환불 입력)). 이벤트·원데이·파티·공연·대회는 회원이 예약 상세에서 취소하면 시스템이 FR-099c(이벤트·원데이·파티·공연·대회 취소 규정) 표대로 환불액을 계산하고 업주가 실행한다. 업주가 공지한 처리 기간(최대 3영업일)이 지나면 시스템이 자동으로 실행한다(FR-295(수단별 환불 실행)). 행사를 통째로 취소하면 결제자 전원에게 PG 로 일괄 전액 환불한다(FR-099e(행사 일괄 취소)).</p>
+  <p><b>지금 환불 규칙:</b> 정규·일반 수업은 회원이 문의하고 대표가 금액을 정해 직접 실행한다(FR-098(대표 처리 환불 방식)·FR-293(대표 환불 입력)). 이벤트·원데이·파티·공연·대회는 회원이 예약 상세에서 취소하면 시스템이 FR-099c(이벤트·원데이·파티·공연·대회 취소 규정) 표대로 환불액을 계산하고 대표가 실행한다. 대표가 공지한 처리 기간(최대 3영업일)이 지나면 시스템이 자동으로 실행한다(FR-295(수단별 환불 실행)). 행사를 통째로 취소하면 결제자 전원에게 PG 로 일괄 전액 환불한다(FR-099e(행사 일괄 취소)).</p>
   <p><b>테스트 실측:</b> 2026-09-26 <code>uv run pytest -q</code> → 159 passed · 27 skipped. Docker Desktop 이 꺼져 있어 DB 테스트 27개가 skip 됐다. DB 를 켠 2026-09-23 에는 186 passed 였다.</p>
 </div>
 
@@ -247,7 +247,7 @@
   </table>
 
   <h3>포트원 V2 스키마를 실제로 조회한 경위</h3>
-  <p>이 SCH를 계획한 문서(Phase 3)는 "메서드를 카드/가상계좌로 쪼개지 않는 이유"를 <b>"PG사가 아직 미선정"</b>이라고 적어뒀다. 그런데 구현 시점에는 <code>docs/payment-method-policy.md</code>가 이미 <b>포트원 확정</b>을 선언하고 "가짜 어댑터를 쓰더라도 포트원 응답 스키마를 흉내 낼 것"을 요구하는 상태였다 — 계획과 실제 정책 문서가 어긋난 상황이다.</p>
+  <p>이 SCH를 계획한 문서(Phase 3)는 "메서드를 카드/가상계좌로 쪼개지 않는 이유"를 <b>"PG사가 아직 미선정"</b>이라고 적어뒀다. 그런데 구현 시점에는 <code>docs/policy/payment-method-policy.md</code>가 이미 <b>포트원 확정</b>을 선언하고 "가짜 어댑터를 쓰더라도 포트원 응답 스키마를 흉내 낼 것"을 요구하는 상태였다 — 계획과 실제 정책 문서가 어긋난 상황이다.</p>
   <p>결론(Protocol을 쪼개지 않는다)은 그대로 유지하되, <b>근거를 바꿨다.</b> 원래 논리는 "PG사를 몰라서 안 쪼갠다"(정보 부족)였는데, 실제로는 "포트원 취소 API 자체가 하나이고 결제수단에 따라 <code>refundAccount</code> 유무만 갈린다"(사실 확인)는 더 강한 근거로 바뀌었다. 이걸 확인하려고 <code>mcp__context7__query-docs</code>로 포트원 공식 문서 리포지토리(<code>/portone-io/developers.portone.io</code>, 특히 <code>src/schema/v2.openapi.yml</code>)를 2회 조회했다 — 기억에 의존하지 않고 실제 스키마를 확인한 것이다. <i>(2026-09-26 주: 포트원 확정은 풀렸다. 지금 PG 는 미선정이고 정산 분배를 지원하는 PG 를 우선한다(FR-282c(판매자별 영수증·정산 분배)). 아래 매핑표는 당시 포트원 V2 기준이다.)</i></p>
   <p>확인한 핵심 사실: 요청은 <code>POST /payments/{paymentId}/cancel</code> 하나뿐이고, <code>reason</code>이 필수 문자열이며, 가상계좌 환불에는 <code>refundAccount</code>(스마트로 계열은 <code>holderPhoneNumber</code>까지 필수)를 함께 보낸다. 응답의 <code>cancellation.status</code>는 <code>SUCCEEDED</code>/<code>REQUESTED</code>/<code>FAILED</code> 세 가지로 나뉘고, 공식 SDK에 <code>isUnrecognizedPaymentCancellation()</code>이 존재한다 — 즉 포트원이 나중에 상태 변종을 추가할 수 있다는 것이 공식 전제다.</p>
 
@@ -374,7 +374,7 @@
     <tr><td>SCH-04 → SCH-06(스키마+라우터)</td><td>SCH-06의 <code>CancelRequest</code> 스키마가 받는 필드(<code>bank_code</code>/<code>account_number</code>/<code>holder_name</code>)는 이 SCH의 <code>RefundAccount</code> 필드와 이름을 맞춰뒀다 — <code>holder_phone_number</code>는 스키마에 아직 없어도 기본값 덕분에 호환된다(4.3절).</td></tr>
     <tr><td>SCH-04 → SCH-21(FastAPI→Next.js 전환) <span class="badge b">2026-09-26</span></td><td>이 파일들은 SCH-21 에서 Next.js + Prisma 8 코드로 교체된다. "Protocol 뒤에 Fake 를 끼운다"는 경계 설계는 그대로 옮길 대상이다.</td></tr>
     <tr><td>SCH-04 → SCH-29(PG 결제) <span class="badge b">2026-09-26</span></td><td>PG 는 아직 미선정이다. 계약 전에는 가짜 어댑터로 만든다. 딥링크를 없애 모든 유료 결제가 PG 한 경로라(FR-110(PG 단일 결제 경로)) 어댑터도 하나면 된다. Fake 의 인메모리 멱등 원장을 어떻게 할지는 Q8(FakePaymentGateway 멱등 원장)로 열려 있다.</td></tr>
-    <tr><td>SCH-04 → SCH-32(정규 과정 환불)·SCH-33(이벤트형 취소) <span class="badge b">2026-09-26</span></td><td>PG 환불 호출(<code>refund()</code>)과 <code>succeeded</code>/<code>pending</code>/<code>failed</code> 해석은 두 SCH 의 실행부가 다시 쓴다. 누가 실행 버튼을 누르느냐만 바뀐다 — 회원이 아니라 업주, 기한이 지나면 시스템이다(FR-295(수단별 환불 실행)).</td></tr>
+    <tr><td>SCH-04 → SCH-32(정규 과정 환불)·SCH-33(이벤트형 취소) <span class="badge b">2026-09-26</span></td><td>PG 환불 호출(<code>refund()</code>)과 <code>succeeded</code>/<code>pending</code>/<code>failed</code> 해석은 두 SCH 의 실행부가 다시 쓴다. 누가 실행 버튼을 누르느냐만 바뀐다 — 회원이 아니라 대표, 기한이 지나면 시스템이다(FR-295(수단별 환불 실행)).</td></tr>
     <tr><td>SCH-04 → SCH-28(예약·정원·대기) · SCH-38(알림) <span class="badge b">2026-09-26</span></td><td>슬롯 락의 <code>acquire()</code>는 예약을 만드는 SCH-28 이 설계한다(4.7절). Redis 를 계속 쓸지는 Q6(Redis 슬롯 락)로 열려 있다. 실제 알림 발송은 S1 의 SCH-38 몫이다.</td></tr>
   </table>
 </section>
@@ -414,14 +414,14 @@ slot_lock.release(schedule_id)   # 예외 없음. False 반환은 무시하고 �
     <p>위 인계는 SCH-05(취소 오케스트레이션)에게 남긴 것이고 SCH-05 는 끝났다. 지금 이 어댑터를 이어받는 곳은 셋이다.</p>
     <ul>
       <li><b>SCH-29(PG 결제)</b> — PG 가 정해지기 전까지 가짜 어댑터로 결제 경로를 만든다. 결제는 PG 한 경로뿐이다(FR-110(PG 단일 결제 경로)).</li>
-      <li><b>SCH-32(정규 과정 환불)·SCH-33(이벤트형 취소)</b> — <code>refund()</code> 호출과 <code>pending</code>을 정상 경로로 보는 규칙을 그대로 쓴다. 실행하는 사람은 업주다(FR-295(수단별 환불 실행)).</li>
+      <li><b>SCH-32(정규 과정 환불)·SCH-33(이벤트형 취소)</b> — <code>refund()</code> 호출과 <code>pending</code>을 정상 경로로 보는 규칙을 그대로 쓴다. 실행하는 사람은 대표다(FR-295(수단별 환불 실행)).</li>
       <li><b>SCH-34(행사 일괄 취소)</b> — 결제자 전원에게 PG 로 일괄 환불하고 건마다 멱등키를 둔다(FR-099e(행사 일괄 취소)). 이 어댑터의 멱등키 설계가 여기서 한 번 더 쓰인다.</li>
     </ul>
   </div>
 </section>
 
 <footer>
-  작성 기준: <code>_workspace/05_implementer_TS-04_summary.md</code>(커밋 <code>7f28ab1^</code> 에만 있음), <code>backend/app/adapters/</code>·<code>backend/tests/test_adapters.py</code>의 학습 주석, <code>docs/payment-method-policy.md</code>, <code>_workspace/SCH_kdance.html</code> · kdance 프로젝트 내부 문서 · 2026-09-15 작성 · 2026-09-26 현재 상태 갱신(<code>_workspace/SCH_kdance.html</code> 2026-09-26 판, spec 변경 이력 2026-09-20~26).
+  작성 기준: <code>_workspace/05_implementer_TS-04_summary.md</code>(커밋 <code>7f28ab1^</code> 에만 있음), <code>backend/app/adapters/</code>·<code>backend/tests/test_adapters.py</code>의 학습 주석, <code>docs/policy/payment-method-policy.md</code>, <code>_workspace/SCH_kdance.html</code> · kdance 프로젝트 내부 문서 · 2026-09-15 작성 · 2026-09-26 현재 상태 갱신(<code>_workspace/SCH_kdance.html</code> 2026-09-26 판, spec 변경 이력 2026-09-20~26).
 </footer>
 
 </div>

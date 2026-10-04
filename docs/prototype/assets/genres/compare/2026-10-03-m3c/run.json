@@ -1,0 +1,11 @@
+{
+  "run": "2026-10-03-m3c",
+  "style": "bebop_collage",
+  "models": [
+    "local-animagine-bebop-style-lora"
+  ],
+  "genres": [
+    "tango"
+  ],
+  "started": "2026-10-03T17:45:34"
+}

@@ -151,7 +151,7 @@ footer{margin-top:60px;padding-top:18px;border-top:1px solid var(--rule);font-si
         <p class="sub">댄스 학원의 수업을 찾고, 예약하고, 결제하고, 환불받는 앱이다. 여덟 덩어리가 이렇게 이어진다. 굵은 테두리가 우리가 만드는 것, 점선이 남의 서비스다.</p>
         <div class="sys">
           <div class="box core"><span class="who">회원 · 강사</span><b>mobile (Expo · React Native)</b><div class="x">수업 검색 · 예약 · 결제 · 문의</div></div>
-          <div class="box core"><span class="who">업주 · 운영자</span><b>admin-web (Next.js)</b><div class="x">입점 · 수업 등록 · 환불 처리 · 정산 조회</div></div>
+          <div class="box core"><span class="who">대표 · 운영자</span><b>admin-web (Next.js)</b><div class="x">입점 · 수업 등록 · 환불 처리 · 정산 조회</div></div>
           <div class="box core"><span class="who">유일한 DB 쓰기 주체</span><b>Next.js API + Prisma 8</b><div class="x">예약·결제·정산 원장. 인증은 Better Auth. SCH-21 이 FastAPI 를 여기로 옮긴다</div></div>
           <div class="box core"><span class="who">읽기 전용(MCP)</span><b>에이전트 서버 (Python · LangGraph)</b><div class="x">문의 분류 · AI 검색·추천. DB 에 직접 닿지 않는다</div></div>
           <div class="box"><span class="who">저장</span><b>PostgreSQL 18 + pgvector · Redis</b><div class="x">데이터 · 벡터 검색 · 슬롯 락</div></div>
@@ -250,7 +250,7 @@ footer{margin-top:60px;padding-top:18px;border-top:1px solid var(--rule);font-si
 <tr class="r-todo"><td class="k"><a href="#sch-39">SCH-39(포스터 읽기)</a></td><td>S1 이후</td><td><span class="dot d-todo"></span>대기</td><td>SCH-26·SCH-22 · 자동 추출 정확도 목표 미정</td><td>—</td></tr>
 <tr class="r-todo"><td class="k"><a href="#sch-40">SCH-40(정산 화면·강사 지급)</a></td><td>S1 이후</td><td><span class="dot d-todo"></span>대기</td><td>SCH-31 · 원천징수·개인 레슨 수수료율</td><td>—</td></tr>
 <tr class="r-todo"><td class="k"><a href="#sch-41">SCH-41(대학생 혜택)</a></td><td>S1 이후</td><td><span class="dot d-todo"></span>대기</td><td>SCH-24·SCH-29</td><td>—</td></tr>
-<tr class="r-todo"><td class="k"><a href="#sch-42">SCH-42(쿠폰·구독)</a></td><td>S1 이후</td><td><span class="dot d-todo"></span>대기</td><td>SCH-29 · Q13(구독 판매 주체·요금) 월 구독료</td><td>—</td></tr>
+<tr class="r-todo"><td class="k"><a href="#sch-42">SCH-42(쿠폰·멤버십)</a></td><td>S1 이후</td><td><span class="dot d-todo"></span>대기</td><td>SCH-29 · Q13(멤버십 판매 주체·요금) 월 멤버십 요금</td><td>—</td></tr>
 <tr class="r-todo"><td class="k"><a href="#sch-43">SCH-43(홍보 이미지·소개 문구)</a></td><td>S1 이후</td><td><span class="dot d-todo"></span>대기</td><td>SCH-26·SCH-22 · FLUX.1-dev·SDXL 라이선스 · 장당 실제 차감액 실측(월 약 80장은 미검증)</td><td>—</td></tr>
 <tr class="r-todo"><td class="k"><a href="#sch-44">SCH-44(AI 검색·추천)</a></td><td>S1 이후</td><td><span class="dot d-todo"></span>대기</td><td>SCH-27·SCH-36 · 임베딩·리랭커 호스팅 약관</td><td>—</td></tr>
 <tr class="r-todo"><td class="k"><a href="#sch-45">SCH-45(파티·공연·대회 피드)</a></td><td>S1 이후</td><td><span class="dot d-todo"></span>대기</td><td>SCH-26·SCH-33 · 개인·동호회 승인 기준·제출 서류 미정(정산은 학원과 동일, 09-30 확정)</td><td>—</td></tr>
@@ -308,13 +308,13 @@ footer{margin-top:60px;padding-top:18px;border-top:1px solid var(--rule);font-si
           <div class="head"><span class="sch">SCH-24(인증·역할)</span><span class="badge">대기</span><span class="tr">기반</span></div>
           <p class="t">Better Auth(Kysely 경로) · 소셜 로그인 · 역할별 범위</p>
           <div class="lbl">핵심 그림 — 이 조각이 끝나면 이렇게 흐른다</div>
-          <div class="mini "><span>소셜 로그인(카카오·구글·네이버)</span><span>휴대폰 본인확인(CI)</span><span>역할 부여(회원·강사·업주·운영자)</span><span>역할별 데이터 범위</span></div>
+          <div class="mini "><span>소셜 로그인(카카오·구글·네이버)</span><span>휴대폰 본인확인(CI)</span><span>역할 부여(회원·강사·대표·운영자)</span><span>역할별 데이터 범위</span></div>
           <div class="grid2">
             <div><div class="lbl">왜 이 자리인가</div><p>역할별 데이터 범위가 이후 모든 조회의 전제다.</p></div>
             <div><div class="lbl">완료 기준</div><p>네 역할로 로그인해 각자 허용된 데이터만 조회된다.</p></div>
           </div>
           <div class="lbl">범위와 규칙</div>
-          <p class="d">FR-001(소셜 로그인)~FR-011(강사·업주 계정 승인), FR-020(장르 4종)~FR-029(경험 수준 구간). 지금은 <code>X-User-Id</code> 헤더로 신원을 주장한다. FR-005(역할별 데이터 범위)가 이후 모든 조회의 전제다. 나이·성별·연락처는 필수 수집(Q4(개인정보 수집 방식) 2026-09-29 확정), 만 14세 미만은 보호자 계정의 자녀(FR-009a(보호자 계정 자녀 등록)).</p>
+          <p class="d">FR-001(소셜 로그인)~FR-011(강사·대표 계정 승인), FR-020(장르 4종)~FR-029(경험 수준 구간). 지금은 <code>X-User-Id</code> 헤더로 신원을 주장한다. FR-005(역할별 데이터 범위)가 이후 모든 조회의 전제다. 나이·성별·연락처는 필수 수집(Q4(개인정보 수집 방식) 2026-09-29 확정), 만 14세 미만은 보호자 계정의 자녀(FR-009a(보호자 계정 자녀 등록)).</p>
           <div class="meta"><span>선행 <b>SCH-21</b></span><span>막는 것 <b class="blk">본인확인 기관 · 소셜 로그인 3사 키</b></span></div>
         </article>
 <h3 class="trh" id="track-flow">거래 흐름 <span>입점 → 수업 → 검색 → 예약 → 출석</span></h3>
@@ -325,7 +325,7 @@ footer{margin-top:60px;padding-top:18px;border-top:1px solid var(--rule);font-si
           <div class="mini "><span>사업자 정보·정산 계좌</span><span>등록 형태·증빙</span><span>환불 규정·공지 양식</span><span>약관 동의 기록</span><span>입점 승인</span><span>수업 게시 가능</span></div>
           <div class="grid2">
             <div><div class="lbl">왜 이 자리인가</div><p>환불 규정을 등록하지 않은 학원은 수업을 게시할 수 없다.</p></div>
-            <div><div class="lbl">완료 기준</div><p>업주가 입점 절차를 끝내면 학원 안내 화면에 등록 형태와 환불 규정이 보인다.</p></div>
+            <div><div class="lbl">완료 기준</div><p>대표가 입점 절차를 끝내면 학원 안내 화면에 등록 형태와 환불 규정이 보인다.</p></div>
           </div>
           <div class="lbl">범위와 규칙</div>
           <p class="d">FR-070(학원 정보 등록)~FR-072(강의실 중복 배정 거부), FR-085(학원 등록 형태·증빙)~FR-088(등록 형태 표시), FR-099(환불 규정 등록·표시)~FR-099b(공지 자동 입력), FR-240(통신판매중개자 고지)~FR-259(입점 약관 변경 통지). 이벤트형 처리 기간은 3영업일을 넘길 수 없다. 규정 없는 학원은 게시할 수 없다.</p>
@@ -351,7 +351,7 @@ footer{margin-top:60px;padding-top:18px;border-top:1px solid var(--rule);font-si
           <div class="mini "><span>조건 입력(날짜·지역·장르·레벨)</span><span>정렬 5종(추천·검색·인기·마감·잔여석)</span><span>결과 목록</span></div>
           <div class="grid2">
             <div><div class="lbl">왜 이 자리인가</div><p>수업만 있으면 된다. SCH-28 과 병렬.</p></div>
-            <div><div class="lbl">완료 기준</div><p>다섯 정렬이 각각 다른 순서를 내고 업주·강사 행동은 인기에 세지 않는다.</p></div>
+            <div><div class="lbl">완료 기준</div><p>다섯 정렬이 각각 다른 순서를 내고 대표·강사 행동은 인기에 세지 않는다.</p></div>
           </div>
           <div class="lbl">범위와 규칙</div>
           <p class="d">FR-030(수업 검색)~FR-036(입문자 입문 수업), FR-036a(검색 결과 정렬 5종 — 인기는 최근 7일 합산, 2026-09-29). 지도 API 가 정해지기 전에는 이동 범위 탐색을 뺀다.</p>
@@ -367,7 +367,7 @@ footer{margin-top:60px;padding-top:18px;border-top:1px solid var(--rule);font-si
             <div><div class="lbl">완료 기준</div><p>마지막 한 자리에 두 명이 동시에 신청해도 한 명만 확정된다.</p></div>
           </div>
           <div class="lbl">범위와 규칙</div>
-          <p class="d">FR-090(정원·신청 인원 표시)~FR-097(먼저 입금 건 확정), FR-104a(사전 불참 표시)~FR-109(회차 옮기기). FR-093(대기 신청·순번)은 구독 전용이라 S0 에서는 기본 대기만 켠다.</p>
+          <p class="d">FR-090(정원·신청 인원 표시)~FR-097(먼저 입금 건 확정), FR-104a(사전 불참 표시)~FR-109(회차 옮기기). FR-093(대기 신청·순번)은 멤버십 전용이라 S0 에서는 기본 대기만 켠다.</p>
           <div class="meta"><span>선행 <b>SCH-26</b></span><span>막는 것 <b class="">—</b></span></div>
         </article>
         <article class="card s-todo" id="sch-30">
@@ -412,41 +412,41 @@ footer{margin-top:60px;padding-top:18px;border-top:1px solid var(--rule);font-si
         </article>
         <article class="card s-todo" id="sch-32">
           <div class="head"><span class="sch">SCH-32(정규 과정 환불)</span><span class="badge">대기</span><span class="tr">돈</span></div>
-          <p class="t">문의 → 업주가 금액 입력 → 업주가 PG 환불 실행</p>
+          <p class="t">문의 → 대표가 금액 입력 → 대표가 PG 환불 실행</p>
           <div class="lbl">핵심 그림 — 이 조각이 끝나면 이렇게 흐른다</div>
-          <div class="mini "><span>회원 문의</span><span>업주가 학원 규정대로 금액 입력</span><span>업주가 PG 환불 실행</span><span>원장 반영</span></div>
+          <div class="mini "><span>회원 문의</span><span>대표가 학원 규정대로 금액 입력</span><span>대표가 PG 환불 실행</span><span>원장 반영</span></div>
           <div class="grid2">
             <div><div class="lbl">왜 이 자리인가</div><p>환불은 결제와 원장이 있어야 되돌릴 수 있다.</p></div>
             <div><div class="lbl">완료 기준</div><p>같은 환불 요청을 두 번 눌러도 한 번만 실행된다.</p></div>
           </div>
           <div class="lbl">범위와 규칙</div>
-          <p class="d">FR-098(업주 처리 환불 방식), FR-293(업주 환불 입력)~FR-295(수단별 환불 실행). 기존 실행부(잠금·멱등키·감사 로그·PG 어댑터)를 재사용한다.</p>
+          <p class="d">FR-098(대표 처리 환불 방식), FR-293(대표 환불 입력)~FR-295(수단별 환불 실행). 기존 실행부(잠금·멱등키·감사 로그·PG 어댑터)를 재사용한다.</p>
           <div class="meta"><span>선행 <b>SCH-29 · SCH-31</b></span><span>막는 것 <b class="blk">Q11(환불 방식 변경의 뒤처리) ③④</b></span></div>
         </article>
         <article class="card s-block" id="sch-33">
           <div class="head"><span class="sch">SCH-33(이벤트형 취소)</span><span class="badge">달력 대기</span><span class="tr">돈</span></div>
-          <p class="t">예약 상세 취소 → 시스템 계산 → 업주 실행 · 3영업일 뒤 자동 실행</p>
+          <p class="t">예약 상세 취소 → 시스템 계산 → 대표 실행 · 3영업일 뒤 자동 실행</p>
           <div class="lbl">핵심 그림 — 이 조각이 끝나면 이렇게 흐른다</div>
-          <div class="mini "><span>회원이 예약 상세에서 취소 신청</span><span>시스템이 계산(취소 규정 표·환불 마감일)</span><span>업주 실행(올리기만)</span><span>3영업일 안 미실행이면 자동 실행</span></div>
+          <div class="mini "><span>회원이 예약 상세에서 취소 신청</span><span>시스템이 계산(취소 규정 표·환불 마감일)</span><span>대표 실행(올리기만)</span><span>3영업일 안 미실행이면 자동 실행</span></div>
           <div class="grid2">
             <div><div class="lbl">왜 이 자리인가</div><p>행사 일괄 취소(SCH-34)가 이 위에 선다.</p></div>
             <div><div class="lbl">완료 기준</div><p>마감일 전 취소는 표대로 계산되고 마감일 뒤에는 취소 버튼이 사라진다.</p></div>
           </div>
           <div class="lbl">범위와 규칙</div>
-          <p class="d">FR-098(업주 처리 환불 방식) 예외, FR-099a(환불·취소 공지 양식) 처리 기간 상한, FR-099c(이벤트·원데이·파티·공연·대회 취소 규정). 업주는 환불액을 올리기만 하고 거절할 수 없다. 5:5 배분은 실제로 남은 금액으로 계산한다.</p>
+          <p class="d">FR-098(대표 처리 환불 방식) 예외, FR-099a(환불·취소 공지 양식) 처리 기간 상한, FR-099c(이벤트·원데이·파티·공연·대회 취소 규정). 대표는 환불액을 올리기만 하고 거절할 수 없다. 5:5 배분은 실제로 남은 금액으로 계산한다.</p>
           <div class="meta"><span>선행 <b>SCH-29 · SCH-31</b></span><span>막는 것 <b class="blk">공휴일 달력 출처</b></span></div>
         </article>
         <article class="card s-todo" id="sch-34">
           <div class="head"><span class="sch">SCH-34(행사 일괄 취소)</span><span class="badge">대기</span><span class="tr">돈</span></div>
-          <p class="t">업주가 사유 골라 확정 → 결제자 전원 PG 일괄 환불</p>
+          <p class="t">대표가 사유 골라 확정 → 결제자 전원 PG 일괄 환불</p>
           <div class="lbl">핵심 그림 — 이 조각이 끝나면 이렇게 흐른다</div>
-          <div class="mini "><span>업주가 사유 선택(불가항력 / 업주 사정)</span><span>확정</span><span>결제자 전원 PG 일괄 환불(예매 수수료 포함)</span><span>실패 건 재시도 목록</span><span>이미 지급한 돈은 상계·반환 청구</span></div>
+          <div class="mini "><span>대표가 사유 선택(불가항력 / 대표 사정)</span><span>확정</span><span>결제자 전원 PG 일괄 환불(예매 수수료 포함)</span><span>실패 건 재시도 목록</span><span>이미 지급한 돈은 상계·반환 청구</span></div>
           <div class="grid2">
             <div><div class="lbl">왜 이 자리인가</div><p>이벤트형 취소(SCH-33)의 계산·실행부를 그대로 쓴다.</p></div>
             <div><div class="lbl">완료 기준</div><p>한 번 확정으로 결제자 전원이 환불되고 실패 건은 사유와 함께 목록에 남는다.</p></div>
           </div>
           <div class="lbl">범위와 규칙</div>
-          <p class="d">FR-099e(행사 일괄 취소). 연기 선택지는 없다. 예매 수수료까지 전액 돌려주고, 그 2,000원 몫의 PG 수수료만 사유에 따라 플랫폼 또는 업주가 낸다. 학원 계좌 직접 송금은 막는다.</p>
+          <p class="d">FR-099e(행사 일괄 취소). 연기 선택지는 없다. 예매 수수료까지 전액 돌려주고, 그 2,000원 몫의 PG 수수료만 사유에 따라 플랫폼 또는 대표가 낸다. 학원 계좌 직접 송금은 막는다.</p>
           <div class="meta"><span>선행 <b>SCH-33</b></span><span>막는 것 <b class="">—</b></span></div>
         </article>
 <h3 class="trh" id="track-ai">AI · 문의 <span>Triage · 동시 질문 · 평가 세트</span></h3>
@@ -454,13 +454,13 @@ footer{margin-top:60px;padding-top:18px;border-top:1px solid var(--rule);font-si
           <div class="head"><span class="sch">SCH-35(문의·사람 이관)</span><span class="badge">대기</span><span class="tr">AI · 문의</span></div>
           <p class="t">T0(내 데이터 조회) · T3(사람) — 출시 게이트</p>
           <div class="lbl">핵심 그림 — 이 조각이 끝나면 이렇게 흐른다</div>
-          <div class="mini "><span>질문</span><span>4등급 분류(T0~T3)</span><span>T0: 내 데이터 조회 답변</span><span>T3: 업주에게 이관</span><span>문의 이력 보관</span></div>
+          <div class="mini "><span>질문</span><span>4등급 분류(T0~T3)</span><span>T0: 내 데이터 조회 답변</span><span>T3: 대표에게 이관</span><span>문의 이력 보관</span></div>
           <div class="grid2">
             <div><div class="lbl">왜 이 자리인가</div><p>T0·T3 는 출시 게이트다.</p></div>
-            <div><div class="lbl">완료 기준</div><p>"내 예약 언제야" 는 즉시 답하고 환불 요청은 업주 화면에 도착한다.</p></div>
+            <div><div class="lbl">완료 기준</div><p>"내 예약 언제야" 는 즉시 답하고 환불 요청은 대표 화면에 도착한다.</p></div>
           </div>
           <div class="lbl">범위와 규칙</div>
-          <p class="d">FR-200(질문 4등급 분류)~FR-232(문의 이력 보관). 사람에게 가는 문의는 업주에게만 간다. 운영자는 FR-204(운영자 역할 한정) 범위만.</p>
+          <p class="d">FR-200(질문 4등급 분류)~FR-232(문의 이력 보관). 사람에게 가는 문의는 대표에게만 간다. 운영자는 FR-204(운영자 역할 한정) 범위만.</p>
           <div class="meta"><span>선행 <b>SCH-24 · SCH-29</b></span><span>막는 것 <b class="">—</b></span></div>
         </article>
         <article class="card s-todo" id="sch-36">
@@ -511,21 +511,21 @@ footer{margin-top:60px;padding-top:18px;border-top:1px solid var(--rule);font-si
         </article>
         <article class="card s-todo compact" id="sch-40">
           <div class="head"><span class="sch">SCH-40(정산 화면·강사 지급)</span><span class="badge">S1 이후</span></div>
-          <div class="mini small"><span>정산 원장</span><span>업주·강사 화면</span><span>강사 전용 계좌 지급</span></div>
+          <div class="mini small"><span>정산 원장</span><span>대표·강사 화면</span><span>강사 전용 계좌 지급</span></div>
           <p class="d">US9(수강 완료분 정산), FR-127(강사 프리랜서)~FR-135e(강사 정산 내역)</p>
           <div class="meta"><span>선행 · 막는 것 <b>SCH-31 · 원천징수·개인 레슨 수수료율</b></span></div>
         </article>
         <article class="card s-todo compact" id="sch-41">
           <div class="head"><span class="sch">SCH-41(대학생 혜택)</span><span class="badge">S1 이후</span></div>
-          <div class="mini small"><span>.ac.kr 이메일 인증</span><span>첫 결제 50%</span><span>차액은 업주 부담</span><span>남용 감시</span></div>
-          <p class="d">US5(대학생 혜택), FR-006(대학생 이메일 인증)~FR-008(학교 이메일 미보관), FR-118(대학생 첫 결제 50%)~FR-118b(대학생 할인 업주 부담)</p>
+          <div class="mini small"><span>.ac.kr 이메일 인증</span><span>첫 결제 50%</span><span>차액은 대표 부담</span><span>남용 감시</span></div>
+          <p class="d">US5(대학생 혜택), FR-006(대학생 이메일 인증)~FR-008(학교 이메일 미보관), FR-118(대학생 첫 결제 50%)~FR-118b(대학생 할인 대표 부담)</p>
           <div class="meta"><span>선행 · 막는 것 <b>SCH-24·SCH-29</b></span></div>
         </article>
         <article class="card s-todo compact" id="sch-42">
-          <div class="head"><span class="sch">SCH-42(쿠폰·구독)</span><span class="badge">S1 이후</span></div>
-          <div class="mini small"><span>구독 결제(카드·간편결제·계좌)</span><span>1+1 쿠폰 발급</span><span>참여 학원 순위판</span><span>해지·환불</span></div>
-          <p class="d">FR-112(구독 결제수단)·FR-113(정기결제 재시도), FR-119(쿠폰·할인 차액 업주 부담)~FR-123(쿠폰 양도 금지), FR-297(구독 해지)·FR-297a(구독 환불 14일 이내), FR-121d(1+1 참여 학원 실시간 수업 검색 순위)~FR-121h(1+1 참여학원 목록)</p>
-          <div class="meta"><span>선행 · 막는 것 <b>SCH-29 · Q13(구독 판매 주체·요금) 월 구독료</b></span></div>
+          <div class="head"><span class="sch">SCH-42(쿠폰·멤버십)</span><span class="badge">S1 이후</span></div>
+          <div class="mini small"><span>멤버십 결제(카드·간편결제·계좌)</span><span>1+1 쿠폰 발급</span><span>참여 학원 순위판</span><span>해지·환불</span></div>
+          <p class="d">FR-112(멤버십 결제수단)·FR-113(정기결제 재시도), FR-119(쿠폰·할인 차액 대표 부담)~FR-123(쿠폰 양도 금지), FR-297(멤버십 해지)·FR-297a(멤버십 환불 없음), FR-121d(1+1 참여 학원 실시간 수업 검색 순위)~FR-121h(1+1 참여학원 목록)</p>
+          <div class="meta"><span>선행 · 막는 것 <b>SCH-29 · Q13(멤버십 판매 주체·요금) 월 멤버십 요금</b></span></div>
         </article>
         <article class="card s-todo compact" id="sch-43">
           <div class="head"><span class="sch">SCH-43(홍보 이미지·소개 문구)</span><span class="badge">S1 이후</span></div>
@@ -576,7 +576,7 @@ footer{margin-top:60px;padding-top:18px;border-top:1px solid var(--rule);font-si
         <h2>8. 먼저 닫아야 하는 결정</h2>
         <p class="sub">S0 경로를 실제로 막는 것만 골랐다. 전체 미해결 질문은 spec 의 Status 줄과 「미해결 질문」 표에 있다. 2026-09-29 에 Q4(개인정보 수집 방식)·Q7(경험 수준 구간) ①·Q9(파티 주최 주체)·Q10(강사 소개 영상)이 닫혔다.</p>
         <div class="decisions">
-<div class="dec "><div class="id">외부 · PG 미선정</div><h3>결제대행사를 고른다 — 정산 분배 · 판매자별 영수증 · 구독 결제수단 전부 · 지정일 지급이 조건</h3><p>예매 수수료가 붙은 결제는 판매자가 둘(학원·회사)이다. FR-282c(판매자별 영수증·정산 분배)가 정산 분배(지급대행) 지원 PG 를 우선하라고 정했다. 2026-09-29 추가 조건 — ① 구독 결제수단 전부: 카드 정기결제(빌링키)·계좌 자동이체·일반 계좌이체·가상계좌·간편결제 일반 결제(FR-112(구독 결제수단)). 간편결제 정기결제는 PG 가 지원하는 것만 쓴다 — 토스페이먼츠 공식 문서 기준 네이버페이·토스페이만 되고(별도 심사) 카카오페이는 안 된다. ② 결제분을 보관했다가 정한 날 지급하는 기능(FR-282e(이벤트형 환불 마감 뒤 즉시 지급)). 포트원의 결제수단별 지원 범위는 공식 문서로 확인하지 못했다.</p><span class="blocks">막는 것 <b>SCH-29 · SCH-31 · SCH-33 · SCH-34 · SCH-42</b></span></div><div class="dec "><div class="id">SCH-21 · Q4~Q8</div><h3>전환 세부 다섯 가지 — <code>/api</code> 접두어 · 인증 포함 · Redis 슬롯 락 · DB 테스트 전략 · 가짜 결제 원장</h3><p>Q1~Q3(기존 backend 처리 · SCH-01~07 가이드 · 병행 운영)는 2026-09-20 에 닫혔다. 남은 다섯은 Phase 3(구현 계획) 결과를 보고 닫기로 했다.</p><span class="blocks">막는 것 <b>SCH-21 Phase 4(Task 분리)</b></span></div><div class="dec open"><div class="id">외부 · 본인확인</div><h3>휴대폰 본인확인 기관</h3><p>1인 1계정·미성년자 확인(FR-003(본인확인 계정 식별))이 여기에 걸린다. 소셜 로그인 3사 키도 필요하다. Q4(개인정보 수집 방식)는 2026-09-29 에 닫혔다 — 나이·성별·연락처는 필수다.</p><span class="blocks">막는 것 <b>SCH-24</b></span></div><div class="dec open"><div class="id">Q11 · ①③④</div><h3>Q11(환불 방식 변경의 뒤처리) — 법정 하한 · 업주 응답 기한 · 폐업·무응답 때 경로</h3><p>정규 과정 환불은 업주가 정한다. 그 규정의 법정 하한과, 업주가 답하지 않을 때의 경로가 아직 없다.</p><span class="blocks">막는 것 <b>SCH-25 · SCH-32</b></span></div><div class="dec open"><div class="id">데이터 · 공휴일 달력</div><h3>영업일 계산에 쓸 공휴일 달력 출처</h3><p>이벤트형 취소의 처리 기간 상한(3영업일)과 자동 실행 시점이 토·일·공휴일을 뺀 날로 계산된다.</p><span class="blocks">막는 것 <b>SCH-33</b></span></div><div class="dec "><div class="id">법률 검토 묶음</div><h3>출시 전 변호사 검토 — 약관 · 취소 규정 · 예매 수수료 · 3영업일 · 결제 흐름</h3><p>FR-099c(이벤트·원데이·파티·공연·대회 취소 규정) 두 항목, FR-099d(환불 마감일 필수 입력·결제 적용), FR-282a(예매 수수료 2,000원), 3영업일 상한의 적용 범위, 5:5 배분, FR-121d(1+1 참여 학원 실시간 수업 검색 순위)의 순위 기준 공개·광고 표시 의무, 개인·동호회 파티 주최자(FR-155(주최자 표시))의 통신판매업 신고 대상 여부. 구현은 막지 않지만 출시는 막는다.</p><span class="blocks">막는 것 <b>SCH-37 (S0 판정 → 외부 공개)</b></span></div>
+<div class="dec "><div class="id">외부 · PG 미선정</div><h3>결제대행사를 고른다 — 정산 분배 · 판매자별 영수증 · 멤버십 결제수단 전부 · 지정일 지급이 조건</h3><p>예매 수수료가 붙은 결제는 판매자가 둘(학원·회사)이다. FR-282c(판매자별 영수증·정산 분배)가 정산 분배(지급대행) 지원 PG 를 우선하라고 정했다. 2026-09-29 추가 조건 — ① 멤버십 결제수단 전부: 카드 정기결제(빌링키)·계좌 자동이체·일반 계좌이체·가상계좌·간편결제 일반 결제(FR-112(멤버십 결제수단)). 간편결제 정기결제는 PG 가 지원하는 것만 쓴다 — 토스페이먼츠 공식 문서 기준 네이버페이·토스페이만 되고(별도 심사) 카카오페이는 안 된다. ② 결제분을 보관했다가 정한 날 지급하는 기능(FR-282e(이벤트형 환불 마감 뒤 즉시 지급)). 포트원의 결제수단별 지원 범위는 공식 문서로 확인하지 못했다.</p><span class="blocks">막는 것 <b>SCH-29 · SCH-31 · SCH-33 · SCH-34 · SCH-42</b></span></div><div class="dec "><div class="id">SCH-21 · Q4~Q8</div><h3>전환 세부 다섯 가지 — <code>/api</code> 접두어 · 인증 포함 · Redis 슬롯 락 · DB 테스트 전략 · 가짜 결제 원장</h3><p>Q1~Q3(기존 backend 처리 · SCH-01~07 가이드 · 병행 운영)는 2026-09-20 에 닫혔다. 남은 다섯은 Phase 3(구현 계획) 결과를 보고 닫기로 했다.</p><span class="blocks">막는 것 <b>SCH-21 Phase 4(Task 분리)</b></span></div><div class="dec open"><div class="id">외부 · 본인확인</div><h3>휴대폰 본인확인 기관</h3><p>1인 1계정·미성년자 확인(FR-003(본인확인 계정 식별))이 여기에 걸린다. 소셜 로그인 3사 키도 필요하다. Q4(개인정보 수집 방식)는 2026-09-29 에 닫혔다 — 나이·성별·연락처는 필수다.</p><span class="blocks">막는 것 <b>SCH-24</b></span></div><div class="dec open"><div class="id">Q11 · ①③④</div><h3>Q11(환불 방식 변경의 뒤처리) — 법정 하한 · 대표 응답 기한 · 폐업·무응답 때 경로</h3><p>정규 과정 환불은 대표가 정한다. 그 규정의 법정 하한과, 대표가 답하지 않을 때의 경로가 아직 없다.</p><span class="blocks">막는 것 <b>SCH-25 · SCH-32</b></span></div><div class="dec open"><div class="id">데이터 · 공휴일 달력</div><h3>영업일 계산에 쓸 공휴일 달력 출처</h3><p>이벤트형 취소의 처리 기간 상한(3영업일)과 자동 실행 시점이 토·일·공휴일을 뺀 날로 계산된다.</p><span class="blocks">막는 것 <b>SCH-33</b></span></div><div class="dec "><div class="id">법률 검토 묶음</div><h3>출시 전 변호사 검토 — 약관 · 취소 규정 · 예매 수수료 · 3영업일 · 결제 흐름</h3><p>FR-099c(이벤트·원데이·파티·공연·대회 취소 규정) 두 항목, FR-099d(환불 마감일 필수 입력·결제 적용), FR-282a(예매 수수료 2,000원), 3영업일 상한의 적용 범위, 5:5 배분, FR-121d(1+1 참여 학원 실시간 수업 검색 순위)의 순위 기준 공개·광고 표시 의무, 개인·동호회 파티 주최자(FR-155(주최자 표시))의 통신판매업 신고 대상 여부. 구현은 막지 않지만 출시는 막는다.</p><span class="blocks">막는 것 <b>SCH-37 (S0 판정 → 외부 공개)</b></span></div>
         </div>
       </section>
 
@@ -601,7 +601,7 @@ footer{margin-top:60px;padding-top:18px;border-top:1px solid var(--rule);font-si
           <div class="head"><span class="sch">SCH-03(환불액 산정)</span><span class="badge">완료 · 옮기지 않음</span></div>
           <p class="t">24시간 경계·비율표 계산 순수 함수</p>
           <div class="mini small"><span>취소 시각</span><span>24시간 경계·비율표</span><span>환불액</span></div>
-          <p class="d">2026-09-25 환불이 업주 결정 방식으로 바뀌어 폐기가 확정됐다(Q11(환불 방식 변경의 뒤처리) ②). 이벤트형의 새 계산(SCH-33)은 이 코드가 아니라 FR-099c 표를 따른다.</p><a class="guide-link" href="guides/SCH-03(환불액 산정).html">가이드 보기 →</a>
+          <p class="d">2026-09-25 환불이 대표 결정 방식으로 바뀌어 폐기가 확정됐다(Q11(환불 방식 변경의 뒤처리) ②). 이벤트형의 새 계산(SCH-33)은 이 코드가 아니라 FR-099c 표를 따른다.</p><a class="guide-link" href="guides/SCH-03(환불액 산정).html">가이드 보기 →</a>
         </article>
         <article class="card s-done compact" id="sch-4">
           <div class="head"><span class="sch">SCH-04(어댑터 3종)</span><span class="badge">완료</span></div>
@@ -631,7 +631,7 @@ footer{margin-top:60px;padding-top:18px;border-top:1px solid var(--rule);font-si
           <div class="head"><span class="sch">SCH-08(admin-web 환불 비율표)</span><span class="badge">완료 · 옮기지 않음</span></div>
           <p class="t">비율표 설정 화면·API</p>
           <div class="mini small"><span>비율표 화면</span><span>저장 API</span></div>
-          <p class="d">비율표 자체를 쓰지 않는다(Q11(환불 방식 변경의 뒤처리) ②). 대신 업주 환불 처리 화면(SCH-32·SCH-33)과 행사 일괄 취소 화면(SCH-34)을 만든다.</p>
+          <p class="d">비율표 자체를 쓰지 않는다(Q11(환불 방식 변경의 뒤처리) ②). 대신 대표 환불 처리 화면(SCH-32·SCH-33)과 행사 일괄 취소 화면(SCH-34)을 만든다.</p>
         </article>
         <article class="card s-review compact" id="sch-9">
           <div class="head"><span class="sch">SCH-09(mobile 취소·환불계좌)</span><span class="badge">완료 · 데모</span></div>
@@ -660,7 +660,7 @@ footer{margin-top:60px;padding-top:18px;border-top:1px solid var(--rule);font-si
         <h2>11. 참고 자료</h2>
         <div class="scroller"><table class="grid">
           <thead><tr><th>무엇</th><th>설명</th><th>원본 문서</th></tr></thead>
-          <tbody><tr><td class="k">요구사항</td><td>US·FR·SC·규모 단계·미해결 질문의 원본</td><td><code>specs/001-ai-dance-class-platform/spec.md</code></td></tr><tr><td class="k">기술 스택</td><td>버전 고정표 · 알려진 위험 · 백엔드 교체 · 엔티티</td><td><code>docs/kdancex4_service_definition_and_tech_stack.md</code></td></tr><tr><td class="k">결정 기록</td><td>ADR-001~005</td><td><code>CLAUDE-decisions.md</code></td></tr><tr><td class="k">SCH-21 조사</td><td>전환 요구사항·코드 조사(Phase 1·2), Q1~Q8</td><td><code>_workspace/01_req-analyst_requirements.md</code> · <code>02_code-searcher_structure.md</code></td></tr><tr><td class="k">1회차 슬라이스</td><td>SCH-01~10 의 계획·태스크 원본</td><td>커밋 <code>7f28ab1^</code> 의 <code>_workspace/03_*</code>·<code>04_*</code></td></tr><tr><td class="k">약관</td><td>회원·입점 약관(현행)과 조문별 근거 보관본</td><td><code>docs/terms-of-service.md</code> · <code>docs/merchant-terms.md</code> · <code>docs/archive/terms-2026-09-25/</code></td></tr><tr><td class="k">진행 리뷰</td><td>날짜별 판단과 막힌 것</td><td><code>docs/Review.md</code></td></tr></tbody></table></div>
+          <tbody><tr><td class="k">요구사항</td><td>US·FR·SC·규모 단계·미해결 질문의 원본</td><td><code>specs/001-ai-dance-class-platform/spec.md</code></td></tr><tr><td class="k">기술 스택</td><td>버전 고정표 · 알려진 위험 · 백엔드 교체 · 엔티티</td><td><code>docs/planning/kdancex4_service_definition_and_tech_stack.md</code></td></tr><tr><td class="k">결정 기록</td><td>ADR-001~005</td><td><code>CLAUDE-decisions.md</code></td></tr><tr><td class="k">SCH-21 조사</td><td>전환 요구사항·코드 조사(Phase 1·2), Q1~Q8</td><td><code>_workspace/01_req-analyst_requirements.md</code> · <code>02_code-searcher_structure.md</code></td></tr><tr><td class="k">1회차 슬라이스</td><td>SCH-01~10 의 계획·태스크 원본</td><td>커밋 <code>7f28ab1^</code> 의 <code>_workspace/03_*</code>·<code>04_*</code></td></tr><tr><td class="k">약관</td><td>회원·입점 약관(현행)과 조문별 근거 보관본</td><td><code>docs/legal/terms-of-service.md</code> · <code>docs/legal/merchant-terms.md</code> · <code>docs/legal/archive/terms-2026-09-25/</code></td></tr><tr><td class="k">진행 리뷰</td><td>날짜별 판단과 막힌 것</td><td><code>docs/Review.md</code></td></tr></tbody></table></div>
       </section>
 
       <section id="rules">
@@ -676,7 +676,7 @@ footer{margin-top:60px;padding-top:18px;border-top:1px solid var(--rule);font-si
         </ul>
       </section>
 
-      <footer><p>KDANCE · 개인 프로젝트 · 2026-09-30 기준<br />요구사항은 <code>specs/001-ai-dance-class-platform/spec.md</code>, 기술 스택은 <code>docs/kdancex4_service_definition_and_tech_stack.md</code>, 진행 기록은 <code>docs/Review.md</code>.</p></footer>
+      <footer><p>KDANCE · 개인 프로젝트 · 2026-09-30 기준<br />요구사항은 <code>specs/001-ai-dance-class-platform/spec.md</code>, 기술 스택은 <code>docs/planning/kdancex4_service_definition_and_tech_stack.md</code>, 진행 기록은 <code>docs/Review.md</code>.</p></footer>
 </main>
 </div>
 </body>

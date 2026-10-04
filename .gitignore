@@ -31,7 +31,6 @@ graphify-out/
 # 제외하는 것 — 재생성 가능한 중간 산출물:
 _workspace/00_input/
 _workspace_*/
-_workspace/mobydick-v2-schedule.html
 .diagrams/
 
 # Playwright MCP 세션 캐시 (재생성 가능)

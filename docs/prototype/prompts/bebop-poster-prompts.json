@@ -1,0 +1,307 @@
+{
+  "_note": "로컬 서버 POST http://localhost:7860/sdapi/v1/txt2img 바디. [교체] 표시 태그는 기준 그림대로 갈 때 바꾼다. 2026-10-03. LoRA 는 C 설정(1단계 0, hires 0.3). 약점은 자세 — md 의 「알려진 약점」 참고.",
+  "A_animagine_xl_4": {
+    "1_swing_spike_faye": {
+      "prompt": "masterpiece, high score, great score, absurdres, semi-realistic, painterly, soft shading, detailed skin texture, highly detailed face, detailed eyes, realistic anatomy, mature anime film style, late 1990s theatrical anime, thin confident ink lines, detailed hair strands, detailed cloth folds, cinematic lighting, volumetric light, chiaroscuro, subtle film grain, deep background, cinematic color grading, film still, spiegel, v4l3nt1ne, 1boy, 1girl, couple, spike spiegel, faye valentine, cowboy bebop, dark green hair, messy fluffy hair, narrow eyes, navy suit, yellow shirt, loose black necktie, tall, lanky, purple hair, short bob, yellow hairband, green eyes, red lips, red backless halter dress, flared skirt, high heels, lindy hop, swing dance, partner dance, spinning, one hand connection, dress flaring with motion, leaning, dynamic pose, laughing, eye contact, only two people, couple centered, dark jazz club at night, large window, blue night sky, neon sign, jazz band on stage out of focus, blue and teal stage lighting, warm spotlight on couple, blurred crowd silhouettes, bokeh, polished floor reflection, full body, faces clearly visible, depth of field, detailed painted background",
+      "negative_prompt": "lowres, bad anatomy, bad hands, text, error, missing finger, extra digits, fewer digits, cropped, worst quality, low quality, low score, bad score, average score, signature, watermark, username, blurry, chibi, childlike, big head, moe, mobile game illustration, flat color, flat shading, glossy plastic skin, 3d render, cgi, simple background, extra arms, extra legs, extra limbs, malformed hands, fused fingers, multiple views, duplicate, clone, 3boys, 3girls, crowd in foreground, logo, poster, border, standing apart, side by side, back to back, solo dance",
+      "width": 832,
+      "height": 1216,
+      "steps": 35,
+      "cfg_scale": 5,
+      "seed": 801,
+      "sampler_name": "DPM++ 2M Karras",
+      "batch_size": 1,
+      "enable_hr": true,
+      "hr_scale": 1.5,
+      "denoising_strength": 0.45,
+      "hr_steps": 28,
+      "override_settings": {
+        "sd_model_checkpoint": "animagine-xl-4.0.safetensors",
+        "hr_lora_weight": 0.3,
+        "loras": [
+          {
+            "name": "cowboy-bebop-illustrious-v2.safetensors",
+            "weight": 0
+          }
+        ]
+      }
+    },
+    "2_salsa_vincent_electra": {
+      "prompt": "masterpiece, high score, great score, absurdres, semi-realistic, painterly, soft shading, detailed skin texture, highly detailed face, detailed eyes, realistic anatomy, mature anime film style, late 1990s theatrical anime, thin confident ink lines, detailed hair strands, detailed cloth folds, cinematic lighting, volumetric light, chiaroscuro, subtle film grain, deep background, cinematic color grading, film still, ovirowa, 1boy, 1girl, couple, vincent volaju, electra ovilo, cowboy bebop: tengoku no tobira, cowboy bebop, tall gaunt man, long wavy black hair, stubble, sharp face, long black coat, dark red shirt, tan skin, dark brown hair, [교체: blonde hair, curly updo], wavy hair tied up, red dress, bare back, gold belt, hips pressed together, bachata, salsa, body wave, hand on waist, hand on shoulder, foreheads almost touching, rhythmic weight shift, intimate, only two people, couple centered, latin club at night, red neon sign, warm golden lamplight, red and gold lighting, blurred dancing crowd silhouettes, bokeh, polished floor reflection, full body, faces clearly visible, depth of field, detailed painted background",
+      "negative_prompt": "lowres, bad anatomy, bad hands, text, error, missing finger, extra digits, fewer digits, cropped, worst quality, low quality, low score, bad score, average score, signature, watermark, username, blurry, chibi, childlike, big head, moe, mobile game illustration, flat color, flat shading, glossy plastic skin, 3d render, cgi, simple background, extra arms, extra legs, extra limbs, malformed hands, fused fingers, multiple views, duplicate, clone, 3boys, 3girls, crowd in foreground, logo, poster, border, standing apart, side by side, back to back, solo dance",
+      "width": 832,
+      "height": 1216,
+      "steps": 35,
+      "cfg_scale": 5,
+      "seed": 801,
+      "sampler_name": "DPM++ 2M Karras",
+      "batch_size": 1,
+      "enable_hr": true,
+      "hr_scale": 1.5,
+      "denoising_strength": 0.45,
+      "hr_steps": 28,
+      "override_settings": {
+        "sd_model_checkpoint": "animagine-xl-4.0.safetensors",
+        "hr_lora_weight": 0.3,
+        "loras": [
+          {
+            "name": "cowboy-bebop-illustrious-v2.safetensors",
+            "weight": 0
+          }
+        ]
+      }
+    },
+    "3_tango_julia_vicious": {
+      "prompt": "masterpiece, high score, great score, absurdres, semi-realistic, painterly, soft shading, detailed skin texture, highly detailed face, detailed eyes, realistic anatomy, mature anime film style, late 1990s theatrical anime, thin confident ink lines, detailed hair strands, detailed cloth folds, cinematic lighting, volumetric light, chiaroscuro, subtle film grain, deep background, cinematic color grading, film still, 1boy, 1girl, couple, julia \\(cowboy bebop\\), vicious \\(cowboy bebop\\), cowboy bebop, short wavy red hair, blue eyes, red lips, black slit dress, bare back, black heels, long silver hair, [교체: long black hair], pale skin, sharp hollow face, cold eyes, black suit, white shirt, argentine tango, close embrace, clear frame, chest to chest, leg hook, upright posture, stable balance, intense gaze, tension, only two people, couple centered, old grand hall, crystal chandelier, candlelight, deep shadows, warm amber glow, dark wood, blurred crowd silhouettes, bokeh, polished floor reflection, full body, faces clearly visible, depth of field, detailed painted background",
+      "negative_prompt": "lowres, bad anatomy, bad hands, text, error, missing finger, extra digits, fewer digits, cropped, worst quality, low quality, low score, bad score, average score, signature, watermark, username, blurry, chibi, childlike, big head, moe, mobile game illustration, flat color, flat shading, glossy plastic skin, 3d render, cgi, simple background, extra arms, extra legs, extra limbs, malformed hands, fused fingers, multiple views, duplicate, clone, 3boys, 3girls, crowd in foreground, logo, poster, border, standing apart, side by side, back to back, solo dance",
+      "width": 832,
+      "height": 1216,
+      "steps": 35,
+      "cfg_scale": 5,
+      "seed": 801,
+      "sampler_name": "DPM++ 2M Karras",
+      "batch_size": 1,
+      "enable_hr": true,
+      "hr_scale": 1.5,
+      "denoising_strength": 0.45,
+      "hr_steps": 28,
+      "override_settings": {
+        "sd_model_checkpoint": "animagine-xl-4.0.safetensors",
+        "hr_lora_weight": 0.3,
+        "loras": [
+          {
+            "name": "cowboy-bebop-illustrious-v2.safetensors",
+            "weight": 0
+          }
+        ]
+      }
+    },
+    "4_swing_still": {
+      "prompt": "masterpiece, high score, great score, absurdres, semi-realistic, painterly, soft shading, detailed skin texture, highly detailed face, detailed eyes, realistic anatomy, mature anime film style, late 1990s theatrical anime, thin confident ink lines, detailed hair strands, detailed cloth folds, cinematic lighting, volumetric light, chiaroscuro, subtle film grain, deep background, cinematic color grading, film still, spiegel, v4l3nt1ne, 1boy, 1girl, couple, spike spiegel, faye valentine, cowboy bebop, dark green hair, messy fluffy hair, narrow eyes, navy suit, yellow shirt, loose black necktie, tall, lanky, purple hair, short bob, yellow hairband, green eyes, red lips, red backless halter dress, flared skirt, high heels, lindy hop, swing dance, jumping, kicking, mid-air, feet off the floor, laughing, big band on stage, checkered floor, wide shot, full moon through window, only two people, couple centered, dark jazz club at night, large window, blue night sky, neon sign, jazz band on stage out of focus, blue and teal stage lighting, warm spotlight on couple, blurred crowd silhouettes, bokeh, polished floor reflection, full body, faces clearly visible, depth of field, detailed painted background",
+      "negative_prompt": "lowres, bad anatomy, bad hands, text, error, missing finger, extra digits, fewer digits, cropped, worst quality, low quality, low score, bad score, average score, signature, watermark, username, blurry, chibi, childlike, big head, moe, mobile game illustration, flat color, flat shading, glossy plastic skin, 3d render, cgi, simple background, extra arms, extra legs, extra limbs, malformed hands, fused fingers, multiple views, duplicate, clone, 3boys, 3girls, crowd in foreground, logo, poster, border, standing apart, side by side, back to back, solo dance",
+      "width": 832,
+      "height": 1216,
+      "steps": 35,
+      "cfg_scale": 5,
+      "seed": 802,
+      "sampler_name": "DPM++ 2M Karras",
+      "batch_size": 1,
+      "enable_hr": true,
+      "hr_scale": 1.5,
+      "denoising_strength": 0.45,
+      "hr_steps": 28,
+      "override_settings": {
+        "sd_model_checkpoint": "animagine-xl-4.0.safetensors",
+        "hr_lora_weight": 0.3,
+        "loras": [
+          {
+            "name": "cowboy-bebop-illustrious-v2.safetensors",
+            "weight": 0
+          }
+        ]
+      }
+    },
+    "5_salsa_still": {
+      "prompt": "masterpiece, high score, great score, absurdres, semi-realistic, painterly, soft shading, detailed skin texture, highly detailed face, detailed eyes, realistic anatomy, mature anime film style, late 1990s theatrical anime, thin confident ink lines, detailed hair strands, detailed cloth folds, cinematic lighting, volumetric light, chiaroscuro, subtle film grain, deep background, cinematic color grading, film still, ovirowa, 1boy, 1girl, couple, vincent volaju, electra ovilo, cowboy bebop: tengoku no tobira, cowboy bebop, tall gaunt man, long wavy black hair, stubble, sharp face, long black coat, dark red shirt, tan skin, dark brown hair, [교체: blonde hair, curly updo], wavy hair tied up, red dress, bare back, gold belt, salsa, spinning turn, arm raised, dress flaring, back to back, looking over shoulder, only two people, couple centered, latin club at night, red neon sign, warm golden lamplight, red and gold lighting, blurred dancing crowd silhouettes, bokeh, polished floor reflection, full body, faces clearly visible, depth of field, detailed painted background",
+      "negative_prompt": "lowres, bad anatomy, bad hands, text, error, missing finger, extra digits, fewer digits, cropped, worst quality, low quality, low score, bad score, average score, signature, watermark, username, blurry, chibi, childlike, big head, moe, mobile game illustration, flat color, flat shading, glossy plastic skin, 3d render, cgi, simple background, extra arms, extra legs, extra limbs, malformed hands, fused fingers, multiple views, duplicate, clone, 3boys, 3girls, crowd in foreground, logo, poster, border, standing apart, side by side, back to back, solo dance",
+      "width": 832,
+      "height": 1216,
+      "steps": 35,
+      "cfg_scale": 5,
+      "seed": 802,
+      "sampler_name": "DPM++ 2M Karras",
+      "batch_size": 1,
+      "enable_hr": true,
+      "hr_scale": 1.5,
+      "denoising_strength": 0.45,
+      "hr_steps": 28,
+      "override_settings": {
+        "sd_model_checkpoint": "animagine-xl-4.0.safetensors",
+        "hr_lora_weight": 0.3,
+        "loras": [
+          {
+            "name": "cowboy-bebop-illustrious-v2.safetensors",
+            "weight": 0
+          }
+        ]
+      }
+    },
+    "6_tango_still": {
+      "prompt": "masterpiece, high score, great score, absurdres, semi-realistic, painterly, soft shading, detailed skin texture, highly detailed face, detailed eyes, realistic anatomy, mature anime film style, late 1990s theatrical anime, thin confident ink lines, detailed hair strands, detailed cloth folds, cinematic lighting, volumetric light, chiaroscuro, subtle film grain, deep background, cinematic color grading, film still, 1boy, 1girl, couple, julia \\(cowboy bebop\\), vicious \\(cowboy bebop\\), cowboy bebop, short wavy red hair, blue eyes, red lips, black slit dress, bare back, black heels, long silver hair, [교체: long black hair], pale skin, sharp hollow face, cold eyes, black suit, white shirt, argentine tango, dip, leaning back, dramatic backbend, hand on back, close-up, upper body, intense gaze, only two people, couple centered, old grand hall, crystal chandelier, candlelight, deep shadows, warm amber glow, dark wood, blurred crowd silhouettes, bokeh, polished floor reflection, full body, faces clearly visible, depth of field, detailed painted background",
+      "negative_prompt": "lowres, bad anatomy, bad hands, text, error, missing finger, extra digits, fewer digits, cropped, worst quality, low quality, low score, bad score, average score, signature, watermark, username, blurry, chibi, childlike, big head, moe, mobile game illustration, flat color, flat shading, glossy plastic skin, 3d render, cgi, simple background, extra arms, extra legs, extra limbs, malformed hands, fused fingers, multiple views, duplicate, clone, 3boys, 3girls, crowd in foreground, logo, poster, border, standing apart, side by side, back to back, solo dance",
+      "width": 832,
+      "height": 1216,
+      "steps": 35,
+      "cfg_scale": 5,
+      "seed": 802,
+      "sampler_name": "DPM++ 2M Karras",
+      "batch_size": 1,
+      "enable_hr": true,
+      "hr_scale": 1.5,
+      "denoising_strength": 0.45,
+      "hr_steps": 28,
+      "override_settings": {
+        "sd_model_checkpoint": "animagine-xl-4.0.safetensors",
+        "hr_lora_weight": 0.3,
+        "loras": [
+          {
+            "name": "cowboy-bebop-illustrious-v2.safetensors",
+            "weight": 0
+          }
+        ]
+      }
+    }
+  },
+  "B_illustrious_xl_v2": {
+    "1_swing_spike_faye": {
+      "prompt": "masterpiece, best quality, very aesthetic, absurdres, newest, semi-realistic, painterly, soft shading, detailed skin texture, highly detailed face, detailed eyes, realistic anatomy, mature anime film style, late 1990s theatrical anime, thin confident ink lines, detailed hair strands, detailed cloth folds, cinematic lighting, volumetric light, chiaroscuro, subtle film grain, deep background, cinematic color grading, film still, spiegel, v4l3nt1ne, 1boy, 1girl, couple, spike spiegel, faye valentine, cowboy bebop, dark green hair, messy fluffy hair, narrow eyes, navy suit, yellow shirt, loose black necktie, tall, lanky, purple hair, short bob, yellow hairband, green eyes, red lips, red backless halter dress, flared skirt, high heels, lindy hop, swing dance, partner dance, spinning, one hand connection, dress flaring with motion, leaning, dynamic pose, laughing, eye contact, only two people, couple centered, dark jazz club at night, large window, blue night sky, neon sign, jazz band on stage out of focus, blue and teal stage lighting, warm spotlight on couple, blurred crowd silhouettes, bokeh, polished floor reflection, full body, faces clearly visible, depth of field, detailed painted background",
+      "negative_prompt": "worst quality, low quality, lowres, bad anatomy, bad hands, missing fingers, extra digits, fewer digits, cropped, jpeg artifacts, signature, watermark, username, artist name, text, error, blurry, chibi, childlike, big head, moe, mobile game illustration, flat color, flat shading, glossy plastic skin, 3d, cgi, simple background, extra arms, extra legs, extra limbs, malformed hands, fused fingers, multiple views, duplicate, clone, 3boys, 3girls, crowd in foreground, logo, poster, border, standing apart, side by side, back to back, solo dance",
+      "width": 832,
+      "height": 1216,
+      "steps": 35,
+      "cfg_scale": 5,
+      "seed": 801,
+      "sampler_name": "DPM++ 2M Karras",
+      "batch_size": 1,
+      "enable_hr": true,
+      "hr_scale": 1.5,
+      "denoising_strength": 0.45,
+      "hr_steps": 28,
+      "override_settings": {
+        "sd_model_checkpoint": "Illustrious-XL-v2.0.safetensors",
+        "hr_lora_weight": 0.3,
+        "loras": [
+          {
+            "name": "cowboy-bebop-illustrious-v2.safetensors",
+            "weight": 0
+          }
+        ]
+      }
+    },
+    "2_salsa_vincent_electra": {
+      "prompt": "masterpiece, best quality, very aesthetic, absurdres, newest, semi-realistic, painterly, soft shading, detailed skin texture, highly detailed face, detailed eyes, realistic anatomy, mature anime film style, late 1990s theatrical anime, thin confident ink lines, detailed hair strands, detailed cloth folds, cinematic lighting, volumetric light, chiaroscuro, subtle film grain, deep background, cinematic color grading, film still, ovirowa, 1boy, 1girl, couple, vincent volaju, electra ovilo, cowboy bebop: tengoku no tobira, cowboy bebop, tall gaunt man, long wavy black hair, stubble, sharp face, long black coat, dark red shirt, tan skin, dark brown hair, [교체: blonde hair, curly updo], wavy hair tied up, red dress, bare back, gold belt, hips pressed together, bachata, salsa, body wave, hand on waist, hand on shoulder, foreheads almost touching, rhythmic weight shift, intimate, only two people, couple centered, latin club at night, red neon sign, warm golden lamplight, red and gold lighting, blurred dancing crowd silhouettes, bokeh, polished floor reflection, full body, faces clearly visible, depth of field, detailed painted background",
+      "negative_prompt": "worst quality, low quality, lowres, bad anatomy, bad hands, missing fingers, extra digits, fewer digits, cropped, jpeg artifacts, signature, watermark, username, artist name, text, error, blurry, chibi, childlike, big head, moe, mobile game illustration, flat color, flat shading, glossy plastic skin, 3d, cgi, simple background, extra arms, extra legs, extra limbs, malformed hands, fused fingers, multiple views, duplicate, clone, 3boys, 3girls, crowd in foreground, logo, poster, border, standing apart, side by side, back to back, solo dance",
+      "width": 832,
+      "height": 1216,
+      "steps": 35,
+      "cfg_scale": 5,
+      "seed": 801,
+      "sampler_name": "DPM++ 2M Karras",
+      "batch_size": 1,
+      "enable_hr": true,
+      "hr_scale": 1.5,
+      "denoising_strength": 0.45,
+      "hr_steps": 28,
+      "override_settings": {
+        "sd_model_checkpoint": "Illustrious-XL-v2.0.safetensors",
+        "hr_lora_weight": 0.3,
+        "loras": [
+          {
+            "name": "cowboy-bebop-illustrious-v2.safetensors",
+            "weight": 0
+          }
+        ]
+      }
+    },
+    "3_tango_julia_vicious": {
+      "prompt": "masterpiece, best quality, very aesthetic, absurdres, newest, semi-realistic, painterly, soft shading, detailed skin texture, highly detailed face, detailed eyes, realistic anatomy, mature anime film style, late 1990s theatrical anime, thin confident ink lines, detailed hair strands, detailed cloth folds, cinematic lighting, volumetric light, chiaroscuro, subtle film grain, deep background, cinematic color grading, film still, 1boy, 1girl, couple, julia \\(cowboy bebop\\), vicious \\(cowboy bebop\\), cowboy bebop, short wavy red hair, blue eyes, red lips, black slit dress, bare back, black heels, long silver hair, [교체: long black hair], pale skin, sharp hollow face, cold eyes, black suit, white shirt, argentine tango, close embrace, clear frame, chest to chest, leg hook, upright posture, stable balance, intense gaze, tension, only two people, couple centered, old grand hall, crystal chandelier, candlelight, deep shadows, warm amber glow, dark wood, blurred crowd silhouettes, bokeh, polished floor reflection, full body, faces clearly visible, depth of field, detailed painted background",
+      "negative_prompt": "worst quality, low quality, lowres, bad anatomy, bad hands, missing fingers, extra digits, fewer digits, cropped, jpeg artifacts, signature, watermark, username, artist name, text, error, blurry, chibi, childlike, big head, moe, mobile game illustration, flat color, flat shading, glossy plastic skin, 3d, cgi, simple background, extra arms, extra legs, extra limbs, malformed hands, fused fingers, multiple views, duplicate, clone, 3boys, 3girls, crowd in foreground, logo, poster, border, standing apart, side by side, back to back, solo dance",
+      "width": 832,
+      "height": 1216,
+      "steps": 35,
+      "cfg_scale": 5,
+      "seed": 801,
+      "sampler_name": "DPM++ 2M Karras",
+      "batch_size": 1,
+      "enable_hr": true,
+      "hr_scale": 1.5,
+      "denoising_strength": 0.45,
+      "hr_steps": 28,
+      "override_settings": {
+        "sd_model_checkpoint": "Illustrious-XL-v2.0.safetensors",
+        "hr_lora_weight": 0.3,
+        "loras": [
+          {
+            "name": "cowboy-bebop-illustrious-v2.safetensors",
+            "weight": 0
+          }
+        ]
+      }
+    },
+    "4_swing_still": {
+      "prompt": "masterpiece, best quality, very aesthetic, absurdres, newest, semi-realistic, painterly, soft shading, detailed skin texture, highly detailed face, detailed eyes, realistic anatomy, mature anime film style, late 1990s theatrical anime, thin confident ink lines, detailed hair strands, detailed cloth folds, cinematic lighting, volumetric light, chiaroscuro, subtle film grain, deep background, cinematic color grading, film still, spiegel, v4l3nt1ne, 1boy, 1girl, couple, spike spiegel, faye valentine, cowboy bebop, dark green hair, messy fluffy hair, narrow eyes, navy suit, yellow shirt, loose black necktie, tall, lanky, purple hair, short bob, yellow hairband, green eyes, red lips, red backless halter dress, flared skirt, high heels, lindy hop, swing dance, jumping, kicking, mid-air, feet off the floor, laughing, big band on stage, checkered floor, wide shot, full moon through window, only two people, couple centered, dark jazz club at night, large window, blue night sky, neon sign, jazz band on stage out of focus, blue and teal stage lighting, warm spotlight on couple, blurred crowd silhouettes, bokeh, polished floor reflection, full body, faces clearly visible, depth of field, detailed painted background",
+      "negative_prompt": "worst quality, low quality, lowres, bad anatomy, bad hands, missing fingers, extra digits, fewer digits, cropped, jpeg artifacts, signature, watermark, username, artist name, text, error, blurry, chibi, childlike, big head, moe, mobile game illustration, flat color, flat shading, glossy plastic skin, 3d, cgi, simple background, extra arms, extra legs, extra limbs, malformed hands, fused fingers, multiple views, duplicate, clone, 3boys, 3girls, crowd in foreground, logo, poster, border, standing apart, side by side, back to back, solo dance",
+      "width": 832,
+      "height": 1216,
+      "steps": 35,
+      "cfg_scale": 5,
+      "seed": 802,
+      "sampler_name": "DPM++ 2M Karras",
+      "batch_size": 1,
+      "enable_hr": true,
+      "hr_scale": 1.5,
+      "denoising_strength": 0.45,
+      "hr_steps": 28,
+      "override_settings": {
+        "sd_model_checkpoint": "Illustrious-XL-v2.0.safetensors",
+        "hr_lora_weight": 0.3,
+        "loras": [
+          {
+            "name": "cowboy-bebop-illustrious-v2.safetensors",
+            "weight": 0
+          }
+        ]
+      }
+    },
+    "5_salsa_still": {
+      "prompt": "masterpiece, best quality, very aesthetic, absurdres, newest, semi-realistic, painterly, soft shading, detailed skin texture, highly detailed face, detailed eyes, realistic anatomy, mature anime film style, late 1990s theatrical anime, thin confident ink lines, detailed hair strands, detailed cloth folds, cinematic lighting, volumetric light, chiaroscuro, subtle film grain, deep background, cinematic color grading, film still, ovirowa, 1boy, 1girl, couple, vincent volaju, electra ovilo, cowboy bebop: tengoku no tobira, cowboy bebop, tall gaunt man, long wavy black hair, stubble, sharp face, long black coat, dark red shirt, tan skin, dark brown hair, [교체: blonde hair, curly updo], wavy hair tied up, red dress, bare back, gold belt, salsa, spinning turn, arm raised, dress flaring, back to back, looking over shoulder, only two people, couple centered, latin club at night, red neon sign, warm golden lamplight, red and gold lighting, blurred dancing crowd silhouettes, bokeh, polished floor reflection, full body, faces clearly visible, depth of field, detailed painted background",
+      "negative_prompt": "worst quality, low quality, lowres, bad anatomy, bad hands, missing fingers, extra digits, fewer digits, cropped, jpeg artifacts, signature, watermark, username, artist name, text, error, blurry, chibi, childlike, big head, moe, mobile game illustration, flat color, flat shading, glossy plastic skin, 3d, cgi, simple background, extra arms, extra legs, extra limbs, malformed hands, fused fingers, multiple views, duplicate, clone, 3boys, 3girls, crowd in foreground, logo, poster, border, standing apart, side by side, back to back, solo dance",
+      "width": 832,
+      "height": 1216,
+      "steps": 35,
+      "cfg_scale": 5,
+      "seed": 802,
+      "sampler_name": "DPM++ 2M Karras",
+      "batch_size": 1,
+      "enable_hr": true,
+      "hr_scale": 1.5,
+      "denoising_strength": 0.45,
+      "hr_steps": 28,
+      "override_settings": {
+        "sd_model_checkpoint": "Illustrious-XL-v2.0.safetensors",
+        "hr_lora_weight": 0.3,
+        "loras": [
+          {
+            "name": "cowboy-bebop-illustrious-v2.safetensors",
+            "weight": 0
+          }
+        ]
+      }
+    },
+    "6_tango_still": {
+      "prompt": "masterpiece, best quality, very aesthetic, absurdres, newest, semi-realistic, painterly, soft shading, detailed skin texture, highly detailed face, detailed eyes, realistic anatomy, mature anime film style, late 1990s theatrical anime, thin confident ink lines, detailed hair strands, detailed cloth folds, cinematic lighting, volumetric light, chiaroscuro, subtle film grain, deep background, cinematic color grading, film still, 1boy, 1girl, couple, julia \\(cowboy bebop\\), vicious \\(cowboy bebop\\), cowboy bebop, short wavy red hair, blue eyes, red lips, black slit dress, bare back, black heels, long silver hair, [교체: long black hair], pale skin, sharp hollow face, cold eyes, black suit, white shirt, argentine tango, dip, leaning back, dramatic backbend, hand on back, close-up, upper body, intense gaze, only two people, couple centered, old grand hall, crystal chandelier, candlelight, deep shadows, warm amber glow, dark wood, blurred crowd silhouettes, bokeh, polished floor reflection, full body, faces clearly visible, depth of field, detailed painted background",
+      "negative_prompt": "worst quality, low quality, lowres, bad anatomy, bad hands, missing fingers, extra digits, fewer digits, cropped, jpeg artifacts, signature, watermark, username, artist name, text, error, blurry, chibi, childlike, big head, moe, mobile game illustration, flat color, flat shading, glossy plastic skin, 3d, cgi, simple background, extra arms, extra legs, extra limbs, malformed hands, fused fingers, multiple views, duplicate, clone, 3boys, 3girls, crowd in foreground, logo, poster, border, standing apart, side by side, back to back, solo dance",
+      "width": 832,
+      "height": 1216,
+      "steps": 35,
+      "cfg_scale": 5,
+      "seed": 802,
+      "sampler_name": "DPM++ 2M Karras",
+      "batch_size": 1,
+      "enable_hr": true,
+      "hr_scale": 1.5,
+      "denoising_strength": 0.45,
+      "hr_steps": 28,
+      "override_settings": {
+        "sd_model_checkpoint": "Illustrious-XL-v2.0.safetensors",
+        "hr_lora_weight": 0.3,
+        "loras": [
+          {
+            "name": "cowboy-bebop-illustrious-v2.safetensors",
+            "weight": 0
+          }
+        ]
+      }
+    }
+  }
+}

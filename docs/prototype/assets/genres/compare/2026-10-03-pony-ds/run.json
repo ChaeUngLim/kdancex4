@@ -1,0 +1,11 @@
+{
+  "run": "2026-10-03-pony-ds",
+  "style": "bebop_cards2",
+  "models": [
+    "local-pony-v6-bebop-lora"
+  ],
+  "genres": [
+    "dancesport"
+  ],
+  "started": "2026-10-03T17:27:28"
+}

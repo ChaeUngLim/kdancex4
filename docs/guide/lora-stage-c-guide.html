@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>C 설정 가이드 — LoRA 를 2단계에만 두고 장르 카드를 뽑는 법</title>
+<style>
+  :root { --bg:#0f1115; --card:#161a21; --line:#262b35; --text:#e8eaed; --dim:#9aa4b2; --code:#0b0d11; --a:#4fc3f7; --ok:#7bd88f; --warn:#ffb86b; --bad:#ff7b72; }
+  * { box-sizing:border-box; }
+  body { margin:0; padding:0 16px 80px; background:var(--bg); color:var(--text); line-height:1.7;
+         font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Pretendard","Apple SD Gothic Neo","Malgun Gothic",sans-serif; }
+  .wrap { max-width:1100px; margin:0 auto; }
+  header { padding:44px 0 20px; border-bottom:1px solid var(--line); margin-bottom:28px; }
+  h1 { font-size:1.8rem; margin:0 0 6px; } .sub { color:var(--dim); margin:0 0 6px; }
+  nav { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:14px 20px; margin-bottom:36px; }
+  nav a { color:var(--a); text-decoration:none; margin-right:18px; white-space:nowrap; } nav a:hover { text-decoration:underline; }
+  section { margin-bottom:56px; scroll-margin-top:16px; }
+  h2 { font-size:1.4rem; border-left:4px solid var(--a); padding-left:12px; margin:0 0 16px; }
+  h3 { font-size:1.1rem; color:var(--a); margin:24px 0 8px; }
+  p { margin:0 0 12px; } .dim { color:var(--dim); }
+  code { background:var(--code); border:1px solid var(--line); border-radius:4px; padding:1px 6px; font-size:.88em;
+          font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace; }
+  pre { background:var(--code); border:1px solid var(--line); border-radius:8px; padding:14px 16px; overflow-x:auto; font-size:.88rem; line-height:1.5; }
+  pre code { background:none; border:0; padding:0; }
+  table { width:100%; border-collapse:collapse; margin:14px 0; font-size:.92rem; }
+  th,td { border:1px solid var(--line); padding:9px 12px; text-align:left; vertical-align:top; }
+  th { background:var(--card); color:var(--a); } tr:nth-child(even) td { background:rgba(255,255,255,.02); }
+  .callout { background:var(--card); border:1px solid var(--line); border-left:4px solid var(--a); border-radius:8px; padding:14px 18px; margin:16px 0; }
+  .callout.warn { border-left-color:var(--warn); } .callout.bad { border-left-color:var(--bad); } .callout.ok { border-left-color:var(--ok); }
+  figure { margin:18px 0; } figure img { width:100%; border-radius:10px; border:1px solid var(--line); display:block; }
+  figcaption { color:var(--dim); font-size:.88rem; margin-top:8px; }
+  .grid2 { display:grid; grid-template-columns:1fr 1fr; gap:16px; } @media (max-width:720px) { .grid2 { grid-template-columns:1fr; } }
+  .flow { display:flex; gap:10px; align-items:stretch; flex-wrap:wrap; margin:16px 0; }
+  .step { flex:1 1 240px; background:var(--card); border:1px solid var(--line); border-top:4px solid var(--c); border-radius:12px; padding:14px; }
+  .step h4 { margin:0 0 6px; color:var(--c); font-size:1rem; } .step p { margin:0 0 6px; font-size:.92rem; }
+  .arrow { align-self:center; color:var(--dim); font-size:1.6rem; }
+  .tag { display:inline-block; font-size:.74rem; border-radius:999px; padding:1px 9px; border:1px solid var(--c); color:var(--c); margin-left:6px; vertical-align:middle; }
+  .abc td:first-child { font-weight:700; white-space:nowrap; }
+  .win { color:var(--ok); font-weight:700; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>C 설정 가이드 — LoRA 를 2단계에만 두고 장르 카드를 뽑는 법</h1>
+  <p class="sub">2026-10-03 · 룸바 한 장을 같은 seed 로 세 가지 설정(A·B·C)으로 뽑아 비교했고, 사용자가 C 를 골랐다. 이 문서는 C 가 무엇이고, 어떻게 돌리며, 무엇이 아직 부족한지를 적는다.</p>
+  <p class="sub">독자: 개발 경력 6개월차 비전공자. 처음 나오는 용어는 그 자리에서 풀고 맨 끝 용어 사전에 다시 모았다.</p>
+</header>
+
+<nav>
+  <a href="#result">결과 먼저</a>
+  <a href="#stages">두 단계 구조</a>
+  <a href="#abc">A·B·C 가 다른 점</a>
+  <a href="#settings">C 설정표</a>
+  <a href="#run">돌리는 법</a>
+  <a href="#inside">서버 안에서 벌어지는 일</a>
+  <a href="#weak">약점과 고치는 법</a>
+  <a href="#measure">시간·VRAM 실측</a>
+  <a href="#incidents">사고 기록</a>
+  <a href="#files">파일 목록</a>
+  <a href="#glossary">용어 사전</a>
+</nav>
+
+<section id="result">
+  <h2>결과 먼저</h2>
+  <p>왼쪽이 고른 그림(C), 오른쪽이 세 설정을 나란히 둔 비교다. 셋 다 seed 801, Illustrious XL v2.0, 같은 프롬프트다. 다른 건 <b>LoRA 를 어느 단계에 켰나</b> 하나뿐이다.</p>
+  <div class="grid2">
+    <figure><img src="../prototype/assets/genres/samples/C-rumba-illustrious-seed801.jpg" alt="C 설정 룸바"><figcaption>C 설정 — 1단계 LoRA 0, 2단계 LoRA 0.3. 모델 이름 라벨은 비교용으로 구운 것이고, 라벨 없는 판은 같은 폴더에 따로 둔다.</figcaption></figure>
+    <figure><img src="../prototype/assets/genres/samples/ABC-rumba-compare.jpg" alt="A·B·C 비교"><figcaption>A(두 단계 0.3) · B(1단계만 0.3) · C(2단계만 0.3). A 와 B 는 거의 같은 그림이고 C 만 다르다.</figcaption></figure>
+  </div>
+  <div class="callout ok"><b>한 줄 결론.</b> 1단계에 LoRA 가 있으면 영화 스틸 구도(첼로를 든 스파이크)로 끌려간다. 1단계에서 빼면 체크포인트 모델이 춤 장면을 제대로 짜고, 2단계의 LoRA 가 얼굴선과 질감만 입힌다. <b>앞으로 카드는 전부 C 설정으로 뽑는다.</b></div>
+</section>
+
+<section id="stages">
+  <h2>두 단계 구조 — 고품질 모드가 그림을 두 번 그리는 이유</h2>
+  <p>고품질(HQ) 모드는 한 장을 두 번에 걸쳐 만든다. A1111 에서 <b>hires fix</b> 라 부르는 방식이다. 8GB 그래픽카드로 1536 크기를 한 번에 그리면 메모리가 넘치고 구도도 흐트러져서, 작게 그린 뒤 키워서 다듬는다.</p>
+  <div class="flow">
+    <div class="step" style="--c:#4fc3f7"><h4>1단계 · 1024×1024 <span class="tag">txt2img</span></h4>
+      <p>노이즈(모래알 화면)에서 시작해 글(프롬프트)만 보고 그림을 처음 그린다.</p>
+      <p>여기서 <b>구도·자세·누가 나오는지</b>가 전부 정해진다. DPM++ 2M Karras 35 steps, CFG 5.</p></div>
+    <div class="arrow">→</div>
+    <div class="step" style="--c:#ffb86b"><h4>2단계 · 1536×1536 <span class="tag">img2img · denoise 0.45</span></h4>
+      <p>1단계 그림을 1.5배로 늘린 뒤, 그 위를 <b>45% 만</b> 다시 칠한다. 55% 는 그대로 남는다.</p>
+      <p>그래서 선·질감·조명은 바뀌어도 사람 위치나 자세는 못 바꾼다. 28 steps.</p></div>
+  </div>
+  <p>C 설정은 이 두 단계에 <b>서로 다른 역할</b>을 준다. 1단계는 "장면을 짜는 사람", 2단계는 "얼굴과 질감을 입히는 사람"으로 나눈다.</p>
+</section>
+
+<section id="abc">
+  <h2>A·B·C 가 다른 점과 결과</h2>
+  <p><b>LoRA</b>(로라)는 큰 모델 위에 얹는 작은 추가 가중치다. 여기서는 Civitai 의 Cowboy Bebop LoRA(Illustrious 로 학습, 스파이크·페이·일렉트라를 안다)를 쓴다. 세기 0.3 은 "30% 만큼 섞어라"는 뜻이다.</p>
+  <table class="abc">
+    <tr><th>설정</th><th>1단계 LoRA</th><th>2단계 LoRA</th><th>A 와의 평균 밝기차</th><th>나온 그림</th></tr>
+    <tr><td>A</td><td>0.3</td><td>0.3</td><td>—</td><td>스파이크가 첼로를 들고 앉고, 줄리아가 뒤에서 팔을 벌림. 영화 스틸 느낌. 춤이 아님</td></tr>
+    <tr><td>B</td><td>0.3</td><td>0</td><td>1.2</td><td>A 와 사실상 같은 그림. 질감만 아주 조금 다름</td></tr>
+    <tr><td class="win">C</td><td>0</td><td>0.3</td><td>37.4</td><td class="win">둘이 서서 손을 잡은 춤 장면. 유화에 가까운 피부·조명. 사용자가 고름</td></tr>
+  </table>
+  <p>"평균 밝기차"는 두 그림을 흑백으로 바꿔 픽셀마다 밝기 차이를 재고 평균 낸 값이다(0 이면 같은 그림, 255 면 정반대). A 와 B 가 1.2 라는 건 2단계 LoRA 는 그림을 거의 못 바꾼다는 뜻이고, C 가 37 이라는 건 <b>1단계가 그림을 결정한다</b>는 뜻이다.</p>
+  <div class="callout warn"><b>내 예측은 빗나갔다.</b> 비교 전에 나는 B 를 권했다. "얼굴·머리·옷 같은 큰 형태는 1단계에서 정해지니 누구인지를 아는 LoRA 는 거기 있어야 하고, 2단계는 45% 만 칠해서 정체성을 바꿀 힘이 없다"는 논리였다. 논리 자체는 맞았다. C 에서 스파이크 얼굴이 조금 일반화됐다. 그런데 전체 그림으로 보면 LoRA 가 1단계에 있을 때 <b>구도까지 LoRA 가 학습한 영화 장면 쪽으로 끌고 간다</b>는 점을 놓쳤다. 눈으로 본 사용자의 판단이 맞았다.</div>
+</section>
+
+<section id="settings">
+  <h2>C 설정표</h2>
+  <table>
+    <tr><th>항목</th><th>값</th><th>비고</th></tr>
+    <tr><td>체크포인트</td><td>Illustrious XL v2.0 (비교에 쓴 것) · Animagine XL 4.0 도 같은 설정</td><td><code>~/models/sdxl/</code></td></tr>
+    <tr><td>LoRA</td><td><code>cowboy-bebop-illustrious-v2.safetensors</code> · <b>1단계 0 · 2단계 0.3</b></td><td>스타일 LoRA 를 더 얹을 때도 2단계에만, 0.3 이하</td></tr>
+    <tr><td>해상도</td><td>1단계 1024×1024 → 2단계 ×1.5 = 1536×1536</td><td>포스터 패널은 832×1216(2:3)</td></tr>
+    <tr><td>VRAM 기본값</td><td>글 인코더 CPU 내리기 · 1단계 VAE 타일링</td><td>2026-10-03 실측으로 서버 기본값. 한 장 1분 안팎, 피크 6.7GB</td></tr>
+    <tr><td>샘플러 / steps</td><td>DPM++ 2M Karras · 1단계 35 · 2단계 28</td><td></td></tr>
+    <tr><td>CFG</td><td>5</td><td>글을 얼마나 세게 따를지. 높이면 색이 타고 자세가 굳는다</td></tr>
+    <tr><td>denoise(2단계)</td><td>0.45</td><td>다시 칠하는 비율</td></tr>
+    <tr><td>seed</td><td>801</td><td>같은 seed = 같은 노이즈 출발점. 비교할 때 고정한다</td></tr>
+    <tr><td>clip skip</td><td>주지 않는다</td><td>diffusers 에 주면 Illustrious v2.0 이 노이즈가 된다(2026-10-02 실측)</td></tr>
+    <tr><td>프롬프트</td><td><code>gen_genre_multi.py</code> 의 <code>TAG_SCENES["bebop_spike_faye"]["dancesport"]</code> + 품질 접두 + 네거티브</td><td>긴 프롬프트는 서버가 75토큰씩 잘라 이어 붙인다</td></tr>
+  </table>
+</section>
+
+<section id="run">
+  <h2>돌리는 법</h2>
+  <p>저장소 루트에서 아래 한 줄이면 된다. 스크립트가 서버를 띄우고, 한 장 뽑고, 서버를 내린다. 한 프로세스에서 고품질을 연달아 돌리면 2~3장째 메모리가 넘쳐서 <b>한 장마다 서버를 새로 띄운다</b>.</p>
+<pre><code># HR_LORA = 2단계 LoRA 세기, 세 번째 인자 0 = 1단계 LoRA 세기
+HR_LORA=0.3 bash docs/prototype/local-sd/hq_one_by_one.sh bebop_spike_faye local-illustrious-bebop-lora 0 2026-10-03-sample dancesport
+
+# 인자 순서: &lt;프롬프트 묶음&gt; &lt;모델&gt; &lt;1단계 LoRA 세기&gt; &lt;실행ID&gt; &lt;장르...&gt;
+# 결과: docs/prototype/assets/genres/compare/&lt;실행ID&gt;/&lt;모델&gt;/&lt;장르&gt;.jpg</code></pre>
+  <p>스크립트 안에서 실제로 부르는 클라이언트 명령은 이것이다. 옵션 이름만 알면 직접 불러도 된다.</p>
+<pre><code>uv run --with pillow --python 3.12 docs/prototype/gen_genre_multi.py \
+  --style bebop_spike_faye --model local-illustrious-bebop-lora --only dancesport \
+  --lora-weight 0 --hr-lora-weight 0.3 --hq --run 2026-10-03-sample
+#   --no-label              라벨을 굽지 않는다(채택한 카드로 쓸 때)
+#   --init-image 그림.png   1단계를 그 그림에서 시작(img2img, --init-strength 0.6)
+#   --ip-ref 얼굴.png       IP-Adapter 참조 이미지(외형 고정, 미검증)</code></pre>
+  <div class="callout"><b>흐름.</b> <code>hq_one_by_one.sh</code> → <code>gen_genre_multi.py</code>(프롬프트 조립, HTTP 요청) → <code>local-sd/server.py</code>(모델 적재, 두 단계 생성, 포트 7860) → JPG 저장 → 라벨 굽기. 서버는 A1111 의 <code>/sdapi/v1/txt2img</code> 요청 형식을 흉내 낸다.</div>
+</section>
+
+<section id="inside">
+  <h2>서버 안에서 벌어지는 일 — C 가 돌아가는 코드</h2>
+  <p>클라이언트는 요청에 <code>loras: [{name, weight: 0}]</code> 와 <code>hr_lora_weight: 0.3</code> 을 함께 넣는다. 서버 <code>txt2img()</code> 는 이렇게 처리한다.</p>
+  <ol>
+    <li>1단계 세기가 전부 0 인데 2단계 세기가 있으면(<code>base_off</code>), LoRA 를 <b>2단계 세기로 올려 둔 뒤</b> <code>pipe.disable_lora()</code> 로 1단계에서만 끈다.</li>
+    <li>1단계 txt2img 를 돈다. LoRA 는 꺼져 있다.</li>
+    <li>2단계 직전에 <code>pipe.enable_lora()</code> 와 <code>set_adapters(..., 0.3)</code> 로 켠다. 로그에 <code>[hires] LoRA 0.3</code> 이 찍힌다.</li>
+    <li>2단계가 끝나면 다음 요청을 위해 원래 세기로 되돌린다.</li>
+  </ol>
+  <div class="callout bad"><b>처음엔 C 가 돌지 않았다.</b> <code>apply_loras()</code> 가 세기 0 인 LoRA 를 아예 올리지 않아서, 2단계에서 켤 어댑터가 없었다. 그 상태로 돌리면 C 는 "LoRA 없음"과 같은 결과를 내면서도 로그엔 아무 오류가 없다. 비교를 돌리기 전에 코드를 읽어서 잡았고, 돌린 뒤 로그의 <code>[lora] 1단계 끔(2단계만)</code> 과 <code>[hires] LoRA 0.3</code> 으로 확인했다.</div>
+</section>
+
+<section id="weak">
+  <h2>약점과 고치는 법</h2>
+  <div class="callout warn"><b>약점은 자세다.</b> C 의 룸바는 그림체·질감은 좋았지만 <b>마주보고 손잡는 댄스스포츠 홀드가 아니다</b>(나란히 서서 한 손만 잡음). 원인의 절반은 프롬프트다. 룸바 정의가 "달빛 속 한숨, 팔 길이만큼 떨어진 커플"이라 <code>standing apart, fingertips touching</code> 으로 쓰여 있었다. 나머지 절반은 태그 모델이 자세 지시를 느슨하게 따르기 때문이다.</div>
+  <table>
+    <tr><th>순서</th><th>방법</th><th>비용</th><th>상태</th></tr>
+    <tr><td>①</td><td>프롬프트 앞쪽에 <code>facing each other, closed hold, holding hands, dance frame</code>, 네거티브에 <code>standing apart, side by side, back to back</code></td><td>없음</td><td>콜라주용 댄스스포츠 프롬프트에 적용</td></tr>
+    <tr><td>②</td><td>hires 없이 1024 로 seed 를 여러 개 뽑고(장당 약 1분) 홀드가 맞는 seed 만 고품질로</td><td>시간만</td><td>바로 가능</td></tr>
+    <tr><td>③</td><td>img2img — 기준 그림의 칸이나 실제 댄스스포츠 사진을 초안으로 넣고 60% 만 다시 그린다. 구도가 그대로 오고 VRAM 도 안 는다</td><td>서버에 초안 입력(<code>--init-image</code>) 추가</td><td><b>실측 통과</b> — 단 재생성은 <b>35%</b>. 60% 는 얼굴·비율이 무너졌고 35% 에서 기준의 비율이 그대로 남은 채 선명해졌다(카드 4장, <code>samples/cards/</code>)</td></tr>
+    <tr><td>④</td><td>ControlNet OpenPose 로 뼈대를 강제</td><td>VRAM +2.5GB</td><td>8GB 에서 미검증. 해상도를 낮춰야 할 가능성</td></tr>
+  </table>
+  <p class="dim">IP-Adapter(참조 사진으로 외형 고정)는 얼굴·옷을 고치는 도구이지 자세를 고치는 도구가 아니다. 섞어 쓸 수는 있지만 자세 문제의 답은 아니다.</p>
+  <figure><img src="../prototype/assets/genres/samples/collage-ds-vs-reference.jpg" alt="기준 칸과 생성 결과 비교"><figcaption>기준 칸(왼쪽 위)과 다섯 가지 결과. 아래 줄 왼쪽 두 장(img2img 초안)이 기준에 가장 가깝다. 오른쪽 아래 IP-Adapter 는 피크 12.2GB 로 8GB 를 크게 넘겼고 색도 번졌다.</figcaption></figure>
+</section>
+
+<section id="measure">
+  <h2>시간·VRAM 실측 (RTX 4060 Laptop 8GB, WSL2) — 느린 원인과 해결</h2>
+  <p>같은 카드(Animagine · 콜라주 댄스스포츠 · C · seed 801)로 조건을 바꿔 가며 쟀다. 처음엔 한 장이 19분이었다.</p>
+  <table>
+    <tr><th>조건</th><th>시간</th><th>요청 피크</th><th>그림 차이(기준 대비 평균 밝기차, 0~255)</th></tr>
+    <tr><td>기준</td><td>1127초</td><td>9.0GB</td><td>—</td></tr>
+    <tr><td>어텐션 슬라이싱</td><td>1490초</td><td>9.0GB</td><td>5.8 — <b>탈락</b>(더 느리고 피크 그대로)</td></tr>
+    <tr><td>2단계 배율 1.375(1408)</td><td>593초</td><td>9.0GB</td><td>해상도 손해 — 쓰지 않음</td></tr>
+    <tr><td><b>글 인코더 CPU 로 내리기</b></td><td><b>152초</b></td><td>7.5GB</td><td><b>0.0 — 픽셀까지 동일</b></td></tr>
+    <tr><td><b>+ 1단계 VAE 타일링</b></td><td><b>67초</b></td><td>6.7GB</td><td>2.9 — 눈으로 구분 불가</td></tr>
+    <tr><td>Illustrious, 같은 두 조건</td><td>1176 → 90 → 62초</td><td>9.0 → 7.5 → 6.7GB</td><td>0.0 → 1.9</td></tr>
+  </table>
+  <h3>왜 느렸나 — 모델 상주 구성</h3>
+  <table>
+    <tr><th>부품</th><th>파라미터</th><th>fp16 VRAM</th><th>언제 쓰나</th></tr>
+    <tr><td>UNet</td><td>2567M</td><td>4.78GB</td><td>그림을 그린다. 1·2단계 내내</td></tr>
+    <tr><td>글 인코더2 (OpenCLIP bigG)</td><td>695M</td><td>1.29GB</td><td>프롬프트를 벡터로. <b>시작할 때 한 번</b></td></tr>
+    <tr><td>글 인코더1 (CLIP-L)</td><td>123M</td><td>0.23GB</td><td>위와 같음</td></tr>
+    <tr><td>VAE</td><td>84M</td><td>0.16GB</td><td>잠재 공간 ↔ 픽셀</td></tr>
+    <tr><td>합계</td><td>3469M</td><td>6.46GB</td><td>실측 6.6GB</td></tr>
+  </table>
+  <p>8GB 카드의 작업 여유가 1.5GB 뿐인데, 그중 1.5GB 를 그림 그리는 동안 노는 글 인코더가 차지하고 있었다. 그래서 피크가 9.0GB 로 넘쳤고, WSL 이 넘친 만큼을 시스템 RAM 으로 보내며 수십 배 느려졌다. 증상은 <b>GPU 사용률 100% 에 전력 25W</b>(계산할 때는 80~115W)다 — 계산이 아니라 메모리를 기다리는 모습이다.</p>
+  <div class="callout ok"><b>해결(서버 기본값).</b> 프롬프트 벡터를 뽑은 직후 글 인코더 둘을 CPU 로 내리고, 1단계 디코드에도 VAE 타일링을 켠다. 상주 5.1GB, 피크 6.7GB, 한 장 1분 안팎. 인코더 내리기는 결과가 <b>픽셀까지 같고</b>, 타일링은 디코드를 조각내 풀어 수치상 아주 작은 차이가 나지만 화면에서는 안 보인다(얼굴 확대 비교 <code>compare/2026-10-03-vram-tiling-check.jpg</code>).</div>
+  <p class="dim">배율을 바꿔도 슬라이싱을 해도 피크가 9.0GB 로 똑같았던 것이 결정적 단서였다 — 피크의 자리가 2단계가 아니라는 뜻이었고, 그래서 상주 구성을 뜯어봤다. 서버를 한 장마다 새로 띄우는 방식(어젯밤 해결책)은 장 사이의 누적을 막는 것이지 한 장 안의 피크는 못 줄인다.</p>
+</section>
+
+<section id="incidents">
+  <h2>사고 기록 — 같은 실수를 안 하려고 적는다</h2>
+  <h3>① 돌아가는 스크립트를 고치면 안 된다</h3>
+  <p>bash 는 스크립트 파일을 <b>실행하면서 바이트 위치로 읽는다</b>. B 가 도는 중에 <code>hq_one_by_one.sh</code> 에 줄을 끼워 넣었더니 B 가 끝나는 자리에서 <code>syntax error near unexpected token 'done'</code> 이 났다. C 는 새 파일로 시작해서 멀쩡했다. 고칠 일이 있으면 복사본을 고치고 다음 실행부터 쓴다. 이 규칙을 적은 지 세 시간 만에 머리말 주석 한 줄을 넣다가 같은 오류를 한 번 더 냈다. 결과 파일은 무사했지만, 돌아가는 동안은 그 파일을 아예 열지 않는 게 맞다.</p>
+  <h3>② pgrep 은 부모 셸의 명령줄도 찾는다</h3>
+  <p>"앞 작업이 끝나면 시작"을 <code>pgrep -f "hq_one_by_on[e].sh"</code> 로 기다리게 했더니, 대기 셸 자신의 명령줄에 그 스크립트 이름이 들어 있어 <b>자기 자신을 계속 찾았다</b>. 대괄호 트릭은 pgrep 의 argv 만 피하지 부모 셸의 argv 는 못 피한다. 두 대기열이 한 시간 동안 시작을 못 했다. 이후로는 대기 루프 없이 한 사슬에 순서대로 넣거나, 앞 작업의 출력 파일에 끝 표시가 찍히는 걸 기다린다.</p>
+</section>
+
+<section id="files">
+  <h2>파일 목록</h2>
+  <table>
+    <tr><th>파일</th><th>무엇</th></tr>
+    <tr><td><code>docs/prototype/assets/genres/samples/</code></td><td>C 룸바 샘플, A·B·C 비교, 설정과 재현 명령을 적은 README</td></tr>
+    <tr><td><code>docs/prototype/local-sd/server.py</code></td><td>로컬 생성 서버. 두 단계 생성, 단계별 LoRA, 청크 인코더, IP-Adapter, 초안 입력</td></tr>
+    <tr><td><code>docs/prototype/local-sd/hq_one_by_one.sh</code></td><td>한 장마다 서버를 새로 띄우는 고품질 배치. <code>HR_LORA</code>·<code>IP_ARGS</code> 환경변수</td></tr>
+    <tr><td><code>docs/prototype/gen_genre_multi.py</code></td><td>프롬프트 묶음(<code>TAG_SCENES</code>), 모델 목록, 클라이언트 옵션</td></tr>
+    <tr><td><code>docs/prototype/prompts/bebop-poster-prompts.md</code> · <code>.json</code></td><td>콜라주 포스터용 패널 6장 프롬프트(Animagine·Illustrious). C 설정 반영</td></tr>
+    <tr><td><code>docs/prototype/assets/reference/</code></td><td>기준 콜라주 원본, 댄스스포츠 칸 초안용 크롭, 인셋 초상 2장</td></tr>
+    <tr><td><code>docs/Review.md</code> 2026-10-03 ⑧~⑪</td><td>실험 경위와 판단. 이 문서의 원본 기록</td></tr>
+  </table>
+</section>
+
+<section id="glossary">
+  <h2>용어 사전</h2>
+  <table>
+    <tr><th>용어</th><th>뜻</th></tr>
+    <tr><td>체크포인트(checkpoint)</td><td>그림 모델 본체 파일. Animagine XL 4.0, Illustrious XL v2.0 처럼 SDXL 을 애니 그림으로 다시 학습한 것</td></tr>
+    <tr><td>LoRA(로라)</td><td>본체 위에 얹는 작은 추가 가중치. 특정 캐릭터나 화풍을 가르친다. 세기 0~1 로 섞는 비율을 정한다</td></tr>
+    <tr><td>txt2img / img2img</td><td>글에서 그림 / 그림에서 그림. img2img 는 원본을 얼마나 다시 칠할지(denoise)를 정한다</td></tr>
+    <tr><td>hires fix</td><td>작게 그린 뒤 키워서 다시 칠하는 두 단계 방식. 메모리를 아끼고 구도를 지킨다</td></tr>
+    <tr><td>denoise(디노이즈 강도)</td><td>img2img 에서 원본을 다시 칠하는 비율. 0.45 면 45% 가 바뀌고 55% 는 남는다</td></tr>
+    <tr><td>seed(시드)</td><td>노이즈 출발점을 정하는 숫자. 같으면 같은 출발점이라 설정 비교에 쓴다</td></tr>
+    <tr><td>CFG</td><td>프롬프트를 얼마나 세게 따를지. 5~7 이 보통</td></tr>
+    <tr><td>샘플러 / steps</td><td>노이즈를 걷어내는 방법과 횟수. DPM++ 2M Karras 35 는 "그 방법으로 35번"</td></tr>
+    <tr><td>VRAM</td><td>그래픽카드 메모리. 모델과 작업 중인 그림이 여기 올라간다. 넘치면 멈추거나 매우 느려진다</td></tr>
+    <tr><td>IP-Adapter</td><td>참조 사진을 보고 외형을 따라 그리게 하는 추가 모듈. 자세는 못 고친다</td></tr>
+    <tr><td>ControlNet OpenPose</td><td>뼈대 그림으로 자세를 강제하는 추가 모델. 메모리를 많이 쓴다</td></tr>
+  </table>
+</section>
+
+</div>
+</body>
+</html>

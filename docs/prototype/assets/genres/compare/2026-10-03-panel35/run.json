@@ -1,0 +1,11 @@
+{
+  "run": "2026-10-03-panel35",
+  "style": "bebop_collage",
+  "models": [
+    "local-illustrious-bebop-lora"
+  ],
+  "genres": [
+    "dancesport"
+  ],
+  "started": "2026-10-03T17:13:50"
+}

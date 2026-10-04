@@ -14,7 +14,7 @@
 **산출하는 모든 한국어 글은 초안을 쓴 뒤 `humanize-korean` 스킬(im-not-ai 플러그인)로 한 번 윤문하고, 그 결과를 최종본으로 쓴다.** 한국어로 쓰라는 위 규칙만으로는 부족하다 — 규칙을 지켜 써도 번역투("~에 있어서", "~에 의해"), 피동 남발("~되고 있다", "~것으로 확인되었다"), 지시대명사 직역("그것은"), 결산 공식("결론적으로, ~라고 할 수 있다") 같은 AI 티가 남는다. 이건 읽는 사람이 가장 먼저 감지하는 신호이고, 면접담당자에게는 특히 그렇다.
 
 **적용 대상**
-- `docs/*.md` · `docs/가이드/*.html` 등 프로젝트 설명 문서
+- `docs/*.md` · `docs/guide/*.html` 등 프로젝트 설명 문서
 - `_workspace/guides/SCH-XX(기능명).html` 왕초보 완벽분석가이드
 - README, 기획/정책 문서
 - 커밋 메시지 본문 · PR 설명 (상세는 「Git 커밋 / PR 설명」 절)
@@ -65,7 +65,7 @@
 
 ## 4계층 역할 정의 (2026-09-21 확정)
 
-> 근거와 대안 검토는 `docs/role-split-analysis.md`.
+> 근거와 대안 검토는 `docs/planning/role-split-analysis.md`.
 
 **「Harness」를 계층 이름으로 쓰지 않는다.** 이 단어가 두 가지를 가리켜 왔다 —
 ①`kdance-dev-harness` 스킬(9단계 파이프라인) ②CLAUDE.md·rules·hooks·permissions·MCP 로
@@ -263,7 +263,7 @@ kdance는 예약 취소/환불 슬라이스를 넘어 수업·결제·캘린더�
 
 ### MCP 도구 — 어느 계층이 부르나
 파이프라인과 공구(ECC) 둘 다 아래 MCP를 호출한다. MCP를 직접 고르지 않고 **어느 계층의 일이냐**로 자동으로 정해진다. MCP **구성**(어느 서버를 켤지, 무엇을 금지할지)은 환경 계층의 몫이다:
-- `mcp__context7__*` 문서 · `mcp__postgres-kdance__*` DB 작업 · `mcp__playwright__*` E2E · `mcp__mindpilot__*` 구조도 시각화 **실행 도구** · `mcp__plugin_ecc_chrome-devtools__*` 브라우저 · claude-mem `mem-search` 스킬(플러그인 MCP `mcp-search`) 세션 간 기억 검색 — memory MCP(지식 그래프)는 2026-09-23 삭제, 근거는 `CLAUDE-decisions.md` ADR-001
+- `mcp__context7__*` 문서 · `mcp__postgres-kdance__*` DB 작업 · `mcp__playwright__*` E2E · `mcp__mindpilot__*` 구조도 시각화 **실행 도구** · `mcp__plugin_ecc_chrome-devtools__*` 브라우저 · claude-mem `mem-search` 스킬(플러그인 MCP `mcp-search`) 세션 간 기억 검색 — memory MCP(지식 그래프)는 2026-09-23 삭제, 근거는 `CLAUDE-decisions.md` ADR-001 · `mcp__figma__*` Figma 공식 원격 MCP(2026-09-30 추가, user 범위, OAuth — 이 터미널에서 `/mcp` 인증). 화면 프로토타입(`docs/prototype/`)을 Figma 캔버스로 올리거나 Figma 프레임에서 코드 컨텍스트를 읽을 때 쓴다
 
 > **`mcp__mindpilot__*`는 다이어그램·아키텍처·구조도 시각화 요청의 실행 도구로 명시한다.** "다이어그램 보여줘", "구조도 그려줘", "mindpilot UI로 보여줘" 같은 요청에는 mindpilot-mcp를 우선 실행 도구로 사용한다(연결 여부는 아래 절차로 먼저 확인). 안정성이 더 중요한 반복 작업이면 `diagram-this` 스킬로 대체한다(절차 5번).
 
@@ -288,16 +288,16 @@ kdance는 예약 취소/환불 슬라이스를 넘어 수업·결제·캘린더�
 > 2. **Opus 토큰 소진 후에만** 반복적·저위험 작업(단순 CRUD 폼, 스타일링, 보일러플레이트)에 한해 OmniRoute 무료 모델로 전환한다.
 > 3. 어느 모델로 만들었든 결과물은 `ecc:code-reviewer`/`ecc:react-review`로 반드시 재검증한다 — 무료 모델 산출물이라고 리뷰를 생략하지 않는다.
 > 4. OmniRoute 무료 모델은 어디까지나 "비용 절감용 보조 채널"이며 기본 개발 채널을 대체하지 않는다.
-> 5. **OmniRoute 무료 모델 폴백 구성(영구 무료 + 최신 세대 + 용도에 맞는 카테고리만, 체험판/가입크레딧/구형/성격 안 맞는 모델은 전부 제외 — 상세는 `docs/omniroute-setup.html`).** 위 2번 조건(Opus 소진)이 실제로 발동됐을 때 아래 구성을 따른다:
+> 5. **OmniRoute 무료 모델 폴백 구성(영구 무료 + 최신 세대 + 용도에 맞는 카테고리만, 체험판/가입크레딧/구형/성격 안 맞는 모델은 전부 제외 — 상세는 `docs/guide/omniroute-setup.html`).** 위 2번 조건(Opus 소진)이 실제로 발동됐을 때 아래 구성을 따른다:
 >    - **백엔드 4개는 순차 폴백 Combo**(`Free-fallback`, Strategy: Priority, 2026-09-18 실제 등록·테스트 완료): `kiro/claude-sonnet-4.5 → groq/qwen/qwen3.8-27b → gemini/gemini-3.8-flash → mistral/codestral-latest`. 작업 성격이 비슷해서 "제일 좋은 것부터, 막히면 다음"이 자연스럽다. (Kimi는 2026-09-18 재검토로 제외 — Groq가 서빙하던 Kimi K2 계열이 2026-03-23부로 지원 종료(deprecated)되어 `openai/gpt-oss-120b`로 대체된 것으로 확인돼, Groq 경유 접근 근거 자체가 무효화됨. Gemini 3.8 Flash는 공식 문서 기준 무료지만 하루 20건·분당 10건으로 한도가 매우 작음 — 순서는 유지하되 대량 작업 폴백으로는 기대하지 말 것)
 >    - **프론트엔드 3개는 폴백이 아니라 역할별 직접 호출**: 화면 구조·상태관리 등 판단이 필요한 작업 → `kiro/claude-sonnet-4.5`(월 50회 한도라 아무 데나 먼저 쓰지 않음); 실제 컴포넌트/UI 코드 작성 **및 비슷한 화면 다수·일괄 스타일 같은 대량 반복** → `zai/glm-4.7-flash`(기본값 겸 물량 담당 — 만료 없는 영구 무료라 프론트엔드에서 볼륨을 받아낼 수 있는 유일한 모델); `gemini/gemini-3.8-flash`는 **예비(비상용)** — 하루 20건뿐이라 대량 작업에 쓸 수 없고 GLM이 막혔을 때 중요한 몇 건에만 쓴다. 지정한 모델의 한도가 막혔을 때만 안전망 Combo `fe-fallback`(`kiro/claude-sonnet-4.5 → zai/glm-4.7-flash → gemini/gemini-3.8-flash`, Priority, 아직 미생성)으로 대체한다.
 >    - 3개월마다(다음: 2026-12-18) 클라우드 루틴이 이 구성의 최신성을 재검증한다 — 결과는 보고서만 남기고 자동 반영은 안 하므로, 다음 세션에서 사람이 확인 후 직접 반영한다.
 
-**부가 계층(계층 0~3 위에 얹히는 것)**: 1) 도구 — 위 MCP 6종  2) UI — `frontend-design` + `ui-ux-pro-max` 스킬군(admin-web·mobile 화면 작업)  3) 왕초보 설명 계층 — SCH별 학습 주석(`beginner-comment-style.md`) + 왕초보 완벽분석가이드(`sch-guide-template.md`, `_workspace/guides/SCH-XX(기능명).html`) + **진행 리뷰(`docs/Review.md`)** + MindPilot  4) 에이전트 설명 계층 — 스택 개요(`docs/ai-coding-agent.html`) + SCH별 버전 맞춤 문서(`agent-sch-doc-template.md`, `_workspace/guides/SCH-XX(기능명).md`). 3번은 사람이, 4번은 에이전트가 읽는다.
+**부가 계층(계층 0~3 위에 얹히는 것)**: 1) 도구 — 위 MCP 6종  2) UI — `frontend-design` + `ui-ux-pro-max` 스킬군(admin-web·mobile 화면 작업)  3) 왕초보 설명 계층 — SCH별 학습 주석(`beginner-comment-style.md`) + 왕초보 완벽분석가이드(`sch-guide-template.md`, `_workspace/guides/SCH-XX(기능명).html`) + **진행 리뷰(`docs/Review.md`)** + MindPilot  4) 에이전트 설명 계층 — 스택 개요(`docs/agent/ai-coding-agent.html`) + SCH별 버전 맞춤 문서(`agent-sch-doc-template.md`, `_workspace/guides/SCH-XX(기능명).md`). 3번은 사람이, 4번은 에이전트가 읽는다.
 
 설명 계층(3·4번)은 계층 0~3이 끝난 결과를 설명만 할 뿐, 의사결정에 관여하지 않는다 — Visual Guide Skill과 MindPilot은 파이프라인·공구와 경쟁·대체 관계가 아니라 그 위에 얹는 부가 도구다.
 
-전체 그림(다이어그램 중심 설명)은 `docs/가이드/harness-ecc-guide.html` 참고.
+전체 그림(다이어그램 중심 설명)은 `docs/guide/harness-ecc-guide.html` 참고.
 
 **설치된 범용 `harness:harness` 메타스킬(harness-marketplace 플러그인)과 절대 혼동하지 않는다.** 이 메타스킬은 새 도메인에 처음부터 하네스를 만들어주는 범용 도구이고, "하네스 점검/감사/현황/에이전트-스킬 동기화" 같은 문구에 트리거된다. kdance는 이미 `kdance-dev-harness`가 만들어져 있고 Phase 9.5(학습 주석 재구성·SCH 가이드 생성)·SCH 표기 규칙·beginner-comment-style.md 등 이 프로젝트 전용으로 커스터마이징돼 있다 — 범용 메타스킬은 이 커스터마이징을 모른 채 자기 템플릿으로 재구성하려 들 수 있으므로, kdance에서 하네스를 점검·수정·확장할 때는 **범용 `harness:harness`를 호출하지 말고 `.claude/skills/kdance-dev-harness/`와 `.claude/agents/kdance-*.md`를 직접 Read/Edit한다.**
 
@@ -332,7 +332,7 @@ GitHub spec-kit 의 `specify → plan → tasks → implement → analyze → co
 ### 도구는 안 쓰되 규격은 빌려 온다
 
 `speckit-plan`·`speckit-tasks` 의 **템플릿이 우리 Phase 3·4 보다 낫다.** 그래서 도구를
-갈아타는 대신 산출물 규격만 올렸다(근거: `docs/role-split-analysis.md` §4-1).
+갈아타는 대신 산출물 규격만 올렸다(근거: `docs/planning/role-split-analysis.md` §4-1).
 
 | Phase | 빌려 온 것 |
 |---|---|
@@ -423,7 +423,7 @@ SCH 가이드는 "그 작업이 어떻게 끝났는지". 정작 배우는 데 �
 
 **호환되는 선에서 최신을 쓴다.** "최신"과 "의존성 호환"이 충돌하면 **호환이 이긴다.**
 
-확정된 버전표는 `docs/kdancex4_service_definition_and_tech_stack.md` 의
+확정된 버전표는 `docs/planning/kdancex4_service_definition_and_tech_stack.md` 의
 「11. 기술 스택 고정표」다. 버전을 말하거나 문서에 적을 때는 **거기를 먼저 본다.**
 
 ### 버전을 추정하지 않는다
@@ -474,10 +474,10 @@ Next.js 16.3 이 `node_modules/next/dist/docs/` 와 `AGENTS.md` 를 깔아 주�
 
 | 문서 | 무엇 |
 |---|---|
-| `docs/ai-coding-agent.html` | 스택 전체 개요. 최신에서만 되는 것, 그 대가, 버전 확인 방법. 항목마다 **실측 / 미검증** 을 표시한다 |
+| `docs/agent/ai-coding-agent.html` | 스택 전체 개요. 최신에서만 되는 것, 그 대가, 버전 확인 방법. 항목마다 **실측 / 미검증** 을 표시한다 |
 | `.claude/skills/kdance-dev-harness/references/agent-sch-doc-template.md` | SCH 단위 `.md` 문서 표준. 산출물은 `_workspace/guides/SCH-XX(기능명).md` |
 
-- 스택·버전이 걸린 작업 전에 `docs/ai-coding-agent.html` 을 먼저 본다. 버전 **값**의
+- 스택·버전이 걸린 작업 전에 `docs/agent/ai-coding-agent.html` 을 먼저 본다. 버전 **값**의
   원본은 「11. 기술 스택 고정표」이고, 이 문서는 **왜 그 값인지와 실측 근거**를 담는다.
   값을 두 곳에 복제하지 않는다 — 복제하면 반드시 어긋난다.
 - SCH 문서는 셋이 짝이다: 소스 안 학습 주석(`beginner-comment-style.md`) · 사람용 HTML
@@ -486,6 +486,17 @@ Next.js 16.3 이 `node_modules/next/dist/docs/` 와 `AGENTS.md` 를 깔아 주�
   사실관계가 어긋나면 셋 다 못 믿게 되므로, 사실은 같고 서술 대상만 다르게 쓴다.
 - 에이전트용 `.md` 의 핵심 절은 「쓰면 안 되는 것」이다. 에이전트에게는 "무엇을 하라"보다
   "무엇을 하지 말라"가 효과가 크다 — 잘못된 사전 지식이 기본값으로 깔려 있기 때문이다.
+
+## 외부 API 는 무료 구간 안에서만 쓴다 (2026-09-30 확정, 2026-10-02 강화)
+
+**호출하기 전에 그 API 가 무료인지 확인하고, 무료 한도 수치를 답에 먼저 적는다.** 사용자 규칙은 두 번 확인됐다 —
+"무조건 무료 API 제공만 사용 가능한 조건이 필수"(09-30), "무료 API 범위에서만 꼭 써야 해 … **월 한도 무료 제공이 핵심**"(10-02).
+
+- 외부 API 후보는 ①영구 무료 구간 ②가입·체험 크레딧(유한) ③종량제 셋으로 **구분해서** 제시한다. ③은 쓰지 않는다.
+- 결제 수단 등록·유료 플랜 가입·크레딧 구매는 하지 않는다. 한도가 끝나면 그 자리에서 멈추고 사용자에게 알린다.
+- 제품 안에서 반복 호출되는 자리에는 **영구 무료 구간이 있는 것만** 쓴다. 체험 크레딧은 일회성 작업에만.
+- **로컬 실행이 가능하면 그쪽이 기본값이다** — 한도가 없고 키도 필요 없다(예: `docs/prototype/local-sd/` 의 SDXL 서버).
+- 무료 한도 실측값은 사용자 메모리 `beta-free-api-only` 에 모아 둔다.
 
 ## Investigation & Accuracy
 - Never speculate about code you have not read. Read files and ripgrep for usages before making claims

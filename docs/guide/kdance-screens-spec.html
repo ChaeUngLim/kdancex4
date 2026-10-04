@@ -1,0 +1,716 @@
+<title>kdance 화면 명세서</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gothic+A1:wght@400;500;700;800;900&family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+  :root{
+    --bg:#FBF8FB; --surface:#FFFFFF; --surface-2:#F3EDF5;
+    --border:rgba(31,23,41,0.10); --text:#1F1729; --text-dim:#5C5266; --text-faint:#948AA0;
+    --accent:#D8452F; --accent-soft:#FBE2DC; --gold:#B8801A; --gold-soft:#F5E7C4;
+    --ok:#2E7D5B; --ok-bg:#E5F3EB; --warn:#8A5A12; --warn-bg:#FBF0DC; --warn-border:#E3C688;
+    --line:rgba(31,23,41,0.14);
+    --tango:#D8452F; --ballroom:#3D4C9E; --salsa:#DB7B1E; --bachata:#C13A72; --swing:#B8801A;
+    --shadow: 0 1px 2px rgba(31,23,41,0.08), 0 14px 34px -16px rgba(31,23,41,0.26);
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#15111C; --surface:#1F1928; --surface-2:#271F31; --border:rgba(245,241,247,0.10);
+      --text:#F5F1F7; --text-dim:#C2B8CC; --text-faint:#877D95;
+      --accent:#FF6F59; --accent-soft:#3A241F; --gold:#FFC857; --gold-soft:#3A2F16;
+      --ok:#7FD8AE; --ok-bg:#173427; --warn:#E7C482; --warn-bg:#332714; --warn-border:#5B4620;
+      --line:rgba(245,241,247,0.14);
+      --tango:#FF6F59; --ballroom:#8C9CF0; --salsa:#F5A84E; --bachata:#F27DB0; --swing:#FFC857;
+      --shadow: 0 1px 2px rgba(0,0,0,0.5), 0 16px 40px -16px rgba(0,0,0,0.7);
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#15111C; --surface:#1F1928; --surface-2:#271F31; --border:rgba(245,241,247,0.10);
+    --text:#F5F1F7; --text-dim:#C2B8CC; --text-faint:#877D95;
+    --accent:#FF6F59; --accent-soft:#3A241F; --gold:#FFC857; --gold-soft:#3A2F16;
+    --ok:#7FD8AE; --ok-bg:#173427; --warn:#E7C482; --warn-bg:#332714; --warn-border:#5B4620;
+    --line:rgba(245,241,247,0.14);
+    --tango:#FF6F59; --ballroom:#8C9CF0; --salsa:#F5A84E; --bachata:#F27DB0; --swing:#FFC857;
+    --shadow: 0 1px 2px rgba(0,0,0,0.5), 0 16px 40px -16px rgba(0,0,0,0.7);
+  }
+
+  *{box-sizing:border-box;}
+  body{background:var(--bg); color:var(--text); font-family:"IBM Plex Sans KR",-apple-system,sans-serif; padding:0 20px;}
+  .wrap{max-width:1200px; margin:0 auto; padding-block:0 64px;}
+  h1,h2,h3{font-family:"Gothic A1",sans-serif; text-wrap:balance; letter-spacing:-0.01em; margin:0;}
+  code{font-family:"IBM Plex Mono",monospace; background:var(--surface-2); padding:1px 5px; border-radius:4px; font-size:0.88em;}
+
+  .hero{padding-block:52px 34px; border-bottom:1px solid var(--border);}
+  .hero .eyebrow{font-size:0.78rem; font-weight:700; color:var(--accent); letter-spacing:0.06em; margin-bottom:12px;}
+  .hero h1{font-size:clamp(1.8rem,4vw,2.5rem); font-weight:900; line-height:1.2; margin-bottom:14px;}
+  .hero p{font-size:1.02rem; color:var(--text-dim); max-width:70ch; margin:0 0 18px;}
+  .hero .src{font-size:0.84rem; color:var(--text-faint);}
+
+  section{padding-block:44px; border-bottom:1px solid var(--border);}
+  section:last-of-type{border-bottom:none;}
+  .sec-head{margin-bottom:26px;}
+  .sec-head .tag{font-size:0.76rem; letter-spacing:0.08em; text-transform:uppercase; color:var(--accent); font-weight:700; margin-bottom:8px; display:block;}
+  .sec-head h2{font-size:1.5rem; margin:0 0 8px;}
+  .sec-head p{color:var(--text-dim); margin:0; max-width:72ch;}
+
+  /* ---------- gallery ---------- */
+  .gallery{display:flex; flex-wrap:wrap; gap:28px; align-items:flex-start;}
+  .g-item{width:230px; flex:none;}
+  .g-item .g-cap{margin-top:12px;}
+  .g-item .g-num{font-family:"IBM Plex Mono",monospace; font-size:0.7rem; color:var(--accent); font-weight:600;}
+  .g-item .g-title{font-weight:700; font-size:0.92rem; margin:2px 0 4px;}
+  .g-item .g-desc{font-size:0.8rem; color:var(--text-dim); line-height:1.45;}
+
+  /* ---------- phone (reused pattern) ---------- */
+  .phone{width:230px; height:468px; border-radius:34px; background:#1F1729; padding:10px; box-shadow:var(--shadow); position:relative;}
+  .notch{position:absolute; top:10px; left:50%; transform:translateX(-50%); width:70px; height:17px; background:#1F1729; border-radius:0 0 12px 12px; z-index:2;}
+  .screen{width:100%; height:100%; background:#fff; border-radius:24px; overflow:hidden; position:relative; color:#1F1729; font-family:"IBM Plex Sans KR",sans-serif; display:flex; flex-direction:column;}
+  .status{display:flex; justify-content:space-between; padding:9px 15px 3px; font-size:0.6rem; font-weight:600; color:#1F1729;}
+  .app-header{padding:5px 14px 10px; border-bottom:1px solid #EEE6F0; display:flex; align-items:center; justify-content:space-between;}
+  .app-header .title{font-family:"Gothic A1",sans-serif; font-weight:800; font-size:0.9rem;}
+  .app-header .back{font-size:0.9rem; color:#1F1729;}
+  .app-body{padding:10px 14px; flex:1; overflow:hidden; background:#FBF8FB;}
+  .hero-photo{height:100px; background:linear-gradient(135deg,#E9E4ED,#D9D0E0); border-radius:16px; margin-bottom:9px; display:flex; align-items:flex-end; padding:8px; position:relative;}
+  .hero-photo .ph-badge{font-size:0.56rem; font-weight:700; background:rgba(255,255,255,0.85); color:#1F1729; padding:2px 7px; border-radius:6px;}
+
+  .search-bar{display:flex; align-items:center; gap:6px; background:#F3EDF5; border-radius:10px; padding:8px 10px; font-size:0.68rem; color:#5C5266; margin-bottom:9px;}
+  .chip-row{display:flex; gap:5px; margin-bottom:10px; flex-wrap:wrap;}
+  .mini-chip{font-size:0.58rem; font-weight:700; padding:3px 8px; border-radius:999px; color:#fff;}
+  .mini-chip.outline{background:#fff; border:1px solid #DDD3E2; color:#5C5266;}
+  .studio-card{background:#fff; border:1px solid #EEE6F0; border-radius:16px; padding:9px 10px; margin-bottom:7px; box-shadow:0 1px 2px rgba(0,0,0,0.04);}
+  .studio-card .name{font-weight:700; font-size:0.74rem; display:flex; justify-content:space-between;}
+  .studio-card .meta{font-size:0.6rem; color:#8A8194; margin-top:2px;}
+  .badge-50{display:inline-block; font-size:0.54rem; font-weight:700; background:#FBE2DC; color:#D8452F; padding:2px 6px; border-radius:5px; margin-top:4px;}
+
+  .field{margin-bottom:9px;}
+  .field .flabel{font-size:0.6rem; color:#8A8194; margin-bottom:2px;}
+  .field .fval{font-size:0.76rem; font-weight:700;}
+  .divider{height:1px; background:#EEE6F0; margin:9px 0;}
+  .price-row{display:flex; justify-content:space-between; font-size:0.68rem; padding:3px 0; color:#5C5266;}
+  .price-row.total{font-weight:800; font-size:0.86rem; color:#1F1729; border-top:1px solid #EEE6F0; margin-top:5px; padding-top:7px;}
+  .price-row.discount{color:#2E7D5B;}
+  .pay-opt{display:flex; align-items:center; gap:7px; border:1px solid #EEE6F0; border-radius:12px; padding:8px 10px; font-size:0.7rem; font-weight:600; margin-bottom:6px;}
+  .pay-opt.sel{border-color:#1F1729; background:#F8F6FA;}
+  .radio{width:13px; height:13px; border-radius:50%; border:1.6px solid #C9BFD1; flex:none;}
+  .radio.sel{border-color:#1F1729; background:radial-gradient(#1F1729 0 40%, transparent 42%);}
+  .agree-line{display:flex; align-items:center; gap:6px; font-size:0.6rem; color:#8A8194; margin-top:8px;}
+  .check{width:11px; height:11px; border-radius:3px; border:1.5px solid #C9BFD1; flex:none;}
+
+  .cal-grid{display:grid; grid-template-columns:repeat(7,1fr); gap:3px; margin-bottom:9px;}
+  .cal-cell{aspect-ratio:1; display:flex; align-items:center; justify-content:center; font-size:0.56rem; color:#5C5266; border-radius:5px; position:relative;}
+  .cal-cell.active{background:#1F1729; color:#fff; font-weight:700;}
+  .cal-dot{position:absolute; bottom:2px; width:3.5px; height:3.5px; border-radius:50%;}
+  .agenda-card{background:#fff; border:1px solid #EEE6F0; border-left:3px solid var(--tango); border-radius:14px; padding:8px 10px; font-size:0.66rem;}
+  .agenda-card .t{font-weight:700; margin-bottom:2px;}
+  .agenda-card .s{color:#8A8194; font-size:0.6rem;}
+
+  .map-box{background:#E9E4ED; border-radius:12px; height:150px; position:relative; overflow:hidden; margin-bottom:9px;}
+  .route-card{background:#fff; border:1px solid #EEE6F0; border-radius:16px; padding:8px 10px;}
+  .route-card .line{display:flex; justify-content:space-between; font-size:0.66rem; margin-bottom:3px;}
+
+  .settle-card{background:linear-gradient(135deg,#1F1729,#3D4C9E); color:#fff; border-radius:20px; padding:14px; margin-bottom:9px;}
+  .settle-card .lbl{font-size:0.6rem; opacity:0.75;}
+  .settle-card .amt{font-family:"Gothic A1",sans-serif; font-weight:900; font-size:1.28rem; margin:3px 0 8px;}
+  .settle-row{display:flex; justify-content:space-between; font-size:0.62rem; padding:2px 0; border-top:1px solid rgba(255,255,255,0.18);}
+  .status-pill{display:inline-flex; align-items:center; gap:4px; font-size:0.6rem; font-weight:700; color:#2E7D5B; background:#E5F3EB; padding:3px 8px; border-radius:999px; margin-bottom:8px;}
+  .dot2{width:5px; height:5px; border-radius:50%; background:#2E7D5B;}
+  .mini-row{display:flex; justify-content:space-between; font-size:0.62rem; padding:5px 0; border-bottom:1px solid #F0EAF2;}
+
+  .feed-card{background:#fff; border:1px solid #EEE6F0; border-radius:16px; overflow:hidden; margin-bottom:8px;}
+  .feed-photo{height:60px; background:linear-gradient(135deg,#E9E4ED,#D9D0E0);}
+  .feed-body{padding:7px 10px;}
+  .feed-tag{display:inline-block; font-size:0.52rem; font-weight:700; padding:2px 6px; border-radius:5px; margin-bottom:4px; color:#fff;}
+  .feed-title{font-size:0.7rem; font-weight:700;}
+  .feed-meta{font-size:0.58rem; color:#8A8194; margin-top:2px;}
+
+  .notice-row{border-bottom:1px solid #F0EAF2; padding:8px 2px;}
+  .notice-row.pin{background:#FBF0DC;}
+  .notice-title{font-size:0.7rem; font-weight:700; display:flex; gap:5px; align-items:center;}
+  .pin-tag{font-size:0.5rem; font-weight:700; color:#8A5A12; background:#F5E7C4; padding:1px 5px; border-radius:4px;}
+  .notice-meta{font-size:0.58rem; color:#8A8194; margin-top:2px;}
+
+  .sub-card{background:linear-gradient(135deg,#D8452F,#B8801A); border-radius:20px; padding:14px; color:#fff; margin-bottom:9px;}
+  .sub-card .lbl{font-size:0.6rem; opacity:0.85;}
+  .sub-card .big{font-family:"Gothic A1",sans-serif; font-weight:900; font-size:1.02rem; margin:3px 0;}
+  .coupon-card{border:1.4px dashed #D8452F; border-radius:14px; padding:9px 10px; font-size:0.66rem; margin-bottom:7px; display:flex; justify-content:space-between; align-items:center;}
+  .coupon-card b{display:block; font-size:0.72rem;}
+  .coupon-d{font-size:0.56rem; color:#D8452F; font-weight:700;}
+
+  .upload-box{border:1.6px dashed #C9BFD1; border-radius:16px; padding:18px 10px; text-align:center; margin-bottom:10px;}
+  .upload-box .ic{font-size:1.3rem;}
+  .upload-box .t{font-size:0.68rem; font-weight:700; margin-top:4px;}
+  .upload-box .s{font-size:0.58rem; color:#8A8194; margin-top:2px;}
+  .review-field{border:1px solid #EEE6F0; border-radius:10px; padding:6px 9px; margin-bottom:6px;}
+  .review-field.low{border-color:#D8452F; border-width:1.4px;}
+  .review-field .rl{font-size:0.56rem; color:#8A8194;}
+  .review-field .rv{font-size:0.72rem; font-weight:700; display:flex; justify-content:space-between; align-items:center;}
+  .low-tag{font-size:0.5rem; color:#D8452F; font-weight:700;}
+
+  .cta-fixed{padding:9px 14px 12px; border-top:1px solid #EEE6F0; background:#fff;}
+  .btn-pill{background:#1F1729; color:#fff; text-align:center; font-size:0.72rem; font-weight:700; padding:10px; border-radius:999px;}
+
+  .tab-ic{width:16px; height:16px; fill:none; stroke:#B6ACC0; stroke-width:1.7; stroke-linecap:round; stroke-linejoin:round;}
+  .nav-tab{display:flex; justify-content:space-around; align-items:center; padding:8px 0 11px; border-top:1px solid #EEE6F0; margin-top:auto;}
+  .nav-tab a{display:flex; flex-direction:column; align-items:center; gap:2px;}
+  .tab-lbl{font-size:0.48rem; color:#B6ACC0; font-weight:500;}
+  .nav-tab a.on .tab-ic{stroke:var(--accent); stroke-width:2.2;}
+  .nav-tab a.on .tab-lbl{color:var(--accent); font-weight:700;}
+
+  /* ---------- T&C / guide ---------- */
+  .tc-grid{display:grid; grid-template-columns:repeat(2,1fr); gap:16px;}
+  @media (max-width:680px){.tc-grid{grid-template-columns:1fr;}}
+  .tc-card{background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:18px 20px; box-shadow:var(--shadow);}
+  .tc-card h3{font-size:0.94rem; margin:0 0 8px;}
+  .tc-card ul{margin:0; padding-left:18px; font-size:0.86rem; color:var(--text-dim); line-height:1.55;}
+  .tc-card li{margin-bottom:4px;}
+  .disclaimer{font-size:0.78rem; color:var(--text-faint); font-style:italic; margin-top:18px;}
+
+  .flow{display:flex; flex-direction:column; gap:0;}
+  .fstep{display:grid; grid-template-columns:44px 1fr; gap:16px; padding:14px 0; border-top:1px solid var(--border);}
+  .fstep:first-child{border-top:none;}
+  .fstep .fn{font-family:"Gothic A1",sans-serif; font-weight:900; font-size:1.2rem; color:var(--gold);}
+  .fstep b{font-size:0.92rem;}
+  .fstep p{margin:2px 0 0; font-size:0.86rem; color:var(--text-dim);}
+  .flow-title{font-weight:700; font-size:0.98rem; margin-bottom:6px;}
+
+  footer{padding-top:36px; font-size:0.8rem; color:var(--text-faint);}
+</style>
+
+<div class="wrap">
+
+  <div class="hero">
+    <div class="eyebrow">화면 명세서 · v1</div>
+    <h1>kdance — 실제 구현 수준 화면 명세</h1>
+    <p>지금까지 정한 것(검색·추천, 관리자 업로드 자동등록, 뉴스피드·공지, 대학생 첫 결제 50%,
+    1+1 멤버십쿠폰, 입점 1년 수수료 면제 — 2026-09-25 약관 기준으로 갱신)을 전부 화면으로 옮기고, 실제 결제 플로우처럼
+    빠진 화면(학원 상세, 체크아웃, 멤버십 관리)을 추가로 채웠다.</p>
+    <p class="src">탭바·카드 반경은 mobydick 실제 구현 패턴 참고 · 색은 kdance 고유 장르 5색 유지</p>
+  </div>
+
+  <!-- ================= 소비자 앱 ================= -->
+  <section>
+    <div class="sec-head">
+      <span class="tag">소비자 앱 · 01</span>
+      <h2>가입부터 결제까지</h2>
+      <p>회원가입 → 검색 → 학원 상세 → <b>결제(체크아웃)</b>까지 한 흐름으로 본다.
+      체크아웃 화면이 이번에 새로 채운, "실제 온라인 결제 수준"의 핵심 화면이다.</p>
+    </div>
+    <div class="gallery">
+
+      <!-- 1. 온보딩 -->
+      <div class="g-item">
+        <div class="phone"><div class="notch"></div><div class="screen">
+          <div class="status"><span>9:41</span><span>●●●</span></div>
+          <div class="app-header"><div class="title">회원가입</div></div>
+          <div class="app-body">
+            <div class="field"><div class="flabel">휴대폰 번호</div><div class="fval">010-••••-5521 · 인증완료</div></div>
+            <div class="field"><div class="flabel">성별 · 본인확인으로 자동 체크</div><div class="fval">● 여 &nbsp; ○ 남</div></div>
+            <div class="field"><div class="flabel">관심 장르 · 필수 · 여러 개</div></div>
+            <div class="chip-row">
+              <span class="mini-chip" style="background:var(--ballroom)">댄스스포츠</span>
+              <span class="mini-chip outline">아르헨티나 탱고</span>
+              <span class="mini-chip outline">스윙댄스</span>
+              <span class="mini-chip" style="background:var(--salsa)">살사/바차타</span>
+            </div>
+            <div class="field"><div class="flabel">관심 지역 · 선택 · 여러 개</div><div class="fval">서울 › 강남구 · 서초구</div></div>
+            <div class="field"><div class="flabel">가능한 시간대 · 선택</div><div class="fval">평일 19:00 ~ 22:00</div></div>
+            <div class="field"><div class="flabel">관심 세부 장르 · 선택 · 여러 개</div></div>
+            <div class="chip-row">
+              <span class="mini-chip" style="background:var(--ballroom)">라틴</span>
+              <span class="mini-chip outline">스탠다드</span>
+              <span class="mini-chip" style="background:var(--salsa)">살사</span>
+              <span class="mini-chip outline">바차타</span>
+            </div>
+            <div class="divider"></div>
+            <div class="studio-card">
+              <div class="name">🎓 대학생이신가요?</div>
+              <div class="meta">학교 이메일(.ac.kr)로 인증하면 첫 3개월 요금제 적용</div>
+            </div>
+          </div>
+          <div class="cta-fixed"><div class="btn-pill">다음</div></div>
+        </div></div>
+        <div class="g-cap"><div class="g-num">01</div><div class="g-title">회원가입 · 대학생 인증</div>
+        <div class="g-desc">성별은 본인확인 결과로 자동 체크되고 수강 신청 때 정원 자리(남·여)의 기본값이 된다 — 신청할 때 바꿀 수 있다(FR-002(가입 정보 수집·고지)·FR-092(성별 정원)). 관심 장르(필수·여러 개)와 세부 장르(선택·여러 개)를 받아 첫 추천부터 개인화한다(FR-022(사용자 프로필)). 이 값은 추천용이고, 메인 화면의 기준 장르는 가입 직후 01b 에서 하나만 고른다. 대학생 인증은 선택 — 나중에 마이페이지에서도 가능.</div></div>
+      </div>
+
+      <!-- 1b. 가입 직후 · 메인 장르 선택 -->
+      <div class="g-item">
+        <div class="phone"><div class="notch"></div><div class="screen">
+          <div class="status"><span>9:41</span><span>●●●</span></div>
+          <div class="app-header"><div class="title">메인에서 어떤 춤을 볼까요?</div></div>
+          <div class="app-body">
+            <div style="font-size:0.62rem;color:#8A8194;margin-bottom:8px">딱 하나만 골라요. 이 장르 기준으로 메인을 보여 드려요. 나중에 메인에서 바꿀 수 있어요.</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+              <div style="border-radius:14px;overflow:hidden;border:1px solid #EEE6F0;background:#fff">
+                <div style="height:62px;background:linear-gradient(135deg,var(--ballroom),#1c1426)" role="img" aria-label="댄스스포츠 사진"></div>
+                <div style="padding:6px 8px"><div style="font-weight:700;font-size:0.72rem">댄스스포츠</div><div style="font-size:0.56rem;color:#8A8194;margin-top:1px">우아한 커플 댄스</div></div>
+              </div>
+              <div style="border-radius:14px;overflow:hidden;border:1px solid #EEE6F0;background:#fff">
+                <div style="height:62px;background:linear-gradient(135deg,var(--tango),#1c1426)" role="img" aria-label="아르헨티나 탱고 사진"></div>
+                <div style="padding:6px 8px"><div style="font-weight:700;font-size:0.72rem">아르헨티나 탱고</div><div style="font-size:0.56rem;color:#8A8194;margin-top:1px">밀착 즉흥 춤</div></div>
+              </div>
+              <div style="border-radius:14px;overflow:hidden;border:1px solid #EEE6F0;background:#fff">
+                <div style="height:62px;background:linear-gradient(135deg,var(--swing),#1c1426)" role="img" aria-label="스윙댄스 사진"></div>
+                <div style="padding:6px 8px"><div style="font-weight:700;font-size:0.72rem">스윙댄스</div><div style="font-size:0.56rem;color:#8A8194;margin-top:1px">경쾌한 재즈 리듬</div></div>
+              </div>
+              <div style="border-radius:14px;overflow:hidden;border:1px solid #EEE6F0;background:#fff">
+                <div style="height:62px;background:linear-gradient(135deg,var(--salsa),#1c1426)" role="img" aria-label="살사/바차타 사진"></div>
+                <div style="padding:6px 8px"><div style="font-weight:700;font-size:0.72rem">살사/바차타</div><div style="font-size:0.56rem;color:#8A8194;margin-top:1px">라틴 소셜 파티</div></div>
+              </div>
+            </div>
+          </div>
+        </div></div>
+        <div class="g-cap"><div class="g-num">01b</div><div class="g-title">가입 직후 — 메인 장르 1개 선택</div>
+        <div class="g-desc">FR-022a(첫 화면 장르 선택·유지). 가입을 마친 뒤 사진 카드 4장 가운데 <b>딱 하나</b>를 골라야 넘어간다(여러 개 선택 불가, 건너뛰기 없음). 가입 때 받은 관심 장르(여러 개, 추천용)와 별개로 메인 화면의 기준이 된다. 계정에 저장돼 다음 접속에도 유지된다. 사진은 직접 찍었거나 사용 허락받은 것만 쓴다.</div></div>
+      </div>
+
+      <!-- 2. 홈/검색 -->
+      <div class="g-item">
+        <div class="phone"><div class="notch"></div><div class="screen">
+          <div class="status"><span>9:41</span><span>●●●</span></div>
+          <div class="app-header"><div class="title">홈</div></div>
+          <div class="app-body">
+            <div class="chip-row">
+              <span class="mini-chip outline">댄스스포츠</span>
+              <span class="mini-chip outline">탱고</span>
+              <span class="mini-chip outline">스윙</span>
+              <span class="mini-chip" style="background:var(--salsa)">살사/바차타</span>
+            </div>
+            <div class="search-bar">🔍 살사/바차타 수업 검색</div>
+            <div style="font-size:0.52rem;color:#5C5266;margin:4px 0 6px">정렬 ▾ <b>[추천순]</b> [검색순] [인기순] [마감 임박순] [잔여석 임박순]</div>
+            <div style="display:flex;align-items:baseline;gap:6px;margin:8px 0 2px"><b style="font-size:0.74rem">실시간 인기 수업</b><span style="font-size:0.5rem;color:#8A8194">Updated every 3 hours</span></div>
+            <div style="font-size:0.52rem;color:#8A8194;margin-bottom:6px">검색 조회수 기준</div>
+            <div class="studio-card"><div class="name"><span><span class="badge-50" style="margin-right:4px">1+1 참여학원</span>라 클라베 스튜디오</span></div>
+              <div class="meta">처음 참여 후 한 달 · 10초마다 다음 학원 · 이름표를 누르면 참여 학원 목록</div></div>
+            <div style="overflow:hidden;white-space:nowrap;border:1px solid #EEE6F0;border-radius:10px;background:#fff;padding:6px 8px;font-size:0.58rem;margin-bottom:8px" aria-label="실시간 인기 수업 전광판">
+              <span style="display:inline-block">◀ <b>1.</b> K댄스학원 / 룸바 중급 / 10월 1일 개강 / 19:30 / 잔여 남 1석·여 3석 &nbsp;·&nbsp; <b>2.</b> 라 클라베 스튜디오 / 살사 온원 기초 / 10월 5일 개강 / 20:00 / 마감 · 대기 가능 &nbsp;·&nbsp; <b>3.</b> …</span>
+            </div>
+            <div style="font-size:0.5rem;color:#8A8194;margin-bottom:6px">한 줄로 흘러가며 1~10위를 반복. 손을 대면 멈춤</div>
+          </div>
+          <div class="nav-tab">
+            <a class="on"><svg class="tab-ic" viewBox="0 0 24 24"><path d="M4 12 12 5l8 7M6 11v8h5v-5h2v5h5v-8"/></svg><span class="tab-lbl">홈</span></a>
+            <a><svg class="tab-ic" viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 9h16M8 3v4M16 3v4"/></svg><span class="tab-lbl">캘린더</span></a>
+            <a><svg class="tab-ic" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h11"/></svg><span class="tab-lbl">피드</span></a>
+            <a><svg class="tab-ic" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.4"/><path d="M5 20c0-4 3-6 7-6s7 2 7 6"/></svg><span class="tab-lbl">마이</span></a>
+          </div>
+        </div></div>
+        <div class="g-cap"><div class="g-num">02</div><div class="g-title">홈 — 장르 전환 · 실시간 인기 수업</div>
+        <div class="g-desc">위쪽 한 줄 버튼으로 장르를 한 번에 바꾼다(FR-022a(첫 화면 장르 선택·유지)). 검색·순위판·1+1 참여학원은 고른 장르만 다룬다. 실시간 인기 수업은 위쪽 한 줄 전광판으로 1~10위가 흘러간다. 항목은 "학원명 / 수업명 레벨 / 개강일 / 시작 시각 / 잔여 남·여 석"이고, 순위는 최근 24시간 검색 조회수로 3시간마다 갱신한다(FR-121d(1+1 참여 학원 실시간 수업 검색 순위)). 잔여 자리는 볼 때마다 새로 읽고, 손을 대면 멈춘다. 맨 위 "1+1 참여학원"은 처음 참여한 학원을 10초마다 골고루 바꿔 보여 준다(FR-121e(신규 참여 학원 NEW 영역)).</div></div>
+      </div>
+
+      <!-- 3. 학원 상세 -->
+      <div class="g-item">
+        <div class="phone"><div class="notch"></div><div class="screen">
+          <div class="status"><span>9:41</span><span>●●●</span></div>
+          <div class="app-header"><span class="back">‹</span><div class="title">학원 상세</div><span></span></div>
+          <div class="app-body">
+            <div class="hero-photo"><span class="ph-badge">사진 6장</span></div>
+            <div style="font-weight:800; font-size:0.9rem;">라 클라베 댄스 스튜디오</div>
+            <div class="meta" style="font-size:0.62rem; color:#8A8194; margin:2px 0 8px;">★4.9 (212) · 강남역 3번 출구 도보 5분</div>
+            <div class="chip-row">
+              <span class="mini-chip" style="background:var(--salsa)">살사</span>
+              <span class="mini-chip" style="background:var(--bachata)">바차타</span>
+            </div>
+            <div class="studio-card"><div class="name">살사 중급반 <span>45,000원</span></div>
+              <div class="meta">화·목 20:00–21:00 · 정원 12 · 8/12</div></div>
+            <div class="studio-card"><div class="name">바차타 초급반 <span>40,000원</span></div>
+              <div class="meta">월·수 19:00–20:00 · 정원 14 · 5/14</div></div>
+          </div>
+          <div class="cta-fixed"><div class="btn-pill">수업 선택하고 예약하기</div></div>
+        </div></div>
+        <div class="g-cap"><div class="g-num">03</div><div class="g-title">학원 상세 페이지</div>
+        <div class="g-desc">사진·평점·시간표를 한 화면에. 정원 대비 신청 인원(8/12)을 보여줘 마감 임박을 유도한다.</div></div>
+      </div>
+
+      <!-- 4. 체크아웃 -->
+      <div class="g-item">
+        <div class="phone"><div class="notch"></div><div class="screen">
+          <div class="status"><span>9:41</span><span>●●●</span></div>
+          <div class="app-header"><span class="back">‹</span><div class="title">결제하기</div><span></span></div>
+          <div class="app-body">
+            <div class="field"><div class="flabel">수업</div><div class="fval">살사 중급반 · 화 20:00</div></div>
+            <div class="divider"></div>
+            <div class="price-row"><span>수업료 (1개월)</span><span>180,000원</span></div>
+            <div class="price-row discount"><span>대학생 첫 결제 50%</span><span>-90,000원</span></div>
+            <div class="price-row total"><span>총 결제금액</span><span>90,000원</span></div>
+            <div class="divider"></div>
+            <div class="pay-opt sel"><span class="radio sel"></span>신용·체크카드</div>
+            <div class="pay-opt"><span class="radio"></span>카카오페이</div>
+            <div class="agree-line"><span class="check"></span>주문 내용과 이 학원의 환불·취소 공지에 동의합니다 · K-DanceX4 는 통신판매중개자입니다</div>
+          </div>
+          <div class="cta-fixed"><div class="btn-pill">90,000원 결제하기</div></div>
+        </div></div>
+        <div class="g-cap"><div class="g-num">04</div><div class="g-title">체크아웃 — 결제 화면 ★</div>
+        <div class="g-desc">할인·쿠폰이 순서대로 차감되는 걸 항목별로 보여준다. 쿠폰은 "적용됨"만 표시 — 금액이 아니라 자격을 보여주는 게 핵심(1+1이라 별도 결제 없음).</div></div>
+      </div>
+
+      <!-- 5. 캘린더 -->
+      <div class="g-item">
+        <div class="phone"><div class="notch"></div><div class="screen">
+          <div class="status"><span>9:41</span><span>●●●</span></div>
+          <div class="app-header"><div class="title">내 일정</div></div>
+          <div class="app-body">
+            <div class="cal-grid">
+              <div class="cal-cell">일</div><div class="cal-cell">월</div><div class="cal-cell">화</div>
+              <div class="cal-cell">수</div><div class="cal-cell">목</div><div class="cal-cell">금</div><div class="cal-cell">토</div>
+              <div class="cal-cell">1</div><div class="cal-cell">2</div>
+              <div class="cal-cell active">3<span class="cal-dot" style="background:var(--salsa)"></span></div>
+              <div class="cal-cell">4</div><div class="cal-cell">5<span class="cal-dot" style="background:var(--bachata)"></span></div>
+              <div class="cal-cell">6</div><div class="cal-cell">7</div>
+            </div>
+            <div class="agenda-card"><div class="t">🔔 살사 중급반</div><div class="s">오늘 저녁 8:00 · 30분 전 알람</div></div>
+          </div>
+          <div class="nav-tab">
+            <a><svg class="tab-ic" viewBox="0 0 24 24"><path d="M4 12 12 5l8 7M6 11v8h5v-5h2v5h5v-8"/></svg><span class="tab-lbl">홈</span></a>
+            <a class="on"><svg class="tab-ic" viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 9h16M8 3v4M16 3v4"/></svg><span class="tab-lbl">캘린더</span></a>
+            <a><svg class="tab-ic" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h11"/></svg><span class="tab-lbl">피드</span></a>
+            <a><svg class="tab-ic" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.4"/><path d="M5 20c0-4 3-6 7-6s7 2 7 6"/></svg><span class="tab-lbl">마이</span></a>
+          </div>
+        </div></div>
+        <div class="g-cap"><div class="g-num">05</div><div class="g-title">캘린더 & 알람</div>
+        <div class="g-desc">결제 완료 시 자동으로 이 캘린더에 꽂힌다. 수업 30분 전 푸시.</div></div>
+      </div>
+
+      <!-- 6. 길찾기 -->
+      <div class="g-item">
+        <div class="phone"><div class="notch"></div><div class="screen">
+          <div class="status"><span>9:41</span><span>●●●</span></div>
+          <div class="app-header"><div class="title">길찾기</div></div>
+          <div class="app-body">
+            <div class="map-box">
+              <svg width="100%" height="100%" viewBox="0 0 220 150">
+                <rect width="220" height="150" fill="#E9E4ED"/>
+                <path d="M0,50 H220" stroke="#D5CBD9" stroke-width="5"/>
+                <path d="M40,0 V150" stroke="#D5CBD9" stroke-width="5"/>
+                <path d="M40,110 Q90,60 150,45" fill="none" stroke="#D8452F" stroke-width="2.5" stroke-dasharray="6 5"/>
+                <circle cx="40" cy="110" r="5" fill="#1F1729"/><circle cx="150" cy="45" r="6" fill="#D8452F"/>
+              </svg>
+            </div>
+            <div class="route-card"><div class="line"><span>🚶 도보</span><b>12분 · 850m</b></div>
+            <div class="line"><span>🚇 강남역</span><b>3번 출구</b></div></div>
+          </div>
+          <div class="nav-tab">
+            <a><svg class="tab-ic" viewBox="0 0 24 24"><path d="M4 12 12 5l8 7M6 11v8h5v-5h2v5h5v-8"/></svg><span class="tab-lbl">홈</span></a>
+            <a><svg class="tab-ic" viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 9h16M8 3v4M16 3v4"/></svg><span class="tab-lbl">캘린더</span></a>
+            <a class="on"><svg class="tab-ic" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h11"/></svg><span class="tab-lbl">피드</span></a>
+            <a><svg class="tab-ic" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.4"/><path d="M5 20c0-4 3-6 7-6s7 2 7 6"/></svg><span class="tab-lbl">마이</span></a>
+          </div>
+        </div></div>
+        <div class="g-cap"><div class="g-num">06</div><div class="g-title">길찾기</div>
+        <div class="g-desc">예약 확인 화면에서 바로 진입. 첫 방문 이탈을 막는 용도.</div></div>
+      </div>
+
+      <!-- 7. 뉴스피드 -->
+      <div class="g-item">
+        <div class="phone"><div class="notch"></div><div class="screen">
+          <div class="status"><span>9:41</span><span>●●●</span></div>
+          <div class="app-header"><div class="title">피드</div></div>
+          <div class="app-body">
+            <div class="feed-card"><div class="feed-photo"></div><div class="feed-body">
+              <span class="feed-tag" style="background:var(--bachata)">파티</span>
+              <div class="feed-title">강남 바차타 소셜파티</div>
+              <div class="feed-meta">9/20(토) 21:00 · 소셜살사 강남점</div></div></div>
+            <div class="feed-card"><div class="feed-photo"></div><div class="feed-body">
+              <span class="feed-tag" style="background:var(--ballroom)">대회</span>
+              <div class="feed-title">2026 전국 소셜댄스 챔피언십</div>
+              <div class="feed-meta">10/4(일) · 참가신청 D-12</div></div></div>
+          </div>
+          <div class="nav-tab">
+            <a><svg class="tab-ic" viewBox="0 0 24 24"><path d="M4 12 12 5l8 7M6 11v8h5v-5h2v5h5v-8"/></svg><span class="tab-lbl">홈</span></a>
+            <a><svg class="tab-ic" viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 9h16M8 3v4M16 3v4"/></svg><span class="tab-lbl">캘린더</span></a>
+            <a class="on"><svg class="tab-ic" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h11"/></svg><span class="tab-lbl">피드</span></a>
+            <a><svg class="tab-ic" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.4"/><path d="M5 20c0-4 3-6 7-6s7 2 7 6"/></svg><span class="tab-lbl">마이</span></a>
+          </div>
+        </div></div>
+        <div class="g-cap"><div class="g-num">07</div><div class="g-title">뉴스피드 — 파티·공연·대회</div>
+        <div class="g-desc">전 학원 통합 노출. 태그로 파티/공연/대회를 구분. 같은 업로드→OCR 파이프라인 산출물이다.</div></div>
+      </div>
+
+      <!-- 8. 공지 -->
+      <div class="g-item">
+        <div class="phone"><div class="notch"></div><div class="screen">
+          <div class="status"><span>9:41</span><span>●●●</span></div>
+          <div class="app-header"><span class="back">‹</span><div class="title">라 클라베 공지</div><span></span></div>
+          <div class="app-body">
+            <div class="notice-row pin"><div class="notice-title"><span class="pin-tag">고정</span>추석 연휴 휴강 안내</div>
+              <div class="notice-meta">9/16 게시</div></div>
+            <div class="notice-row"><div class="notice-title">10월 정기 발표회 신청 시작</div>
+              <div class="notice-meta">9/12 게시</div></div>
+            <div class="notice-row"><div class="notice-title">신규 바차타 강사 합류</div>
+              <div class="notice-meta">9/5 게시</div></div>
+          </div>
+          <div class="nav-tab">
+            <a><svg class="tab-ic" viewBox="0 0 24 24"><path d="M4 12 12 5l8 7M6 11v8h5v-5h2v5h5v-8"/></svg><span class="tab-lbl">홈</span></a>
+            <a><svg class="tab-ic" viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 9h16M8 3v4M16 3v4"/></svg><span class="tab-lbl">캘린더</span></a>
+            <a class="on"><svg class="tab-ic" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h11"/></svg><span class="tab-lbl">피드</span></a>
+            <a><svg class="tab-ic" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.4"/><path d="M5 20c0-4 3-6 7-6s7 2 7 6"/></svg><span class="tab-lbl">마이</span></a>
+          </div>
+        </div></div>
+        <div class="g-cap"><div class="g-num">08</div><div class="g-title">학원별 공지 게시판</div>
+        <div class="g-desc">OCR 없이 텍스트로 바로 작성 — 휴강·이벤트처럼 급하게 올릴 정보라 속도가 우선.</div></div>
+      </div>
+
+      <!-- 9. 마이/멤버십 -->
+      <div class="g-item">
+        <div class="phone"><div class="notch"></div><div class="screen">
+          <div class="status"><span>9:41</span><span>●●●</span></div>
+          <div class="app-header"><div class="title">마이</div></div>
+          <div class="app-body">
+            <div class="sub-card"><div class="lbl">월 멤버십 중</div><div class="big">다음 결제 10/13 · 15,000원</div></div>
+            <div class="coupon-card"><div><b>🎟 1+1 할인권 (추가 수업 1달치 50%)</b><span class="coupon-d">D-18 소멸</span></div>사용가능</div>
+            <div class="mini-row"><span>예약 내역</span><span>›</span></div>
+            <div class="mini-row"><span>대학생 인증 상태</span><span>인증됨 · 첫 결제 할인 사용 완료</span></div>
+            <div class="mini-row"><span>멤버십 관리</span><span>›</span></div>
+          </div>
+          <div class="nav-tab">
+            <a><svg class="tab-ic" viewBox="0 0 24 24"><path d="M4 12 12 5l8 7M6 11v8h5v-5h2v5h5v-8"/></svg><span class="tab-lbl">홈</span></a>
+            <a><svg class="tab-ic" viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 9h16M8 3v4M16 3v4"/></svg><span class="tab-lbl">캘린더</span></a>
+            <a><svg class="tab-ic" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h11"/></svg><span class="tab-lbl">피드</span></a>
+            <a class="on"><svg class="tab-ic" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.4"/><path d="M5 20c0-4 3-6 7-6s7 2 7 6"/></svg><span class="tab-lbl">마이</span></a>
+          </div>
+        </div></div>
+        <div class="g-cap"><div class="g-num">09</div><div class="g-title">마이 — 멤버십·쿠폰 관리</div>
+        <div class="g-desc">쿠폰 소멸일(D-day)을 항상 보여준다 — "쓸 수 있는데 몰라서 못 썼다"를 막는 게 이 화면의 존재 이유.</div></div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ================= 학원 관리자 ================= -->
+  <section>
+    <div class="sec-head">
+      <span class="tag">학원 관리자 웹 · 02</span>
+      <h2>업로드부터 정산까지</h2>
+      <p>모바일 앱이 아니라 별도 웹 콘솔(개발 가이드 참조) — 여기서는 같은 트리트먼트로
+      화면 흐름만 보여준다.</p>
+    </div>
+    <div class="gallery">
+
+      <div class="g-item">
+        <div class="phone"><div class="notch"></div><div class="screen">
+          <div class="status"><span>9:41</span><span>●●●</span></div>
+          <div class="app-header"><div class="title">포스터 업로드</div></div>
+          <div class="app-body">
+            <div class="upload-box"><div class="ic">📎</div><div class="t">포스터 · PDF · 인스타 캡처</div>
+            <div class="s">끌어다 놓거나 눌러서 선택</div></div>
+            <div class="studio-card"><div class="name">10월_시간표.jpg <span>처리중</span></div>
+              <div class="meta">업로드 09:41</div></div>
+          </div>
+          <div class="cta-fixed"><div class="btn-pill">업로드</div></div>
+        </div></div>
+        <div class="g-cap"><div class="g-num">10</div><div class="g-title">관리자 · 업로드</div>
+        <div class="g-desc">형식 무관 — 이미지·PDF·스크린샷 전부 같은 경로로 들어간다.</div></div>
+      </div>
+
+      <div class="g-item">
+        <div class="phone"><div class="notch"></div><div class="screen">
+          <div class="status"><span>9:41</span><span>●●●</span></div>
+          <div class="app-header"><div class="title">추출 결과 검토</div></div>
+          <div class="app-body">
+            <div class="hero-photo" style="height:70px;"><span class="ph-badge">원본 보기</span></div>
+            <div class="review-field"><div class="rl">장르</div><div class="rv">살사 중급반</div></div>
+            <div class="review-field low"><div class="rl">시간</div><div class="rv">화 20:00–21:00 <span class="low-tag">확인필요</span></div></div>
+            <div class="review-field low"><div class="rl">가격</div><div class="rv">45,000원 <span class="low-tag">확인필요</span></div></div>
+          </div>
+          <div class="cta-fixed"><div class="btn-pill">확인하고 게시</div></div>
+        </div></div>
+        <div class="g-cap"><div class="g-num">11</div><div class="g-title">관리자 · 검토 대기 ★</div>
+        <div class="g-desc">신뢰도 낮은 필드(시간·가격)에 빨간 태그. 이 화면을 안 거치면 게시가 안 된다.</div></div>
+      </div>
+
+      <div class="g-item">
+        <div class="phone"><div class="notch"></div><div class="screen">
+          <div class="status"><span>9:41</span><span>●●●</span></div>
+          <div class="app-header"><div class="title">이번 달 정산</div></div>
+          <div class="app-body">
+            <span class="status-pill"><span class="dot2"></span>정산 완료 · 9/5 입금</span>
+            <div class="settle-card"><div class="lbl">실지급액</div><div class="amt">3,414,000원</div>
+              <div class="settle-row"><span>총 결제액</span><b>3,490,000원</b></div>
+              <div class="settle-row"><span>플랫폼 수수료 (5% · 입점 1년 면제 중)</span><b>0원</b></div>
+              <div class="settle-row"><span>결제·카드 수수료 (수업료 몫 · 대표 부담)</span><b>-76,000원</b></div></div>
+            <div class="mini-row"><span>1+1 쿠폰 사용 (좌석 제공)</span><b>6건</b></div>
+            <div class="mini-row"><span>신규 회원</span><b>14명</b></div>
+          </div>
+        </div></div>
+        <div class="g-cap"><div class="g-num">12</div><div class="g-title">관리자 · 정산 대시보드</div>
+        <div class="g-desc">1+1 쿠폰 사용 건수를 별도로 보여준다 — 수수료 계산엔 안 들어가지만 학원이 내준 좌석 규모를 알아야 한다. 예매 수수료가 붙은 결제는 결제 수수료를 금액 비율로 나눠 수업료 몫만 공제한다(FR-282b(예매 수수료 결제 수수료 안분)).</div></div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ================= 취소·환불 ================= -->
+  <section>
+    <div class="sec-head">
+      <span class="tag">취소·환불 · 03</span>
+      <h2>취소 신청부터 환불 실행까지</h2>
+      <p>환불 경로는 상품에 따라 둘로 갈린다. 정규·일반 수업은 앱 문의로 요청하고 대표가 금액을 정한다.
+      <b>이벤트·원데이·파티·공연·대회</b>는 회원이 예약 상세에서 취소를 신청하고, 시스템이 취소 수수료 규정대로 환불액을 계산한다.
+      대표는 그 금액을 실행할 뿐 거절하지 못한다. 행사를 통째로 접을 때는 별도의 일괄 취소 화면을 쓴다.</p>
+    </div>
+    <div class="gallery">
+
+      <!-- 13. 회원 · 이벤트형 취소 신청 -->
+      <div class="g-item">
+        <div class="phone"><div class="notch"></div><div class="screen">
+          <div class="status"><span>9:41</span><span>●●●</span></div>
+          <div class="app-header"><span class="back">‹</span><div class="title">예약 상세</div><span></span></div>
+          <div class="app-body">
+            <div class="field"><div class="flabel">파티</div><div class="fval">할로윈 살사 파티 · 10/30(금)</div></div>
+            <div class="mini-row"><span>환불 마감</span><b>10/26(월)</b></div>
+            <div class="mini-row"><span>오늘 취소하면</span><b>8일 전 (9~7일 전 구간)</b></div>
+            <div class="divider"></div>
+            <div class="price-row"><span>참가비</span><span>30,000원</span></div>
+            <div class="price-row"><span>취소 수수료 10%</span><span>-3,000원</span></div>
+            <div class="price-row"><span>예매 수수료 (환불 안 됨)</span><span>2,000원</span></div>
+            <div class="price-row total"><span>예상 환불액</span><span>27,000원</span></div>
+            <span class="status-pill" style="color:#8A5A12; background:#FBF0DC; margin-top:8px;"><span class="dot2" style="background:#8A5A12"></span>처리 기한 10/27(화) · 3영업일</span>
+            <div class="agree-line" style="margin-top:0;">기한 안에 학원이 처리하지 않으면 이 금액으로 자동 환불된다</div>
+          </div>
+          <div class="cta-fixed"><div class="btn-pill">취소 신청하기</div></div>
+        </div></div>
+        <div class="g-cap"><div class="g-num">13</div><div class="g-title">회원 · 예약 상세 취소 신청 ★</div>
+        <div class="g-desc">이벤트·원데이·파티·공연·대회 전용. 문의를 거치지 않고 여기서 바로 신청한다. 취소 시점 구간·공제율·예상 환불액·처리 기한을 누르기 전에 전부 보여준다(FR-099c(이벤트·원데이·파티·공연·대회 취소 규정)). 예매 수수료는 기본적으로 돌려주지 않는다.</div></div>
+      </div>
+
+      <!-- 14. 대표 · 환불 처리 -->
+      <div class="g-item">
+        <div class="phone"><div class="notch"></div><div class="screen">
+          <div class="status"><span>9:41</span><span>●●●</span></div>
+          <div class="app-header"><div class="title">환불 처리</div></div>
+          <div class="app-body">
+            <div class="chip-row">
+              <span class="mini-chip" style="background:#1F1729">이벤트형</span>
+              <span class="mini-chip outline">정규·일반</span>
+            </div>
+            <span class="status-pill" style="color:#D8452F; background:#FBE2DC;"><span class="dot2" style="background:#D8452F"></span>자동 실행까지 1영업일</span>
+            <div class="field"><div class="flabel">취소 신청</div><div class="fval">할로윈 살사 파티 · 김**</div></div>
+            <div class="review-field"><div class="rl">근거 (시스템 계산)</div><div class="rv">9~7일 전 · 수수료 10%</div></div>
+            <div class="review-field low"><div class="rl">환불액</div><div class="rv">27,000원 <span class="low-tag">올리기만 가능</span></div></div>
+            <div class="mini-row"><span>거절</span><b>불가 (공통 규정 상품)</b></div>
+            <div class="studio-card"><div class="name">정규·일반 수업 요청이면</div>
+              <div class="meta">환불 여부·금액(0원~결제액)·근거 공지 항목을 대표가 직접 입력</div></div>
+          </div>
+          <div class="cta-fixed"><div class="btn-pill">27,000원 환불 실행</div></div>
+        </div></div>
+        <div class="g-cap"><div class="g-num">14</div><div class="g-title">관리자 · 환불 처리</div>
+        <div class="g-desc">이벤트형은 계산값이 미리 채워지고 대표는 금액을 올리기만 한다(FR-293(대표 환불 입력)). 공지한 처리 기간(최대 3영업일)이 지나면 시스템이 이 금액으로 PG 환불을 실행하고 실행 주체를 "시스템(기한 경과)"으로 남긴다(FR-295(수단별 환불 실행)). 정규·일반 수업은 대표가 금액을 정한다.</div></div>
+      </div>
+
+      <!-- 15. 대표 · 행사 일괄 취소 -->
+      <div class="g-item">
+        <div class="phone"><div class="notch"></div><div class="screen">
+          <div class="status"><span>9:41</span><span>●●●</span></div>
+          <div class="app-header"><span class="back">‹</span><div class="title">행사 취소</div><span></span></div>
+          <div class="app-body">
+            <div class="field"><div class="flabel">행사</div><div class="fval">할로윈 살사 파티 · 10/30(금)</div></div>
+            <div class="field" style="margin-bottom:4px;"><div class="flabel">취소 사유</div></div>
+            <div class="pay-opt"><span class="radio"></span>불가항력 (천재지변·행정명령)</div>
+            <div class="pay-opt sel"><span class="radio sel"></span>대표 사정·운영상 이유</div>
+            <div class="review-field"><div class="rl">한 줄 설명</div><div class="rv">인원 미달</div></div>
+            <div class="mini-row"><span>결제자</span><b>24명</b></div>
+            <div class="mini-row"><span>환불 총액 (예매 수수료 포함)</span><b>768,000원</b></div>
+            <div class="mini-row"><span>예매 수수료 몫 PG 수수료</span><b>대표 · 정산 상계</b></div>
+          </div>
+          <div class="cta-fixed"><div class="btn-pill">취소 확정 · PG 일괄 환불</div></div>
+        </div></div>
+        <div class="g-cap"><div class="g-num">15</div><div class="g-title">관리자 · 행사 일괄 취소</div>
+        <div class="g-desc">대표만 확정한다(FR-099e(행사 일괄 취소)). 확정하면 결제자 전원에게 예매 수수료까지 전액을 PG로 한 번에 돌려준다. 연기 참가 선택지는 없고, 학원 계좌로 직접 송금하지 않는다. 사유가 불가항력이면 예매 수수료 몫 PG 수수료는 플랫폼이 낸다.</div></div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ================= 이용약관 핵심 ================= -->
+  <section>
+    <div class="sec-head">
+      <span class="tag">약관 · 04</span>
+      <h2>이용약관 핵심 요약</h2>
+      <p>지금까지 정한 정책을 조항 단위로 정리했다. <b>실제 서비스 약관은 아니다</b> —
+      변호사 검토 전 초안이고, 화면·정책 설계가 서로 안 어긋나는지 확인하는 용도다.</p>
+    </div>
+    <div class="tc-grid">
+      <div class="tc-card">
+        <h3>결제·환불</h3>
+        <ul>
+          <li>정규·일반 수업 환불 — 앱 문의로 대표에게 요청, 대표가 학원 환불·취소 공지대로 결정·실행</li>
+          <li>이벤트·원데이·파티·공연·대회 취소 — 예약 상세에서 신청, 시스템이 인터파크식 취소 수수료 규정대로 환불액 계산(환불 마감일까지). 대표는 금액을 올리기만 할 수 있고 거절은 못 한다. 처리 기간(최대 3영업일)이 지나면 시스템이 자동 환불</li>
+          <li>같은 다섯 상품은 결제 1명당 예매 수수료 2,000원 — 기본은 환불 안 됨, 휴강·폐강·행사 취소·법정 청약철회 때는 함께 환불. 영수증은 수업료(학원 명의)와 예매 수수료(회사 명의)로 나눠 발급</li>
+          <li>행사 일괄 취소는 대표만 확정 — 결제자 전원에게 예매 수수료까지 전액을 PG로 한 번에 환불. 연기 선택지 없음, 학원 계좌 직접 송금 금지</li>
+          <li>결제 수단에 따라 가격이 달라지지 않는다(카드 수수료를 회원에게 받지 않음)</li>
+          <li>플랫폼은 통신판매중개자 — 학원과 회원 간 계약을 중개함을 결제 화면에 고지</li>
+        </ul>
+      </div>
+      <div class="tc-card">
+        <h3>대학생 요금제</h3>
+        <ul>
+          <li>학교 이메일(.ac.kr) 인증 필요, 1인 1회만 적용</li>
+          <li>처음 결제하는 1회(수업 1건 1달치)만 50% 할인 — 차액은 학원 부담</li>
+          <li>허위 인증 확인 시 할인분을 정상가로 청구</li>
+        </ul>
+      </div>
+      <div class="tc-card">
+        <h3>멤버십 · 1+1 쿠폰</h3>
+        <ul>
+          <li>월 멤버십은 언제든 해지 가능 — 해지 시 다음 결제일부터 미청구</li>
+          <li>멤버십은 결제 뒤 환불하지 않음, 해지만 가능(낸 기간은 끝까지 사용)</li>
+          <li>1+1 할인권은 멤버십 유지 3개월마다 1장 — 정가 수업 1달치와 함께 신청한 추가 수업 1달치 50%, 3개월 안에 안 쓰면 소멸, 양도 불가</li>
+          <li>할인 차액은 참여 학원이 부담</li>
+        </ul>
+      </div>
+      <div class="tc-card">
+        <h3>학원 정산 · 베타</h3>
+        <ul>
+          <li>매월 5일 정산, 수수료 5% (입점 1년 면제)</li>
+          <li>결제 수수료·카드 수수료는 학원 부담(정산에서 따로 공제). 예매 수수료가 붙은 결제는 금액 비율로 나눠 수업료 몫만 학원 부담</li>
+          <li>수수료 인상 등 불리한 변경은 30일 전 개별 통지 (입점 약관 제13조)</li>
+        </ul>
+      </div>
+      <div class="tc-card">
+        <h3>업로드 콘텐츠</h3>
+        <ul>
+          <li>포스터·전단지·공지 게시물의 저작권·초상권은 업로드한 학원이 책임짐</li>
+          <li>OCR 추출 결과는 관리자 확인 후에만 게시 — 확인 전 데이터는 예약·결제에 노출 안 됨</li>
+        </ul>
+      </div>
+      <div class="tc-card">
+        <h3>개인정보</h3>
+        <ul>
+          <li>전화번호 — 본인인증·부정사용 방지 목적</li>
+          <li>위치정보 — 길찾기 경로 계산 목적, 저장하지 않고 요청 시점만 사용</li>
+          <li>학교 이메일 — 대학생 인증 목적, 인증 후 이메일 원문은 보관하지 않음</li>
+        </ul>
+      </div>
+    </div>
+    <p class="disclaimer">이 표는 화면·정책 일관성 확인용 초안이다. 실제 게시 전 약관은
+    변호사 검토를 거쳐야 한다 — 특히 통신판매중개·전자금융거래법 관련 조항.</p>
+  </section>
+
+  <!-- ================= 사용 절차 가이드 ================= -->
+  <section>
+    <div class="sec-head">
+      <span class="tag">가이드 · 05</span>
+      <h2>사용 절차 가이드</h2>
+      <p>회원과 학원 관리자, 두 갈래의 첫 사용 흐름이다.</p>
+    </div>
+
+    <div class="flow-title">회원</div>
+    <div class="flow" style="margin-bottom:32px;">
+      <div class="fstep"><div class="fn">1</div><div><b>가입 · 인증</b><p>휴대폰 본인인증, 관심 장르 선택. 대학생이면 학교 이메일 인증(선택).</p></div></div>
+      <div class="fstep"><div class="fn">2</div><div><b>검색 · 추천</b><p>장르·지역·시간대로 학원을 찾거나, 홈 추천 리스트에서 고른다.</p></div></div>
+      <div class="fstep"><div class="fn">3</div><div><b>학원 상세 확인</b><p>시간표·정원·리뷰를 보고 수업을 고른다.</p></div></div>
+      <div class="fstep"><div class="fn">4</div><div><b>결제</b><p>할인·쿠폰이 자동 적용된 금액을 확인하고 결제한다.</p></div></div>
+      <div class="fstep"><div class="fn">5</div><div><b>캘린더 · 알람</b><p>예약이 자동으로 일정에 들어가고, 수업 30분 전 알람이 온다.</p></div></div>
+      <div class="fstep"><div class="fn">6</div><div><b>길찾기</b><p>당일 예약 확인 화면에서 바로 경로 안내로 이동한다.</p></div></div>
+    </div>
+
+    <div class="flow-title">학원 관리자</div>
+    <div class="flow">
+      <div class="fstep"><div class="fn">1</div><div><b>사업자 가입</b><p>정산 계좌·사업자등록증 등록.</p></div></div>
+      <div class="fstep"><div class="fn">2</div><div><b>포스터 업로드</b><p>쓰던 홍보물을 그대로 올린다 — 형식 무관.</p></div></div>
+      <div class="fstep"><div class="fn">3</div><div><b>추출 결과 검토</b><p>자동으로 채워진 필드를 확인·수정하고 게시한다.</p></div></div>
+      <div class="fstep"><div class="fn">4</div><div><b>예약 · 정산 확인</b><p>매월 5일 입금 내역과 1+1 쿠폰 사용 건수를 확인한다.</p></div></div>
+      <div class="fstep"><div class="fn">5</div><div><b>피드 · 공지 운영</b><p>파티·대회는 같은 업로드 경로로, 급한 공지는 텍스트로 바로 올린다.</p></div></div>
+    </div>
+  </section>
+
+  <footer>kdance 화면 명세서 v1 · 작성 2026-09-13 · docs/kdance 폴더</footer>
+
+</div>

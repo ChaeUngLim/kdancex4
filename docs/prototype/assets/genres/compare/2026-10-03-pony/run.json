@@ -1,0 +1,11 @@
+{
+  "run": "2026-10-03-pony",
+  "style": "bebop_collage",
+  "models": [
+    "local-pony-v6-bebop-lora"
+  ],
+  "genres": [
+    "salsa_bachata"
+  ],
+  "started": "2026-10-03T17:26:18"
+}

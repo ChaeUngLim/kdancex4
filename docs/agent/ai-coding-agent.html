@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Coding Agent — 최신 버전에서만 되는 것</title>
+<style>
+  :root {
+    --bg: #0f1115; --card: #161a21; --card-border: #262b35;
+    --text: #e8eaed; --text-dim: #9aa4b2;
+    --accent-a: #4fc3f7; --accent-b: #ffb74d;
+    --accent-good: #81c784; --accent-warn: #e57373;
+    --code-bg: #0b0d11;
+  }
+  * { box-sizing: border-box; }
+  body {
+    background: var(--bg); color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+    line-height: 1.7; margin: 0; padding: 0 16px 80px;
+  }
+  .wrap { max-width: 960px; margin: 0 auto; }
+  header.hero { padding: 48px 0 24px; border-bottom: 1px solid var(--card-border); margin-bottom: 32px; }
+  header.hero h1 { font-size: 1.9rem; margin: 0 0 8px; }
+  header.hero p.sub { color: var(--text-dim); font-size: 1.05rem; margin: 0; }
+  header.hero .asof { color: var(--text-dim); font-size: .85rem; margin-top: 10px; }
+  nav.toc { background: var(--card); border: 1px solid var(--card-border); border-radius: 12px; padding: 20px 24px; margin-bottom: 40px; }
+  nav.toc h2 { font-size: 1rem; color: var(--text-dim); margin: 0 0 12px; text-transform: uppercase; letter-spacing: .04em; border: 0; padding: 0; }
+  nav.toc ol { margin: 0; padding-left: 20px; columns: 2; column-gap: 24px; }
+  nav.toc li { margin-bottom: 6px; break-inside: avoid; }
+  nav.toc a { color: var(--accent-a); text-decoration: none; }
+  nav.toc a:hover { text-decoration: underline; }
+  section { margin-bottom: 60px; scroll-margin-top: 20px; }
+  h2 { font-size: 1.5rem; border-left: 4px solid var(--accent-a); padding-left: 14px; margin: 0 0 20px; }
+  h3 { font-size: 1.15rem; color: var(--accent-a); margin: 28px 0 10px; }
+  p { margin: 0 0 14px; }
+  .callout { background: var(--card); border: 1px solid var(--card-border); border-left: 4px solid var(--accent-a); border-radius: 8px; padding: 16px 20px; margin: 20px 0; }
+  .callout.warn { border-left-color: var(--accent-warn); }
+  .callout.good { border-left-color: var(--accent-good); }
+  .callout-label { font-weight: 700; font-size: .85rem; text-transform: uppercase; letter-spacing: .04em; color: var(--text-dim); margin-bottom: 6px; }
+  table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: .93rem; }
+  th, td { border: 1px solid var(--card-border); padding: 10px 14px; text-align: left; vertical-align: top; }
+  th { background: var(--card); color: var(--accent-a); }
+  tr:nth-child(even) td { background: rgba(255,255,255,0.02); }
+  code { background: var(--code-bg); border: 1px solid var(--card-border); border-radius: 4px; padding: 2px 6px; font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace; font-size: .9em; }
+  pre { background: var(--code-bg); border: 1px solid var(--card-border); border-radius: 8px; padding: 16px; overflow-x: auto; font-size: .85rem; line-height: 1.55; }
+  pre code { background: none; border: 0; padding: 0; }
+  .tag { display: inline-block; font-size: .72rem; font-weight: 700; letter-spacing: .04em; padding: 2px 8px; border-radius: 999px; vertical-align: middle; margin-left: 8px; }
+  .tag.measured { background: rgba(129,199,132,.15); color: var(--accent-good); border: 1px solid rgba(129,199,132,.4); }
+  .tag.unverified { background: rgba(229,115,115,.15); color: var(--accent-warn); border: 1px solid rgba(229,115,115,.4); }
+  .st { display: inline-block; font-size: .75rem; font-weight: 700; padding: 2px 10px; border-radius: 999px; white-space: nowrap; letter-spacing: .02em; }
+  .st.ok   { background: rgba(129,199,132,.15); color: var(--accent-good); border: 1px solid rgba(129,199,132,.4); }
+  .st.wait { background: rgba(255,183,77,.15);  color: var(--accent-b);    border: 1px solid rgba(255,183,77,.4); }
+  .st.no   { background: rgba(154,164,178,.12); color: var(--text-dim);    border: 1px solid rgba(154,164,178,.3); }
+  .st.warn { background: rgba(229,115,115,.15); color: var(--accent-warn); border: 1px solid rgba(229,115,115,.4); }
+  td.v { font-family: "SFMono-Regular", Consolas, monospace; font-size: .86rem; white-space: nowrap; }
+  .rule { background: linear-gradient(180deg, rgba(79,195,247,.10), transparent); border: 1px solid var(--accent-a); border-radius: 12px; padding: 24px 28px; margin: 24px 0; }
+  .rule p.big { font-size: 1.25rem; font-weight: 700; margin: 0; line-height: 1.55; }
+  ul { margin: 0 0 14px; padding-left: 22px; }
+  li { margin-bottom: 7px; }
+  footer { border-top: 1px solid var(--card-border); padding-top: 20px; color: var(--text-dim); font-size: .9rem; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="hero">
+  <h1>AI Coding Agent</h1>
+  <p class="sub">최신 버전에서만 되는 기술을 정의하고, 그 기술을 소스에 어떻게 반영하는지 적어 둔 문서</p>
+  <p class="asof">기준일 2026-09-20 (AI 패키지 3종은 2026-09-24 패치 갱신) · 버전표는 <code>docs/planning/kdancex4_service_definition_and_tech_stack.md</code> 「11. 기술 스택 고정표」가 원본이다</p>
+</header>
+
+<nav class="toc">
+  <h2>목차</h2>
+  <ol>
+    <li><a href="#overview">개요 — 스택 전체 그림</a></li>
+    <li><a href="#status">지금 어디까지 왔나</a></li>
+    <li><a href="#terms">용어 — 왕초급용</a></li>
+    <li><a href="#rule">핵심 규칙</a></li>
+    <li><a href="#why">왜 최신을 고르나</a></li>
+    <li><a href="#only-latest">최신에서만 되는 것</a></li>
+    <li><a href="#prisma">Prisma 8 RC</a></li>
+    <li><a href="#ai">AI SDK 7 · LangGraph · MCP</a></li>
+    <li><a href="#zod">zod 4 — 보이지 않는 공유 층</a></li>
+    <li><a href="#source">소스에 반영하는 법</a></li>
+    <li><a href="#cost">최신을 고른 값</a></li>
+    <li><a href="#check">버전을 확인하는 법</a></li>
+  </ol>
+</nav>
+
+<section id="overview">
+  <h2>개요 — 스택 전체 그림</h2>
+
+  <p>이 스택은 "기능이 많아서"가 아니라 <strong>AI 코딩 에이전트가 다룰 수 있는 형태인가</strong>를 기준으로 골랐다. 혼자 개발하는 프로젝트라, 사람 팀이면 저절로 나뉘는 역할을 에이전트가 대신 맡아야 하기 때문이다.</p>
+
+  <h3>계층</h3>
+
+<pre><code>Node.js 24.21.0 LTS (Krypton)
+   │
+   ├── Next.js 16.3.5 ────── Web · App Router · Route Handler
+   │      ├── React 19.3.0
+   │      ├── TypeScript 6.0.3
+   │      ├── Tailwind 4.3.3        (설치됨 · 아직 연결 안 함)
+   │      ├── shadcn/ui             (CLI — 설치가 아니라 실행해서 쓴다)
+   │      └── Vercel AI SDK 7 ── Streaming Chat UI
+   │
+   ├── Prisma 8 RC ───────── DB 접근 (@prisma/orm-postgres)
+   │      └── PostgreSQL 18.6 + pgvector 0.8.6
+   │
+   └── Expo SDK 58 ───────── Mobile (React Native 0.88.0-rc.1)
+
+Python 3.12 — AI 에이전트 서버만 (별도 프로세스, ADR-004, 아직 없음)
+   │
+   └── FastAPI 0.141.1 ──── T2 추론 · 포스터 읽기 · 임베딩·리랭크 호출
+          ├── LangGraph 1.2.12 ─────── Agent workflow runtime
+          ├── langchain-openai 1.6.6 ── llama-server·NVIDIA 호출 (json_schema)
+          └── mcp 2.2.0 (클라이언트) ── Next.js 의 도구로만 데이터를 읽는다 (DB 직접 접속 없음)</code></pre>
+
+  <h3>상태를 어디에 두는가</h3>
+
+  <p>AI 에이전트 앱에서 흔한 실패가 <strong>상태를 한 군데 몰아넣는 것</strong>이다. 성격이 다른 네 가지를 구분해서 둔다.</p>
+
+  <table>
+    <thead><tr><th>무엇</th><th>어디</th><th>성격</th></tr></thead>
+    <tbody>
+      <tr><td>화면 · UI 상태</td><td>Zustand 5.0.15</td><td>휘발. 새로고침하면 사라져도 된다</td></tr>
+      <tr><td>서버 데이터 · 캐시</td><td>TanStack Query 5.103.1</td><td>서버가 원본. 캐시는 사본일 뿐</td></tr>
+      <tr><td>Agent 실행 상태</td><td>LangGraph 1.2.12 (Python 에이전트 서버)</td><td>장기 실행. 중간에 끊겨도 이어져야 한다</td></tr>
+      <tr><td>영속 데이터</td><td>PostgreSQL 18.6</td><td>진실의 원천</td></tr>
+    </tbody>
+  </table>
+
+  <p>Zustand 하나로 서버 데이터까지 들고 있으면 캐시 무효화를 직접 짜게 되고, 반대로 TanStack Query 에 UI 상태를 넣으면 불필요한 재요청이 생긴다. LangGraph 가 별도인 이유는 <strong>단순한 Agent wrapper 가 아니라 상태를 가진 장기 실행 workflow 런타임</strong>이기 때문이다. <span class="tag unverified">미검증</span></p>
+
+  <h3>Next.js 16.3 이 에이전트를 위해 넣은 것 <span class="tag measured">실측</span></h3>
+
+  <p>이 버전을 고른 실질적 이유다. 설치본에서 실제로 확인했다.</p>
+
+<pre><code>node_modules/next/dist/docs/
+  01-app  02-pages  03-architecture  04-community  index.md
+     └─ 설치된 Next 버전에 맞춘 문서. 에이전트가 학습 데이터 대신 이걸 읽는다
+
+node_modules/next/dist/server/lib/generate-agent-files.js   (7,446 bytes)
+     └─ AGENTS.md 를 자동으로 쓰고 다시 넣는 생성기</code></pre>
+
+  <p>이 프로젝트의 <code>admin-web/AGENTS.md</code> 와 <code>mobile/AGENTS.md</code> 가 손으로 만든 게 아니라 이 기능으로 생긴 파일이다. 내용은 "이건 네가 아는 Next.js 가 아니다. 코드를 쓰기 전에 <code>node_modules/next/dist/docs/</code> 를 읽어라" 는 경고다.</p>
+
+  <p>같은 릴리스에 개발 서버 메모리 사용량 감소, Instant Navigations, Partial Prefetching, Next.js DevTools MCP 도 들어 있다. <span class="tag unverified">미검증</span> — 릴리스 노트 기준이고 이 프로젝트에서 측정하지 않았다.</p>
+
+  <h3>RAG 파이프라인</h3>
+
+<pre><code>Qwen Embedding
+      ↓
+pgvector (PostgreSQL 18.6 + pgvector 0.8.6)
+      ↓
+Top-K 후보
+      ↓
+NVIDIA Reranker
+      ↓
+LangGraph</code></pre>
+
+  <p>검색을 임베딩 한 번으로 끝내지 않고 <strong>재정렬 단계를 따로 둔다.</strong> 임베딩은 넓게 훑는 데 강하고 정밀도가 약하므로, 후보를 넉넉히 뽑은 뒤 reranker 로 순서를 다시 매긴다.</p>
+
+  <table>
+    <thead><tr><th>역할</th><th>모델</th></tr></thead>
+    <tbody>
+      <tr><td>기본 LLM · Search Agent · Planner · Writer · Reviewer</td><td>Qwen 3.5 9B</td></tr>
+      <tr><td>임베딩</td><td>Nemotron-3-Embed-1B-BF8</td></tr>
+      <tr><td>재정렬</td><td>llama-Nemotron-Rerank-VL-1B-v2 (개발·베타: NVIDIA 호스팅 / 운영: FP8 자체 서빙)</td></tr>
+    </tbody>
+  </table>
+
+  <p><span class="tag unverified">미검증</span> — 세 모델 모두 npm 밖이라 레지스트리 조회로 확인할 수 없었다. 실제로 띄워 보고 나서 이 표를 갱신한다.</p>
+
+  <h3>인증 — Better Auth 확정, Clerk 보류</h3>
+
+  <p><strong>Better Auth</strong> 로 간다. 직접 통제하는 인증 라이브러리라 스키마와 흐름을 우리가 쥔다. Auth.js 프로젝트가 Better Auth 의 일부가 되었다고 공식 안내에 나와 있어 사실상 이쪽이 후속 라인이다. <span class="tag unverified">미검증</span></p>
+
+  <p><strong>Clerk</strong> 은 보류다. 관리형 인증이라 붙이기는 더 간단하지만 유료다. <strong>사용자가 크게 늘어 직접 운영 부담이 커지면 그때 넘어간다</strong> — 지금 미리 넘어갈 이유는 없다.</p>
+
+  <p>다만 Better Auth 는 Prisma 8 과 설치 단계에서 충돌한다. <code>package.json</code> 의 <code>overrides</code> 로 설치는 풀었고, 인증은 Prisma 를 거치지 않고 Kysely 로 같은 DB 에 붙는다(2026-09-24 스모크 통과). 자세한 내용은 <a href="#cost">최신을 고른 값</a>에 있다.</p>
+
+  <h3>붙여준 자료와 다른 값</h3>
+
+  <p>이 개요는 사전 조사 자료를 바탕으로 쓰되, <strong>숫자는 2026-09-20 실측으로 맞췄다</strong>(AI 패키지 3종은 2026-09-24 재실측). 어긋난 곳을 남겨 둔다 — 나중에 같은 자료를 다시 보고 헷갈리지 않도록.</p>
+
+  <table>
+    <thead><tr><th>사전 조사 자료</th><th>실측 · 고정표</th><th>왜</th></tr></thead>
+    <tbody>
+      <tr><td>Next.js 16.3.3</td><td><strong>16.3.5</strong></td><td>npm <code>latest</code></td></tr>
+      <tr><td>TypeScript 5.9.x</td><td><strong>6.0.3</strong></td><td>npm <code>latest</code> 는 7.0.2 지만 <code>typescript-eslint</code>(&lt;6.1.0)·Expo 58(~6.0.3)이 6 을 요구한다. 7 을 요구하는 패키지는 없다(2026-09-23 실측)</td></tr>
+      <tr><td>Vercel AI SDK 6</td><td><strong>7.0.113</strong></td><td>6 은 구세대 에이전트 API</td></tr>
+      <tr><td>LangGraph 1.2.x</td><td><strong>1.4.17</strong></td><td>1.2 에서 두 마이너 앞섬</td></tr>
+      <tr><td>React Native 0.87</td><td><strong>0.88.0-rc.1</strong></td><td>Expo 58 preview 가 고정. 0.87 을 핀하는 SDK 가 없다</td></tr>
+      <tr><td>"Prisma 8 은 Node 24.11+ 요구"</td><td><strong>&gt;=22.18.0</strong></td><td><code>prisma/package.json</code> 의 <code>engines.node</code> 실측</td></tr>
+      <tr><td>React 19.3 · Prisma 8 RC · Tailwind 4.x · Zustand 5.x</td><td>일치</td><td>—</td></tr>
+      <tr><td>shadcn/ui "latest"</td><td><strong>CLI 라 설치 개념이 다르다</strong></td><td>런타임 의존성이 아니다. 아래 <a href="#status">지금 어디까지 왔나</a> 참고</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="status">
+  <h2>지금 어디까지 왔나</h2>
+
+  <p><strong>2026-09-20 기준 실제 설치 현황이다</strong>(AI 패키지 3종은 2026-09-24 재확인). 고정표에 적힌 목표값이 아니라
+  <code>package.json</code> 과 <code>node_modules</code> 를 읽은 결과다. 둘이 다를 때는 이 표가
+  현실이고 고정표가 목표다.</p>
+
+  <table>
+    <thead><tr><th>영역</th><th>기술</th><th>버전</th><th>상태</th></tr></thead>
+    <tbody>
+      <tr><td>Runtime</td><td>Node.js</td><td class="v">24.21.0 LTS</td><td><span class="st ok">설치됨</span></td></tr>
+      <tr><td>Web</td><td>Next.js</td><td class="v">16.3.5</td><td><span class="st ok">설치됨</span></td></tr>
+      <tr><td>UI</td><td>React</td><td class="v">19.3.0</td><td><span class="st ok">설치됨</span></td></tr>
+      <tr><td>Language</td><td>TypeScript</td><td class="v">6.0.3</td><td><span class="st ok">설치됨</span></td></tr>
+      <tr><td>Mobile</td><td>Expo SDK</td><td class="v">58.0.0-preview.6</td><td><span class="st ok">설치됨</span></td></tr>
+      <tr><td>Mobile</td><td>React Native</td><td class="v">0.88.0-rc.1</td><td><span class="st ok">설치됨</span></td></tr>
+      <tr><td>ORM</td><td>prisma (CLI)</td><td class="v">8.0.0-rc.15</td><td><span class="st ok">설치됨</span></td></tr>
+      <tr><td>ORM</td><td>@prisma/orm-postgres</td><td class="v">8.0.0-rc.11</td><td><span class="st wait">스캐폴딩 전</span></td></tr>
+      <tr><td>DB</td><td>PostgreSQL</td><td class="v">18.6</td><td><span class="st ok">가동 중</span></td></tr>
+      <tr><td>Vector</td><td>pgvector</td><td class="v">0.8.6</td><td><span class="st wait">확장 미생성</span></td></tr>
+      <tr><td>Auth</td><td>better-auth</td><td class="v">1.7.5</td><td><span class="st ok">스모크 통과</span></td></tr>
+      <tr><td>Schema</td><td>zod</td><td class="v">4.6.5</td><td><span class="st ok">설치됨</span></td></tr>
+      <tr><td>Client State</td><td>zustand</td><td class="v">5.0.15</td><td><span class="st ok">설치됨</span></td></tr>
+      <tr><td>Server State</td><td>@tanstack/react-query</td><td class="v">5.103.1</td><td><span class="st ok">설치됨</span></td></tr>
+      <tr><td>AI UI</td><td>ai (Vercel AI SDK)</td><td class="v">7.0.113</td><td><span class="st ok">설치됨</span></td></tr>
+      <tr><td>Agent</td><td>@langchain/langgraph</td><td class="v">1.4.17</td><td><span class="st warn">설치됨 · 제거 예정(에이전트는 Python, ADR-004)</span></td></tr>
+      <tr><td>Agent Core</td><td>@langchain/core</td><td class="v">1.2.12</td><td><span class="st warn">설치됨 · 제거 예정(에이전트는 Python, ADR-004)</span></td></tr>
+      <tr><td>Protocol</td><td>@modelcontextprotocol/sdk</td><td class="v">1.30.1</td><td><span class="st ok">설치됨</span></td></tr>
+      <tr><td>CSS</td><td>tailwindcss</td><td class="v">4.3.3</td><td><span class="st wait">연결 대기</span></td></tr>
+      <tr><td>UI System</td><td>shadcn/ui</td><td class="v">4.21.0</td><td><span class="st no">CLI — 실행해 쓴다</span></td></tr>
+      <tr><td>LLM 3종</td><td>Qwen · Nemotron ×2</td><td class="v">—</td><td><span class="st warn">미검증</span></td></tr>
+      <tr><td>Storage</td><td>Cloudflare R2</td><td class="v">—</td><td><span class="st no">미도입</span></td></tr>
+      <tr><td>Deploy</td><td>Vercel</td><td class="v">—</td><td><span class="st no">미도입</span></td></tr>
+    </tbody>
+  </table>
+
+  <h3>표에 없는데 깔려 있는 것 <span class="tag measured">실측</span></h3>
+
+  <p>세 패키지가 <code>package.json</code> 에 선언되지 않은 채 설치돼 있다. 남의 의존성을 타고
+  들어온 것들이다.</p>
+
+  <table>
+    <thead><tr><th>패키지</th><th>버전</th><th>어디서 왔나</th><th>왜 문제인가</th></tr></thead>
+    <tbody>
+      <tr><td><code>vitest</code></td><td class="v">4.1.11</td><td>better-auth</td><td><strong>테스트 러너가 남의 의존성에 얹혀 있다.</strong> better-auth 가 의존성을 바꾸면 테스트 인프라가 사라진다</td></tr>
+      <tr><td><code>kysely</code></td><td class="v">0.29.6</td><td>better-auth</td><td>인증의 Postgres 직결 경로가 여기 달려 있다</td></tr>
+      <tr><td><code>pg</code></td><td class="v">8.22.0</td><td>@prisma/orm-postgres</td><td>선언된 건 <code>@types/pg</code> 뿐이다</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout warn">
+    <div class="callout-label">해야 할 일</div>
+    <p style="margin:0">직접 쓰는 패키지는 <strong>직접 선언한다.</strong> transitive 로 굴러온 것에
+    의존하면, 위쪽 패키지가 마음을 바꾸는 순간 조용히 사라진다. 특히 테스트 러너가 그렇다 —
+    없어지는 걸 알아채는 시점이 "테스트가 안 돌 때"다.</p>
+  </div>
+
+  <h3>미룬 것과 그 이유</h3>
+
+  <p>안 한 게 아니라 <strong>순서를 미룬</strong> 것들이다. 이유를 적어 두지 않으면 다음에
+  "왜 안 했지?" 하고 다시 판단하게 된다.</p>
+
+  <table>
+    <thead><tr><th>미룬 것</th><th>이유</th><th>언제</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><strong>Tailwind 연결</strong><br><span class="st wait">연결 대기</span></td>
+        <td>패키지와 <code>postcss.config.mjs</code> 는 준비됐지만 <code>globals.css</code> 에
+        <code>@import "tailwindcss";</code> 를 아직 넣지 않았다. 넣는 순간 Tailwind preflight 가
+        기존 <code>globals.css</code>(111줄 · CSS 변수 21개)를 덮어 화면 모양이 바뀐다.
+        게다가 기존 페이지는 <code>className</code> 을 <strong>0건</strong> 쓴다 — 순수 CSS 와
+        요소 선택자로 짜여 있어서, 지금 연결해도 <strong>얻는 게 없고 잃는 것만 있다</strong></td>
+        <td>Prisma 전환 완료 후</td>
+      </tr>
+      <tr>
+        <td><strong>shadcn/ui 도입</strong><br><span class="st no">CLI</span></td>
+        <td><code>npm install</code> 대상이 아니다. <code>bin: {"shadcn": "dist/index.js"}</code> 를
+        가진 CLI 이고 <code>npx shadcn@latest add button</code> 처럼 <strong>실행해서 컴포넌트
+        소스를 프로젝트에 복사</strong>한다. 복사된 소스는 우리 코드가 되고 직접 고쳐 쓴다.
+        그래서 <code>package.json</code> 에 없는 게 정상이다. 다만 받아오는 컴포넌트가 Tailwind
+        클래스로 쓰여 있어, <strong>Tailwind 연결이 선행</strong>되어야 한다</td>
+        <td>Tailwind 연결 직후</td>
+      </tr>
+      <tr>
+        <td><strong>Prisma 스캐폴딩</strong><br><span class="st wait">스캐폴딩 전</span></td>
+        <td><code>prisma orm init</code> 을 아직 돌리지 않아 <code>src/prisma/</code> 와
+        <code>prisma.config.ts</code> 가 없다. 백엔드 전환 작업의 첫 단계다</td>
+        <td>전환 Phase 5(구현)</td>
+      </tr>
+      <tr>
+        <td><strong>pgvector 확장 생성</strong><br><span class="st wait">확장 미생성</span></td>
+        <td>이미지에는 0.8.6 이 들어 있고 <code>pg_available_extensions</code> 에도 보이지만
+        <code>CREATE EXTENSION vector</code> 를 아직 실행하지 않았다. 스키마 마이그레이션과 함께 한다</td>
+        <td>스키마 이관 시</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="callout">
+    <div class="callout-label">왜 한꺼번에 하지 않나</div>
+    <p style="margin:0">버전 정책의 <strong>「깨져 있는 검증선과 겹치지 않게 순서를 나눈다 — 한 번에
+    둘을 건드리면 원인 분리가 안 된다」</strong> 를 따른 것이다. Prisma 전환 중에 UI 까지 갈아엎으면
+    화면이 깨졌을 때 백엔드 탓인지 스타일 탓인지 가릴 수 없다. 지금 admin-web 페이지는 2개뿐이라
+    나중에 해도 비용이 거의 같다.</p>
+  </div>
+</section>
+
+<section id="terms">
+  <h2>용어 — 왕초급용</h2>
+
+  <p>이 문서에 계속 나오는 말들을 풀어 둔다. 숫자가 비슷해 보이는데 아무 상관 없는 것들이
+  많아서 한 번 정리해 두면 나중에 헷갈릴 일이 준다.</p>
+
+  <h3>PostgreSQL 18 vs <code>@prisma/orm-postgres</code> — 창고와 직원</h3>
+
+  <p>이름에 둘 다 "postgres" 가 들어가서 같은 것 같지만 <strong>결정적 차이는 "혼자 도느냐"</strong> 다.</p>
+
+  <table>
+    <thead><tr><th></th><th>PostgreSQL 18.6</th><th><code>@prisma/orm-postgres</code></th></tr></thead>
+    <tbody>
+      <tr><td>정체</td><td>독립 실행되는 <strong>프로그램</strong></td><td>앱 안의 <strong>파일 덩어리</strong></td></tr>
+      <tr><td>어디에</td><td>Docker 컨테이너 <code>kdance-db</code></td><td><code>admin-web/node_modules/</code></td></tr>
+      <tr><td>혼자 도나</td><td><strong>돈다.</strong> 앱을 꺼도 계속 켜져 있다</td><td><strong>안 돈다.</strong> 앱이 불러야 움직인다</td></tr>
+      <tr><td>데이터를 갖나</td><td><strong>갖는다.</strong> 디스크에 쌓인다</td><td><strong>없다.</strong> 전달만 한다</td></tr>
+      <tr><td>크기</td><td>컨테이너</td><td>522개 파일 · 5.6MB</td></tr>
+    </tbody>
+  </table>
+
+  <p><strong>PostgreSQL 은 창고다.</strong> 물건(데이터)이 실제로 쌓여 있는 별도 건물이다. 우리
+  사무실이 문을 닫아도 창고는 돌아가고, 창고가 멈추면 아무도 물건을 못 꺼낸다.</p>
+
+  <p><strong><code>@prisma/orm-postgres</code> 는 창고에 주문 넣는 직원이다.</strong> 우리 사무실
+  안에 앉아 있고, 창고 주소를 알고, 우리 말을 창고가 알아듣는 말(SQL)로 번역해 전화를 건다.
+  <strong>이 직원은 물건을 하나도 갖고 있지 않다.</strong></p>
+
+  <p>둘을 잇는 끈이 접속 문자열이다.</p>
+
+<pre><code>postgresql://kdance:kdance@localhost:5433/kdance
+             └──┬──┘ └──┬──┘ └──────┬─────┘ └──┬──┘
+              아이디   비번      창고 주소     구역 이름</code></pre>
+
+  <div class="callout">
+    <div class="callout-label">왜 직원을 두나</div>
+    <p style="margin:0">직원 없이 창고에 직접 전화할 수도 있다. 대신 이렇게 된다.</p>
+<pre style="margin:12px 0 0"><code>"SELECT * FROM reservatons WHERE id = " + id
+                    ↑ 오타. 실행해봐야 안다. 사용자가 먼저 발견할 수도 있다
+
+db.reservation.findMany({ where: { id } })
+      ↑ 오타면 빌드가 막는다. 사용자에게 가기 전에 잡힌다</code></pre>
+  </div>
+
+  <div class="callout warn">
+    <div class="callout-label">숫자가 헷갈리는 이유</div>
+    <p style="margin:0">PostgreSQL 의 <strong>18</strong> 과 Prisma 의 <strong>8</strong> 은 아무
+    관계가 없다. 다른 회사가 각자 매기는 번호다. "아이폰 17" 과 "안드로이드 16" 이 서로 상관없는 것과 같다.</p>
+  </div>
+
+  <h3><code>prisma</code> vs <code>@prisma/orm-postgres</code> — 연장과 배관</h3>
+
+  <p>이 둘은 이름이 비슷해서 중복처럼 보이지만 역할이 정반대다.</p>
+
+  <table>
+    <thead><tr><th></th><th><code>prisma</code></th><th><code>@prisma/orm-postgres</code></th></tr></thead>
+    <tbody>
+      <tr><td>정체</td><td>CLI (터미널 명령)</td><td>라이브러리 (코드에서 import)</td></tr>
+      <tr><td>실행파일</td><td><code>bin</code> 있음</td><td>없음</td></tr>
+      <tr><td>선언 위치</td><td><code>devDependencies</code></td><td><code>dependencies</code></td></tr>
+      <tr><td>배포에 실리나</td><td><strong>안 실림</strong></td><td><strong>실림</strong></td></tr>
+      <tr><td>비유</td><td>집 지을 때 쓰는 <strong>연장</strong></td><td>집에 설치되는 <strong>배관</strong></td></tr>
+    </tbody>
+  </table>
+
+  <p>연장은 공사가 끝나면 갖고 나온다. 배관은 집 안에 남아 실제로 물이 흐른다. Prisma 7 까지는
+  배관 이름이 <code>@prisma/client</code> 였고, 8 에서 DB 별로 쪼개지며
+  <code>@prisma/orm-postgres</code> 가 됐다. <strong>연장 이름(<code>prisma</code>)은 안 바뀌었다.</strong></p>
+
+  <h3><code>rc</code> — 출시 후보</h3>
+
+<pre><code>8  .  0  .  0  -  rc  .  15
+│     │     │     │      │
+│     │     │     │      └─ 후보 몇 번째인가
+│     │     │     └──────── release candidate = 출시 후보
+│     │     └────────────── 패치 (작은 버그 수정)
+│     └──────────────────── 마이너 (기능 추가)
+└────────────────────────── 메이저 (크게 바뀜)</code></pre>
+
+  <table>
+    <thead><tr><th>단계</th><th>뜻</th><th>상태</th></tr></thead>
+    <tbody>
+      <tr><td><code>alpha</code></td><td>만드는 중</td><td>자주 깨진다</td></tr>
+      <tr><td><code>beta</code></td><td>한번 써봐</td><td>기능은 됐는데 버그가 있다</td></tr>
+      <tr><td><code>rc</code></td><td><strong>거의 다 됐다</strong></td><td>"이대로 내도 될까" 마지막 점검</td></tr>
+      <tr><td>(없음)</td><td>정식</td><td>완성</td></tr>
+    </tbody>
+  </table>
+
+  <p><code>rc.15</code> 는 <strong>정식으로 내기 전 15번째 후보</strong>라는 뜻이다. 14번 내놨다가
+  고칠 게 나와서 15번째를 낸 것이다.</p>
+
+  <p>CLI 가 <code>rc.15</code> 인데 런타임이 <code>rc.11</code> 인 것도 정상이다 —
+  <strong>별개 패키지라 각자 센다.</strong> 앞의 <code>8</code> 이 같으면 맞는 짝이고, 뒷숫자가
+  어긋나 보여도 문제가 아니다.</p>
+
+  <div class="callout warn">
+    <div class="callout-label">RC 를 쓰는 대가</div>
+    <p style="margin:0">정식이 아니라서 <strong>어느 날 쓰는 법이 바뀔 수 있다.</strong> 정식 전에는
+    그게 허용된다. 그래서 고정표 「11-2. 알려진 위험」에 <strong>감수</strong>로 적어 두었다 — 알고도
+    받아들인 위험이라는 뜻이다. Prisma 8 을 고른 이유(AI 코딩 에이전트 지원)가 8 에만 있어서 안정판 7 로는 그 기능을 아예 쓸 수 없기 때문이다.</p>
+  </div>
+
+  <h3><code>dist-tags</code> — 초보가 꼭 걸리는 함정</h3>
+
+<pre><code>$ npm view prisma version
+8.0.0-rc.15        ← "최신이 RC 네?"</code></pre>
+
+  <p>보통 <code>latest</code> 는 정식판을 가리키는데, <strong>Prisma 는 <code>latest</code> 태그를
+  RC 에 달아 두었다.</strong> 안정판 <code>7.10.0</code> 은 <code>prev</code> 라는 다른 이름표 밑에 있다.</p>
+
+  <p>그래서 <code>npm view &lt;패키지&gt; version</code> 만 믿으면 <strong>RC 를 정식인 줄 알고 깐다.</strong>
+  이름표 전체를 보려면 <code>npm view &lt;패키지&gt; dist-tags</code> 를 쓴다.</p>
+
+  <h3>peer · transitive — 누가 누구를 데려오나</h3>
+
+  <table>
+    <thead><tr><th>말</th><th>뜻</th><th>이 프로젝트의 예</th></tr></thead>
+    <tbody>
+      <tr><td><strong>dependency</strong></td><td>내가 직접 쓰려고 선언한 것</td><td><code>next</code>, <code>zod</code></td></tr>
+      <tr><td><strong>peer dependency</strong></td><td>"너도 이거 깔아야 나랑 같이 돈다" 고 요구하는 것. 직접 깔아주지는 않는다</td><td>better-auth 가 요구한 <code>prisma ^5 \|\| ^6 \|\| ^7</code></td></tr>
+      <tr><td><strong>transitive</strong></td><td>내가 선언 안 했는데 <strong>남을 타고 딸려 들어온</strong> 것</td><td><code>vitest</code> · <code>kysely</code> · <code>pg</code></td></tr>
+    </tbody>
+  </table>
+
+  <p>transitive 가 위험한 이유는 <strong>내가 통제하지 못하기 때문</strong>이다. 위쪽 패키지가
+  마음을 바꾸면 조용히 사라진다. 자세한 내용은 <a href="#status">지금 어디까지 왔나</a> 의
+  "표에 없는데 깔려 있는 것" 참고.</p>
+
+  <h3>계약(contract) — Prisma 8 의 핵심 개념</h3>
+
+  <p>Prisma 7 까지는 <code>new PrismaClient()</code> 로 만능 객체 하나를 만들어 썼다. 8 은
+  <strong>먼저 "계약서" 를 만들고 그 계약서에 적힌 것만 할 수 있게</strong> 바뀌었다.</p>
+
+<pre><code>contract.prisma   ← 사람이 쓰는 설계도 (어떤 테이블, 어떤 컬럼)
+      ↓ prisma contract emit
+contract.json + contract.d.ts   ← 기계가 읽는 계약서 (자동 생성. 손으로 안 고친다)
+      ↓
+postgres&lt;Contract&gt;({ contractJson, url })   ← 계약서를 쥔 db 객체</code></pre>
+
+  <p>계약서에 없는 테이블을 부르면 <strong>코드를 돌리기 전에</strong> 타입이 막는다. 이게 8 이
+  얻은 안전장치이고, 동시에 7 의 코드가 8 에서 그대로 안 도는 이유다.</p>
+</section>
+
+<section id="rule">
+  <h2>핵심 규칙</h2>
+
+  <div class="rule">
+    <p class="big">호환되는 선에서 최신을 쓴다.<br>"최신"과 "의존성 호환"이 충돌하면 호환이 이긴다.</p>
+  </div>
+
+  <p>이 규칙은 <code>.claude/rules/core-rules.md</code> 「버전 정책」에도 같은 문장으로 들어 있다. 두 곳이 어긋나면 <code>core-rules.md</code> 가 원본이다.</p>
+
+  <p>규칙에 딸린 조건이 하나 더 있다. <strong>버전을 기억으로 쓰지 않는다.</strong> 학습 시점 이후에 나온 버전이 항상 있기 때문에, 말하거나 적기 전에 실제 파일이나 레지스트리에서 읽는다. 아래 <a href="#check">버전을 확인하는 법</a>에 어디서 읽을지 적어 두었다.</p>
+
+  <div class="callout warn">
+    <div class="callout-label">이 문서를 읽는 법</div>
+    <p style="margin:0">항목마다 <span class="tag measured">실측</span> 또는 <span class="tag unverified">미검증</span> 이 붙어 있다. <strong>실측</strong>은 2026-09-20 에 실제로 명령을 돌려 출력을 확인한 것이고, <strong>미검증</strong>은 공식 문서나 릴리스 노트에만 있고 아직 이 프로젝트에서 돌려보지 않은 것이다. 섞어서 읽으면 나중에 무엇을 믿을지 알 수 없게 된다.</p>
+  </div>
+</section>
+
+<section id="why">
+  <h2>왜 최신을 고르나</h2>
+
+  <p>기능이 더 많아서가 아니다. <strong>AI 코딩 에이전트가 다룰 수 있는 형태로 바뀌었기 때문</strong>이다. 같은 일을 하는 도구라도, 사람이 읽는 로그를 뱉느냐 기계가 파싱하는 JSON 을 뱉느냐에 따라 에이전트의 작업 품질이 갈린다.</p>
+
+  <p>kdance 는 혼자 개발한다. 사람 팀이면 저절로 나뉘는 역할(DB 담당·프론트 담당·QA 담당)을 에이전트가 대신 맡아야 하고 그러려면 도구가 에이전트에게 말을 걸 수 있어야 한다. 그게 최신을 고른 이유다.</p>
+
+  <p>대표 사례가 Prisma 다.</p>
+
+  <div class="callout">
+    <div class="callout-label">사용자 정의</div>
+    <p style="margin:0">Prisma ORM 8 = current release, release candidate.<br>최신 기능과 AI Coding Agent 경험을 위해 Prisma 8 RC 를 쓴다.</p>
+  </div>
+</section>
+
+<section id="only-latest">
+  <h2>최신에서만 되는 것</h2>
+
+  <p>아래는 "구버전에도 비슷한 게 있지만 최신에서 성격이 달라진" 것만 모은 표다. 단순한 버그 수정이나 성능 개선은 넣지 않았다.</p>
+
+  <table>
+    <thead>
+      <tr><th>기술</th><th>버전</th><th>최신에서만 되는 것</th><th>근거</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Prisma</td>
+        <td>8.0.0-rc.15 (CLI)<br>@prisma/orm-postgres 8.0.0-rc.11</td>
+        <td>CLI 출력이 전부 구조화 JSON. 에이전트가 파싱해 다음 행동을 고를 수 있다</td>
+        <td><span class="tag measured">실측</span></td>
+      </tr>
+      <tr>
+        <td>Prisma</td>
+        <td>8 계열</td>
+        <td>계약(contract) 기반 접근. <code>new PrismaClient()</code> 가 아니라 타입이 박힌 계약 객체를 쓴다</td>
+        <td><span class="tag measured">실측</span></td>
+      </tr>
+      <tr>
+        <td>Prisma</td>
+        <td>8 계열</td>
+        <td><code>prisma init --skills=claude</code> 가 에이전트용 스킬 파일을 깔고 postinstall 로 동기화한다</td>
+        <td><span class="tag unverified">미검증</span></td>
+      </tr>
+      <tr>
+        <td>Vercel AI SDK</td>
+        <td>7.0.113 (<code>ai</code>)</td>
+        <td>agent 루프와 tool 호출 구조가 6 과 다르다. 6 은 구세대 에이전트 API 다</td>
+        <td><span class="tag unverified">미검증</span></td>
+      </tr>
+      <tr>
+        <td>LangGraph</td>
+        <td>1.4.17</td>
+        <td>1.2 에서 두 마이너 앞선 agent workflow</td>
+        <td><span class="tag unverified">미검증</span></td>
+      </tr>
+      <tr>
+        <td>MCP SDK</td>
+        <td>1.30.1</td>
+        <td>외부 도구를 에이전트에 붙이는 표준 경로</td>
+        <td><span class="tag unverified">미검증</span></td>
+      </tr>
+      <tr>
+        <td>zod</td>
+        <td>4.6.5</td>
+        <td>위 세 패키지가 같은 스키마 층을 공유한다. 4 라인이라야 셋을 동시에 만족한다</td>
+        <td><span class="tag measured">실측</span></td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="prisma">
+  <h2>Prisma 8 RC</h2>
+
+  <h3>CLI 가 사람이 아니라 기계에게 말한다 <span class="tag measured">실측</span></h3>
+
+  <p>8 의 CLI 는 사람이 읽는 줄글 대신 구조화 JSON 을 뱉는다. 실제 출력이다.</p>
+
+<pre><code>$ npx prisma --version
+
+{"kind":"result",
+ "envelope":{"ok":true,
+             "commandId":"version",
+             "result":{"version":"8.0.0-rc.15"},
+             "exitCode":0,
+             "diagnostics":[],
+             "nextActions":[]},
+ "commandId":"version",
+ "timestamp":"2026-09-20T09:09:27.389Z"}</code></pre>
+
+  <p><code>ok</code> 로 성공 여부를, <code>diagnostics</code> 로 경고를, <code>nextActions</code> 로 다음에 할 일을 읽는다. 에이전트가 정규식으로 로그를 긁을 필요가 없다. 이 한 가지 때문에 Prisma 8 을 골랐다.</p>
+
+  <h3>런타임 패키지 이름이 바뀌었다 <span class="tag measured">실측</span></h3>
+
+  <p>7 계열까지의 런타임은 <code>@prisma/client</code> 였다. <strong>8 의 런타임은 <code>@prisma/orm-postgres</code> 다.</strong> 옛 이름만 조회하고 "8 이 없다"고 결론짓는 일이 실제로 일어난다.</p>
+
+  <p>그리고 8 부터 CLI 가 ORM 을 넘어 플랫폼으로 넓어졌다(<code>auth</code>·<code>project</code>·<code>postgres</code>·<code>bucket</code>·<code>branch</code>·<code>git</code>·<code>service</code>·<code>deploy</code>·<code>dev</code>). ORM 은 <code>prisma orm</code> 서브커맨드 아래로 들어갔다.</p>
+
+  <h3>ESM 이지만 소비자까지 ESM 일 필요는 없다 <span class="tag measured">실측</span></h3>
+
+  <p><code>@prisma/orm-postgres</code> 의 <code>package.json</code> 은 <code>"type": "module"</code> 이다. 그래서 소비하는 쪽도 ESM 이어야 한다고 적어 둔 적이 있는데, <strong>확인해 보니 그렇지 않았다.</strong> CommonJS 기본값인 admin-web 에서 그대로 해결된다.</p>
+
+<pre><code>$ node --input-type=module -e "import('@prisma/orm-postgres/runtime')..."
+
+import OK, exports: PostgresRuntimeImpl, buildNamespacedNativeEnums,
+                    default, isPgClient, isPgPool</code></pre>
+
+  <p>다만 <code>prisma.config.ts</code> 를 Node 가 직접 실행할 때는 다를 수 있다. 스캐폴딩 단계에서 확인한다.</p>
+
+  <h3>접근 방식 <span class="tag unverified">미검증</span></h3>
+
+  <p>아래는 공식 문서의 형태다. 이 프로젝트에서 아직 돌려보지 않았다.</p>
+
+<pre><code>prisma orm init --target postgres --authoring psl
+  → src/prisma/contract.prisma      (PSL 데이터 계약)
+    prisma.config.ts
+    src/prisma/db.ts
+
+prisma contract emit
+  → contract.json + contract.d.ts</code></pre>
+
+<pre><code>import postgres from '@prisma/orm-postgres/runtime';
+import type { Contract } from './contract.d';
+import contractJson from './contract.json' with { type: 'json' };
+
+export const db = postgres&lt;Contract&gt;({
+  contractJson,
+  url: process.env['DATABASE_URL']!,
+});</code></pre>
+
+  <h3>pg 가 딸려 온다 <span class="tag measured">실측</span></h3>
+
+  <p>Prisma 8 의 Postgres 런타임은 내부적으로 <code>pg</code> 를 쓴다. 따로 설치하지 않아도 의존성 트리에 들어온다.</p>
+
+<pre><code>@prisma/orm-postgres@8.0.0-rc.11
+└─ @prisma/orm-target-postgres@8.0.0-rc.11
+   ├─ pg-cursor@2.22.0 → pg@8.22.0
+   └─ pg@8.22.0</code></pre>
+
+  <p>인증을 Postgres 직결로 붙일 계획이라면 이게 이미 깔려 있다는 뜻이다.</p>
+</section>
+
+<section id="ai">
+  <h2>AI SDK 7 · LangGraph · MCP</h2>
+
+  <div class="callout warn">
+    <div class="callout-label">2026-09-24 — 에이전트는 별도 Python 서버에서 돈다 (나머지는 TypeScript)</div>
+    <p style="margin:0"><code>CLAUDE-decisions.md</code> ADR-004. 에이전트 런타임은 Next.js 안이 아니라 <strong>별도 Python 서버(FastAPI + LangGraph)</strong>다. Python 은 이 서버에만 쓰고 웹·제품 API·모바일은 TypeScript 그대로다. 기술만 보면 TS 로도 됐지만(ADR-003 실측) 채용·포트폴리오 기준으로 Python 을 골랐다. 이 절의 <code>@langchain/langgraph</code>·<code>@langchain/core</code> 는 admin-web 에서 뺀다. <code>ai</code>(채팅 UI)와 MCP SDK(도구 서버)는 Next.js 에 남는다. llama-server 를 부를 때는 <code>response_format</code> 을 <code>json_schema</code> 로 보낸다 — <code>json_object</code> 만 보내면 코드블록·마크다운이 돌아온다(실측). <strong>에이전트에게:</strong> Next.js 코드에 LangGraph 그래프를 새로 만들지 않는다. 에이전트 서버는 DB 에 접속하지 않는다 — 데이터는 Next.js 가 여는 도구로만 읽고, 벡터는 계산만 해서 Next.js 에 넘긴다.</p>
+  </div>
+
+  <p>세 패키지 모두 라인 자체를 올렸다. <code>ai</code> 6.x 와 <code>@langchain/langgraph</code> 1.2.x 는 구세대 에이전트 API 라, 에이전트 기능을 쓰려면 올려야 한다. <span class="tag unverified">미검증</span> — 릴리스 노트 기준이고 이 프로젝트에서 아직 코드로 확인하지 않았다.</p>
+
+  <table>
+    <thead><tr><th>패키지</th><th>버전</th><th>요구 Node</th></tr></thead>
+    <tbody>
+      <tr><td><code>ai</code></td><td>7.0.113</td><td>&gt;=22</td></tr>
+      <tr><td><code>@langchain/langgraph</code></td><td>1.4.17</td><td>&gt;=18</td></tr>
+      <tr><td><code>@langchain/core</code></td><td>1.2.12</td><td>langgraph 가 <code>^1.1.48</code> 로 요구</td></tr>
+      <tr><td><code>@modelcontextprotocol/sdk</code></td><td>1.30.1</td><td>&gt;=18</td></tr>
+    </tbody>
+  </table>
+
+  <p><code>@langchain/core</code> 는 직접 쓰지 않더라도 표에 적어 둔다. LangGraph 를 올릴 때 같이 움직이는 값이라, 적어 두지 않으면 다음 사람이 왜 이 버전인지 알 수 없다.</p>
+</section>
+
+<section id="zod">
+  <h2>zod 4 — 보이지 않는 공유 층</h2>
+
+  <p>위 세 패키지가 <strong>전부 zod 를 peer 로 요구한다.</strong> 각자 범위가 달라서 하나라도 어긋나면 조용히 깨진다.</p>
+
+<pre><code>ai@7.0.113                        ^3.25.76 || ^4.1.8
+@langchain/langgraph@1.4.17       ^3.25.32 || ^4.2.0
+@modelcontextprotocol/sdk@1.30.1  ^3.25    || ^4.0
+                       교집합  →  zod >= 4.2.0</code></pre>
+
+  <p>그래서 <code>zod 4.6.5</code> 를 고정표에 명시적으로 올렸다. 설치 후 실제로 하나로 수렴했는지 확인했다. <span class="tag measured">실측</span></p>
+
+<pre><code>중첩 zod 개수: 0        ← node_modules 안에 zod 사본이 하나뿐</code></pre>
+
+  <div class="callout warn">
+    <div class="callout-label">왜 표에 적어야 하나</div>
+    <p style="margin:0">zod 는 우리가 직접 설치할 생각을 안 하는 패키지다. 표에 없으면 나중에 누가 다른 이유로 zod 3.x 를 깔고, 셋 중 하나가 런타임에 조용히 어긋난다. <strong>공유되는 전이 의존성은 직접 쓰지 않아도 표에 올린다.</strong></p>
+  </div>
+</section>
+
+<section id="source">
+  <h2>소스에 반영하는 법</h2>
+
+  <p>여기부터는 코드를 쓸 때 지키는 규약이다.</p>
+
+  <h3>1. Prisma 는 계약으로 접근한다</h3>
+  <p><code>new PrismaClient()</code> 를 쓰지 않는다. 8 에는 그 API 가 없다. <code>contract.json</code> + <code>contract.d.ts</code> 를 생성해 타입이 박힌 <code>db</code> 객체를 만들고, 그것만 import 한다. 생성물은 손으로 고치지 않는다 — 고쳐야 하면 <code>contract.prisma</code> 를 고치고 다시 emit 한다.</p>
+
+  <h3>2. 에이전트가 CLI 를 부를 때는 JSON 을 읽는다</h3>
+  <p>Prisma CLI 출력을 줄글로 파싱하지 않는다. <code>envelope.ok</code> 로 성공을 판정하고, <code>envelope.diagnostics</code> 를 경고로 올리고, <code>envelope.nextActions</code> 가 비어 있지 않으면 그걸 다음 단계 후보로 쓴다.</p>
+
+  <h3>3. 스키마는 zod 한 곳에서 정의한다</h3>
+  <p><code>ai</code> 의 tool 정의와 MCP 도구 스키마, Better Auth 가 zod 를 쓴다. 에이전트 서버는 Python(pydantic)이라 zod 를 직접 나눠 쓰지 못한다 — MCP 도구 스키마가 JSON Schema 라 두 언어가 같은 계약을 읽는다(ADR-004). 같은 개념을 세 번 정의하지 않고 한 번 정의해 세 곳에서 재사용한다. 버전이 하나로 수렴해 있어야 이게 성립한다.</p>
+
+  <h3>4. 버전을 소스에 하드코딩하지 않는다</h3>
+  <p>런타임에서 버전을 문자열로 비교하는 코드를 쓰지 않는다. RC 라 값이 자주 바뀐다. 필요하면 기능 존재 여부로 분기한다.</p>
+
+  <h3>5. 프리릴리스는 캐럿 없이 고정한다 <span class="tag measured">실측</span></h3>
+  <p>npm 은 설치할 때 캐럿을 자동으로 붙인다. <code>^58.0.0-preview.6</code> 은 58 안정판이 나오면 거기로 넘어가고, <code>^0.88.0-rc.1</code> 은 0.88 안정판으로 넘어간다. RC 를 쓰기로 한 이상 <strong>어느 RC 인지가 재현성의 전부</strong>이므로 캐럿을 떼고 정확한 값으로 적는다.</p>
+</section>
+
+<section id="cost">
+  <h2>최신을 고른 값</h2>
+
+  <p>최신을 고르면 대가가 따른다. 숨기지 않고 적어 둔다.</p>
+
+  <h3>Better Auth 가 Prisma 8 을 받지 않는다 <span class="tag measured">실측</span></h3>
+
+  <p><code>better-auth@1.7.5</code> 와 <code>@better-auth/prisma-adapter@1.7.5</code> 의 peer 가 둘 다 Prisma 8 을 배제한다. 그리고 <strong>설치가 실제로 막힌다.</strong></p>
+
+<pre><code>npm error Could not resolve dependency:
+npm error peerOptional prisma@"^5.0.0 || ^6.0.0 || ^7.0.0" from better-auth@1.7.5
+npm error Found: prisma@8.0.0-rc.15</code></pre>
+
+  <div class="callout warn">
+    <div class="callout-label">함정 — optional 은 "아무 버전이나"가 아니다</div>
+    <p style="margin:0"><code>peerDependenciesMeta</code> 가 <code>optional: true</code> 라 설치가 그냥 통과할 거라고 적어 둔 적이 있는데 틀렸다. <code>optional</code> 은 <strong>"없어도 된다"</strong>는 뜻이지 <strong>"있으면 아무 버전이나 된다"</strong>가 아니다. Prisma 8 이 이미 설치돼 있으면 npm 이 범위를 검사해서 거부한다.</p>
+  </div>
+
+  <p>두 패키지 모두 최신이 1.7.5 라, 올려서 풀 수 없다. 구조도 안 맞는다 — 어댑터는 <code>new PrismaClient()</code> 를 전제하는데 8 에는 그게 없다.</p>
+
+  <h3>해결 — overrides 로 이 한 건만 끈다 <span class="tag measured">실측</span></h3>
+
+  <p><code>--legacy-peer-deps</code> 로 뚫을 수도 있지만 그러면 peer 검증을 통째로 포기한다. 방금 이 충돌을 제대로 잡아낸 게 그 검증이다. 대신 <code>package.json</code> 에 override 를 하나 넣는다.</p>
+
+<pre><code>"overrides": {
+  "better-auth": { "prisma": "$prisma" }
+}</code></pre>
+
+  <p>better-auth 가 선언한 <code>prisma</code> peer 범위를 루트의 버전으로 덮어쓴다. 우리는 prisma 어댑터를 쓰지 않으므로 그 제약이 우리 구성에 해당하지 않는다. 플래그 없는 <code>npm install</code> 이 <code>exit 0</code> 으로 통과한다.</p>
+
+  <table>
+    <thead><tr><th></th><th><code>--legacy-peer-deps</code></th><th><code>overrides</code> (채택)</th></tr></thead>
+    <tbody>
+      <tr><td>기록</td><td>없음 — 매번 손으로</td><td><code>package.json</code></td></tr>
+      <tr><td>다른 PC · CI</td><td>깨진다</td><td>동작한다</td></tr>
+      <tr><td>peer 검증</td><td>전부 끈다</td><td>이 한 건만 끈다</td></tr>
+    </tbody>
+  </table>
+
+  <h3>어댑터는 막을 수 없고, 막을 필요도 없다 <span class="tag measured">실측</span></h3>
+
+  <p><code>@better-auth/prisma-adapter</code> 는 optional peer 가 아니라 <strong><code>better-auth</code> 의 정식 dependency</strong> 다. better-auth 가 백엔드별 어댑터(drizzle·kysely·memory·mongo·prisma)를 전부 번들로 들고 다니므로 설치를 막을 방법이 없다. 설정에서 고르지 않으면 그냥 쓰이지 않는다.</p>
+
+  <p>쓸 것은 따로 있다. <code>kysely</code> 가 better-auth 의 직접 의존성이고, 어댑터가 Postgres 용 함수를 내보낸다.</p>
+
+<pre><code>import('@better-auth/kysely-adapter')
+→ createKyselyAdapter, kyselyAdapter, getPostgresSchema, ...</code></pre>
+
+  <p><strong>Postgres 직결은 임시방편이 아니라 정식 지원 경로다.</strong> Prisma 8 이 앱 ORM 을 맡고, 인증은 같은 DB 에 kysely/pg 로 붙어 스키마만 공유한다. 실제 인증 동작도 돌려 봤다. <span class="tag measured">실측</span></p>
+
+<pre><code>kdance_test · 임시 스키마 auth_smoke · database: new pg.Pool(...)   (2026-09-24)
+PASS  테이블 생성 — account,session,user,verification
+PASS  재실행 시 추가 변경 없음
+PASS  회원가입 · 비밀번호 해시 저장(평문 아님)
+PASS  로그인 + 세션 쿠키 발급 · 쿠키로 세션 조회
+PASS  틀린 비밀번호 거부 · 로그아웃 후 세션 무효
+PASS  public 스키마 침범 없음</code></pre>
+
+  <p>드라이버 <code>pg@8.22.0</code> 은 따로 깐 게 아니라 <code>@prisma/orm-postgres</code> 가 가져온 것이다. <strong>Prisma 8 과 Better Auth 가 같은 드라이버를 쓴다.</strong> 초기화 때 찍히는 <code>Database schema mismatch</code> 로그는 테이블이 생기기 전이라 나오는 것이고, 마이그레이션 뒤에는 사라진다.</p>
+
+  <p><strong>아직 확인하지 않은 것:</strong> Prisma 8 계약과 인증 테이블의 관계다. 계약에 없는 <code>user</code>·<code>session</code> 을 Prisma 마이그레이션이 어떻게 다루는지, 예약·결제가 <code>user</code> 를 외래키로 어떻게 참조할지는 Phase 3(구현 계획)에서 정한다. <span class="tag unverified">미검증</span></p>
+
+  <h3>TypeScript 는 6.0.3 이다 — 7 로 올리지 않는다 <span class="tag measured">실측</span></h3>
+
+  <p>npm <code>latest</code> 는 7.0.2 지만, 설치된 패키지 두 곳이 6 을 요구한다.</p>
+
+<pre><code>peer typescript@"&gt;=4.8.4 &lt;6.1.0" from typescript-eslint@8.70.0
+$ npx expo install --check   # 7.0.2 일 때
+typescript@7.0.2 - expected version: ~6.0.3</code></pre>
+
+  <p>반대로 7 을 요구하는 패키지는 하나도 없다. Next.js 16.3.5 는 TypeScript peer 를 선언하지 않고 코드상 최소 5.1.0 만 검사한다. 설치된 16.3 문서(<code>dist/docs/.../02-typescript.md</code>)도 TS 6 을 기본으로 두고, 7 은 JavaScript API 가 없어 <code>tsc</code> CLI 로 돌려 쓰는 방식으로 설명한다. Instant Navigations·개발 서버 메모리 절감·<code>dist/docs</code>/<code>AGENTS.md</code> 는 Next 런타임·번들러 기능이라 TS 버전과 관계없다. 2026-09-23 에 6.0.3(<code>~6.0.3</code>)으로 내렸고 <code>next build</code> 성공, mobile <code>tsc --noEmit</code> exit 0, Expo 의 TS 경고가 사라졌다.</p>
+
+  <p><strong>에이전트에게:</strong> <code>typescript</code> 를 7 로 "최신화"하지 않는다. <code>typescript-eslint</code> 가 7 을 지원하면 그때 함께 올린다.</p>
+
+  <h3>admin-web lint 는 설정 파일 문제로 아직 깨져 있다 <span class="tag measured">실측</span></h3>
+
+  <p>TS 를 내린 뒤에도 <code>npm run lint</code> 는 <code>Converting circular structure to JSON</code> 으로 죽는다. <code>eslint.config.mjs</code> 가 <code>FlatCompat</code> 으로 <code>next/core-web-vitals</code> 를 감싸는 옛 방식이라서다. 16.3 문서는 <code>eslint-config-next/core-web-vitals</code> 를 직접 import 한다. 그 전까지 <strong>타입 검증은 <code>next build</code> 로 한다.</strong></p>
+
+  <h3>RC 를 두 개 쓰고 있다</h3>
+
+  <p>Prisma 8 RC 와 Expo 58 preview × RN 0.88 RC 다. 안정판 전까지 breaking change 가 올 수 있다는 걸 받아들인 선택이다. 각각 안정판이 나오면 옮긴다.</p>
+</section>
+
+<section id="check">
+  <h2>버전을 확인하는 법</h2>
+
+  <p>기억으로 쓰지 않는다. 아래에서 읽는다.</p>
+
+  <table>
+    <thead><tr><th>무엇</th><th>어디서</th></tr></thead>
+    <tbody>
+      <tr><td>설치된 JS 패키지</td><td><code>admin-web/package.json</code> · <code>mobile/package.json</code></td></tr>
+      <tr><td>Expo 가 고정한 RN</td><td><code>mobile/node_modules/expo/bundledNativeModules.json</code></td></tr>
+      <tr><td>npm 최신</td><td><code>npm view &lt;pkg&gt; version</code></td></tr>
+      <tr><td>안정판 vs RC 구분</td><td><code>npm view &lt;pkg&gt; dist-tags</code></td></tr>
+      <tr><td>호환 범위</td><td><code>npm view &lt;pkg&gt;@&lt;ver&gt; peerDependencies</code></td></tr>
+      <tr><td>peer 가 optional 인지</td><td><code>npm view &lt;pkg&gt; peerDependenciesMeta</code></td></tr>
+      <tr><td>DB · 컨테이너</td><td><code>infra/docker-compose.yml</code></td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout warn">
+    <div class="callout-label">dist-tags 를 꼭 본다</div>
+    <p style="margin:0"><code>npm view prisma version</code> 은 <code>8.0.0-rc.15</code> 를 돌려준다. <strong><code>latest</code> 태그가 RC 를 가리킨다.</strong> 안정판 7.10.0 은 <code>prev</code> 에 있다. <code>version</code> 만 보면 RC 를 안정판으로 오인한다. <span class="tag measured">실측</span></p>
+  </div>
+
+  <h3>올리기 전에</h3>
+  <ul>
+    <li>그 패키지를 고정하는 상위 패키지가 있는지 먼저 본다</li>
+    <li><code>peerDependencies</code> 로 표 안의 다른 항목과 충돌하는지 본다</li>
+    <li>메이저가 올라가면 패키지 이름과 API 가 재편됐는지 확인한다</li>
+    <li>깨져 있는 검증선과 겹치지 않게 순서를 나눈다. 한 번에 둘을 건드리면 원인 분리가 안 된다</li>
+    <li>올린 뒤 실제로 돌려 본다. 레지스트리 조회만으로 "된다"고 하지 않는다</li>
+  </ul>
+
+  <div class="callout good">
+    <div class="callout-label">미검증은 미검증이라 적는다</div>
+    <p style="margin:0">확인하지 못한 항목을 확인한 것처럼 적지 않는다. 이 문서의 <span class="tag unverified">미검증</span> 표시가 그 약속이고, 돌려본 뒤에는 <span class="tag measured">실측</span> 으로 바꾸고 근거가 된 출력을 함께 남긴다.</p>
+  </div>
+</section>
+
+<footer>
+  <p>원본 버전표: <code>docs/planning/kdancex4_service_definition_and_tech_stack.md</code> 「11. 기술 스택 고정표」<br>
+  버전 정책 규칙: <code>.claude/rules/core-rules.md</code> 「버전 정책」</p>
+</footer>
+
+</div>
+</body>
+</html>

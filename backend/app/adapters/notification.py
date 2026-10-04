@@ -1,6 +1,6 @@
 """알림 발송 어댑터 — 취소/환불 결과를 회원과 학원 관리자 **양쪽**에 알린다.
 
-``docs/payment-method-policy.md`` "결제 확인 알림 방식"이 정한 규칙을 그대로 따른다.
+``docs/policy/payment-method-policy.md`` "결제 확인 알림 방식"이 정한 규칙을 그대로 따른다.
 
 * 회원 → Expo Push (무료, 기존 스택). **SMS 발송 API는 쓰지 않는다** —
   "무료 API 우선 원칙" 위반이다.

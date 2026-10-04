@@ -58,7 +58,7 @@ Next.js 16.3 이 `node_modules/next/dist/docs/` 와 `AGENTS.md` 를 깔아 주�
 - **버전은 추정하지 않는다.** `package.json` 과 `node_modules/*/package.json` 에서 읽은
   실측값을 쓴다(`core-rules.md` 「버전 정책」).
 - 프리릴리스는 캐럿 없이 정확히 적는다. 어느 RC 인지가 재현성의 전부다.
-- 전체 표는 `docs/kdancex4_service_definition_and_tech_stack.md` 「11. 기술 스택 고정표」가
+- 전체 표는 `docs/planning/kdancex4_service_definition_and_tech_stack.md` 「11. 기술 스택 고정표」가
   원본이다. 여기서는 링크만 걸고 값을 복제하지 않는다 — 복제하면 둘이 어긋난다.
 
 ### 2. 쓰면 안 되는 것 — 학습 데이터 함정

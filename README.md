@@ -2,13 +2,13 @@
 
 K-Social Dance 수업·행사·파티 멀티 에이전트 검색·예약·결제 시스템. FastAPI + SQLAlchemy2(backend — SCH-21(FastAPI→Next.js 전환)에서 Next.js + Prisma 8 로 교체 예정) · Next.js(admin-web) · Expo(mobile).
 
-저장소 전체의 파일 구조와 파일끼리의 연관성, 정합성 점검 결과는 [`docs/structure-map.md`](docs/structure-map.md)에 있다.
+저장소 전체의 파일 구조와 파일끼리의 연관성, 정합성 점검 결과는 [`docs/structure-map.md`](docs/structure-map.md)에 있다. 폴더와 파일마다 한 줄 설명이 붙은 그림판은 [`docs/guide/structure-map.html`](docs/guide/structure-map.html)이다(내려받아 브라우저로 연다).
 
 ## 이 저장소를 처음 보신다면 (학습 진입점)
 
 이 프로젝트는 "Harness(작업 지휘) + ECC(품질 보증)" 구조로 개발됩니다. 코드를 훑기 전에 아래 순서로 보시면 전체 흐름과 각 조각이 왜 그렇게 짜였는지 이해하기 쉽습니다.
 
-1. **[Harness × ECC 왕초보 완벽분석가이드](docs/가이드/harness-ecc-guide.html)** — 이 프로젝트를 어떤 방식(누가 무엇을, 누가 품질을 검사하는지)으로 개발하는지 그림으로 설명합니다.
+1. **[Harness × ECC 왕초보 완벽분석가이드](docs/guide/harness-ecc-guide.html)** — 이 프로젝트를 어떤 방식(누가 무엇을, 누가 품질을 검사하는지)으로 개발하는지 그림으로 설명합니다.
 2. **[SCH 진행 스케줄표](_workspace/SCH_kdance.html)** — 지금까지 어떤 조각이 어떤 순서로 만들어졌는지, 각 조각의 완료 상태를 한눈에 보여줍니다.
 3. **SCH별 왕초보 완벽분석가이드** — 각 조각이 "무엇을, 왜, 어떤 이슈를 거쳐" 만들어졌는지 6개월차 비전공자 기준으로 설명합니다(위 스케줄표의 "가이드 보기" 링크로 연결됩니다):
    - [SCH-01 기반 배선](_workspace/guides/SCH-01(기반 배선).html) · [SCH-02 도메인 모델](_workspace/guides/SCH-02(도메인 모델).html) · [SCH-03 환불액 산정](_workspace/guides/SCH-03(환불액 산정).html) · [SCH-04 어댑터 3종](_workspace/guides/SCH-04(어댑터 3종).html) · [SCH-05 취소 오케스트레이션](_workspace/guides/SCH-05(취소 오케스트레이션).html) · [SCH-06 스키마+라우터](_workspace/guides/SCH-06(스키마·라우터).html) · [SCH-07 DB 통합 테스트](_workspace/guides/SCH-07(통합 테스트 작성).html)
@@ -22,7 +22,10 @@ K-Social Dance 수업·행사·파티 멀티 에이전트 검색·예약·결제
 - `admin-web/` — Next.js(App Router) 학원 관리자 콘솔. `npm run dev`/`build`.
 - `mobile/` — Expo(React Native) 소비자 앱.
 - `infra/` — 로컬 Postgres+pgvector, Redis용 `docker-compose.yml`.
-- `docs/` — 정책/설계 문서, 왕초보 가이드.
+- `docs/` — 성격별 폴더(2026-10-01 재편): `policy/` 정책 · `legal/` 약관 · `planning/` 서비스 정의와 기술 스택 고정표 · `guide/` 사람용 HTML 가이드 · `agent/` 에이전트용 문서와 인수인계 · `deprecated/` 폐기 설계 · `deck/` 발표 자료 · `prototype/` 화면 보드.
+- `scripts/` — pptx 생성기, 구조 지도 생성기, OmniRoute 실행 스크립트.
+- `_workspace/` — SCH 스케줄표와 SCH별 가이드, 하네스 Phase 산출물.
+- `specs/` — 기능 명세(spec.md). 제품 요구사항의 단일 진실 원천.
 - `.claude/` — 개발 하네스(kdance-dev-harness) 및 규칙(core-rules.md) 설정.
 
 자세한 개발 규칙과 아키텍처 결정은 `CLAUDE.md`를 참고하세요.

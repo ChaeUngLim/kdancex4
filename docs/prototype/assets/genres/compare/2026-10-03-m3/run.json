@@ -1,0 +1,11 @@
+{
+  "run": "2026-10-03-m3",
+  "style": "bebop_collage",
+  "models": [
+    "local-animagine-bebop-style-lora"
+  ],
+  "genres": [
+    "salsa_bachata"
+  ],
+  "started": "2026-10-03T17:42:08"
+}

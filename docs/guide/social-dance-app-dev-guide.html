@@ -1,0 +1,975 @@
+<title>소셜댄스 앱 개발 가이드</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  :root{
+    --bg:#FAF6F2;
+    --surface:#FFFFFF;
+    --surface-2:#F3ECE5;
+    --border:rgba(40,26,20,0.12);
+    --text:#241A16;
+    --text-dim:#6E5C53;
+    --text-faint:#9C8A80;
+    --accent:#A8352A;        /* 탱고 와인레드 */
+    --accent-ink:#FFFFFF;
+    --accent-soft:#F3DEDA;
+    --gold:#A9781F;          /* 볼룸 조명 골드 */
+    --gold-soft:#F1E4C2;
+    --warn:#8A5A12;
+    --warn-bg:#FBF0DC;
+    --warn-border:#E3C688;
+    --ok:#2F6B4F;
+    --keep-bg:#EDF3EE;
+    --new-bg:#FBEDE9;
+    --tango:#A8352A;
+    --ballroom:#3C4E85;
+    --salsa:#C1671A;
+    --bachata:#B23368;
+    --swing:#A9781F;
+    --shadow: 0 1px 2px rgba(40,26,20,0.06), 0 8px 24px -12px rgba(40,26,20,0.18);
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#18120F;
+      --surface:#221A16;
+      --surface-2:#2A211C;
+      --border:rgba(255,244,235,0.10);
+      --text:#F3E9E1;
+      --text-dim:#C6B4A8;
+      --text-faint:#8E7A6E;
+      --accent:#E28579;
+      --accent-ink:#20100C;
+      --accent-soft:#3A2420;
+      --gold:#E0BD6E;
+      --gold-soft:#3A2F1A;
+      --warn:#E7C482;
+      --warn-bg:#332714;
+      --warn-border:#5B4620;
+      --ok:#8FCBAD;
+      --keep-bg:#1E2A22;
+      --new-bg:#33221E;
+      --tango:#E28579;
+      --ballroom:#93A6E0;
+      --salsa:#E5A15C;
+      --bachata:#E285AE;
+      --swing:#E0BD6E;
+      --shadow: 0 1px 2px rgba(0,0,0,0.4), 0 8px 28px -12px rgba(0,0,0,0.6);
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#18120F;
+    --surface:#221A16;
+    --surface-2:#2A211C;
+    --border:rgba(255,244,235,0.10);
+    --text:#F3E9E1;
+    --text-dim:#C6B4A8;
+    --text-faint:#8E7A6E;
+    --accent:#E28579;
+    --accent-ink:#20100C;
+    --accent-soft:#3A2420;
+    --gold:#E0BD6E;
+    --gold-soft:#3A2F1A;
+    --warn:#E7C482;
+    --warn-bg:#332714;
+    --warn-border:#5B4620;
+    --ok:#8FCBAD;
+    --keep-bg:#1E2A22;
+    --new-bg:#33221E;
+    --tango:#E28579;
+    --ballroom:#93A6E0;
+    --salsa:#E5A15C;
+    --bachata:#E285AE;
+    --swing:#E0BD6E;
+    --shadow: 0 1px 2px rgba(0,0,0,0.4), 0 8px 28px -12px rgba(0,0,0,0.6);
+  }
+
+  *{box-sizing:border-box;}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:"IBM Plex Sans KR", "Pretendard", -apple-system, sans-serif;
+    line-height:1.65;
+    padding:0 20px;
+  }
+  .wrap{max-width:920px; margin:0 auto; padding-block:0 64px;}
+
+  h1,h2,h3{
+    font-family:"Gowun Batang", Georgia, serif;
+    font-weight:700;
+    text-wrap:balance;
+    color:var(--text);
+    letter-spacing:-0.01em;
+  }
+  code, .mono{font-family:"IBM Plex Mono", ui-monospace, monospace;}
+
+  /* ---------- Hero ---------- */
+  .hero{
+    padding-block:56px 40px;
+    border-bottom:1px solid var(--border);
+  }
+  .eyebrow{
+    display:flex; align-items:center; gap:10px;
+    font-size:0.8rem; letter-spacing:0.08em; text-transform:uppercase;
+    color:var(--text-faint); margin-bottom:18px;
+  }
+  .eyebrow .rule{width:28px; height:1px; background:var(--text-faint);}
+  .hero h1{font-size:clamp(1.9rem, 4.2vw, 2.7rem); margin:0 0 14px; line-height:1.25;}
+  .hero p.lede{
+    font-size:1.08rem; color:var(--text-dim); max-width:62ch; margin:0 0 28px;
+  }
+  .genre-row{display:flex; flex-wrap:wrap; gap:10px;}
+  .genre-chip{
+    display:inline-flex; align-items:center; gap:8px;
+    padding:7px 14px 7px 10px; border-radius:999px;
+    background:var(--surface); border:1px solid var(--border);
+    font-size:0.86rem; color:var(--text-dim); box-shadow:var(--shadow);
+  }
+  .genre-dot{width:10px; height:10px; border-radius:50%; flex:none;}
+
+  .meta-row{
+    display:flex; flex-wrap:wrap; gap:22px; margin-top:28px;
+    font-size:0.86rem; color:var(--text-faint);
+  }
+  .meta-row b{color:var(--text-dim); font-weight:600;}
+
+  /* ---------- section scaffolding ---------- */
+  section{padding-block:44px; border-bottom:1px solid var(--border);}
+  section:last-of-type{border-bottom:none;}
+  .section-head{margin-bottom:26px;}
+  .section-head .tag{
+    font-size:0.76rem; letter-spacing:0.08em; text-transform:uppercase;
+    color:var(--accent); font-weight:600; margin-bottom:8px; display:block;
+  }
+  .section-head h2{font-size:1.5rem; margin:0 0 8px;}
+  .section-head p{color:var(--text-dim); margin:0; max-width:68ch;}
+
+  /* ---------- stack columns ---------- */
+  .stack-grid{
+    display:grid; grid-template-columns:repeat(2, minmax(240px,1fr)); gap:36px 40px;
+  }
+  @media (max-width:620px){ .stack-grid{grid-template-columns:1fr;} }
+
+  .stack-col h3{
+    font-family:"IBM Plex Sans KR", sans-serif; font-weight:700;
+    font-size:1rem; color:var(--text); margin:0 0 16px;
+    display:flex; align-items:center; gap:8px;
+  }
+  .stack-col h3 .swatch{width:9px; height:9px; border-radius:2px; background:var(--accent);}
+
+  .item{
+    display:flex; gap:12px; padding:12px 0; border-top:1px solid var(--border);
+  }
+  .item:first-of-type{border-top:none;}
+  .badge{
+    flex:none; width:34px; height:34px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    font-family:"IBM Plex Mono", monospace; font-size:0.68rem; font-weight:600;
+    border:1.4px solid var(--border); color:var(--text-dim);
+  }
+  .item-body{flex:1; min-width:0;}
+  .item-title{
+    display:flex; align-items:center; gap:8px; flex-wrap:wrap;
+    font-weight:600; font-size:0.94rem; margin-bottom:2px;
+  }
+  .item-title .why{font-weight:400; color:var(--text-faint);}
+  .item-desc{font-size:0.86rem; color:var(--text-dim);}
+  .pill{
+    font-size:0.68rem; font-weight:600; padding:2px 8px; border-radius:999px;
+    letter-spacing:0.02em; flex:none;
+  }
+  .pill.keep{background:var(--keep-bg); color:var(--ok);}
+  .pill.new{background:var(--new-bg); color:var(--accent);}
+
+  /* ---------- callouts ---------- */
+  .callout{
+    border:1px solid var(--warn-border); background:var(--warn-bg);
+    border-radius:10px; padding:18px 20px; margin-top:22px;
+  }
+  .callout .callout-title{
+    font-weight:700; color:var(--warn); font-size:0.92rem; margin-bottom:6px;
+    display:flex; align-items:center; gap:8px;
+  }
+  .callout p{margin:0 0 8px; font-size:0.9rem; color:var(--text);}
+  .callout p:last-child{margin-bottom:0;}
+  .callout ul{margin:6px 0 0; padding-left:20px; font-size:0.9rem;}
+  .callout li{margin-bottom:4px;}
+  .disclaimer{font-size:0.78rem; color:var(--text-faint); margin-top:10px; font-style:italic;}
+
+  /* ---------- table (mcp/skill) ---------- */
+  .table-wrap{overflow-x:auto; border:1px solid var(--border); border-radius:12px; background:var(--surface); box-shadow:var(--shadow);}
+  table{border-collapse:collapse; width:100%; font-size:0.88rem; min-width:560px;}
+  thead th{
+    text-align:left; font-size:0.72rem; letter-spacing:0.06em; text-transform:uppercase;
+    color:var(--text-faint); padding:12px 16px; border-bottom:1px solid var(--border);
+    background:var(--surface-2);
+  }
+  tbody td{padding:12px 16px; border-bottom:1px solid var(--border); vertical-align:top; color:var(--text-dim);}
+  tbody tr:last-child td{border-bottom:none;}
+  td.name{color:var(--text); font-weight:600; white-space:nowrap;}
+  td .kind{display:block; font-weight:400; font-size:0.76rem; color:var(--text-faint); margin-top:2px;}
+
+  /* ---------- roadmap ---------- */
+  .roadmap{display:flex; flex-direction:column; gap:0;}
+  .stage{
+    display:grid; grid-template-columns:52px 1fr; gap:18px;
+    padding:18px 0; border-top:1px solid var(--border); position:relative;
+  }
+  .stage:first-child{border-top:none;}
+  .stage-num{
+    font-family:"Gowun Batang", serif; font-size:1.5rem; color:var(--accent);
+    display:flex; align-items:flex-start; justify-content:center; padding-top:2px;
+  }
+  .stage h3{font-size:1rem; margin:0 0 6px; font-family:"IBM Plex Sans KR", sans-serif; font-weight:700;}
+  .stage p{margin:0; font-size:0.9rem; color:var(--text-dim);}
+  .stage .gate{
+    display:inline-block; margin-top:8px; font-size:0.76rem; color:var(--accent);
+    background:var(--accent-soft); padding:3px 9px; border-radius:6px;
+  }
+
+  footer{padding-top:36px; font-size:0.8rem; color:var(--text-faint);}
+</style>
+
+<div style="border:2px solid #d33;background:#fff3f3;color:#222;padding:12px 16px;border-radius:8px;margin:12px auto;max-width:1100px;font-family:sans-serif;line-height:1.6">
+  <b>⚠ 2026-09-25 규칙 변경 — 이 문서의 수수료·결제 설명은 옛 기준이다.</b>
+  수수료 8%·베타 6개월 면제는 바뀌었다. 지금은 <b>플랫폼 수수료 5%, 입점 1년 면제</b>다(FR-124(플랫폼 수수료 5%·1년 면제)).
+  결제·카드 수수료는 대표가 부담하고, 예매 수수료 몫만 플랫폼이 낸다. 딥링크는 폐지되어 모든 결제가 PG 한 경로다.
+  지금 규칙은 <code>specs/001-ai-dance-class-platform/spec.md</code> 를 본다.
+</div>
+
+<div class="wrap">
+
+  <div class="hero">
+    <div class="eyebrow"><span class="rule"></span>개인 개발자 · 스토어 판매용 · 신규 프로젝트</div>
+    <h1>소셜댄스 예약·결제 앱<br>개발 가이드</h1>
+    <p class="lede">
+      댄스스포츠 · 아르헨티나 탱고 · 스윙 · 살사 · 바차타 다섯 장르를 묶어, 검색·추천·경로
+      안내로 회원을 학원까지 데려오고, <b>학원이 관리자 콘솔에서 스케줄을 직접 등록하면
+      바로 예약·결제까지 열리는 것</b>이 이 앱의 핵심이다. 무료·오픈 API만 쓴다는 원칙
+      때문에 이미지·PDF 자동 인식 파이프라인은 두지 않는다.
+    </p>
+    <div class="genre-row">
+      <span class="genre-chip"><span class="genre-dot" style="background:var(--ballroom)"></span>댄스스포츠</span>
+      <span class="genre-chip"><span class="genre-dot" style="background:var(--tango)"></span>아르헨티나 탱고</span>
+      <span class="genre-chip"><span class="genre-dot" style="background:var(--swing)"></span>스윙댄스</span>
+      <span class="genre-chip"><span class="genre-dot" style="background:var(--salsa)"></span>살사</span>
+      <span class="genre-chip"><span class="genre-dot" style="background:var(--bachata)"></span>바차타</span>
+    </div>
+    <div class="meta-row">
+      <span><b>개발 하네스</b> Claude Code Max + harness 플러그인</span>
+      <span><b>기준 스택</b> 기존 프로젝트 캡처 3장을 기본값으로 채택</span>
+      <span><b>목표</b> 베타 → 안정화 → 앱스토어·플레이스토어 정식 출시</span>
+    </div>
+  </div>
+
+  <!-- ================= 기술 스택 ================= -->
+  <section>
+    <div class="section-head">
+      <span class="tag">Stack · 01</span>
+      <h2>기술 스택 — 캡처 기준 + 프로젝트 추가분</h2>
+      <p>보내준 캡처 3장(백엔드·모바일·언어런타임·개발도구)을 기본값 그대로 채택했다.
+      이유는 하나 — 이미 검증되고 손에 익은 조합을 새 프로젝트에서 다시 검증할 이유가 없어서다.
+      <span class="pill keep" style="position:relative; top:-1px;">유지</span>는 캡처 그대로,
+      <span class="pill new" style="position:relative; top:-1px;">신규</span>는 이 앱의 결제·지도·알람
+      요건 때문에 새로 필요해진 것.</p>
+    </div>
+
+    <div class="stack-grid">
+      <div class="stack-col">
+        <h3><span class="swatch"></span>백엔드</h3>
+
+        <div class="item">
+          <div class="badge">API</div>
+          <div class="item-body">
+            <div class="item-title">FastAPI <span class="pill keep">유지</span></div>
+            <div class="item-desc">서버 API 뼈대. 그대로 채택.</div>
+          </div>
+        </div>
+        <div class="item">
+          <div class="badge">SQ</div>
+          <div class="item-body">
+            <div class="item-title">SQLAlchemy 2 <span class="pill keep">유지</span></div>
+            <div class="item-desc">DB 코드를 SQL 대신 파이썬으로.</div>
+          </div>
+        </div>
+        <div class="item">
+          <div class="badge">PG</div>
+          <div class="item-body">
+            <div class="item-title">PostgreSQL 18 + pgvector <span class="pill keep">유지</span></div>
+            <div class="item-desc">학원 데이터와 "취향 임베딩"(선호 장르·시간대 기반 추천)을 한 DB에.</div>
+          </div>
+        </div>
+        <div class="item">
+          <div class="badge">AL</div>
+          <div class="item-body">
+            <div class="item-title">Alembic <span class="pill keep">유지</span></div>
+            <div class="item-desc">DB 구조 변경 이력 관리.</div>
+          </div>
+        </div>
+        <div class="item">
+          <div class="badge">uv</div>
+          <div class="item-body">
+            <div class="item-title">uv <span class="pill keep">유지</span></div>
+            <div class="item-desc">Python 패키지·가상환경을 한 도구로.</div>
+          </div>
+        </div>
+        <div class="item">
+          <div class="badge">PT</div>
+          <div class="item-body">
+            <div class="item-title">pytest <span class="pill keep">유지</span></div>
+            <div class="item-desc">자동 검증. 결제 금액 계산은 특히 케이스를 두껍게.</div>
+          </div>
+        </div>
+        <div class="item">
+          <div class="badge">PG₩</div>
+          <div class="item-body">
+            <div class="item-title">결제대행(PG) 클라이언트 <span class="pill new">신규</span></div>
+            <div class="item-desc">포트원(아임포트) 또는 토스페이먼츠. <b>선정 기준 둘 —
+            "하위 가맹점 정산 분배"와 "정기결제(빌링키)" 둘 다 지원 여부</b> — 학원 대신
+            받고 수수료를 뗀 나머지를 보내는 구조에, 월 멤버십까지 겹쳐서 일반 결제 연동보다
+            요구사항이 많다. 아래 컴플라이언스 항목 참조.</div>
+          </div>
+        </div>
+        <div class="item">
+          <div class="badge">⏱</div>
+          <div class="item-body">
+            <div class="item-title">APScheduler <span class="pill new">신규</span></div>
+            <div class="item-desc">정산 배치, 대학생 무료체험 만료, 수업 전 알람 발송처럼
+            "정해진 시각에 한 번" 도는 작업이 셋이나 생겨서 필요.</div>
+          </div>
+        </div>
+        <div class="item">
+          <div class="badge">지도</div>
+          <div class="item-body">
+            <div class="item-title">카카오 Local API <span class="pill new">신규</span></div>
+            <div class="item-desc">학원 위치 검색·경로 계산. 기존 프로젝트에서 같은 API로
+            검증해 본 적 있어 배선 지식을 그대로 재사용 가능.</div>
+          </div>
+        </div>
+        <div class="item">
+          <div class="badge">S3</div>
+          <div class="item-body">
+            <div class="item-title">오브젝트 스토리지(S3 호환) <span class="pill new">신규</span></div>
+            <div class="item-desc">학원이 등록한 포스터·프로필 이미지를 보관해 화면에 노출한다.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="stack-col">
+        <h3><span class="swatch"></span>모바일</h3>
+
+        <div class="item">
+          <div class="badge">EX</div>
+          <div class="item-body">
+            <div class="item-title">Expo SDK 57 <span class="pill keep">유지</span></div>
+            <div class="item-desc">Expo Go로 빌드 없이 폰에서 바로 확인.</div>
+          </div>
+        </div>
+        <div class="item">
+          <div class="badge">RN</div>
+          <div class="item-body">
+            <div class="item-title">React Native 0.86 <span class="pill keep">유지</span></div>
+            <div class="item-desc">크로스플랫폼 프레임워크이지만, 배포는 Android(갤럭시 스토어) 단일 — distribution-policy.md 참고.</div>
+          </div>
+        </div>
+        <div class="item">
+          <div class="badge">R</div>
+          <div class="item-body">
+            <div class="item-title">React 19.2 <span class="pill keep">유지</span></div>
+          </div>
+        </div>
+        <div class="item">
+          <div class="badge">TS</div>
+          <div class="item-body">
+            <div class="item-title">TypeScript 6.0 <span class="pill keep">유지</span></div>
+          </div>
+        </div>
+        <div class="item">
+          <div class="badge">NV</div>
+          <div class="item-body">
+            <div class="item-title">React Navigation 7 <span class="pill keep">유지</span></div>
+          </div>
+        </div>
+        <div class="item">
+          <div class="badge">🔔</div>
+          <div class="item-body">
+            <div class="item-title">expo-notifications <span class="pill new">신규</span></div>
+            <div class="item-desc">"수업 30분 전 알람" 같은 로컬 알람과, 예약 확정·정산
+            완료 같은 원격 푸시를 둘 다 한 모듈로.</div>
+          </div>
+        </div>
+        <div class="item">
+          <div class="badge">📅</div>
+          <div class="item-body">
+            <div class="item-title">react-native-calendars <span class="pill new">신규</span></div>
+            <div class="item-desc">스케줄별 월간 달력 UI. 장르별 색(위 5색)을 그대로
+            이벤트 점으로 써서 시각 언어를 하나로 통일.</div>
+          </div>
+        </div>
+        <div class="item">
+          <div class="badge">🗺</div>
+          <div class="item-body">
+            <div class="item-title">react-native-maps <span class="pill new">신규</span></div>
+            <div class="item-desc">학원 위치·경로 표시. 카카오 Local API 결과를 지도 위에 얹는다.</div>
+          </div>
+        </div>
+        <div class="item">
+          <div class="badge">WV</div>
+          <div class="item-body">
+            <div class="item-title">react-native-webview <span class="pill new">신규</span></div>
+            <div class="item-desc">국내 PG 대부분이 결제창을 웹뷰로 제공 — 네이티브 SDK보다
+            먼저 이 경로로 붙이는 게 검증이 빠르다.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout" style="background:var(--surface-2); border-color:var(--border);">
+      <div class="callout-title" style="color:var(--accent);">🖥 관리자(학원) 화면은 모바일 앱에 안 넣는다</div>
+      <p>스케줄 등록·정산 확인은 여러 필드를 한 번에 입력하고 표로 비교하는 작업이라
+      <b>모바일보다 데스크톱 웹이 압도적으로 편하다.</b></p>
+      <p>그래서 <b>관리자 콘솔은 같은 FastAPI 백엔드를 보는 별도의 웹 페이지</b>로 뗀다
+      (React + Next.js 정도, 모바일 앱 빌드와는 무관). 소비자 앱(Expo)과 관리자 웹은
+      API만 공유하고 배포·심사 주기는 완전히 분리된다.</p>
+    </div>
+  </section>
+
+  <!-- ================= 관리자 업로드 → 자동 등록 (핵심) ================= -->
+  <section>
+    <div class="section-head">
+      <span class="tag">Core · 02</span>
+      <h2>관리자 스케줄 등록 → 예약 오픈 — 이 앱의 핵심</h2>
+      <p>검색·예약·지도는 "회원을 학원까지 데려오는" 절반이고, 이 기능은 <b>"학원이
+      등록하면 바로 예약·결제가 열리게 만드는"</b> 나머지 절반이다. 학원 쪽 진입장벽이
+      곧 이 서비스의 공급(=등록된 학원 수)을 결정하므로, 검색·추천이 아무리 좋아도
+      이 등록 흐름이 번거로우면 학원이 안 들어온다.</p>
+      <p class="disclaimer" style="margin-top:10px;">화면 목업(입점 설명회 문서)은 실제
+      운영 중인 mobydick 앱의 탭바·카드·여백 패턴 중 참고할 만한 부분만 가져왔다 —
+      아이콘 기반 4탭(배경 강조 없이 색·굵기로만 활성 표시), 리스트 카드 반경 18px,
+      강조 카드 반경 24px. 색 체계는 그대로 가져오지 않았다 — mobydick은 무채색 하나로
+      절제하는 편집 톤이고, 이 앱은 장르 5색이 곧 제품 정체성이라 다른 선택이 맞다.</p>
+    </div>
+
+    <h3 style="font-family:'IBM Plex Sans KR',sans-serif; font-size:1rem; margin:0 0 14px;">
+      입력 한 번이 예약 가능한 수업이 되기까지</h3>
+    <div class="roadmap" style="margin-bottom:28px;">
+      <div class="stage">
+        <div class="stage-num">1</div>
+        <div><h3>업로드</h3><p>관리자 웹에서 포스터·전단지·스크린샷(형식 무관)을
+        업로드하면 OCR이 장르 · 요일 · 시간 · 가격 · 정원 등 필드를 자동으로
+        추출한다.</p></div>
+      </div>
+      <div class="stage">
+        <div class="stage-num">2</div>
+        <div><h3>추출 결과 검토</h3><p>OCR이 추출한 필드가 실제 앱 카드·캘린더
+        화면 그대로 미리 보이고, 신뢰도가 낮은 항목(특히 시간·가격)은 "확인필요"로
+        표시된다. 가격·정원처럼 되돌리기 어려운 필드를 게시 전 마지막으로 확인하는
+        단계다. <b>이 단계를 건너뛰고 바로 게시하지 않는다.</b></p></div>
+      </div>
+      <div class="stage">
+        <div class="stage-num">3</div>
+        <div><h3>게시 — 검색·예약·결제에 동시 반영</h3><p>확정된 스케줄이 검색 인덱스
+        (pgvector 임베딩 포함)에 들어가고, 같은 트랜잭션에서 예약 가능 슬롯과 결제
+        상품이 함께 생성된다. 셋이 따로 놀면 "검색에는 뜨는데 예약은 안 되는" 결함이
+        생긴다 — 그래서 하나로 묶는다.</p></div>
+      </div>
+    </div>
+
+    <div class="callout">
+      <div class="callout-title">⚠ 가격·정원은 검토 단계에서 반드시 확인</div>
+      <p>가격·정원처럼 되돌리기 어려운 필드를 OCR이 잘못 추출한 채 그대로 게시하면
+      실제 예약·결제가 잘못된 조건으로 열린다 — 버그가 아니라 <b>돈 사고</b>다.
+      검토 단계를 건너뛰고 바로 게시하는 경로는 만들지 않는다.</p>
+    </div>
+
+    <h3 style="font-family:'IBM Plex Sans KR',sans-serif; font-size:1rem; margin:32px 0 14px;">
+      확장 — 같은 입력 폼이 콘텐츠 3종을 나눠 처리한다</h3>
+    <p style="color:var(--text-dim); margin:0 0 18px; max-width:68ch;">
+      "실시간 뉴스피드(파티·공연·대회)"와 "학원별 공지"도 핵심 기능인데, 전부 새로
+      만들 필요는 없다. <b>업로드→검토→게시 흐름은 그대로 두고, 콘텐츠 종류에
+      따라 뒤에서 갈라지는 것</b>으로 설계하면 같은 폼을 세 번 만들지 않는다.</p>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>종류</th><th>입력</th><th>예약·결제</th><th>노출 위치</th></tr></thead>
+        <tbody>
+          <tr>
+            <td class="name">수업 스케줄</td>
+            <td>포스터 업로드 → OCR 자동추출 → 검토</td>
+            <td>있음 — 정원·가격 검토 필수</td>
+            <td>검색 결과, 캘린더</td>
+          </tr>
+          <tr>
+            <td class="name">파티 · 공연 · 대회</td>
+            <td>같은 업로드 폼 재사용 (OCR 자동추출)</td>
+            <td>선택 — 참가신청만 있거나, 아예 없을 수 있음</td>
+            <td><b>뉴스피드(전 학원 통합)</b></td>
+          </tr>
+          <tr>
+            <td class="name">공지</td>
+            <td>관리자가 텍스트 직접 작성 (사진은 선택 첨부)</td>
+            <td>없음</td>
+            <td><b>학원별 공지 게시판</b></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p style="color:var(--text-dim); font-size:0.9rem; margin-top:14px; max-width:68ch;">
+      세 콘텐츠 모두 같은 입력 폼 컴포넌트를 재사용하고, 예약 연결 여부만 다르게
+      처리한다. 뉴스피드 쪽은 예약 연결이 선택이라, 데이터 모델에
+      <code>bookable: bool</code> 플래그 하나로 수업과 같은 테이블을 쓸지, 별도
+      <code>Event</code> 모델을 둘지는 구현 단계에서 후보 둘 다 가능 — SCH 단위로
+      착수할 때 정한다.</p>
+  </section>
+
+  <!-- ================= 런타임/도구 ================= -->
+  <section>
+    <div class="section-head">
+      <span class="tag">Stack · 03</span>
+      <h2>언어 · 런타임 · 개발 도구</h2>
+      <p>여기도 대부분 유지. 스토어 정식 출시가 목표라 배포 자동화 도구 하나만 추가했다.</p>
+    </div>
+
+    <div class="stack-grid">
+      <div class="stack-col">
+        <h3><span class="swatch"></span>언어 · 런타임</h3>
+        <div class="item">
+          <div class="badge">JS</div>
+          <div class="item-body">
+            <div class="item-title">Node.js 24 <span class="pill keep">유지</span></div>
+          </div>
+        </div>
+        <div class="item">
+          <div class="badge">PY</div>
+          <div class="item-body">
+            <div class="item-title">Python 3.12 <span class="pill keep">유지</span></div>
+          </div>
+        </div>
+        <div class="item">
+          <div class="badge">🐳</div>
+          <div class="item-body">
+            <div class="item-title">Docker <span class="pill keep">유지</span></div>
+            <div class="item-desc">PostgreSQL 컨테이너 하나로 띄우고 지움.</div>
+          </div>
+        </div>
+        <div class="item">
+          <div class="badge">JDK</div>
+          <div class="item-body">
+            <div class="item-title">JDK 17 <span class="pill keep">유지</span></div>
+            <div class="item-desc">Android 빌드 단계에서 필요.</div>
+          </div>
+        </div>
+        <div class="item">
+          <div class="badge">Rd</div>
+          <div class="item-body">
+            <div class="item-title">Redis <span class="pill new">신규</span></div>
+            <div class="item-desc">APScheduler 잡 큐, 그리고 "첫 이용자 50% 할인"
+            중복 사용 방지용 단기 락(lock)에 사용.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="stack-col">
+        <h3><span class="swatch"></span>개발 도구</h3>
+        <div class="item">
+          <div class="badge">🪝</div>
+          <div class="item-body">
+            <div class="item-title">lefthook <span class="pill keep">유지</span></div>
+            <div class="item-desc">커밋 전 코드 검사 자동 실행.</div>
+          </div>
+        </div>
+        <div class="item">
+          <div class="badge">GL</div>
+          <div class="item-body">
+            <div class="item-title">gitleaks <span class="pill keep">유지</span></div>
+            <div class="item-desc">PG 시크릿 키가 커밋에 섞이는 걸 막는 안전장치 — 결제
+            연동이 들어가는 순간 이 도구의 무게가 mobydick 때보다 커진다.</div>
+          </div>
+        </div>
+        <div class="item">
+          <div class="badge">gh</div>
+          <div class="item-body">
+            <div class="item-title">gh CLI <span class="pill keep">유지</span></div>
+          </div>
+        </div>
+        <div class="item">
+          <div class="badge">cl</div>
+          <div class="item-body">
+            <div class="item-title">commitlint <span class="pill keep">유지</span></div>
+          </div>
+        </div>
+        <div class="item">
+          <div class="badge">🚀</div>
+          <div class="item-body">
+            <div class="item-title">Fastlane <span class="pill new">신규</span></div>
+            <div class="item-desc">Play Store·App Store 자동 제출에 강점이 있는
+            도구지만, 이 프로젝트는 갤럭시 스토어(Samsung Seller Portal) 배포라
+            자동 제출 지원 여부는 별도 확인 필요 — distribution-policy.md 참고.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout">
+      <div class="callout-title">⚠ 스토어 등록 비용 — 개발 착수 전에 예산에 넣을 것</div>
+      <ul>
+        <li>갤럭시 스토어(Samsung Seller Portal) — 등록비 무료 (distribution-policy.md 결정)</li>
+        <li>Google 로그인(OAuth) 설정 — 배포 채널과 무관하게 별도 필요, 등록비는 없음</li>
+        <li>PG사 별도 심사·가맹점 등록 — 사업자 형태(개인/법인)에 따라 서류·기간이 다름</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ================= 컴플라이언스 ================= -->
+  <section>
+    <div class="section-head">
+      <span class="tag">Stack · 04</span>
+      <h2>결제 대행 구조 — 설계 전에 반드시 확인</h2>
+      <p>"학원 대신 결제를 받고 수수료를 뗀다"는 이 앱의 핵심 기능이, 동시에 가장 위험이
+      큰 지점이다. 기술 스택보다 먼저 이 부분의 답을 갖고 들어가야 한다.</p>
+    </div>
+
+    <div class="callout" style="background:var(--surface-2); border-color:var(--border);">
+      <div class="callout-title" style="color:var(--accent);">💳 정산 분배(하위 가맹점) 결제란</div>
+      <p>고객이 앱에서 결제하면 돈이 먼저 <b>개발자(운영자)</b> 명의 PG 가맹점으로 들어오고,
+      거기서 수수료를 뗀 나머지를 학원 계좌로 보내는 구조. 학원이 직접 카드 가맹점을
+      갖고 앱은 예약만 중개하는 구조보다 개발자가 지는 책임이 훨씬 크다.</p>
+      <ul>
+        <li><b>PG 선정 시 확인</b> — "하위 가맹점 정산", "에스크로", "분배결제" 같은
+        키워드로 지원 여부를 먼저 물어볼 것. 일반 결제 연동 API로는 안 된다.</li>
+        <li><b>전자금융거래법 관련 등록</b> — 타인의 자금을 잠시 보관했다가 이체하는
+        구조는 선불전자지급수단·전자지급결제대행 관련 신고·등록 대상이 될 수 있다.</li>
+        <li><b>통신판매중개 표시</b> — 앱이 "학원과 고객을 중개"하는 입장임을 이용약관에
+        명확히 표시해야 분쟁 시 책임 소재가 갈린다.</li>
+      </ul>
+      <p class="disclaimer">법률 자문이 아니다. 실제 진행 전 PG사 기술영업·세무사와 반드시
+      1회 이상 확인할 것 — 여기서는 "무엇을 물어봐야 하는지"만 짚는다.</p>
+    </div>
+
+    <div class="callout" style="margin-top:16px;">
+      <div class="callout-title">🎟 할인·멤버십 혜택 구조 (2026-09-13 확정)</div>
+      <ul>
+        <li><b>대학생 전용 3개월 램프</b> — 1개월차 무료, 2개월차 반값, 3개월차부터 정상가.
+        <b>차액은 학원(대표)이 부담한다</b>(2026-09-13 정책 결정, <code>pricing-policy.md</code>) —
+        학원 정산은 실제 결제된 금액 기준이다: 1개월차는 결제 자체가 없어 정산 0원,
+        2개월차는 반값 결제액에서 수수료 8%를 뗀 금액이 지급된다.</li>
+        <li><b>월 멤버십 1+1 수강권</b> — 매달 멤버십 결제 중인 회원에게 분기마다(연 4회)
+        쿠폰 1장을 지급한다. <b>기존 수업 결제 1건 이상에 포함해서만</b> 쓸 수 있고,
+        같은 수준·비슷한 장르 수업 1개를 추가로 무료 수강한다 — 단독으로 공짜 수업을
+        받는 게 아니다. <b>비용은 학원이 부담</b>한다(좌석 1개를 무료로 내주는 것) —
+        결제된 1건에는 정상 수수료 8%가 그대로 붙는다. 분기가 끝나면 미사용 쿠폰은
+        소멸하고 다음 분기에 1장이 새로 나온다.</li>
+        <li><b>일반 결제 수수료</b>는 학원 부담 8%, 92% 지급 — 변동 없음.</li>
+      </ul>
+      <p style="margin-top:8px;">모두 <b>기기당 1회가 아니라 사람당 1회/분기</b> 기준으로
+      막아야 한다. 앱 재설치로 우회되지 않게 서버에서 전화번호(본인인증) 기준으로 검증하고,
+      대학생 인증은 학교 이메일(.ac.kr) 도메인 확인 정도가 개인 개발자 단계에서 현실적인 선이다.</p>
+    </div>
+
+    <div class="callout" style="background:var(--surface-2); border-color:var(--border); margin-top:16px;">
+      <div class="callout-title" style="color:var(--accent);">🔁 멤버십 정기결제가 PG 선정 기준에 하나 추가된다</div>
+      <p>"매달 멤버십 정기결제"이 생기면서 PG는 <b>하위 가맹점 정산 분배</b> 지원뿐 아니라
+      <b>정기결제(빌링키) 지원</b>도 확인해야 한다 — 매달 카드 정보를 다시 받지 않고
+      자동 청구하려면 빌링키 발급·재시도(실패 시 카드 만료 등) 정책이 있는 PG여야 한다.</p>
+      <p>쿠폰은 별도 <code>Coupon</code> 테이블이 필요하다 — 발급 시각, 유효기간(분기 말
+      소멸), 사용 여부, 사용된 예약 ID를 갖는다. <b>분기마다(연 4회) 지급</b>은
+      APScheduler 배치가 멤버십 결제 성공 이력을 보고 발급하는 쪽이, 실시간 트리거보다
+      검증하기 쉽다.</p>
+      <p><b>체크아웃 검증이 핵심이다.</b> "결제 항목에 유료 수업이 1건 이상 포함되는가"와
+      "쿠폰의 +1 수업이 결제한 수업과 같은 장르·비슷한 레벨인가"를 서버에서 같이 막아야
+      한다 — 안 막으면 쿠폰 단독으로 공짜 수업을 받는 구멍이 생긴다.</p>
+    </div>
+  </section>
+
+  <!-- ================= MCP/Skill ================= -->
+  <section>
+    <div class="section-head">
+      <span class="tag">Harness · 05</span>
+      <h2>Claude Code MCP · Skill 조합</h2>
+      <p><b>harness 플러그인이 중심이다.</b> 이 프로젝트 전용 파이프라인(계획→구현→검증→문서화)이
+      아직 없기 때문에, 제일 먼저 할 일은 harness를 불러 그 파이프라인부터 만드는 것.
+      나머지 도구는 범용이라 그대로 가져다 쓴다.</p>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>도구</th><th>역할</th><th>이 프로젝트에서</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="name">harness<span class="kind">플러그인</span></td>
+            <td>에이전트·스킬 구성 자체를 만들어 주는 메타 도구</td>
+            <td><b>가장 먼저 호출.</b> planner·implementer·reviewer·explainer
+            에이전트와, 이 앱 전용 파이프라인 스킬을 새로 생성하는 진입점.</td>
+          </tr>
+          <tr>
+            <td class="name">context7<span class="kind">MCP</span></td>
+            <td>라이브러리 최신 문서를 실시간 조회</td>
+            <td>그대로 재사용. PG SDK·react-native-calendars처럼 버전에 민감한
+            라이브러리가 많아 오히려 비중이 커진다.</td>
+          </tr>
+          <tr>
+            <td class="name">github<span class="kind">MCP</span></td>
+            <td>브랜치·PR·이슈를 다루는 저장소 연결</td>
+            <td>그대로 재사용. GitHub Flow·squash merge 같은 워크플로 규칙도
+            그대로 옮겨온다.</td>
+          </tr>
+          <tr>
+            <td class="name">serena<span class="kind">MCP · 로컬</span></td>
+            <td>코드를 심볼 단위로 찾고 고치는 탐색 도구</td>
+            <td>그대로 재사용. 프로젝트 규모와 무관하게 유용.</td>
+          </tr>
+          <tr>
+            <td class="name">memory<span class="kind">MCP</span></td>
+            <td>대화 사이에 지식을 기억해 두는 저장소</td>
+            <td>그대로 재사용 — 단, mobydick 메모리와 섞이지 않게 새 프로젝트
+            디렉터리에서 시작해야 자동으로 분리된다.</td>
+          </tr>
+          <tr>
+            <td class="name">agent-reach<span class="kind">MCP</span></td>
+            <td>웹·SNS 등 외부 자료를 조사하는 라우터</td>
+            <td>그대로 재사용. PG·지도 API 약관·요금제 비교 조사에 그대로 쓴다.</td>
+          </tr>
+          <tr>
+            <td class="name">mindpilot<span class="kind">MCP</span></td>
+            <td>mermaid 다이어그램을 그려 주는 도구</td>
+            <td>그대로 재사용. 정산 분배 흐름(고객→PG→운영자→학원)처럼 돈의 흐름을
+            그림으로 남겨야 하는 지점이 새로 생겨 오히려 더 자주 쓰게 된다.</td>
+          </tr>
+          <tr>
+            <td class="name">humanizer / humanizer-kr<span class="kind">플러그인 · 스킬</span></td>
+            <td>AI 티 나는 문장을 사람 글처럼 다듬음</td>
+            <td>그대로 재사용. 커밋·PR·이용약관 초안 다듬기에 동일하게 적용.</td>
+          </tr>
+          <tr>
+            <td class="name">strix<span class="kind">스킬</span></td>
+            <td>보안 점검(펜테스트) 도구</td>
+            <td><b>선택 → 필수로 격상.</b> 결제·개인정보(전화번호·위치)를 다루는
+            앱이라 정기 실행을 개발 루틴에 못 박아야 한다.</td>
+          </tr>
+          <tr>
+            <td class="name">{project}-pipeline<span class="kind">스킬 · 신규</span></td>
+            <td>계획→구현→검증→문서화를 잇는 오케스트레이터</td>
+            <td><b>harness로 새로 생성.</b> mobydick-pipeline의 자리를 대신하지만,
+            내용은 이 프로젝트의 백로그 규칙에 맞게 새로 써야 한다.</td>
+          </tr>
+          <tr>
+            <td class="name">implementation-guide<span class="kind">스킬 · 신규</span></td>
+            <td>레이어 구조·마이그레이션 절차 같은 코딩 규칙 모음</td>
+            <td><b>harness로 새로 생성.</b> PG 연동 절차·정산 배치 작성 규칙·
+            스토어 심사 체크리스트를 이 문서에 담는다.</td>
+          </tr>
+          <tr>
+            <td class="name">review-qa<span class="kind">스킬 · 신규</span></td>
+            <td>서버·API 명세·앱 타입 교차 검증 체크리스트</td>
+            <td><b>harness로 새로 생성.</b> mobydick의 "스키마↔OpenAPI↔TS" 패턴은
+            그대로 두되, "결제 요청 금액 = PG 응답 금액 = DB 기록 금액" 대조 항목을
+            새로 추가해야 한다.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ================= 화면 12개 ↔ 구현 매핑 ================= -->
+  <section>
+    <div class="section-head">
+      <span class="tag">Screens · 06</span>
+      <h2>화면 12개 ↔ 구현 매핑</h2>
+      <p><a href="https://claude.ai/code/artifact/bb39fb8a-8f3f-4cc0-888e-91033cb0a884" target="_blank"
+      rel="noopener">kdance 화면 명세서</a>에서 확정한 12화면을, 만들어야 하는 API·데이터
+      모델·우선순위로 옮겼다. 화면 번호는 명세서와 그대로 맞춘다 — 번호가 갈라지면
+      "그 화면 얘기하는 거 맞나"부터 다시 확인해야 한다.</p>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>#</th><th>화면</th><th>API · 데이터 모델</th><th>우선순위</th></tr></thead>
+        <tbody>
+          <tr><td class="name">01</td><td>회원가입 · 대학생 인증</td>
+            <td><code>POST /auth/verify-phone</code> · <code>POST /auth/verify-student</code> —
+            <code>User.student_verified_at</code></td><td>MVP</td></tr>
+          <tr><td class="name">02</td><td>홈 — 카테고리 검색</td>
+            <td><code>GET /academies?genre&region&day</code> — 카카오 Local + pgvector 유사도</td>
+            <td>2단계</td></tr>
+          <tr><td class="name">03</td><td>학원 상세</td>
+            <td><code>GET /academies/{id}</code> — <code>Academy</code>·<code>ClassSchedule</code></td>
+            <td>MVP</td></tr>
+          <tr><td class="name">04</td><td>체크아웃 · 결제</td>
+            <td><code>POST /orders</code> (정가-대학생할인-쿠폰 계산 → PG 호출) — <code>Order</code></td>
+            <td>MVP</td></tr>
+          <tr><td class="name">05</td><td>캘린더 · 알람</td>
+            <td><code>GET /me/schedule</code> — expo-notifications + APScheduler 발송</td>
+            <td>2단계</td></tr>
+          <tr><td class="name">06</td><td>길찾기</td>
+            <td>카카오 Local 경로 API 그대로 프록시</td><td>3단계</td></tr>
+          <tr><td class="name">07</td><td>뉴스피드</td>
+            <td><code>GET /events?type=party|performance|competition</code> — <code>Event(bookable:bool)</code></td>
+            <td>2단계</td></tr>
+          <tr><td class="name">08</td><td>학원 공지</td>
+            <td><code>GET·POST /academies/{id}/notices</code> — <code>Notice</code></td>
+            <td>2단계</td></tr>
+          <tr><td class="name">09</td><td>마이 · 멤버십 관리</td>
+            <td><code>GET /me/subscription</code> · <code>GET /me/coupons</code> —
+            <code>Subscription</code>·<code>Coupon</code></td><td>4단계</td></tr>
+          <tr><td class="name">10</td><td>관리자 · 스케줄 입력</td>
+            <td><code>POST /admin/schedules</code> — <code>ClassSchedule</code> 직접 생성,
+            이미지는 오브젝트 스토리지에 선택 첨부</td><td>MVP</td></tr>
+          <tr><td class="name">11</td><td>관리자 · 미리보기</td>
+            <td><code>GET /admin/schedules/{id}/preview</code> — 게시 전 카드·캘린더
+            렌더링 확인</td>
+            <td>MVP</td></tr>
+          <tr><td class="name">12</td><td>관리자 · 정산 대시보드</td>
+            <td><code>GET /admin/settlements</code> — 쿠폰 사용 건수는 4단계에서 컬럼 추가</td>
+            <td>MVP (기본) / 4단계 (쿠폰 표기)</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p style="color:var(--text-dim); font-size:0.9rem; margin-top:14px;">
+      <b>MVP가 6개 화면(01·03·04·10·11·12)뿐인 이유</b> — "업로드→검토→게시→예약→결제→정산"
+      한 바퀴가 실제로 도는지가 이 앱 전체의 전제 조건이다. 검색·캘린더·피드·멤버십은
+      그 위에 얹는 것들이라, 먼저 확인 안 하면 나머지를 만들 근거가 없다.</p>
+  </section>
+
+  <!-- ================= 로드맵 ================= -->
+  <section>
+    <div class="section-head">
+      <span class="tag">Roadmap · 07</span>
+      <h2>베타 → 안정화 → 출시 순서</h2>
+      <p>정산 분배형 결제는 검토·계약에 시간이 걸리므로, <b>그 결정이 끝나기 전에 나머지
+      기능부터 검증</b>하는 순서로 짰다 — WORKFLOW 원칙과 같다: 선행이 걸린 항목은
+      그 결정이 닫히기 전에 착수하지 않는다.</p>
+    </div>
+
+    <div class="roadmap">
+      <div class="stage">
+        <div class="stage-num">1</div>
+        <div>
+          <h3>MVP — 관리자 스케줄 입력 + 예약·결제, 단일 학원 <span class="mono" style="font-size:0.75em; color:var(--text-faint);">(화면 01·03·04·10·11·12)</span></h3>
+          <p>이 앱의 핵심 흐름(입력→미리보기→게시)부터 먼저 검증한다.
+          결제는 정산 분배 없이 <b>학원이 직접 PG 가맹점을 갖는 단순 구조</b>로 시작 —
+          "스케줄 등록"과 "정산 분배"는 서로 다른 위험이라 한 번에 두 개를 안 건다.</p>
+          <span class="gate">완료 기준: 실제 스케줄 1건으로 입력→미리보기→게시→예약→결제까지 1회 성공</span>
+        </div>
+      </div>
+      <div class="stage">
+        <div class="stage-num">2</div>
+        <div>
+          <h3>검색 플래너 + 캘린더·알람·피드·공지 <span class="mono" style="font-size:0.75em; color:var(--text-faint);">(화면 02·05·07·08)</span></h3>
+          <p>장르·지역·시간대 기반 추천과 일정 캘린더, 수업 전 알람을 붙인다.
+          이 시점부터 pgvector 기반 선호 추천이 들어간다.</p>
+          <span class="gate">완료 기준: 알람이 실제 수신 시각에 도착하는지 실기기 확인</span>
+        </div>
+      </div>
+      <div class="stage">
+        <div class="stage-num">3</div>
+        <div>
+          <h3>경로 내비게이션 지도 <span class="mono" style="font-size:0.75em; color:var(--text-faint);">(화면 06)</span></h3>
+          <p>카카오 Local API로 학원 위치를 좌표화하고 경로를 그린다.</p>
+          <span class="gate">완료 기준: 실기기에서 도보·대중교통 경로 표시 확인</span>
+        </div>
+      </div>
+      <div class="stage">
+        <div class="stage-num">4</div>
+        <div>
+          <h3>정산 분배형 결제 + 멤버십·쿠폰으로 전환 <span class="mono" style="font-size:0.75em; color:var(--text-faint);">(화면 09, 12 쿠폰 표기)</span></h3>
+          <p>PG 계약·법적 검토가 끝난 뒤에만 착수. 여기서부터 진짜 "학원 대신 결제 +
+          수수료" 모델이 시작된다 — 3단계까지의 검증된 앱 위에 결제 구조만 교체한다.</p>
+          <span class="gate">선행 조건: PG 하위가맹점 계약 완료 + 컴플라이언스 확인</span>
+        </div>
+      </div>
+      <div class="stage">
+        <div class="stage-num">5</div>
+        <div>
+          <h3>베타테스트 → 스토어 정식 출시</h3>
+          <p>갤럭시 스토어 베타 트랙(또는 사내 테스트)으로 먼저 열고, strix 보안
+          점검을 통과한 뒤 갤럭시 스토어에 정식 제출한다.</p>
+          <span class="gate">완료 기준: strix 리포트 Critical 0건</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 무료 우선순위 가이드 ================= -->
+  <section>
+    <div class="section-head">
+      <span class="tag">Free · 08</span>
+      <h2>무료 우선순위 가이드</h2>
+      <p><b>원칙 — 이미 정한 것이 우선이다.</b> 아래 표는 기존 선택을 뒤집는 게 아니라,
+      "모두 무료로" 라는 조건 위에서 <b>더 나은 무료 대안이 있으면 그 이유와 같이</b>
+      보여주는 참고표다. 바꿀지는 각 항목의 이유를 보고 판단한다.</p>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>분류</th><th>기존 선택 (우선)</th><th>더 나은 무료 대안</th><th>추천 이유</th></tr></thead>
+        <tbody>
+          <tr>
+            <td class="name">채팅 AI</td>
+            <td>Qwen3.5 9B (Ollama, 로컬)</td>
+            <td>—</td>
+            <td>완전 무료·무제한, 이 노트북(8GB) 기준으로 이미 검증됨. 바꿀 이유 없음</td>
+          </tr>
+          <tr>
+            <td class="name">지도·위치</td>
+            <td>카카오 Local API</td>
+            <td>—</td>
+            <td>일 10만 건·월 300만 건 무료. 개인 개발자 단계에서 쓸 일 없는 수준으로 넉넉함</td>
+          </tr>
+          <tr>
+            <td class="name">임베딩</td>
+            <td>NVIDIA 원격 API</td>
+            <td><b>로컬 소형 임베딩 모델</b> (예: <code>nomic-embed-text</code>, Ollama)</td>
+            <td>NVIDIA는 "평생 무료"가 아니라 <b>가입 크레딧 최대 5,000개 한정</b>이라 언젠가
+            끊긴다. <code>nomic-embed-text</code>는 ~280MB로 아주 작아서 <code>qwen3.5:9b</code>와
+            8GB에서 같이 상주해도 여유가 있다 — 완전 무료·무제한이 된다. 단, mobydick과
+            달리 kdance는 벡터 차원 제약이 없으니 자유롭게 고를 수 있다</td>
+          </tr>
+          <tr>
+            <td class="name">오브젝트 스토리지</td>
+            <td>S3 호환 (업체 미정이었음)</td>
+            <td><b>MinIO(오픈소스, 셀프호스팅)</b> 1순위</td>
+            <td>내 디스크만 쓰니 용량 제한도 요금도 없음. 포스터 원본을 인터넷에 직접
+            노출해야 할 때만(예: 인스타 공유) Cloudflare R2 무료 티어로 승격 — 그 전까진
+            MinIO로 충분</td>
+          </tr>
+          <tr>
+            <td class="name">결제대행(PG)</td>
+            <td>포트원 / 토스페이먼츠</td>
+            <td>— (무료 대안 구조적으로 없음)</td>
+            <td>PG는 거래 수수료로 돈을 버는 업종이라 "무료 API" 자체가 존재하지 않는다.
+            다만 <b>월정액 없이 거래당 수수료만 받는 요금제</b>는 있어 — 매출이 없으면
+            비용도 0이다. "완전 무료"는 아니지만 "고정비 0"은 달성 가능</td>
+          </tr>
+          <tr>
+            <td class="name">배치·캐시</td>
+            <td>APScheduler · Redis</td>
+            <td>—</td>
+            <td>둘 다 오픈소스, Docker 셀프호스팅. 완전 무료</td>
+          </tr>
+          <tr>
+            <td class="name">푸시 알림</td>
+            <td>Expo Push / FCM</td>
+            <td>—</td>
+            <td>완전 무료. "1일 전 점심 1회·1시간 전 선택 알람"은 APScheduler가 발송
+            트리거를 만들고 Expo Push가 무료로 전달 — 추가 비용 없음</td>
+          </tr>
+          <tr>
+            <td class="name">배포 자동화</td>
+            <td>Fastlane</td>
+            <td>—</td>
+            <td>오픈소스 무료. 갤럭시 스토어(Samsung Seller Portal)는 등록비도
+            무료라 이 항목은 고정비 없음 — distribution-policy.md 참고</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p style="color:var(--text-dim); font-size:0.9rem; margin-top:14px; max-width:70ch;">
+      <b>진짜로 바꿀 가치가 있는 건 하나뿐이다</b> — 임베딩(NVIDIA 원격 → 로컬 소형 모델).
+      나머지는 이미 최선이거나, 구조적으로 무료가 안 되는 항목(PG)이라 그대로 둔다.</p>
+  </section>
+
+  <footer>
+    기준 캡처: 기존 프로젝트(mobydick) 기술 스택 카드 3장 · 작성 2026-09-13
+  </footer>
+
+</div>

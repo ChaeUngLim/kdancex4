@@ -1,7 +1,7 @@
 # Phase 2(기존 코드 구조 확인) — FastAPI → Next.js + Prisma 8 전환 코드 조사
 
 작성: 2026-09-20 · 담당: code-searcher
-입력: `_workspace/00_input/request.md` · `_workspace/01_req-analyst_requirements.md` · `docs/ai-coding-agent.html`
+입력: `_workspace/00_input/request.md` · `_workspace/01_req-analyst_requirements.md` · `docs/agent/ai-coding-agent.html`
 탐색 범위: `backend/`(읽기 전용, 수정 없음) · `admin-web/`
 근거 원칙: 실제 파일을 읽고 `파일:줄`로 댄다. 읽지 않은 것은 "못 찾았다"로 적는다.
 

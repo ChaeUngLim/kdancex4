@@ -33,9 +33,9 @@
 |---|---|---|
 | 2026-09-14 | admin-web 을 Vite 에서 Next.js(App Router)로 | `CLAUDE.md` Project Overview |
 | 2026-09-18 | OmniRoute 무료 모델은 Opus 소진 후 보조 채널로만 | `.claude/rules/core-rules.md` 「OmniRoute 무료 모델 사용 정책」 |
-| 2026-09-20 | 버전은 호환되는 선에서 최신 | `.claude/rules/core-rules.md` 「버전 정책」, `docs/kdancex4_service_definition_and_tech_stack.md` 「11. 기술 스택 고정표」 |
+| 2026-09-20 | 버전은 호환되는 선에서 최신 | `.claude/rules/core-rules.md` 「버전 정책」, `docs/planning/kdancex4_service_definition_and_tech_stack.md` 「11. 기술 스택 고정표」 |
 | 2026-09-20 | `CLAUDE.md` 를 git 으로 추적 | `CLAUDE.md` Memory System |
-| 2026-09-21 | 4계층(환경·명세·파이프라인·공구) 역할 정의 | `.claude/rules/core-rules.md` 「4계층 역할 정의」, `docs/role-split-analysis.md` |
+| 2026-09-21 | 4계층(환경·명세·파이프라인·공구) 역할 정의 | `.claude/rules/core-rules.md` 「4계층 역할 정의」, `docs/planning/role-split-analysis.md` |
 | 2026-09-21 | spec-kit 은 `/speckit-specify` 하나만 사용 | `.claude/rules/core-rules.md` 「spec-kit 과의 역할 분리」 |
 
 ---
@@ -121,8 +121,8 @@
     형식을 직접 내보낼지, Next.js 가 변환할지 확인하지 않았다
   - Python 쪽 패키지는 PyPI 조회만 했다. 설치해 보지 않았다
   - Prisma 8 계약과 Better Auth 인증 테이블의 관계(마이그레이션 충돌·`user` 외래키)
-- 관련: `docs/kdancex4_service_definition_and_tech_stack.md` 「11. 기술 스택 고정표」·
-  「11-3. 백엔드 교체」, `docs/kdance-beta-infra.html` 배포 구조도
+- 관련: `docs/planning/kdancex4_service_definition_and_tech_stack.md` 「11. 기술 스택 고정표」·
+  「11-3. 백엔드 교체」, `docs/guide/kdance-beta-infra.html` 배포 구조도
 
 ---
 
@@ -132,7 +132,7 @@
 - 맥락: ADR-002 는 Python 을 고른 근거를 "문서 처리(OCR·파싱)와 eval" 에 두고, 둘이 빠지면
   TS 안을 재검토한다고 적었다. 같은 날 두 가지가 실측됐다.
   ① Qwen 3.5 9B 가 비전 인코더를 품고 있어 포스터를 **OCR 없이 한 번의 호출로** 구조화한다
-  (합성 포스터 18/18, `docs/kdancex4_service_definition_and_tech_stack.md` 11-2 「Qwen 3.5 9B 비전 입력」·「Qwen 비전 서빙」).
+  (합성 포스터 18/18, `docs/planning/kdancex4_service_definition_and_tech_stack.md` 11-2 「Qwen 3.5 9B 비전 입력」·「Qwen 비전 서빙」).
   ② 그 호출을 **AI SDK 7 에서** 할 수 있다 — `@ai-sdk/openai-compatible` 3.0.55 +
   `supportsStructuredOutputs: true` 로 `json_schema` 가 전송되고 zod 검증까지 통과했다(18/18, 2회).
   남은 Python 의 몫(에이전트 추론·청킹·eval)은 전부 TS 로 된다.
@@ -151,7 +151,7 @@
   | 일 | 들어오는 길 | 나가는 길 |
   |---|---|---|
   | **T2 질문**(Search → Planner → Reviewer → Writer) | Next.js 가 Triage 로 T2 를 골라 `POST /runs` (사용자 ID·권한 범위를 담은 단기 토큰 동봉) | 도구 호출은 MCP 로 Next.js 에, 답은 스트림으로 Next.js 에 돌려주고 Next.js 가 `useChat` 으로 흘린다. 이관이 필요하면 **제안 이벤트**만 보낸다 |
-  | **포스터 읽기** | Next.js 가 원본을 R2 에 올리고 작업을 큐(기존 `kdance-redis`)에 넣는다. 에이전트 워커가 **동시 1건**으로 꺼낸다 | Qwen 비전 + `Output.object`(zod) → 결과를 Next.js 내부 API 로 돌려준다. Next.js 는 「확인 대기」로 저장하고, **업주가 확인해야** 수업으로 확정된다 |
+  | **포스터 읽기** | Next.js 가 원본을 R2 에 올리고 작업을 큐(기존 `kdance-redis`)에 넣는다. 에이전트 워커가 **동시 1건**으로 꺼낸다 | Qwen 비전 + `Output.object`(zod) → 결과를 Next.js 내부 API 로 돌려준다. Next.js 는 「확인 대기」로 저장하고, **대표가 확인해야** 수업으로 확정된다 |
   | **임베딩 계산** | Next.js 가 저장 직전에 `POST /embeddings` (동기, 짧다) | 벡터를 돌려주면 Next.js 가 원본과 한 트랜잭션으로 기록한다 |
 
 - 구현 규칙(실측에서 나온 것):
@@ -159,7 +159,7 @@
      빠진 `json_object` 만 가서 마크다운이 돌아온다(실측)
   2. 형식(날짜·시각·금액)은 **프롬프트로 유도하고 zod `regex` 로 검증**한다. llama-server 는
      JSON schema 의 `pattern` 을 생성 때 강제하지 않는다(실측) — zod 가 막아야 틀린 값이 안 들어간다
-  3. 검증 실패는 1회 재시도, 그래도 실패하면 업주 직접 입력으로 넘긴다
+  3. 검증 실패는 1회 재시도, 그래도 실패하면 대표 직접 입력으로 넘긴다
   4. 체크포인터는 베타에서 메모리(`MemorySaver`). DB 에 접속하지 않는다
 - 버린 대안:
   - **Python 에이전트 서버(ADR-002)** — 근거였던 OCR·문서 처리가 비전 호출 1회로 바뀌었다.
@@ -171,7 +171,7 @@
 - 대가:
   - LangGraph 출력을 `useChat` 스트림으로 바꾸는 `@ai-sdk/langchain` 은 `ai` 를 **정확한 번호**로
     고정한다(3.0.113 → `ai` 7.0.113). 쓰게 되면 `ai` 와 함께 올려야 한다
-  - VLM 은 틀릴 때 그럴듯하게 틀린다 — 업주 확인 단계를 빼지 않는다
+  - VLM 은 틀릴 때 그럴듯하게 틀린다 — 대표 확인 단계를 빼지 않는다
 - 미확인:
   - 실제 사진 포스터의 정확도(합성 1장만 쟀다)
   - LangGraph JS → AI SDK UI 스트림 연결을 돌려 보지 않았다
@@ -209,7 +209,7 @@
   | DB 쓰기는 Next.js 하나, 에이전트는 MCP 도구로만 읽는다 | Hono → **FastAPI** + uvicorn |
   | 모델을 부르는 곳은 에이전트 서버 하나 | LangGraph JS → **LangGraph(Python)** |
   | 하는 일 3가지: T2 추론 · 포스터 읽기 · 임베딩·리랭크 호출 | AI SDK(openai-compatible) → **langchain-openai / openai** |
-  | 포스터는 Qwen 비전 1회 호출(OCR 없음), 업주 확인 후 확정 | zod → **pydantic**(에이전트 쪽). 계약은 JSON Schema 로 맞춘다 |
+  | 포스터는 Qwen 비전 1회 호출(OCR 없음), 대표 확인 후 확정 | zod → **pydantic**(에이전트 쪽). 계약은 JSON Schema 로 맞춘다 |
   | 임베딩·리랭커는 개발·베타 NVIDIA 호스팅 | 큐 BullMQ(Node 전용) → **Redis Streams**(언어 중립) |
 
 - 판단 근거:
@@ -231,7 +231,7 @@
 - 구현 규칙 (ADR-003 실측을 Python 으로 옮긴 것):
   1. llama-server 에는 `response_format` 을 **`json_schema`** 로 보낸다. `json_object` 만 보내면 코드블록·마크다운이 온다(실측)
   2. 형식(날짜·시각·금액)은 프롬프트로 유도하고 **pydantic 으로 검증**한다. llama-server 는 schema 의 `pattern` 을 생성 때 강제하지 않는다(실측)
-  3. 검증 실패는 1회 재시도, 그래도 실패하면 업주 직접 입력
+  3. 검증 실패는 1회 재시도, 그래도 실패하면 대표 직접 입력
   4. 임베딩은 `query: `·`passage: ` 접두어, 리랭커는 NVIDIA 호스팅 형식(`query.text`, `passages[].text`)
   5. 체크포인터는 베타에서 메모리. DB 에 접속하지 않는다
   6. 리랭커 실패 → 벡터 순위, 임베딩 실패 → SQL 조건 검색으로 물러선다

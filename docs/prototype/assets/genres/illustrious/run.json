@@ -1,0 +1,14 @@
+{
+  "run": "illustrious-clean2",
+  "style": "bebop_cast",
+  "models": [
+    "local-illustrious"
+  ],
+  "genres": [
+    "dancesport",
+    "tango",
+    "swing",
+    "salsa_bachata"
+  ],
+  "started": "2026-10-02T22:26:18"
+}

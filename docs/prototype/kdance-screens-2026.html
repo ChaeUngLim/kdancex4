@@ -1,0 +1,527 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>K-DanceX4 화면 시나리오 보드 (2026-09-30)</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800&family=Noto+Sans+KR:wght@400;500;600;700;800&display=swap">
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+<style>
+/* ── 디자인 토큰 ─────────────────────────────────────────── */
+:root{
+  --bg:#F4F1EC; --surface:#FFFFFF; --surface-2:#F8F6F2; --line:#E8E2DA; --line-2:#D9D1C6;
+  --ink:#141216; --ink-2:#4E4853; --ink-3:#8B8490;
+  --flame:#E4482B; --flame-soft:#FCE9E4; --flame-fg:#FFFFFF;
+  --ok:#1E7A4C; --ok-soft:#E1F3E8; --warn:#A8620A; --warn-soft:#FBEFD8; --info:#3452B5; --info-soft:#E6EAFB;
+  --night:#17151B; --night-2:#211E26; --night-line:#2E2A35; --night-fg:#F3EFEA; --night-fg-2:#A9A2AF;
+  --g-dsp:#B4232B; --g-tango:#C4711B; --g-swing:#D99A1E; --g-salsa:#D63A7C;
+  --display:"Geist","Noto Sans KR",system-ui,sans-serif; --body:"Noto Sans KR","Geist",system-ui,sans-serif;
+  --r-xl:28px; --r-lg:20px; --r-md:14px; --r-sm:10px; --r-pill:999px;
+  --shadow:0 1px 2px rgba(20,18,22,.05),0 12px 32px -16px rgba(20,18,22,.22);
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:#EAE6DF;color:var(--ink);font-family:var(--body);font-size:14px;line-height:1.45;-webkit-font-smoothing:antialiased}
+h1,h2,h3,h4{margin:0;font-family:var(--display);letter-spacing:-.02em}
+p{margin:0}
+.board{padding:64px}
+.section{margin-bottom:96px}
+.section-head{display:flex;align-items:baseline;gap:16px;margin-bottom:28px}
+.section-head h1{font-size:36px;font-weight:800}
+.section-head p{color:var(--ink-2);font-size:15px}
+.row{display:flex;flex-wrap:wrap;gap:48px 40px;align-items:flex-start}
+.frame-wrap{display:flex;flex-direction:column;gap:12px}
+.frame-label{font-family:var(--display);font-size:13px;font-weight:600;color:var(--ink-2);display:flex;gap:8px;align-items:center}
+.frame-label b{display:inline-flex;align-items:center;justify-content:center;min-width:28px;height:22px;padding:0 8px;border-radius:6px;background:var(--ink);color:#fff;font-size:11px}
+.frame-label small{color:var(--ink-3);font-weight:500}
+
+/* ── 폰 프레임 390×844 ───────────────────────────────────── */
+.phone{width:390px;height:844px;background:var(--bg);border-radius:0;overflow:hidden;position:relative;display:flex;flex-direction:column;box-shadow:var(--shadow)}
+.phone.dark{background:var(--night);color:var(--night-fg)}
+.status{height:54px;display:flex;align-items:flex-end;justify-content:space-between;padding:0 24px 8px;font-family:var(--display);font-weight:600;font-size:15px}
+.status .icons{display:flex;gap:6px;align-items:center}
+.status .sig{width:18px;height:11px;border-radius:2px;background:currentColor;opacity:.9}
+.status .bat{width:26px;height:12px;border-radius:4px;border:1.5px solid currentColor;position:relative}
+.status .bat::after{content:"";position:absolute;left:2px;top:2px;bottom:2px;width:16px;border-radius:2px;background:currentColor}
+.screen{flex:1;overflow:hidden;display:flex;flex-direction:column;padding:0 20px}
+.topnav{display:flex;align-items:center;gap:12px;height:52px}
+.topnav .back{width:36px;height:36px;border-radius:12px;background:var(--surface);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:16px}
+.topnav h3{font-size:17px;font-weight:700;flex:1}
+.topnav .step{font-family:var(--display);font-size:12px;color:var(--ink-3);font-weight:600}
+.tabbar{height:84px;border-top:1px solid var(--line);background:var(--surface);display:flex;padding:10px 12px 22px}
+.tabbar div{flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;font-size:11px;color:var(--ink-3);font-weight:500}
+.tabbar div i{width:24px;height:24px;border-radius:8px;background:var(--line);display:block}
+.tabbar div.on{color:var(--ink);font-weight:700}
+.tabbar div.on i{background:var(--ink)}
+.tabbar div.ai i{background:linear-gradient(135deg,var(--flame),#F5A25A)}
+.h1{font-size:28px;font-weight:800;line-height:1.2;letter-spacing:-.03em}
+.h2{font-size:20px;font-weight:700;line-height:1.25}
+.sub{color:var(--ink-2);font-size:14px;line-height:1.5}
+.tiny{font-size:11px;color:var(--ink-3);font-weight:500;letter-spacing:.02em}
+.eyebrow{font-family:var(--display);font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--flame)}
+.stack{display:flex;flex-direction:column;gap:12px}
+.hstack{display:flex;align-items:center;gap:10px}
+.between{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.grow{flex:1}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);padding:16px}
+.card.night{background:var(--night);color:var(--night-fg);border-color:var(--night)}
+.card.soft{background:var(--surface-2)}
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;height:54px;border-radius:var(--r-md);font-weight:700;font-size:15px;background:var(--ink);color:#fff}
+.btn.flame{background:var(--flame)}
+.btn.ghost{background:var(--surface);border:1px solid var(--line-2);color:var(--ink)}
+.btn.sm{height:40px;font-size:13px;border-radius:12px;padding:0 14px}
+.btn.disabled{background:var(--line);color:var(--ink-3)}
+.chip{display:inline-flex;align-items:center;gap:6px;height:34px;padding:0 13px;border-radius:var(--r-pill);border:1px solid var(--line-2);background:var(--surface);font-size:13px;font-weight:600;color:var(--ink-2)}
+.chip.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.chip.flame{background:var(--flame-soft);color:var(--flame);border-color:transparent}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.tag{display:inline-flex;align-items:center;height:22px;padding:0 8px;border-radius:7px;font-size:11px;font-weight:700;white-space:nowrap}
+.tag.ok{background:var(--ok-soft);color:var(--ok)} .tag.warn{background:var(--warn-soft);color:var(--warn)} .tag.info{background:var(--info-soft);color:var(--info)} .tag.flame{background:var(--flame-soft);color:var(--flame)} .tag.ink{background:var(--ink);color:#fff}
+.field{display:flex;flex-direction:column;gap:6px}
+.field label{font-size:12px;font-weight:700;color:var(--ink-2)}
+.input{height:50px;border-radius:var(--r-md);border:1px solid var(--line-2);background:var(--surface);padding:0 14px;display:flex;align-items:center;justify-content:space-between;font-size:15px}
+.input .ph{color:var(--ink-3)}
+.avatar{width:40px;height:40px;border-radius:14px;background:linear-gradient(135deg,#F2C9B8,#E4482B);flex:none}
+.avatar.sq{border-radius:12px}
+.divider{height:1px;background:var(--line)}
+.seat{display:flex;flex-direction:column;gap:6px}
+.seat .bar{height:8px;border-radius:99px;background:var(--line);overflow:hidden;display:flex}
+.seat .bar i{display:block;height:100%;background:var(--ink)}
+.seat .bar i.full{background:var(--flame)}
+.kpi{display:flex;flex-direction:column;gap:4px}
+.kpi b{font-family:var(--display);font-size:26px;font-weight:800;letter-spacing:-.03em;line-height:1}
+.kpi span{font-size:12px;color:var(--ink-3);font-weight:500}
+.num{font-family:var(--display);font-variant-numeric:tabular-nums}
+.toggle{width:44px;height:26px;border-radius:99px;background:var(--line-2);position:relative;flex:none}
+.toggle::after{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff}
+.toggle.on{background:var(--ok)} .toggle.on::after{left:21px}
+.check{width:22px;height:22px;border-radius:50%;border:2px solid #fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#fff;flex:none}
+.check.on{background:var(--flame);border-color:var(--flame)}
+.radio{width:22px;height:22px;border-radius:50%;border:2px solid var(--line-2);flex:none}
+.radio.on{border:7px solid var(--ink)}
+
+/* ── 장르 카드 (직사각형 사진 카드) ───────────────────────── */
+.gcard{position:relative;height:150px;border-radius:var(--r-lg);overflow:hidden;background:#222;color:#fff;display:flex;flex-direction:column;justify-content:flex-end;padding:14px 16px;border:2px solid transparent}
+.gcard img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.gcard .ov{position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,0) 30%,rgba(0,0,0,.72) 100%)}
+.gcard .t{position:relative;display:flex;align-items:flex-end;justify-content:space-between;gap:10px}
+.gcard h4{font-size:18px;font-weight:800;letter-spacing:-.02em}
+.gcard p{font-size:12px;opacity:.9;margin-top:2px}
+.gcard.on{border-color:var(--flame);box-shadow:0 0 0 3px rgba(228,72,43,.25)}
+.gcard.tall{height:236px}
+.gsq{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.gsq .gcard{height:auto;aspect-ratio:1/1;padding:12px 13px}
+.gsq .gcard h4{font-size:16px}
+.gsq .gcard p{font-size:11px;line-height:1.35}
+.gsq .gcard .check{width:20px;height:20px;font-size:12px}
+.gsq4 .gcard{height:auto;aspect-ratio:1/1}
+.chips.nowrap{flex-wrap:nowrap;overflow:hidden}
+.gcard.hero{height:100%;border-radius:0;border:0;padding:0}
+.gcard .pill{position:relative;display:inline-flex;height:24px;align-items:center;padding:0 9px;border-radius:99px;background:rgba(255,255,255,.18);font-size:11px;font-weight:700;margin-bottom:8px;width:max-content}
+
+/* ── 순위판 ─────────────────────────────────────────────── */
+.rank{display:flex;align-items:center;gap:12px;height:44px}
+.rank b{font-family:var(--display);width:22px;font-size:15px;font-weight:800;color:var(--ink-3)}
+.rank b.top{color:var(--flame)}
+.rank .n{flex:1;font-weight:600;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rank .n small{color:var(--night-fg-2);font-weight:500;margin-left:6px}
+.rank .d{font-family:var(--display);font-size:12px;font-weight:700}
+.rank .d.up{color:#6FD59A} .rank .d.dn{color:var(--night-fg-2)}
+
+/* ── AI 에이전트 카드 ───────────────────────────────────── */
+.bubble{max-width:86%;padding:12px 14px;border-radius:18px;font-size:14px;line-height:1.5}
+.bubble.me{align-self:flex-end;background:var(--ink);color:#fff;border-bottom-right-radius:6px}
+.agent{border-radius:16px;border:1px solid var(--line);background:var(--surface);padding:12px 14px;display:flex;gap:12px;align-items:flex-start}
+.agent i{width:34px;height:34px;border-radius:11px;flex:none;display:flex;align-items:center;justify-content:center;font-size:15px;font-style:normal}
+.agent b{font-size:13px;display:block}
+.agent p{font-size:12px;color:var(--ink-2);margin-top:3px;line-height:1.45}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--ok);display:inline-block}
+
+/* ── 웹 프레임 1280×832 ─────────────────────────────────── */
+.web{width:1280px;height:832px;background:var(--bg);display:flex;overflow:hidden;box-shadow:var(--shadow)}
+.side{width:236px;background:var(--night);color:var(--night-fg);padding:22px 16px;display:flex;flex-direction:column;gap:6px}
+.side .brand{display:flex;align-items:center;gap:10px;font-family:var(--display);font-weight:800;font-size:16px;padding:6px 8px 18px}
+.side .brand i{width:28px;height:28px;border-radius:9px;background:var(--flame);display:block}
+.side a{display:flex;align-items:center;gap:10px;height:40px;padding:0 12px;border-radius:12px;color:var(--night-fg-2);font-weight:600;font-size:14px}
+.side a.on{background:var(--night-2);color:#fff}
+.side a i{width:18px;height:18px;border-radius:6px;background:currentColor;opacity:.5}
+.side .who{margin-top:auto;display:flex;gap:10px;align-items:center;padding:12px;border-radius:14px;background:var(--night-2)}
+.side .who small{display:block;color:var(--night-fg-2);font-size:11px}
+.main{flex:1;padding:28px 32px;display:flex;flex-direction:column;gap:20px;overflow:hidden}
+.main .head{display:flex;align-items:flex-end;justify-content:space-between}
+.main .head h2{font-size:26px;font-weight:800}
+.grid{display:grid;gap:16px}
+.g4{grid-template-columns:repeat(4,1fr)} .g3{grid-template-columns:repeat(3,1fr)} .g2{grid-template-columns:1fr 1fr} .g21{grid-template-columns:2fr 1fr} .g12{grid-template-columns:1fr 2fr}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;color:var(--ink-3);font-weight:600;font-size:12px;padding:8px 10px;border-bottom:1px solid var(--line)}
+td{padding:11px 10px;border-bottom:1px solid var(--line);vertical-align:middle;white-space:nowrap}
+td.r,th.r{text-align:right}
+.poster{border-radius:16px;background:linear-gradient(160deg,#2B1B3D,#E4482B 70%,#F5A25A);height:100%;min-height:520px;position:relative;color:#fff;padding:26px;display:flex;flex-direction:column;justify-content:space-between}
+.poster .big{font-family:var(--display);font-size:44px;font-weight:800;line-height:1;letter-spacing:-.03em}
+.poster .box{position:absolute;border:2px solid #7CF3B4;border-radius:6px;background:rgba(124,243,180,.12)}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;text-align:center;font-family:var(--display);font-size:13px}
+.cal div{height:40px;display:flex;align-items:center;justify-content:center;border-radius:10px;font-weight:600;color:var(--ink-2);position:relative}
+.cal div.h{color:var(--ink-3);font-size:11px;height:24px}
+.cal div.ev::after{content:"";position:absolute;bottom:5px;width:5px;height:5px;border-radius:50%;background:var(--flame)}
+.cal div.on{background:var(--ink);color:#fff}
+.cal div.mute{color:var(--line-2)}
+.swatch{display:flex;flex-direction:column;gap:8px;width:120px}
+.swatch i{display:block;height:72px;border-radius:16px;border:1px solid rgba(0,0,0,.06)}
+.swatch b{font-family:var(--display);font-size:12px}
+.swatch span{font-size:11px;color:var(--ink-3);font-family:var(--display)}
+.type-row{display:flex;align-items:baseline;gap:18px}
+.type-row small{width:110px;color:var(--ink-3);font-family:var(--display);font-size:12px;flex:none}
+</style>
+</head>
+<body>
+<div class="board" id="board"></div>
+<script>
+/* ── 데이터: 장르 4종 (docs/policy/genre-taxonomy-policy.md · FR-020 · FR-021) ── */
+const G=[
+// 장르 카드 그림(2026-10-02 심야 채택, 캐릭터 태그판): 「천국의 문」 등장인물을 Danbooru 캐릭터 태그로 로컬 Illustrious XL 2.0(RTX 4060, 무료)에서 생성. 댄스스포츠·스윙 = 스파이크 + 페이,
+// 탱고 = 비셔스 + 줄리아, 살사/바차타 = 빈센트 + 일렉트라. 원본은 assets/genres/illustrious/, 현재 자리(assets/genres/*.jpg)에 복사해 둠.
+// 실제 작품의 캐릭터라 내부 프로토타입 전용 — 배포 앱에는 못 쓴다. 생성: gen_genre_multi.py --style bebop_cast --model local-illustrious --no-label --out-dir assets/genres/illustrious
+ {k:"dsp",  name:"댄스스포츠",     desc:"라틴 5종 · 스탠다드 5종. 파트너와 배우는 정통 커플 댄스", img:"assets/genres/dancesport.jpg",    c:"var(--g-dsp)"},
+ {k:"tango",name:"아르헨티나 탱고", desc:"밀롱가에서 즉흥으로 이어 가는 안기의 춤",              img:"assets/genres/tango.jpg",         c:"var(--g-tango)"},
+ {k:"swing",name:"스윙댄스",       desc:"재즈에 맞춰 뛰노는 린디합·찰스턴",                    img:"assets/genres/swing.jpg",         c:"var(--g-swing)"},
+ {k:"salsa",name:"살사/바차타",    desc:"라틴 클럽의 밤을 채우는 두 리듬",                     img:"assets/genres/salsa_bachata.jpg", c:"var(--g-salsa)"},
+];
+
+/* ── 공용 조각 ── */
+const status=()=>`<div class="status"><span>9:41</span><span class="icons"><i class="sig"></i><i class="bat"></i></span></div>`;
+const tabbar=(on)=>`<div class="tabbar">${["홈","검색","AI 플래너","캘린더","마이"].map(t=>`<div class="${t===on?"on":""} ${t==="AI 플래너"?"ai":""}"><i></i>${t}</div>`).join("")}</div>`;
+const topnav=(t,step)=>`<div class="topnav"><div class="back">‹</div><h3>${t}</h3>${step?`<span class="step">${step}</span>`:""}</div>`;
+const phone=(inner,opt={})=>`<div class="phone ${opt.dark?"dark":""}">${status()}<div class="screen">${inner}</div>${opt.tab?tabbar(opt.tab):""}</div>`;
+const frame=(no,title,note,inner)=>`<div class="frame-wrap"><div class="frame-label"><b>${no}</b>${title}${note?`<small>· ${note}</small>`:""}</div>${inner}</div>`;
+const gcard=(g,on,extra="")=>`<div class="gcard ${on?"on":""} ${extra}"><img src="${g.img}" alt=""><div class="ov"></div><div class="t"><div><h4>${g.name}</h4><p>${g.desc}</p></div><span class="check ${on?"on":""}">${on?"✓":""}</span></div></div>`;
+const seat=(label,m,mt,f,ft)=>`<div class="seat"><div class="between"><span class="tiny">${label}</span><span class="tiny num">남 ${m}/${mt} · 여 ${f}/${ft}</span></div><div class="bar"><i style="width:${(m/(mt+ft))*100}%"></i><i class="${f===ft?"full":""}" style="width:${(f/(mt+ft))*100}%;margin-left:2px"></i></div></div>`;
+const rank=(i,n,a,d,cls)=>`<div class="rank"><b class="${i<=3?"top":""}">${i}</b><span class="n">${n}<small>${a}</small></span><span class="d ${cls}">${d}</span></div>`;
+const classCard=(o)=>`<div class="card"><div class="hstack" style="align-items:flex-start"><div class="avatar sq" style="background:${o.c}"></div><div class="grow"><div class="between"><b style="font-size:15px">${o.name}</b>${o.tag||""}</div><div class="tiny" style="margin-top:2px">${o.academy} · ${o.time}</div></div></div><div style="margin-top:12px">${seat("정원",o.m,o.mt,o.f,o.ft)}</div><div class="between" style="margin-top:12px"><span class="num" style="font-weight:800;font-size:16px">${o.price}<span class="tiny" style="font-weight:600">/월</span></span><span class="tiny">${o.why}</span></div></div>`;
+
+/* ── 회원 앱 화면 ── */
+const M={};
+M.login=phone(`<div class="gcard hero" style="margin:0 -20px;flex:1"><img src="assets/genres/salsa_bachata.jpg" alt=""><div class="ov" style="background:linear-gradient(180deg,rgba(23,21,27,.05) 20%,rgba(23,21,27,.92) 70%)"></div>
+ <div class="t" style="position:absolute;left:24px;right:24px;bottom:28px;display:block">
+  <div class="pill">소셜댄스 결제 · 멀티 AI 플래너</div>
+  <h1 class="h1" style="font-size:38px;color:#fff">오늘 밤,<br>어떤 춤을 출까요?</h1>
+  <p style="color:rgba(255,255,255,.8);margin:12px 0 22px;font-size:14px">장르를 고르면 강남·홍대·잠실의 수업과 파티를 AI 가 대신 찾아 줍니다.</p>
+  <div class="stack">
+   <div class="btn" style="background:#FEE500;color:#191600">카카오로 시작하기</div>
+   <div class="btn" style="background:#fff;color:#111">Google 로 시작하기</div>
+   <div class="btn" style="background:#03C75A;color:#fff">네이버로 시작하기</div>
+  </div>
+  <p class="tiny" style="color:rgba(255,255,255,.55);text-align:center;margin-top:14px">가입 뒤에만 이용할 수 있어요 · 만 14세 미만은 보호자 계정에서 자녀로 등록</p>
+ </div></div>`,{dark:true});
+
+M.verify=phone(`${topnav("휴대폰 본인확인","1 / 4")}
+ <div class="stack" style="margin-top:10px">
+  <h2 class="h1">본인확인 한 번이면<br>한 사람 한 계정</h2>
+  <p class="sub">본인확인 기관의 연계정보(CI)와 휴대폰 번호로 중복 가입을 막아요. 주민등록번호는 받지 않습니다.</p>
+  <div class="card stack" style="margin-top:8px">
+   <div class="field"><label>통신사</label><div class="input"><span>SKT</span><span class="tiny">변경</span></div></div>
+   <div class="field"><label>휴대폰 번호</label><div class="input"><span class="num">010-4821-3390</span><span class="tag ok">인증 완료</span></div></div>
+   <div class="field"><label>이름</label><div class="input"><span>김서연</span></div></div>
+  </div>
+  <div class="card soft"><div class="between"><div><b style="font-size:14px">성별은 본인확인 결과로 자동 체크돼요</b><p class="tiny" style="margin-top:3px">수강 신청의 기본 자리가 되고, 신청 때마다 바꿀 수 있어요</p></div><span class="tag ink">여</span></div></div>
+ </div>
+ <div class="grow"></div>
+ <div class="btn flame" style="margin-bottom:20px">다음 · 가입 정보</div>`);
+
+M.profile=phone(`${topnav("가입 정보","2 / 4")}
+ <div class="stack" style="margin-top:6px">
+  <h2 class="h2">필수 3가지만 받아요</h2>
+  <p class="sub">나이·성별·연락처는 필수예요. 각 항목을 왜 받는지 아래에 적어 뒀어요.</p>
+  <div class="card stack">
+   <div class="field"><label>생년 <span class="tiny">· 미성년자 결제 보호에 씁니다</span></label><div class="input"><span class="num">1999</span></div></div>
+   <div class="field"><label>성별 <span class="tiny">· 남·여 정원 배정에 씁니다</span></label><div class="hstack"><span class="chip">남</span><span class="chip on">여 · 자동 체크</span></div></div>
+   <div class="field"><label>연락처 <span class="tiny">· 예약 확정·환불 알림에 씁니다</span></label><div class="input"><span class="num">010-4821-3390</span><span class="tag ok">본인확인</span></div></div>
+  </div>
+  <div class="card stack" style="gap:10px">
+   <div class="between"><span style="font-weight:700">대학생이에요 <span class="tiny">선택</span></span><span class="toggle on"></span></div>
+   <div class="input"><span class="ph">학교 이메일 (.ac.kr)</span><span class="tiny">나중에</span></div>
+   <p class="tiny">인증하면 <b>최초 첫 결제 1회 50% 할인</b>이 자동으로 붙어요. 마이 화면에서도 할 수 있어요.</p>
+  </div>
+ </div>
+ <div class="grow"></div>
+ <div class="btn flame" style="margin-bottom:20px">다음 · 관심 장르</div>`);
+
+M.interest=phone(`${topnav("관심 장르","3 / 4")}
+ <div class="stack" style="gap:10px">
+  <h2 class="h1">어떤 춤에 끌리세요?</h2>
+  <p class="sub">여러 개 골라도 돼요 · 추천에만 쓰이고 언제든 바꿀 수 있어요</p>
+  <div class="gsq" style="margin-top:6px">
+   ${gcard(G[0],false)}${gcard(G[1],true)}${gcard(G[2],false)}${gcard(G[3],true)}
+  </div>
+ </div>
+ <div class="card soft" style="margin-top:12px;padding:12px 14px"><div class="hstack" style="align-items:flex-start"><span class="tag flame">추천용</span><p class="tiny" style="font-weight:500">고른 장르로 수업·파티를 추천해요. 메인에서 볼 기준 장르는 가입이 끝난 뒤 따로 하나 골라요.</p></div></div>
+ <div class="grow"></div>
+ <div class="between" style="margin-bottom:20px"><span class="tiny">2개 선택 · 아르헨티나 탱고, 살사/바차타</span><div class="btn flame sm" style="width:150px">다음 · 세부 장르</div></div>`);
+
+M.subgenre=phone(`${topnav("세부 장르 · 지역 · 시간","4 / 4")}
+ <div class="stack" style="gap:14px">
+  <div><h2 class="h2">더 좁혀 볼까요?</h2><p class="sub">전부 선택 항목이에요. 추천순 정렬에만 쓰여요.</p></div>
+  <div class="stack" style="gap:8px"><span class="tiny">살사/바차타 · 세부 장르</span><div class="chips"><span class="chip on">살사</span><span class="chip on">바차타</span></div></div>
+  <div class="stack" style="gap:8px"><span class="tiny">아르헨티나 탱고</span><p class="tiny" style="font-weight:500">세부 장르 구분 없이 진행돼요</p></div>
+  <div class="divider"></div>
+  <div class="stack" style="gap:8px"><span class="tiny">활동 지역 · 시·구 여러 개</span><div class="chips"><span class="chip on">강남구</span><span class="chip on">서초구</span><span class="chip">마포구</span><span class="chip">송파구</span><span class="chip">+ 추가</span></div></div>
+  <div class="stack" style="gap:8px"><span class="tiny">활동 가능 시간대</span><div class="hstack"><div class="input grow"><span class="tiny">부터</span><span class="num">19:00</span></div><div class="input grow"><span class="tiny">까지</span><span class="num">22:30</span></div></div><div class="chips"><span class="chip on">평일 저녁</span><span class="chip">토 오전</span><span class="chip">일 오후</span></div></div>
+  <div class="stack" style="gap:8px"><span class="tiny">경험 · 이동 가능 거리</span><div class="chips"><span class="chip on">입문</span><span class="chip">초급</span><span class="chip">중급</span><span class="chip on">5km 이내</span></div></div>
+ </div>
+ <div class="grow"></div>
+ <div class="btn flame" style="margin-bottom:20px">가입 완료</div>`);
+
+M.pick=phone(`<div class="stack" style="gap:10px;margin-top:8px">
+  <span class="eyebrow">시작하기</span>
+  <h2 class="h1">메인에서 어떤 춤을<br>먼저 볼까요?</h2>
+  <p class="sub">하나만 골라요. 다음에 들어와도 유지되고, 메인에서 언제든 바꿀 수 있어요.</p>
+  <div class="gsq" style="margin-top:6px">
+   ${gcard(G[0],false)}${gcard(G[1],false)}${gcard(G[2],false)}${gcard(G[3],true)}
+  </div>
+ </div>
+ <div class="grow"></div>
+ <div class="btn flame" style="margin-bottom:20px">살사/바차타로 시작</div>`);
+
+M.home=phone(`<div class="between" style="height:52px">
+  <div><span class="tiny">기준 장르 · 강남구 외 1</span><div class="hstack" style="gap:6px"><h3 style="font-size:20px;font-weight:800">살사/바차타</h3><span class="chip" style="height:26px;padding:0 9px;font-size:11px">전환 ⇅</span></div></div>
+  <div class="avatar"></div></div>
+ <div class="input" style="height:48px;border-radius:16px;margin-top:6px"><span class="ph">화요일 저녁 초급 바차타 · 강남</span><span class="tag flame">AI</span></div>
+ <div class="chips nowrap" style="margin-top:10px"><span class="chip on">추천순</span><span class="chip">검색순</span><span class="chip">인기순</span><span class="chip">마감 임박</span><span class="chip">잔여석</span></div>
+ <div class="card night" style="margin-top:14px;padding:14px 16px">
+  <div class="between"><div><b style="font-size:14px">실시간 인기 수업 TOP 10</b><p class="tiny" style="color:var(--night-fg-2)">검색 조회수 기준 · 최근 24시간 · 살사/바차타</p></div><span class="tag" style="background:var(--flame);color:#fff">LIVE</span></div>
+  <div class="hstack" style="margin:12px 0 6px;padding:10px 12px;border-radius:12px;background:var(--night-2)"><span class="tag flame">신규 학원</span><b class="grow" style="font-size:13px">살사홀릭 강남</b><span class="tiny" style="color:var(--night-fg-2)">10초마다 순환</span></div>
+  ${rank(1,"바차타 센슈얼 입문","라틴하우스 강남","▲ 2","up")}${rank(2,"살사 온투 기초","살사홀릭 강남","—","dn")}${rank(3,"바차타 커플반","댄스랩 서초","▲ 5","up")}${rank(4,"살사 슈퍼초급","엘 리트모","▼ 1","dn")}
+  <div class="between" style="margin-top:8px"><span class="tiny" style="color:var(--night-fg-2)">5~10위 더 보기</span><span class="tiny" style="color:#fff;font-weight:700">1+1 참여학원 12곳 ›</span></div>
+ </div>
+ <div class="between" style="margin-top:16px"><b style="font-size:15px">서연 님께 추천</b><span class="tiny">왜 추천됐는지 보기</span></div>
+ <div class="stack" style="margin-top:10px">
+  ${classCard({name:"바차타 센슈얼 입문",academy:"라틴하우스 강남",time:"화 20:00–21:00",m:5,mt:6,f:6,ft:6,price:"180,000원",c:"var(--g-salsa)",tag:`<span class="tag ok">1+1</span>`,why:"선호 장르 · 2.1km · 평일 저녁"})}
+ </div>`,{tab:"홈"});
+
+M.detail=phone(`<div class="gcard tall" style="margin:0 -20px;border-radius:0;border:0;height:250px;flex:none"><img src="assets/genres/salsa_bachata.jpg" alt=""><div class="ov"></div>
+  <div class="topnav" style="position:absolute;top:0;left:20px;right:20px;color:#fff"><div class="back" style="background:rgba(255,255,255,.18);border:0;color:#fff">‹</div><div class="grow"></div><span class="tag" style="background:rgba(255,255,255,.18);color:#fff">1+1 참여 학원</span></div>
+  <div class="t" style="display:block;padding:0 4px"><span class="pill">살사/바차타 · 바차타 · 입문</span><h4 style="font-size:24px">바차타 센슈얼 입문</h4><p>라틴하우스 강남 · 강사 박지훈 · 화 20:00–21:00 · 10월 시작</p></div></div>
+ <div class="stack" style="margin-top:14px">
+  <div class="card stack" style="gap:12px">
+   ${seat("정원 12명 · 남 6 · 여 6",5,6,6,6)}
+   <div class="between"><span class="tiny">여 자리는 마감됐어요 · 대기 2명</span><span class="tag warn">여 마감</span></div>
+   <div class="hstack"><span class="tiny">신청 자리</span><span class="chip">남</span><span class="chip on">여 · 본인확인 기본</span></div>
+  </div>
+  <div class="card soft" style="display:flex;gap:12px;align-items:center"><span class="tag flame">대학생</span><p style="font-size:13px"><b>첫 결제 1회 50%</b> 자동 적용 · 180,000원 → <b class="num">90,000원</b></p></div>
+  <div class="card" style="padding:14px 16px"><div class="between"><span style="font-weight:700">환불 규칙</span><span class="tiny">더 보기</span></div><p class="tiny" style="margin-top:4px;font-weight:500">정규형 · 개강 24시간 전까지 전액, 이후 학원 환불표대로. 취소 1건마다 대기 1번에게만 결제 기회가 가요.</p></div>
+ </div>
+ <div class="grow"></div>
+ <div class="hstack" style="margin-bottom:20px"><div class="btn ghost" style="flex:1">여 자리 대기 <span class="tag info">멤버십</span></div><div class="btn flame" style="flex:1.2">남으로 결제 · 90,000원</div></div>`);
+
+M.pay=phone(`${topnav("결제하기")}
+ <div class="stack">
+  <div class="card"><div class="hstack"><div class="avatar sq" style="background:var(--g-salsa)"></div><div><b>바차타 센슈얼 입문 · 10월</b><p class="tiny">라틴하우스 강남 · 화 20:00 · 남 자리</p></div></div></div>
+  <div class="card stack" style="gap:10px">
+   <span class="tiny">결제액 계산 순서 · 정가 → 혜택 → 쿠폰 → 최종</span>
+   <div class="between"><span>정가</span><span class="num">180,000원</span></div>
+   <div class="between" style="color:var(--ok)"><span>대학생 첫 결제 50%</span><span class="num">−90,000원</span></div>
+   <div class="between" style="color:var(--ink-3)"><span>1+1 쿠폰 <span class="tag warn">할인 큰 쪽 하나만</span></span><span class="num">미적용</span></div>
+   <div class="divider"></div>
+   <div class="between"><b style="font-size:16px">최종 결제액</b><b class="num" style="font-size:22px">90,000원</b></div>
+  </div>
+  <div class="stack" style="gap:8px"><span class="tiny">결제수단 · 모두 PG 를 거쳐요</span>
+   <div class="card" style="padding:12px 16px"><div class="between"><span class="hstack"><span class="radio on"></span>카드 · 간편결제</span><span class="tiny">즉시 확정</span></div></div>
+   <div class="card" style="padding:12px 16px"><div class="between"><span class="hstack"><span class="radio"></span>계좌이체 · 가상계좌</span><span class="tiny">입금 확인 뒤 확정</span></div></div>
+  </div>
+  <div class="hstack" style="padding:0 4px"><span class="check on" style="border-color:var(--ink);background:var(--ink);width:20px;height:20px;font-size:11px">✓</span><p class="tiny" style="font-weight:500">환불 규칙과 개인정보 제3자 제공(학원)에 동의해요</p></div>
+ </div>
+ <div class="grow"></div>
+ <div class="btn flame" style="margin-bottom:20px">90,000원 결제</div>`);
+
+M.ai=phone(`<div class="between" style="height:52px"><div><h3 style="font-size:20px;font-weight:800">AI 플래너</h3><span class="tiny">에이전트 3개가 같이 짜요 · 체험 D-41</span></div><span class="tag info">멤버십 전용</span></div>
+ <div class="stack" style="margin-top:8px;gap:10px">
+  <div class="bubble me">다음 주 화·목 저녁에 강남 근처 초급 바차타 찾아 줘. 예산은 20만 원.</div>
+  <div class="agent"><i style="background:var(--flame-soft)">🔎</i><div><b>검색 에이전트 <span class="dot"></span></b><p>살사/바차타 · 초급 · 강남·서초 · 화·목 19~22시 → 후보 3개. 여 정원이 남은 수업만 남겼어요.</p></div></div>
+  <div class="agent"><i style="background:var(--info-soft)">📅</i><div><b>일정 에이전트</b><p>목 20:00 는 이미 예약한 스윙 수업과 겹쳐요. <b>경고만 하고 막지는 않아요</b> — 그래도 넣을지 물어볼게요.</p></div></div>
+  <div class="agent"><i style="background:var(--ok-soft)">💳</i><div><b>예산 에이전트</b><p>화 바차타 1건 90,000원(대학생 50%) + 목 후보 85,000원 = <b>175,000원</b>. 예산 안이에요.</p></div></div>
+  <div class="card night stack" style="gap:10px">
+   <div class="between"><b>추천 플랜</b><span class="tag" style="background:var(--flame);color:#fff">근거 보기</span></div>
+   <div class="between"><span>화 20:00 바차타 센슈얼 입문 <span class="tiny" style="color:var(--night-fg-2)">라틴하우스</span></span><span class="num">90,000</span></div>
+   <div class="between"><span>목 19:00 바차타 베이직 <span class="tiny" style="color:var(--night-fg-2)">댄스랩 서초</span></span><span class="num">85,000</span></div>
+   <p class="tiny" style="color:var(--night-fg-2)">근거 · 선호 장르 일치 · 2.1km / 3.4km · 평일 저녁 · 과거 수강 이력 없음(입문 우선)</p>
+   <div class="hstack"><div class="btn ghost sm grow" style="background:var(--night-2);border-color:var(--night-line);color:#fff">겹침 빼고</div><div class="btn flame sm grow">둘 다 캘린더에 담기</div></div>
+  </div>
+ </div>
+ <div class="grow"></div>
+ <div class="input" style="margin-bottom:12px;border-radius:18px"><span class="ph">조건을 더 말해 주세요…</span><span class="tag ink">↑</span></div>`,{tab:"AI 플래너"});
+
+M.cal=phone(`<div class="between" style="height:52px"><h3 style="font-size:20px;font-weight:800">10월</h3><div class="hstack"><span class="chip" style="height:28px;font-size:12px">월</span><span class="chip on" style="height:28px;font-size:12px">주</span></div></div>
+ <div class="card" style="padding:12px">
+  <div class="cal">${["일","월","화","수","목","금","토"].map(d=>`<div class="h">${d}</div>`).join("")}${["29","30","1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25"].map((d,i)=>`<div class="${i<2?"mute":""} ${["7","9","14","16","21","23"].includes(d)&&i>1?"ev":""} ${d==="14"?"on":""}">${d}</div>`).join("")}</div>
+ </div>
+ <div class="between" style="margin-top:16px"><b style="font-size:15px">10/14 (화)</b><span class="tiny">예약 2 · 대기 1</span></div>
+ <div class="stack" style="margin-top:10px">
+  <div class="card"><div class="between"><div><b>바차타 센슈얼 입문</b><p class="tiny">라틴하우스 강남 · 20:00–21:00 · 남 자리</p></div><span class="tag ok">예약 확정</span></div><div class="hstack" style="margin-top:12px"><div class="btn ghost sm grow">길찾기</div><div class="btn ghost sm grow">취소·환불 안내</div></div></div>
+  <div class="card soft"><div class="between"><div><b>살사 온투 기초 · 여 자리</b><p class="tiny">살사홀릭 강남 · 21:10 · 대기 1번</p></div><span class="tag warn">대기 1번</span></div><p class="tiny" style="margin-top:8px;font-weight:500">취소가 생기면 나한테만 먼저 알려요. 결제하면 다음 순번이 1번이 돼요.</p></div>
+  <div class="card" style="display:flex;gap:12px;align-items:center"><span class="tag flame">파티</span><div class="grow"><b style="font-size:14px">토 바차타 소셜 나이트</b><p class="tiny">엘 리트모 · 10/18 21:00 · 관심 등록</p></div><span class="toggle on"></span></div>
+ </div>`,{tab:"캘린더"});
+
+/* ── 강사 앱 화면 ── */
+const I={};
+I.home=phone(`<div class="between" style="height:52px"><div><span class="tiny">강사 · 라틴하우스 강남 외 1</span><h3 style="font-size:20px;font-weight:800">오늘 · 10/14 (화)</h3></div><div class="avatar" style="background:linear-gradient(135deg,#C9B8F2,#4B2B6B)"></div></div>
+ <div class="grid g3" style="gap:10px;margin-top:6px">
+  <div class="card kpi" style="padding:14px"><b class="num">2</b><span>오늘 수업</span></div>
+  <div class="card kpi" style="padding:14px"><b class="num">23</b><span>수강생</span></div>
+  <div class="card kpi" style="padding:14px"><b class="num" style="color:var(--flame)">3</b><span>대기</span></div>
+ </div>
+ <div class="stack" style="margin-top:14px">
+  <div class="card stack" style="gap:12px"><div class="between"><div><b>바차타 센슈얼 입문</b><p class="tiny">20:00–21:00 · A홀 · 10월 2주차</p></div><span class="tag ok">진행 예정</span></div>${seat("실시간 명단",5,6,6,6)}<div class="hstack"><div class="btn ghost sm grow">명단 · 출석</div><div class="btn sm grow">레벨 부여</div></div></div>
+  <div class="card stack" style="gap:12px"><div class="between"><div><b>살사 온투 기초</b><p class="tiny">21:10–22:10 · B홀</p></div><span class="tag warn">여 대기 1</span></div>${seat("실시간 명단",4,6,6,6)}</div>
+  <div class="card night"><div class="between"><div><b>새 반 열기 추천</b><p class="tiny" style="color:var(--night-fg-2)">"토요일 아침 고급 룸바 6명" 조건에 맞는 후보 8명</p></div><span class="tag" style="background:var(--flame);color:#fff">AI</span></div></div>
+ </div>`,{tab:"홈"});
+
+I.create=phone(`${topnav("수업 만들기","1 / 2")}
+ <div class="stack" style="gap:12px">
+  <div class="card soft" style="display:flex;gap:10px;align-items:center"><span class="tag flame">AI 초안</span><p class="tiny" style="font-weight:500">지난 학기 "바차타 센슈얼 입문" 설정을 그대로 채웠어요. 고칠 곳만 바꾸세요.</p></div>
+  <div class="field"><label>장르 · 세부 장르</label><div class="hstack"><span class="chip on">살사/바차타</span><span class="chip on">바차타</span></div></div>
+  <div class="field"><label>레벨 · 수업 구분</label><div class="chips"><span class="chip on">입문</span><span class="chip">초급</span><span class="chip">중급</span><span class="chip on">정규형</span><span class="chip">이벤트형</span></div></div>
+  <div class="field"><label>수업명</label><div class="input"><span>바차타 센슈얼 입문 · 11월</span></div></div>
+  <div class="hstack"><div class="field grow"><label>요일 · 시간</label><div class="input"><span class="num">화 20:00–21:00</span></div></div><div class="field" style="width:120px"><label>장소</label><div class="input"><span>A홀</span></div></div></div>
+  <div class="hstack"><div class="field grow"><label>남 정원</label><div class="input"><span class="num">6</span></div></div><div class="field grow"><label>여 정원</label><div class="input"><span class="num">6</span></div></div><div class="field grow"><label>수강료/월</label><div class="input"><span class="num">180,000</span></div></div></div>
+  <div class="card" style="border-color:var(--warn);background:var(--warn-soft);padding:12px 14px"><div class="hstack" style="align-items:flex-start"><span class="tag warn">겹침</span><p class="tiny" style="font-weight:500;color:var(--warn)">화 20:00 A홀에 "살사 중급반"이 이미 있어요. 강의실이 같으면 등록이 막혀요.</p></div></div>
+ </div>
+ <div class="grow"></div>
+ <div class="hstack" style="margin-bottom:20px"><div class="btn ghost grow">임시 저장</div><div class="btn flame grow">공개 · 검색에 노출</div></div>`);
+
+I.roster=phone(`${topnav("명단 · 출석 · 레벨")}
+ <div class="between"><div><b>바차타 센슈얼 입문</b><p class="tiny">10/14 화 · 11/12 명 · 결제 완료자만 레벨 부여</p></div><span class="chip" style="height:28px;font-size:12px">출석 마감</span></div>
+ <div class="stack" style="margin-top:12px;gap:8px">
+  ${[["김서연","여","출석","5"],["이도현","남","출석","6"],["박민지","여","출석","4"],["정우진","남","지각","7"],["최하은","여","결석","3"],["한지우","남","출석","6"]].map(([n,g,a,l])=>`<div class="card" style="padding:10px 14px"><div class="between"><div class="hstack"><div class="avatar" style="width:34px;height:34px;border-radius:11px;background:${g==="여"?"linear-gradient(135deg,#F2C9B8,#E4482B)":"linear-gradient(135deg,#B8D4F2,#3452B5)"}"></div><div><b style="font-size:14px">${n} <span class="tiny">${g}</span></b><p class="tiny">출석률 92% · 3개월째</p></div></div><div class="hstack" style="gap:8px"><span class="tag ${a==="출석"?"ok":a==="지각"?"warn":"flame"}">${a}</span><span class="hstack" style="gap:0;border:1px solid var(--line-2);border-radius:10px;overflow:hidden"><span style="width:28px;height:30px;display:flex;align-items:center;justify-content:center;border-right:1px solid var(--line-2)">−</span><b class="num" style="width:30px;text-align:center">${l}</b><span style="width:28px;height:30px;display:flex;align-items:center;justify-content:center;border-left:1px solid var(--line-2)">+</span></span></div></div></div>`).join("")}
+ </div>
+ <div class="card night" style="margin-top:12px"><div class="between"><span class="tiny" style="color:var(--night-fg-2)">바차타 레벨 분포 · 12명</span><span class="tiny" style="color:#fff">평균 5.1</span></div><div class="hstack" style="gap:4px;align-items:flex-end;height:44px;margin-top:8px">${[1,0,2,3,1,2,1,1,1,0,0].map((v)=>`<i style="flex:1;height:${8+v*11}px;border-radius:4px;background:${v?"var(--flame)":"var(--night-line)"}"></i>`).join("")}</div></div>`);
+
+I.payout=phone(`${topnav("정산")}
+ <div class="card night stack" style="gap:6px"><span class="tiny" style="color:var(--night-fg-2)">10월 지급 예정 · 매월 5일</span><b class="num" style="font-size:34px;font-weight:800;letter-spacing:-.03em">1,842,000원</b><div class="hstack"><span class="tag ok">정규형 · 11/5 지급</span><span class="tag warn">이벤트형 · 환불 마감 뒤 바로</span></div></div>
+ <div class="stack" style="margin-top:12px">
+  <div class="card stack" style="gap:10px"><b>정규형 · 매월 5일</b>
+   <div class="between"><span>바차타 센슈얼 입문 · 11명</span><span class="num">1,980,000</span></div>
+   <div class="between" style="color:var(--ok)"><span>대학생 50% 차액 · 대표 부담</span><span class="num">+0</span></div>
+   <div class="between" style="color:var(--ink-3)"><span>플랫폼 수수료 · 베타 0%</span><span class="num">−0</span></div>
+   <div class="between" style="color:var(--flame)"><span>환불 2건</span><span class="num">−138,000</span></div>
+  </div>
+  <div class="card stack" style="gap:10px"><div class="between"><b>이벤트형 · 바차타 워크숍</b><span class="tag warn">환불 마감 D-3</span></div><div class="between"><span>참가 24명 × 35,000</span><span class="num">840,000</span></div><p class="tiny" style="font-weight:500">환불 마감일(10/17)이 지나면 바로 지급돼요. 행사 일괄 취소는 대표 콘솔에서만 할 수 있어요.</p></div>
+  <div class="card soft"><div class="between"><span style="font-weight:700">정산 계좌</span><span class="num tiny">국민 ****-3390</span></div></div>
+ </div>`,{tab:"마이"});
+
+/* ── 대표 웹 화면 ── */
+const side=(on)=>`<aside class="side"><div class="brand"><i></i>K-DanceX4 콘솔</div>${["대시보드","수업 · 포스터 등록","예약 · 명단","환불 처리","정산 · 원장","1+1 · 순위판","입점 · 설정"].map((t)=>`<a class="${t===on?"on":""}"><i></i>${t}</a>`).join("")}<div class="who"><div class="avatar" style="width:36px;height:36px;border-radius:12px"></div><div><b style="font-size:13px">라틴하우스 강남</b><small>원장 · 대표 콘솔</small></div></div></aside>`;
+const web=(on,inner)=>`<div class="web">${side(on)}<section class="main">${inner}</section></div>`;
+const O={};
+O.dash=web("대시보드",`<div class="head"><div><span class="tiny">2026-10-14 (화) · 살사/바차타</span><h2>오늘 라틴하우스 강남</h2></div><div class="hstack"><span class="chip">10월</span><div class="btn sm">포스터로 수업 등록</div></div></div>
+ <div class="grid g4">
+  <div class="card kpi"><b class="num">3,240,000<small style="font-size:14px">원</small></b><span>이번 달 결제액</span></div>
+  <div class="card kpi"><b class="num">86 <small style="font-size:14px">/ 96</small></b><span>이번 주 정원 채움</span></div>
+  <div class="card kpi"><b class="num" style="color:var(--flame)">4</b><span>환불 요청 대기</span></div>
+  <div class="card kpi"><b class="num">2위</b><span>실시간 순위 · 바차타 센슈얼 입문</span></div>
+ </div>
+ <div class="grid g21">
+  <div class="card"><div class="between"><b>오늘 수업 · 4</b><span class="tiny">명단 실시간</span></div>
+   <table style="margin-top:10px"><tr><th>시간</th><th>수업</th><th>강사</th><th>홀</th><th>정원</th><th class="r">상태</th></tr>
+   <tr><td class="num">19:00</td><td>살사 온투 기초</td><td>박지훈</td><td>B</td><td class="num">10/12</td><td class="r"><span class="tag warn">여 대기 1</span></td></tr>
+   <tr><td class="num">20:00</td><td>바차타 센슈얼 입문</td><td>박지훈</td><td>A</td><td class="num">11/12</td><td class="r"><span class="tag ok">진행 예정</span></td></tr>
+   <tr><td class="num">20:00</td><td>살사 중급반</td><td>이수아</td><td>B</td><td class="num">12/12</td><td class="r"><span class="tag ink">마감</span></td></tr>
+   <tr><td class="num">21:10</td><td>바차타 커플반</td><td>이수아</td><td>A</td><td class="num">8/12</td><td class="r"><span class="tag ok">모집 중</span></td></tr></table></div>
+  <div class="stack"><div class="card night stack" style="gap:8px"><div class="between"><b>1+1 쿠폰 참여 중</b><span class="tag" style="background:var(--flame);color:#fff">혜택</span></div><p class="tiny" style="color:var(--night-fg-2)">참여 학원만 실시간 인기 수업 순위판에 올라요. 신규 참여 한 달 동안은 1위 위 "신규 학원" 자리에도 나와요.</p><div class="between"><span class="tiny" style="color:var(--night-fg-2)">순위판 노출 · 24시간</span><b class="num">1,284회</b></div></div>
+  <div class="card stack" style="gap:8px"><b>해야 할 일</b><div class="between"><span>환불 요청 4건 검토</span><span class="tag flame">오늘</span></div><div class="between"><span>포스터 2장 확인필요 항목</span><span class="tag warn">3개</span></div><div class="between"><span>11/5 정산 명세 확인</span><span class="tiny">D-22</span></div></div></div>
+ </div>`);
+
+O.poster=web("수업 · 포스터 등록",`<div class="head"><div><span class="tiny">포스터 → 자동 읽기 → 검토 → 게시</span><h2>포스터로 수업 등록</h2></div><div class="hstack"><span class="tag info">읽기 완료 · 신뢰도 87%</span><div class="btn ghost sm">다른 포스터</div></div></div>
+ <div class="grid g12" style="flex:1">
+  <div class="poster"><div><span style="display:inline-flex;height:26px;align-items:center;padding:0 10px;border-radius:99px;background:rgba(255,255,255,.2);font-size:12px;font-weight:700">11월 신규반</span><div class="big" style="margin-top:14px">BACHATA<br>SENSUAL</div></div><div><p style="font-size:15px;font-weight:700">매주 화요일 20:00 – 21:00 · A홀</p><p style="opacity:.85;margin-top:4px">강사 박지훈 · 정원 12명 · 월 18만원 · 입문</p></div><i class="box" style="left:26px;top:126px;width:250px;height:88px"></i><i class="box" style="left:26px;bottom:44px;width:300px;height:26px"></i><i class="box" style="left:26px;bottom:14px;width:320px;height:24px"></i></div>
+  <div class="card stack" style="gap:12px"><div class="between"><b>읽어낸 값 · 고칠 곳만 바꾸세요</b><span class="tiny">신뢰도 낮은 항목은 확인필요</span></div>
+   <div class="grid g2" style="gap:10px">
+    <div class="field"><label>장르 · 세부</label><div class="input"><span>살사/바차타 · 바차타</span><span class="tag ok">98%</span></div></div>
+    <div class="field"><label>수업명</label><div class="input"><span>바차타 센슈얼 입문 · 11월</span><span class="tag ok">95%</span></div></div>
+    <div class="field"><label>요일 · 시간</label><div class="input"><span class="num">화 20:00–21:00</span><span class="tag ok">97%</span></div></div>
+    <div class="field"><label>강의실</label><div class="input" style="border-color:var(--flame)"><span>A홀</span><span class="tag flame">충돌 · 살사 중급반</span></div></div>
+    <div class="field"><label>수강료 / 월</label><div class="input"><span class="num">180,000원</span><span class="tag warn">확인필요 · 71%</span></div></div>
+    <div class="field"><label>정원 · 남 / 여</label><div class="input"><span class="num">12 · 6 / 6</span><span class="tag warn">확인필요</span></div></div>
+    <div class="field"><label>강사</label><div class="input"><span>박지훈</span><span class="tag ok">등록 강사</span></div></div>
+    <div class="field"><label>레벨 · 구분</label><div class="input"><span>입문 · 정규형</span><span class="tag ok">92%</span></div></div>
+   </div>
+   <div class="card" style="background:var(--flame-soft);border-color:transparent;padding:12px 14px"><p style="font-size:13px;color:var(--flame);font-weight:600">같은 강의실·같은 시간에 두 수업은 잡을 수 없어요. B홀로 바꾸거나 살사 중급반 시간을 옮기면 게시할 수 있어요.</p></div>
+   <div class="hstack" style="margin-top:auto"><div class="btn ghost grow">임시 저장</div><div class="btn disabled grow">게시 · 충돌을 먼저 풀어 주세요</div></div>
+  </div>
+ </div>`);
+
+O.refund=web("환불 처리",`<div class="head"><div><span class="tiny">요청 4건 · 이벤트형은 계산값을 미리 채워요</span><h2>환불 요청 처리</h2></div><div class="hstack"><span class="chip on">이벤트형 2</span><span class="chip">정규형 2</span><div class="btn ghost sm" style="color:var(--flame);border-color:var(--flame)">행사 일괄 취소</div></div></div>
+ <div class="grid g21">
+  <div class="card"><table><tr><th>요청</th><th>회원</th><th>수업</th><th>결제액</th><th>계산값</th><th>지급액</th><th class="r">처리</th></tr>
+   <tr><td class="num">10/13</td><td>김서연</td><td>바차타 워크숍 <span class="tag warn">이벤트</span></td><td class="num">35,000</td><td class="num">35,000 · 마감 전 100%</td><td><div class="input" style="height:36px;width:104px"><span class="num">35,000</span></div></td><td class="r"><div class="btn sm">환불 실행</div></td></tr>
+   <tr><td class="num">10/13</td><td>정우진</td><td>바차타 워크숍 <span class="tag warn">이벤트</span></td><td class="num">35,000</td><td class="num">35,000 · 마감 전 100%</td><td><div class="input" style="height:36px;width:104px"><span class="num">35,000</span></div></td><td class="r"><div class="btn sm">환불 실행</div></td></tr>
+   <tr><td class="num">10/12</td><td>최하은</td><td>살사 온투 기초 <span class="tag info">정규</span></td><td class="num">180,000</td><td class="tiny">학원 환불표 · 직접 입력</td><td><div class="input" style="height:36px;width:104px"><span class="num">120,000</span></div></td><td class="r"><div class="btn sm">환불 실행</div></td></tr>
+   <tr><td class="num">10/11</td><td>이도현</td><td>바차타 센슈얼 입문 <span class="tag info">정규</span></td><td class="num">90,000</td><td class="tiny">대학생 50% 결제분</td><td><div class="input" style="height:36px;width:104px"><span class="num">60,000</span></div></td><td class="r"><div class="btn sm">환불 실행</div></td></tr></table>
+   <p class="tiny" style="margin-top:12px">카드 결제는 원거래 취소, 가상계좌는 별도 송금이에요. 환불액은 결제액을 넘지 않고 원 단위로 올림 처리돼요.</p></div>
+  <div class="stack"><div class="card stack" style="gap:8px"><div class="between"><b>행사 일괄 취소</b><span class="tag flame">되돌릴 수 없음</span></div><div class="input"><span>바차타 워크숍 · 10/20</span><span class="tiny">참가 24명</span></div><div class="between"><span class="tiny">전원 100% 환불 · 24건</span><b class="num">840,000원</b></div><div class="hstack"><span class="check on" style="background:var(--ink);border-color:var(--ink);width:20px;height:20px;font-size:11px">✓</span><span class="tiny" style="font-weight:500">참가자 전원에게 취소 알림을 보내요</span></div><div class="btn flame sm">24건 일괄 환불 실행</div></div>
+  <div class="card soft"><b style="font-size:13px">환불 비용 부담</b><p class="tiny" style="margin-top:4px;font-weight:500">대학생 50%·1+1 할인 차액과 환불 비용은 대표 부담이에요. 정산 원장에 차액 항목으로 표시됩니다.</p></div></div>
+ </div>`);
+
+O.ledger=web("정산 · 원장",`<div class="head"><div><span class="tiny">10월 · 정규형 11/5 지급 · 이벤트형 환불 마감 뒤 바로</span><h2>정산 · 원장</h2></div><div class="hstack"><span class="chip on">10월</span><span class="chip">9월</span><div class="btn ghost sm">내보내기</div></div></div>
+ <div class="grid g4">
+  <div class="card kpi"><b class="num">3,240,000</b><span>결제 합계</span></div>
+  <div class="card kpi"><b class="num" style="color:var(--flame)">−318,000</b><span>환불 6건</span></div>
+  <div class="card kpi"><b class="num" style="color:var(--warn)">−270,000</b><span>할인 차액 · 대표 부담</span></div>
+  <div class="card kpi"><b class="num" style="color:var(--ok)">2,652,000</b><span>11/5 지급 예정</span></div>
+ </div>
+ <div class="grid g21">
+  <div class="card"><div class="between"><b>원장 · 원 단위</b><span class="tiny">합계가 결제 원장과 일치해요 ✓</span></div>
+   <table style="margin-top:10px"><tr><th>일자</th><th>구분</th><th>내용</th><th>수단</th><th class="r">금액</th></tr>
+   <tr><td class="num">10/14</td><td><span class="tag ok">결제</span></td><td>바차타 센슈얼 입문 · 김서연 · 대학생 50%</td><td>카드</td><td class="r num">90,000</td></tr>
+   <tr><td class="num">10/14</td><td><span class="tag warn">차액</span></td><td>대학생 첫 결제 50% · 대표 부담</td><td>—</td><td class="r num">−90,000</td></tr>
+   <tr><td class="num">10/13</td><td><span class="tag ok">결제</span></td><td>바차타 워크숍 · 참가 24명</td><td>혼합</td><td class="r num">840,000</td></tr>
+   <tr><td class="num">10/12</td><td><span class="tag flame">환불</span></td><td>살사 온투 기초 · 최하은 · 환불표 66%</td><td>가상계좌 송금</td><td class="r num">−120,000</td></tr>
+   <tr><td class="num">10/11</td><td><span class="tag warn">차액</span></td><td>1+1 쿠폰 · 바차타 커플반 2건</td><td>—</td><td class="r num">−180,000</td></tr>
+   <tr><td class="num">10/10</td><td><span class="tag ok">결제</span></td><td>살사 중급반 · 12명</td><td>카드</td><td class="r num">2,160,000</td></tr></table></div>
+  <div class="stack"><div class="card stack" style="gap:8px"><b>장르 · 상품별</b><div class="between"><span>살사/바차타 · 정규형</span><span class="num">2,400,000</span></div><div class="between"><span>살사/바차타 · 이벤트형</span><span class="num">840,000</span></div><div class="between"><span>결제수단 · 카드 / 계좌</span><span class="num">78% / 22%</span></div></div>
+  <div class="card night stack" style="gap:6px"><span class="tiny" style="color:var(--night-fg-2)">플랫폼 수수료 · 베타</span><b class="num" style="font-size:28px">0%</b><p class="tiny" style="color:var(--night-fg-2)">수수료율이 바뀌면 미래 날짜부터 적용되고 미리 알려드려요.</p></div></div>
+ </div>`);
+
+/* ── 디자인 토큰 시트 ── */
+const tokens=`<div class="stack" style="gap:28px;width:1280px">
+ <div class="card" style="padding:28px"><div class="between" style="margin-bottom:18px"><h3 style="font-size:18px">색 · 라이트 / 나이트</h3><span class="tiny">배경은 따뜻한 본(bone), 강조는 플레임 한 가지. 장르 색 4종은 카드·태그에만 쓴다</span></div>
+  <div class="hstack" style="gap:16px;flex-wrap:wrap">
+   ${[["bg","#F4F1EC","배경"],["surface","#FFFFFF","면"],["ink","#141216","글"],["ink-3","#8B8490","보조 글"],["flame","#E4482B","강조"],["night","#17151B","나이트"],["ok","#1E7A4C","확정"],["warn","#A8620A","확인필요"],["info","#3452B5","멤버십"]].map(([n,h,l])=>`<div class="swatch"><i style="background:${h}"></i><b>${l}</b><span>${n} · ${h}</span></div>`).join("")}
+  </div>
+  <div class="hstack" style="gap:16px;margin-top:18px">
+   ${[["댄스스포츠","#B4232B"],["아르헨티나 탱고","#C4711B"],["스윙댄스","#D99A1E"],["살사/바차타","#D63A7C"]].map(([n,h])=>`<div class="swatch"><i style="background:${h}"></i><b>${n}</b><span>${h}</span></div>`).join("")}
+  </div></div>
+ <div class="grid g2">
+  <div class="card stack" style="padding:28px;gap:14px"><h3 style="font-size:18px">타이포 · Geist(숫자·제목) + Noto Sans KR(본문)</h3>
+   <div class="type-row"><small>Display 38 / 800</small><span class="h1" style="font-size:38px">오늘 밤, 어떤 춤을 출까요?</span></div>
+   <div class="type-row"><small>H1 28 / 800</small><span class="h1">어떤 춤에 끌리세요?</span></div>
+   <div class="type-row"><small>H2 20 / 700</small><span class="h2">실시간 인기 수업 TOP 10</span></div>
+   <div class="type-row"><small>Body 14 / 400</small><span class="sub">여러 개 골라도 돼요 · 추천에만 쓰이고 언제든 바꿀 수 있어요</span></div>
+   <div class="type-row"><small>Num 26 / 800</small><span class="num" style="font-family:var(--display);font-size:26px;font-weight:800">1,842,000원</span></div>
+   <div class="type-row"><small>Tiny 11 / 500</small><span class="tiny">검색 조회수 기준 · 최근 24시간</span></div>
+  </div>
+  <div class="card stack" style="padding:28px;gap:14px"><h3 style="font-size:18px">조각 · 버튼 / 칩 / 태그 / 정원 막대</h3>
+   <div class="hstack"><div class="btn flame" style="width:180px">결제하기</div><div class="btn" style="width:150px">다음</div><div class="btn ghost" style="width:150px">임시 저장</div><div class="btn disabled" style="width:120px">마감</div></div>
+   <div class="chips"><span class="chip on">추천순</span><span class="chip">검색순</span><span class="chip flame">AI</span><span class="chip">+ 추가</span></div>
+   <div class="hstack"><span class="tag ok">예약 확정</span><span class="tag warn">확인필요</span><span class="tag flame">여 마감</span><span class="tag info">멤버십 전용</span><span class="tag ink">마감</span></div>
+   ${seat("정원 12 · 남 6 · 여 6",5,6,6,6)}
+   <div class="hstack"><span class="toggle on"></span><span class="toggle"></span><span class="radio on"></span><span class="radio"></span><span class="check on">✓</span></div>
+  </div>
+ </div>
+ <div class="card" style="padding:28px"><div class="between" style="margin-bottom:14px"><h3 style="font-size:18px">장르 카드 · 정사각형 사진 카드 2×2 (FLUX 생성 · 1024×1024)</h3><span class="tiny">가입 관심 장르(다중) · 메인 기준 장르(단일) 두 화면에서 같은 카드를 쓴다 · 생성기 docs/prototype/gen_genre_images.py</span></div>
+  <div class="grid g4 gsq4">${G.map((g,i)=>gcard(g,i===3)).join("")}</div></div>
+</div>`;
+
+/* ── 보드 조립 ── */
+const sec=(id,title,note,inner)=>`<section class="section" id="${id}"><div class="section-head"><h1>${title}</h1><p>${note}</p></div><div class="row">${inner}</div></section>`;
+document.getElementById("board").innerHTML=
+ sec("sec-tokens","00 · 디자인 토큰","2026-09-30 · 라이트 기본, 나이트 카드 혼용 · Geist + Noto Sans KR",tokens)+
+ sec("sec-member","01 · 회원 앱 (390×844)","가입 → 장르 카드 → 메인 → 상세 → 결제 → AI 플래너 → 캘린더 · spec FR-001~FR-022a · FR-036a · FR-091a~094 · FR-112~121h · FR-283",
+  frame("M1","로그인","소셜 3종 · 가입 전 둘러보기 없음",M.login)+frame("M2","본인확인","CI 로 한 사람 한 계정 · 성별 자동",M.verify)+frame("M3","가입 정보","필수 3 + 대학생 선택",M.profile)+
+  frame("M4","관심 장르 카드","필수 · 여러 개 · 정사각형 카드 2×2",M.interest)+frame("M5","세부 장르 · 지역 · 시간","선택 · 추천순에만 사용",M.subgenre)+frame("M6","메인 기준 장르 하나","가입 뒤 첫 진입 · 단일 선택 · 건너뛰기 없음",M.pick)+
+  frame("M7","홈","고른 장르만 · 순위판 · 신규 학원 · 추천 근거",M.home)+frame("M8","수업 상세","남·여 정원 · 대기 · 대학생 50%",M.detail)+frame("M9","결제","정가→혜택→쿠폰→최종 · 할인 큰 쪽 하나만",M.pay)+
+  frame("M10","AI 플래너","검색·일정·예산 에이전트 3개 · 멤버십 전용",M.ai)+frame("M11","캘린더 · 예약","예약 확정 · 대기 1번 · 파티 관심",M.cal))+
+ sec("sec-instructor","02 · 강사 앱 (390×844)","오늘 → 수업 만들기 → 명단·출석·레벨 → 정산 · spec US2 · US7 · FR-160~161",
+  frame("I1","강사 홈","오늘 수업 · 실시간 명단 · 새 반 추천",I.home)+frame("I2","수업 만들기","AI 초안 · 남·여 정원 · 강의실 겹침",I.create)+frame("I3","명단 · 출석 · 레벨","레벨 0~10 · 결제자만 · 분포",I.roster)+frame("I4","정산","정규형 매월 5일 · 이벤트형 마감 뒤 바로",I.payout))+
+ sec("sec-owner","03 · 대표 콘솔 (1280×832 웹)","대시보드 → 포스터 등록 → 환불 처리 → 정산·원장 · spec US3 · US4 · FR-119 · FR-121d~e",
+  frame("O1","대시보드","오늘 수업 · 1+1 참여 · 해야 할 일",O.dash)+frame("O2","포스터로 수업 등록","자동 읽기 · 확인필요 · 강의실 충돌 차단",O.poster)+frame("O3","환불 요청 처리","이벤트형 계산값 미리 채움 · 행사 일괄 취소",O.refund)+frame("O4","정산 · 원장","원 단위 원장 · 할인 차액 대표 부담",O.ledger));
+</script>
+</body>
+</html>

@@ -14,7 +14,7 @@ model: opus
    - 네이티브 `code-review` 스킬(현재 diff 기준, 정확성·재사용·효율 관점)
    - backend: `ecc:fastapi-reviewer`, `ecc:python-reviewer`, DB 스키마 변경이 있으면 `ecc:database-reviewer` 에이전트
    - admin-web/mobile: `ecc:react-reviewer`, `ecc:typescript-reviewer` 에이전트
-   - 사용자 입력/인증/결제 관련 변경이 있으면 반드시 `ecc:security-reviewer` 에이전트 추가 실행(`docs/payment-method-policy.md` 관련 변경 포함)
+   - 사용자 입력/인증/결제 관련 변경이 있으면 반드시 `ecc:security-reviewer` 에이전트 추가 실행(`docs/policy/payment-method-policy.md` 관련 변경 포함)
 3. 발견 사항을 CRITICAL/HIGH/MEDIUM/LOW로 분류하고, 각 항목에 대해 근거(파일:라인)와 재현 시나리오를 명시한다 — 막연한 지적 금지.
 
 ## 작업 원칙

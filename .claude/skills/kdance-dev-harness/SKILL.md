@@ -128,7 +128,7 @@ Phase9 completion-verifier ──→ 09_report.md
 ### 정상 흐름
 1. 사용자: "예약 취소 시 잔여 수업권 환불 로직 추가해줘"
 2. Phase 0: `_workspace/` 없음 → 초기 실행
-3. Phase 1: 요구사항 정리, `docs/pricing-policy.md`와 상충 없음 확인
+3. Phase 1: 요구사항 정리, `docs/policy/pricing-policy.md`와 상충 없음 확인
 4. Phase 2: code-searcher가 backend 예약/결제 모듈 구조 파악
 5. Phase 3~4: 계획 수립 후 backend 모델/API 태스크 2개로 분리(병렬 가능)
 6. Phase 5: 2개 구현 에이전트 병렬 실행

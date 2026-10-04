@@ -6,7 +6,7 @@
 
 PG사 = 포트원(PortOne)
 ------------------------
-``docs/payment-method-policy.md`` "결제수단 라우팅 규칙 — 방식 A / 방식 B"에서
+``docs/policy/payment-method-policy.md`` "결제수단 라우팅 규칙 — 방식 A / 방식 B"에서
 **방식 B의 PG로 포트원이 확정**됐다. 같은 문서가 "가짜 어댑터를 쓰더라도 포트원
 응답 스키마를 흉내 낼 것"을 명시하므로, 이 파일의 요청/응답 모델은 포트원 V2
 ``POST /payments/{paymentId}/cancel``의 실제 필드에 1:1로 대응한다.
@@ -26,7 +26,7 @@ PG사 = 포트원(PortOne)
 **핵심은 ``REQUESTED`` → ``pending`` 매핑이다.** 포트원은 가상계좌 환불처럼 즉시
 완결되지 않는 취소를 ``REQUESTED``로 돌려준다. 이 상태를 실패로 접어버리면 정상
 환불이 실패로 기록된다. ``RefundStatus.pending``을 1급 상태로 두는 이유가 이것이다
-(``docs/payment-method-policy.md`` §4 "환불의 ``pending``은 오류가 아니라 정상 상태").
+(``docs/policy/payment-method-policy.md`` §4 "환불의 ``pending``은 오류가 아니라 정상 상태").
 
 포트원 응답 파싱(:func:`parse_portone_cancel_response`)은 **프로덕션 코드**이고,
 :class:`FakePaymentGateway`는 포트원 모양의 페이로드를 만들어 그 파서에 통과시킨다.

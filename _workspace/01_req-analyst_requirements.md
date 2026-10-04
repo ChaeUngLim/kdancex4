@@ -3,7 +3,7 @@
 - 작성일: 2026-09-20
 - 담당: kdance-req-analyst
 - 입력: `_workspace/00_input/request.md`("Prisma 8 RC 스택 전환 해줘")
-- 근거 문서: `docs/kdancex4_service_definition_and_tech_stack.md` 「11 · 11-1 · 11-2 · 11-3」, `docs/ai-coding-agent.html`, `.claude/rules/core-rules.md` 「버전 정책」
+- 근거 문서: `docs/planning/kdancex4_service_definition_and_tech_stack.md` 「11 · 11-1 · 11-2 · 11-3」, `docs/agent/ai-coding-agent.html`, `.claude/rules/core-rules.md` 「버전 정책」
 - 직전 회차 산출물: 커밋 `7f28ab1^` 의 `_workspace/01_req-analyst_requirements.md`, `03_impl-planner_plan.md`(백업 폴더 `_workspace_20260920_183143/` 은 2026-09-29 에 지웠다)
 - 상태: **Q1~Q5 미해결 (BLOCKING). Phase 2(기존 코드 구조 확인) 탐색은 병행 가능하나 Phase 3(구현 계획) 착수 전에 답이 필요하다.**
 
@@ -19,7 +19,7 @@ DB는 그대로 둔다. PostgreSQL 18.6 + pgvector 0.8.6 에 담길 스키마는
 
 ### 1.2 Why — 왜
 
-`docs/kdancex4_service_definition_and_tech_stack.md` 「11-3. 백엔드 교체」의 판단을 그대로 옮기면 두 가지다.
+`docs/planning/kdancex4_service_definition_and_tech_stack.md` 「11-3. 백엔드 교체」의 판단을 그대로 옮기면 두 가지다.
 
 1. **확정된 스택이 TypeScript 단일 스택이다.** ORM(Prisma 8) · Auth(Better Auth) · AI UI(Vercel AI SDK 7) · Agent(LangGraph 1.4) 가 전부 TypeScript 전용이라, Python 백엔드를 남기면 도메인 로직과 AI 계층이 프로세스 경계로 갈린다.
 2. **지금이 가장 싸다.** Alembic 마이그레이션이 `0001_initial_domain.py` 1개뿐이고, kdance DB 에는 테이블이 하나도 만들어져 있지 않다(2026-09-20 실측). 스키마가 커진 뒤에 옮기면 비용이 몇 배가 된다.
@@ -266,11 +266,11 @@ DB는 그대로 둔다. PostgreSQL 18.6 + pgvector 0.8.6 에 담길 스키마는
 
 | 문서 | 확인 결과 |
 |---|---|
-| `docs/pricing-policy.md` | 충돌 없음. 이번 작업은 금액 정책을 바꾸지 않는다 |
-| `docs/payment-method-policy.md` | 충돌 없음. 무료 API 우선 원칙도 그대로 — 새 유료 API 를 도입하지 않는다 |
-| `docs/admin-input-policy.md` | 직접 관련 없음 |
-| `docs/distribution-policy.md` | 직접 관련 없음 |
-| `docs/kdancex4_service_definition_and_tech_stack.md` 「11-3」 | **이 작업의 근거 문서다.** 충돌이 아니라 이행 |
+| `docs/policy/pricing-policy.md` | 충돌 없음. 이번 작업은 금액 정책을 바꾸지 않는다 |
+| `docs/policy/payment-method-policy.md` | 충돌 없음. 무료 API 우선 원칙도 그대로 — 새 유료 API 를 도입하지 않는다 |
+| `docs/policy/admin-input-policy.md` | 직접 관련 없음 |
+| `docs/policy/distribution-policy.md` | 직접 관련 없음 |
+| `docs/planning/kdancex4_service_definition_and_tech_stack.md` 「11-3」 | **이 작업의 근거 문서다.** 충돌이 아니라 이행 |
 
 **상충하는 정책은 발견되지 않았다.** 다만 「11-3」이 "배포: 로컬 Docker → Vercel" 을 적어 둔 것과 Redis 슬롯 락(`kdance-redis`, localhost:6380)이 로컬 컨테이너라는 점이 장기적으로 어긋난다(§8 Q6).
 
@@ -392,7 +392,7 @@ Next.js Route Handler 의 관례 경로는 `app/api/reservations/[id]/cancel/rou
 
 1. **`backend/app/services/cancellation.py`(1,069줄)를 트랜잭션 경계 기준으로 해부한다.** 어디서 세션이 열리고 닫히는지, `FOR UPDATE` 가 걸리는 지점, 유니크 위반을 잡아내는 `except` 위치, 커밋 이후 부수효과 2건의 경계. **이 파일이 전환 난이도를 혼자 결정한다.**
 2. **`admin-web/node_modules/@prisma/orm-postgres` 의 실제 타입 정의를 읽는다.** 트랜잭션·행 잠금·raw SQL 지원 여부(R2(Prisma 8 트랜잭션·행 잠금 미검증)·R3(부분 유니크 인덱스 PSL 표현 미검증)). 기억이나 문서가 아니라 설치된 `.d.ts` 를 본다. 필요하면 context7 로 Prisma 8 문서를 함께 확인한다.
-3. **`admin-web/node_modules/next/dist/docs/`** 를 확인한다 — `docs/ai-coding-agent.html` 에 따르면 Next 16.3 이 설치 버전에 맞춘 문서를 동봉하고, `admin-web/AGENTS.md` 가 "코드를 쓰기 전에 이걸 읽어라"고 지시한다.
+3. **`admin-web/node_modules/next/dist/docs/`** 를 확인한다 — `docs/agent/ai-coding-agent.html` 에 따르면 Next 16.3 이 설치 버전에 맞춘 문서를 동봉하고, `admin-web/AGENTS.md` 가 "코드를 쓰기 전에 이걸 읽어라"고 지시한다.
 4. `backend/tests/conftest.py`(491줄)의 픽스처 구조 — TS 에서 무엇을 재현해야 하는지의 목록이다.
 5. `backend/app/adapters/payment_gateway.py`(526줄)의 `parse_portone_cancel_response()` — 유일한 프로덕션 코드 부분.
 6. `admin-web/lib/api-client.ts` 와 `components/RefundPolicySettings.tsx` — 호출 대상이 바뀔 때 같이 고쳐야 할 지점.

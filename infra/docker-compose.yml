@@ -3,7 +3,7 @@
 #
 # 이미지 태그는 부동 태그(pg18)가 아니라 정확한 버전으로 고정한다 —
 # 부동 태그는 내용이 조용히 바뀌어서 "어제 되던 게 오늘 안 되는" 원인을 못 찾게 만든다.
-# 근거: docs/kdancex4_service_definition_and_tech_stack.md 11-1
+# 근거: docs/planning/kdancex4_service_definition_and_tech_stack.md 11-1
 
 services:
   db:
@@ -79,7 +79,7 @@ services:
       # 비전(포스터 읽기) — Ollama 는 비전 부품을 본체에 합쳐 두지만 llama-server 는
       # 별도 파일로 받는다. 파일: unsloth/Qwen3.5-9B-GGUF 의 mmproj-F16.gguf (0.92GB,
       # sha256 f70dc3509053962b0d0d3ee8a7eacebf5d60aa560cad78254ae8698516ae029f).
-      # 없으면 컨테이너가 뜨지 않는다 — 받는 법: docs/kdancex4_service_definition_and_tech_stack.md 11-2
+      # 없으면 컨테이너가 뜨지 않는다 — 받는 법: docs/planning/kdancex4_service_definition_and_tech_stack.md 11-2
       - --mmproj
       - "/models/qwen3.5-9b/mmproj-F16.gguf"
       # 비전 부품도 GPU 에 올린다(기본값). CPU 에 두는 --no-mmproj-offload 는 쓰지 않는다 —

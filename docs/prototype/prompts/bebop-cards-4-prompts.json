@@ -1,0 +1,187 @@
+{
+  "_note": "2026-10-03 2차 기준. A=로컬 서버 /sdapi/v1/txt2img 바디, B=Civitai FLUX.2 요청. [교체] 는 기준 그림대로 갈 때 바꾸는 태그.",
+  "A_animagine_lanime": {
+    "animagine-lanime-dancesport": {
+      "prompt": "masterpiece, high score, great score, absurdres, anime screencap, late 1990s theatrical anime film, clean sharp lineart, vivid saturated colors, cel shading with soft gradients, detailed hair strands, detailed cloth folds, cinematic lighting, volumetric light, dramatic shadows, subtle film grain, deep painted background, mature anime style, realistic adult proportions, spiegel, 1boy, 1girl, couple, spike spiegel, julia \\(cowboy bebop\\), cowboy bebop, dark green hair, messy hair, narrow eyes, navy suit, yellow shirt, loose black necktie, tall, lanky, blonde hair, long wavy hair, [교체: red hair, short wavy hair,] blue eyes, red lips, black slit dress, bare back, ballroom dance, rumba, close hold, facing each other, holding hands, hand on back, foreheads almost touching, whispering, longing gaze, tender, only two people, couple centered, palace ballroom, tall arched windows, moonlight streaming through window, silver blue moonlight, candlelight, golden candle glow, marble floor reflection, chandelier, deep shadows, full body, portrait orientation, faces clearly visible, detailed faces, depth of field, detailed painted background",
+      "negative_prompt": "lowres, bad anatomy, bad hands, text, error, missing finger, extra digits, fewer digits, cropped, worst quality, low quality, low score, bad score, average score, signature, watermark, username, blurry, chibi, childlike, big head, moe, mobile game illustration, flat color, glossy plastic skin, 3d render, cgi, extra arms, extra legs, extra limbs, malformed hands, fused fingers, multiple views, duplicate, clone, 3boys, 3girls, logo, poster, border",
+      "width": 832,
+      "height": 1248,
+      "steps": 35,
+      "cfg_scale": 5,
+      "seed": 801,
+      "sampler_name": "DPM++ 2M Karras",
+      "batch_size": 1,
+      "enable_hr": true,
+      "hr_scale": 1.5,
+      "denoising_strength": 0.45,
+      "hr_steps": 28,
+      "override_settings": {
+        "sd_model_checkpoint": "animagine-xl-4.0.safetensors",
+        "hr_lora_weight": 0.3,
+        "loras": [
+          {
+            "name": "cowboy-bebop-illustrious-v2.safetensors",
+            "weight": 0
+          },
+          {
+            "name": "LANIME_STYLE_LORA_FILE.safetensors",
+            "weight": 0.6,
+            "_todo": "파일 미보유"
+          }
+        ]
+      }
+    },
+    "animagine-lanime-swing": {
+      "prompt": "masterpiece, high score, great score, absurdres, anime screencap, late 1990s theatrical anime film, clean sharp lineart, vivid saturated colors, cel shading with soft gradients, detailed hair strands, detailed cloth folds, cinematic lighting, volumetric light, dramatic shadows, subtle film grain, deep painted background, mature anime style, realistic adult proportions, spiegel, v4l3nt1ne, 1boy, 1girl, couple, spike spiegel, faye valentine, cowboy bebop, dark green hair, messy hair, navy suit, yellow shirt, loose necktie, purple hair, short bob, yellow hairband, green eyes, red lips, red backless dress, flared skirt, high heels, lindy hop, swing dance, spinning, one hand connection, dress flaring with motion, dynamic pose, laughing, only two people, couple centered, dark jazz club at night, big band on stage in blurred background, blue and teal stage lighting, neon sign glow, polished floor reflection, blurred crowd silhouettes, bokeh, full body, portrait orientation, faces clearly visible, detailed faces, depth of field, detailed painted background",
+      "negative_prompt": "lowres, bad anatomy, bad hands, text, error, missing finger, extra digits, fewer digits, cropped, worst quality, low quality, low score, bad score, average score, signature, watermark, username, blurry, chibi, childlike, big head, moe, mobile game illustration, flat color, glossy plastic skin, 3d render, cgi, extra arms, extra legs, extra limbs, malformed hands, fused fingers, multiple views, duplicate, clone, 3boys, 3girls, logo, poster, border",
+      "width": 832,
+      "height": 1248,
+      "steps": 35,
+      "cfg_scale": 5,
+      "seed": 801,
+      "sampler_name": "DPM++ 2M Karras",
+      "batch_size": 1,
+      "enable_hr": true,
+      "hr_scale": 1.5,
+      "denoising_strength": 0.45,
+      "hr_steps": 28,
+      "override_settings": {
+        "sd_model_checkpoint": "animagine-xl-4.0.safetensors",
+        "hr_lora_weight": 0.3,
+        "loras": [
+          {
+            "name": "cowboy-bebop-illustrious-v2.safetensors",
+            "weight": 0
+          },
+          {
+            "name": "LANIME_STYLE_LORA_FILE.safetensors",
+            "weight": 0.6,
+            "_todo": "파일 미보유"
+          }
+        ]
+      }
+    },
+    "animagine-lanime-salsa_bachata": {
+      "prompt": "masterpiece, high score, great score, absurdres, anime screencap, late 1990s theatrical anime film, clean sharp lineart, vivid saturated colors, cel shading with soft gradients, detailed hair strands, detailed cloth folds, cinematic lighting, volumetric light, dramatic shadows, subtle film grain, deep painted background, mature anime style, realistic adult proportions, ovirowa, 1boy, 1girl, couple, vincent volaju, electra ovilo, cowboy bebop: tengoku no tobira, cowboy bebop, tall gaunt man, long wavy black hair, stubble, long black coat, dark red shirt, tan skin, dark brown hair, hair tied up, [교체: blonde hair, curly updo,] red dress, bare back, gold belt, bachata, salsa, hips pressed together, hand on waist, hand on shoulder, rhythmic weight shift, foreheads almost touching, intimate, only two people, couple centered, latin club at night, red neon sign, warm golden lamplight, red and gold lighting, blurred dancing crowd, bokeh, polished floor reflection, full body, portrait orientation, faces clearly visible, detailed faces, depth of field, detailed painted background",
+      "negative_prompt": "lowres, bad anatomy, bad hands, text, error, missing finger, extra digits, fewer digits, cropped, worst quality, low quality, low score, bad score, average score, signature, watermark, username, blurry, chibi, childlike, big head, moe, mobile game illustration, flat color, glossy plastic skin, 3d render, cgi, extra arms, extra legs, extra limbs, malformed hands, fused fingers, multiple views, duplicate, clone, 3boys, 3girls, logo, poster, border",
+      "width": 832,
+      "height": 1248,
+      "steps": 35,
+      "cfg_scale": 5,
+      "seed": 801,
+      "sampler_name": "DPM++ 2M Karras",
+      "batch_size": 1,
+      "enable_hr": true,
+      "hr_scale": 1.5,
+      "denoising_strength": 0.45,
+      "hr_steps": 28,
+      "override_settings": {
+        "sd_model_checkpoint": "animagine-xl-4.0.safetensors",
+        "hr_lora_weight": 0.3,
+        "loras": [
+          {
+            "name": "cowboy-bebop-illustrious-v2.safetensors",
+            "weight": 0
+          },
+          {
+            "name": "LANIME_STYLE_LORA_FILE.safetensors",
+            "weight": 0.6,
+            "_todo": "파일 미보유"
+          }
+        ]
+      }
+    },
+    "animagine-lanime-tango": {
+      "prompt": "masterpiece, high score, great score, absurdres, anime screencap, late 1990s theatrical anime film, clean sharp lineart, vivid saturated colors, cel shading with soft gradients, detailed hair strands, detailed cloth folds, cinematic lighting, volumetric light, dramatic shadows, subtle film grain, deep painted background, mature anime style, realistic adult proportions, 1boy, 1girl, couple, julia \\(cowboy bebop\\), vicious \\(cowboy bebop\\), cowboy bebop, blonde hair, long wavy hair, [교체: red hair, short wavy hair,] blue eyes, red lips, black slit dress, bare back, black heels, long silver hair, [교체: long black hair,] pale skin, sharp hollow face, cold eyes, black suit, white shirt, argentine tango, close embrace, clear dance frame, chest to chest, stable balance, intense gaze, tension, only two people, couple centered, old grand hall, crystal chandelier, candlelight, deep shadows, warm amber glow, dark wood, polished floor reflection, full body, portrait orientation, faces clearly visible, detailed faces, depth of field, detailed painted background",
+      "negative_prompt": "lowres, bad anatomy, bad hands, text, error, missing finger, extra digits, fewer digits, cropped, worst quality, low quality, low score, bad score, average score, signature, watermark, username, blurry, chibi, childlike, big head, moe, mobile game illustration, flat color, glossy plastic skin, 3d render, cgi, extra arms, extra legs, extra limbs, malformed hands, fused fingers, multiple views, duplicate, clone, 3boys, 3girls, logo, poster, border",
+      "width": 832,
+      "height": 1248,
+      "steps": 35,
+      "cfg_scale": 5,
+      "seed": 801,
+      "sampler_name": "DPM++ 2M Karras",
+      "batch_size": 1,
+      "enable_hr": true,
+      "hr_scale": 1.5,
+      "denoising_strength": 0.45,
+      "hr_steps": 28,
+      "override_settings": {
+        "sd_model_checkpoint": "animagine-xl-4.0.safetensors",
+        "hr_lora_weight": 0.3,
+        "loras": [
+          {
+            "name": "cowboy-bebop-illustrious-v2.safetensors",
+            "weight": 0
+          },
+          {
+            "name": "LANIME_STYLE_LORA_FILE.safetensors",
+            "weight": 0.6,
+            "_todo": "파일 미보유"
+          }
+        ]
+      }
+    }
+  },
+  "B_flux2_anime": {
+    "flux2-anime-dancesport": {
+      "prompt": "A vertical 2:3 cinematic still in the mature style of a late-1990s Japanese theatrical anime film: precise confident line art, natural adult proportions, finely drawn hair strands and cloth folds, volumetric cinematic lighting with deep shadows, subtle film grain, a deep painted background, refined color grading. Semi-realistic anime, not cute, not chibi, no mobile-game gloss, no 3D render look. Exactly two people, correct hands and limbs, no extra limbs. Keep the two characters' faces, hairstyles, body types and costumes consistent with the reference images; do not reinterpret them as other characters. Leave the top-left corner free of detail for a title.\n\nInside a palace ballroom like a fairy-tale castle, moonlight pours through tall arched windows in silver-blue beams while candles add a warm gold glow and the marble floor mirrors the light. A tall lanky man with dark green fluffy messy hair, narrow eyes, a navy suit, yellow shirt and loose black tie (Spike Spiegel) holds a woman with long wavy blonde hair [교체: short wavy red hair], blue eyes and red lips in a black slit dress (Julia) in a close rumba hold. They face each other, foreheads almost touching, as if whispering a song of longing and love. Tender, quiet, intimate. Full body, both faces clearly visible.",
+      "width": 1024,
+      "height": 1536,
+      "steps": 32,
+      "guidance": 3.5,
+      "seed": 801,
+      "loras": [
+        {
+          "air": "urn:air:flux2:lora:civitai:2301918@2590116",
+          "strength": 0.8
+        }
+      ],
+      "reference_images": "docs/prototype/assets/genres/refs/ 의 해당 커플 2장"
+    },
+    "flux2-anime-swing": {
+      "prompt": "A vertical 2:3 cinematic still in the mature style of a late-1990s Japanese theatrical anime film: precise confident line art, natural adult proportions, finely drawn hair strands and cloth folds, volumetric cinematic lighting with deep shadows, subtle film grain, a deep painted background, refined color grading. Semi-realistic anime, not cute, not chibi, no mobile-game gloss, no 3D render look. Exactly two people, correct hands and limbs, no extra limbs. Keep the two characters' faces, hairstyles, body types and costumes consistent with the reference images; do not reinterpret them as other characters. Leave the top-left corner free of detail for a title.\n\nIn a dark jazz club under blue and teal stage light, a big band plays out of focus behind them and a neon sign glows. Spike Spiegel (dark green messy hair, navy suit, yellow shirt, loose tie) swings Faye Valentine (short purple bob, yellow hairband, green eyes, red lips, red backless dress) through a fast spin: a single-hand connection, her dress flaring with the motion, both laughing. The polished floor reflects the lights; the crowd is a blur of silhouettes. Full body, dynamic, both faces clearly visible.",
+      "width": 1024,
+      "height": 1536,
+      "steps": 32,
+      "guidance": 3.5,
+      "seed": 801,
+      "loras": [
+        {
+          "air": "urn:air:flux2:lora:civitai:2301918@2590116",
+          "strength": 0.8
+        }
+      ],
+      "reference_images": "docs/prototype/assets/genres/refs/ 의 해당 커플 2장"
+    },
+    "flux2-anime-salsa_bachata": {
+      "prompt": "A vertical 2:3 cinematic still in the mature style of a late-1990s Japanese theatrical anime film: precise confident line art, natural adult proportions, finely drawn hair strands and cloth folds, volumetric cinematic lighting with deep shadows, subtle film grain, a deep painted background, refined color grading. Semi-realistic anime, not cute, not chibi, no mobile-game gloss, no 3D render look. Exactly two people, correct hands and limbs, no extra limbs. Keep the two characters' faces, hairstyles, body types and costumes consistent with the reference images; do not reinterpret them as other characters. Leave the top-left corner free of detail for a title.\n\nIn a latin club at night, intense red neon and warm golden lamplight wash over the floor and a blurred crowd dances behind. A tall gaunt man with long wavy black hair, stubble and a long black coat over a dark red shirt (Vincent Volaju) dances bachata pressed close to a tan woman with dark brown hair tied up [교체: a blonde curly updo] in a red dress with a gold belt (Electra Ovilo). His hand at her waist, hers on his shoulder, a rhythmic shift of weight, foreheads almost touching. Full body, intimate, both faces clearly visible.",
+      "width": 1024,
+      "height": 1536,
+      "steps": 32,
+      "guidance": 3.5,
+      "seed": 801,
+      "loras": [
+        {
+          "air": "urn:air:flux2:lora:civitai:2301918@2590116",
+          "strength": 0.8
+        }
+      ],
+      "reference_images": "docs/prototype/assets/genres/refs/ 의 해당 커플 2장"
+    },
+    "flux2-anime-tango": {
+      "prompt": "A vertical 2:3 cinematic still in the mature style of a late-1990s Japanese theatrical anime film: precise confident line art, natural adult proportions, finely drawn hair strands and cloth folds, volumetric cinematic lighting with deep shadows, subtle film grain, a deep painted background, refined color grading. Semi-realistic anime, not cute, not chibi, no mobile-game gloss, no 3D render look. Exactly two people, correct hands and limbs, no extra limbs. Keep the two characters' faces, hairstyles, body types and costumes consistent with the reference images; do not reinterpret them as other characters. Leave the top-left corner free of detail for a title.\n\nIn an old grand hall lit by a crystal chandelier and candles, with deep shadows and amber light on dark wood, a woman with long wavy blonde hair [교체: short wavy red hair], blue eyes and red lips in a black slit dress (Julia) holds a tense Argentine tango frame with a pale, sharp-faced man with long silver hair [교체: long black hair] in a black suit and white shirt (Vicious). Clear frame, chest to chest, stable balance, a dramatic locked gaze full of tension. Full body, both faces clearly visible.",
+      "width": 1024,
+      "height": 1536,
+      "steps": 32,
+      "guidance": 3.5,
+      "seed": 801,
+      "loras": [
+        {
+          "air": "urn:air:flux2:lora:civitai:2301918@2590116",
+          "strength": 0.8
+        }
+      ],
+      "reference_images": "docs/prototype/assets/genres/refs/ 의 해당 커플 2장"
+    }
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "run": "2026-10-03-m3-ds",
+  "style": "bebop_cards2",
+  "models": [
+    "local-animagine-bebop-style-lora"
+  ],
+  "genres": [
+    "dancesport"
+  ],
+  "started": "2026-10-03T17:42:36"
+}

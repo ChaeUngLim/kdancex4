@@ -26,7 +26,7 @@
 - `_workspace/guides/SCH-{번호}({기능명}).html` (예: `_workspace/guides/SCH-05.html`)
 - `_workspace/SCH_kdance.html`의 해당 SCH `.item` 블록에 `가이드 보기` 링크를 추가해 연결한다
   (`<a class="guide-link" href="guides/SCH-05.html">가이드 보기 →</a>`).
-- 시각 스타일은 기존 `docs/payment-system-guide-for-beginners.html`의 다크 테마 CSS를
+- 시각 스타일은 기존 `docs/guide/payment-system-guide-for-beginners.html`의 다크 테마 CSS를
   그대로 재사용한다(`:root` 색상 변수, `.callout`, `.flow`, `.badge`, `details` 등) —
   프로젝트 안에서 "완벽분석가이드"라는 이름의 문서는 톤과 스타일이 통일되어 있어야 한다.
 
