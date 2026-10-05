@@ -244,7 +244,9 @@ def txt2img(req: dict) -> dict:
         # (2026-10-03 VRAM 실험) override_settings.attention_slicing = true 면 어텐션을 잘라 계산해 피크를 낮춘다(속도는 조금 느려짐)
         if ov.get("attention_slicing"):
             pipe.enable_attention_slicing("auto")
-        else:
+        elif not _ip_loaded:
+            # (2026-10-05) IP-Adapter 가 붙어 있으면 건너뛴다 — disable_attention_slicing 이 어텐션 처리기를 기본값으로 되돌려
+            # IP-Adapter 처리기가 사라지고, UNet 이 넘기는 (글, 이미지) 묶음을 기본 처리기가 받아 'tuple' 오류(500)가 났다
             pipe.disable_attention_slicing()
         # (2026-10-03 VRAM 실험 E6) override_settings.vae_tiling = true 면 1단계 디코드부터 VAE 타일링을 켠다. 실측 E1~E3 에서 2단계 배율·어텐션
         # 슬라이싱을 바꿔도 피크가 9.0GB 로 똑같았다 → 피크는 2단계가 아니라 1단계 끝의 1024 디코드(타일링 없음)로 보인다.
