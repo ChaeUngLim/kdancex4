@@ -538,6 +538,19 @@ Next.js 16.3 이 `node_modules/next/dist/docs/` 와 `AGENTS.md` 를 깔아 주�
 - Parallelize independent tool calls; serialize dependent ones
 - Never use placeholder or guessed parameters
 
+### 작업 난이도에 맞는 모델을 쓴다 (2026-10-09 사용자 지시)
+단순 작업과 정해진 변경은 메인(Opus)이 직접 하지 않고 서브에이전트에 `model` 을 지정해 넘긴다. 서로 독립이면 한 번에 병렬로 띄운다. "단순작업이나 변경은 모델을 적절하게 사용하게".
+
+| 모델 | 맡는 일 |
+|---|---|
+| **메인(Opus)** | 판단 · 사용자와 주고받기 · 범위 결정 · 결과 확인(서브에이전트 산출물을 메인이 다시 본다) |
+| **Sonnet** | 규칙이 정해진 여러 파일·여러 보드 일괄 변경, 커밋 분할, 정해진 설계를 코드로 옮기기 |
+| **Haiku** | 문장·값이 이미 정해진 기계적 작업 — spec 문장·변경 이력 한 줄 반영, 이미지 자르기·변환, 파일·용례 찾기, 이름 바꾸기 |
+
+- 넘길 때는 메인이 **파일 경로 · 넣을 문장 또는 규칙 · 확인 방법**을 확정해 프롬프트에 적는다. 판단을 서브에이전트에 미루지 않는다.
+- 호출 한두 번으로 끝나는 일은 넘기지 않는다 — 설명 비용이 더 크다.
+- **왜**: 2026-10-09 세션에서 커밋 분할·이미지 크롭·spec 반영을 모두 메인이 해 비용이 $11 를 넘었다.
+
 ## Memory Resilience
 - When updating CLAUDE-*.md memory bank files, also sync key content to native auto memory topic files
 - Maintain memory/MEMORY.md as an index of memory bank files and their current state
