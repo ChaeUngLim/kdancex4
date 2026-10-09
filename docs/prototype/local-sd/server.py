@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import base64
 import gc
+import hashlib
 import io
 import json
 import os
@@ -52,6 +53,9 @@ IP_DIR = Path(os.environ.get("LOCAL_SD_IP_DIR", Path.home() / "models" / "ip-ada
 IP_WEIGHTS = {"plus": "ip-adapter-plus_sdxl_vit-h.safetensors", "plus-face": "ip-adapter-plus-face_sdxl_vit-h.safetensors"}
 _ip_loaded: str | None = None  # 지금 붙어 있는 어댑터 파일 이름
 _ip_encoder = None  # CLIPVisionModelWithProjection — 한 번 읽어 CPU 에 둔다
+# (2026-10-09) 같은 칸을 seed 만 바꿔 여러 장 뽑을 때 반복 계산을 건너뛰는 캐시 — 직전 요청 1건만 기억한다
+_ip_cache: tuple | None = None  # ((체크포인트, 어댑터, 참고 이미지 해시), 어댑터 입력 벡터)
+_te_cache: tuple | None = None  # ((체크포인트, 프롬프트, 제외어), (pe, ppe, npe, nppe))
 
 
 def load(name: str) -> StableDiffusionXLPipeline:
@@ -87,11 +91,12 @@ def load(name: str) -> StableDiffusionXLPipeline:
 
 
 def _ip_encoder_cpu():
-    """이미지 인코더를 한 번만 디스크에서 읽어 CPU 에 둔다."""
+    """이미지 인코더를 한 번만 디스크에서 읽어 CPU 에 둔다.
+    fp32 인 이유(2026-10-09): 인코더를 GPU 에 올리지 않고 CPU 에서 바로 돌린다. CPU 는 fp16 연산이 느리거나 일부 연산을 지원하지 않는다."""
     global _ip_encoder
     if _ip_encoder is None:
         from transformers import CLIPVisionModelWithProjection
-        _ip_encoder = CLIPVisionModelWithProjection.from_pretrained(str(IP_DIR / "models" / "image_encoder"), torch_dtype=torch.float16)
+        _ip_encoder = CLIPVisionModelWithProjection.from_pretrained(str(IP_DIR / "models" / "image_encoder"), torch_dtype=torch.float32)
         _ip_encoder.eval()
     return _ip_encoder
 
@@ -114,16 +119,17 @@ def set_ip_adapter(pipe: StableDiffusionXLPipeline, kind: str | None) -> None:
 
 
 def ip_image_embeds(pipe: StableDiffusionXLPipeline, images: list[Image.Image]):
-    """참조 이미지들을 어댑터 입력 벡터로 바꾼다. 인코더는 이때만 GPU 에 올렸다가 바로 내린다."""
-    enc = _ip_encoder_cpu()
-    enc.to("cuda")
-    try:
-        embeds = pipe.prepare_ip_adapter_image_embeds(ip_adapter_image=[images], ip_adapter_image_embeds=None, device=pipe.device,
+    """참조 이미지들을 어댑터 입력 벡터로 바꾼다. 인코더는 CPU 에서만 돌리고, 결과 벡터(수 MB)만 GPU 로 보낸다.
+    (2026-10-09) 예전에는 인코더를 GPU 에 올렸다가 내렸는데, 내린 뒤에도 VRAM 이 5.9 → 7.7GB 로 남아 생성 중 8GB 를 넘었다.
+    넘친 만큼 공유 메모리로 빠져 장당 약 30분(평소 약 1분)이 걸렸다. 참조 이미지는 요청마다 1번만 인코딩하므로 CPU 로 충분하다."""
+    _ip_encoder_cpu()  # pipe.image_encoder 와 같은 객체 — CPU·fp32 에 둔다
+    t = time.time()
+    with torch.no_grad():
+        embeds = pipe.prepare_ip_adapter_image_embeds(ip_adapter_image=[images], ip_adapter_image_embeds=None, device=torch.device("cpu"),
                                                       num_images_per_prompt=1, do_classifier_free_guidance=True)
-    finally:
-        enc.to("cpu")
-        gc.collect(); torch.cuda.empty_cache()
-    print(f"[ip-adapter] 참조 {len(images)}장 → 벡터 · VRAM {torch.cuda.memory_allocated() / 2**30:.1f} GB", flush=True)
+    embeds = [e.to("cuda", dtype=torch.float16) for e in embeds]
+    gc.collect(); torch.cuda.empty_cache()
+    print(f"[ip-adapter] 참조 {len(images)}장 → 벡터(CPU {time.time() - t:.0f}s) · VRAM {torch.cuda.memory_allocated() / 2**30:.1f} GB", flush=True)
     return embeds
 
 
@@ -216,9 +222,16 @@ def txt2img(req: dict) -> dict:
         ip = ov.get("ip_adapter") or {}
         set_ip_adapter(pipe, (ip.get("model") or "plus") if ip.get("images") else None)
         ip_embeds = None
+        global _ip_cache, _te_cache
         if ip.get("images"):
-            ref_imgs = [Image.open(io.BytesIO(base64.b64decode(b))).convert("RGB") for b in ip["images"]]
-            ip_embeds = ip_image_embeds(pipe, ref_imgs)
+            # (2026-10-09) 같은 참고 이미지로 seed 만 바꿔 여러 장 뽑을 때는 벡터를 다시 만들지 않는다(직전 1건만 기억)
+            ip_key = (_loaded, _ip_loaded, tuple(hashlib.sha1(b.encode()).hexdigest() for b in ip["images"]))
+            if _ip_cache and _ip_cache[0] == ip_key:
+                ip_embeds = _ip_cache[1]
+            else:
+                ref_imgs = [Image.open(io.BytesIO(base64.b64decode(b))).convert("RGB") for b in ip["images"]]
+                ip_embeds = ip_image_embeds(pipe, ref_imgs)
+                _ip_cache = (ip_key, ip_embeds)
             pipe.set_ip_adapter_scale(float(ip.get("weight", 0.6)))
         ip_kw = {"ip_adapter_image_embeds": ip_embeds} if ip_embeds is not None else {}
         seed = int(req.get("seed", -1))
@@ -231,16 +244,24 @@ def txt2img(req: dict) -> dict:
         # 내린다. 그림을 그리는 동안은 쓰지 않는 부품이라 그만큼 2단계 피크가 내려간다. 다음 요청 때 다시 올린다.
         # 2026-10-03 실측(E4): 내리기만으로 1127초 → 152초, 피크 9.0 → 7.5GB, 결과 픽셀 동일. 그래서 기본값 켬. 끄려면 override_settings.offload_text_encoder=false.
         offload_te = bool(ov.get("offload_text_encoder", True))
-        if offload_te and pipe.text_encoder.device.type != "cuda":
-            pipe.text_encoder.to("cuda"); pipe.text_encoder_2.to("cuda")
-        pe, ppe = encode_long(pipe, req.get("prompt", ""))
-        npe, nppe = encode_long(pipe, req.get("negative_prompt") or "")
-        n = max(pe.shape[1], npe.shape[1])
-        pe, npe = _pad_seq(pipe, pe, n), _pad_seq(pipe, npe, n)
-        if offload_te:
-            pipe.text_encoder.to("cpu"); pipe.text_encoder_2.to("cpu")
-            gc.collect(); torch.cuda.empty_cache()
-            print(f"[offload] 글 인코더 CPU 로 · VRAM {torch.cuda.memory_allocated() / 2**30:.1f} GB", flush=True)
+        # (2026-10-09) 프롬프트·제외어가 직전 요청과 같으면 글 벡터를 그대로 쓴다 — 글 인코더(약 1.5GB)를 GPU 로 올렸다 내리는 왕복을
+        # 건너뛴다. LoRA 는 UNet 에만 붙으므로(text_encoder 키 없음 경고) 체크포인트가 같으면 벡터도 같다.
+        te_key = (_loaded, req.get("prompt", ""), req.get("negative_prompt") or "")
+        if _te_cache and _te_cache[0] == te_key:
+            pe, ppe, npe, nppe = _te_cache[1]
+            print("[offload] 글 벡터 재사용(직전과 같은 프롬프트)", flush=True)
+        else:
+            if offload_te and pipe.text_encoder.device.type != "cuda":
+                pipe.text_encoder.to("cuda"); pipe.text_encoder_2.to("cuda")
+            pe, ppe = encode_long(pipe, req.get("prompt", ""))
+            npe, nppe = encode_long(pipe, req.get("negative_prompt") or "")
+            n = max(pe.shape[1], npe.shape[1])
+            pe, npe = _pad_seq(pipe, pe, n), _pad_seq(pipe, npe, n)
+            _te_cache = (te_key, (pe, ppe, npe, nppe))
+            if offload_te:
+                pipe.text_encoder.to("cpu"); pipe.text_encoder_2.to("cpu")
+                gc.collect(); torch.cuda.empty_cache()
+                print(f"[offload] 글 인코더 CPU 로 · VRAM {torch.cuda.memory_allocated() / 2**30:.1f} GB", flush=True)
         # (2026-10-03 VRAM 실험) override_settings.attention_slicing = true 면 어텐션을 잘라 계산해 피크를 낮춘다(속도는 조금 느려짐)
         if ov.get("attention_slicing"):
             pipe.enable_attention_slicing("auto")
