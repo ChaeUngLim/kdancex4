@@ -92,15 +92,21 @@
 <div class="wrap">
 
   <div class="hero">
-    <div class="eyebrow"><span class="rule"></span>개발자용 · 베타→운영 규모 기준 · 2026-09-24 개정</div>
+    <div class="eyebrow"><span class="rule"></span>개발자용 · 베타→운영 규모 기준 · 2026-10-09 개정</div>
     <h1>노트북 베타에서<br>운영 서버로</h1>
     <p class="lede">지금까지의 스택·무료 API 판단은 <b>개인 개발자 노트북 기준</b>이었다.
     규모 목표가 <b>"베타 1~10명 → 3년 이후 1천~1만 명"</b>으로 바뀌었다(2026-09-24).
     베타는 노트북 1대로 감당된다 — AI 동시 사용자 10명을 이 노트북에서 실측했다.
     갭이 생기는 건 <b>3년 이후 운영 단계(1천~1만 명)</b>이고, 특히 AI 모델 서빙과 DB가 그렇다.
     이 문서는 그 갭을 숨기지 않고 짚는다.</p>
+    <p class="lede"><b>설계 상한은 최대 10만 명이다(2026-10-09 추가).</b> 10만 명을 운영한다는 계획이 아니라,
+    앱·API·DB 구조가 10만 명까지 재설계 없이 서버·DB 증설만으로 버티게 짠다는 기준이다.
+    목록은 페이지 나누기·검색·필터를 전제로 하고, 서버는 수평으로 늘릴 수 있게 둔다
+    (정원 판정 같은 정합성은 DB 잠금, 자주 읽는 순위판은 Redis 캐시). 강사 한 명이 주 10개 학원을 다니는 경우도 전제한다.
+    앱은 회원 앱과 강사·대표 앱 둘로 나눈다(같은 코드·서버·DB). 10만 설계 기준은 아래 비용 산정 대상이 아니다.</p>
     <div class="scale-row">
       <div class="scale-tile"><div class="n">1~10 → 1,000~10,000</div><div class="l">베타 → 3년 이후 가입자</div></div>
+      <div class="scale-tile"><div class="n">최대 100,000</div><div class="l">설계 상한 (운영 계획 아님, 증설만으로 버티게)</div></div>
       <div class="scale-tile"><div class="n">RTX 4060 · 8GB</div><div class="l">지금 개발 노트북</div></div>
       <div class="scale-tile"><div class="n">Qwen3.5 9B</div><div class="l">채팅 AI 모델 (유지)</div></div>
     </div>
@@ -340,10 +346,11 @@ flowchart TB
       <div class="cost-card"><div class="amt">₩40만 ~ 60만원</div>
         <div class="lbl">운영 — GPU 서버(옵션 A) 추가 시<br>RTX 4090급 24시간 인스턴스 기준</div></div>
     </div>
+    <p class="disclaimer">10만 명은 설계 기준이며 비용 산정 대상이 아니다(2026-10-09). 위 금액은 베타와 1천~1만 명 운영 기준이다.</p>
     <p class="disclaimer">클라우드 GPU 시세는 자주 바뀐다. 실제 도입 직전에 RunPod·
     JarvisLabs 등에서 최신 시간당 단가를 다시 확인할 것.</p>
   </section>
 
-  <footer>kdance 베타 인프라 가이드 · 작성 2026-09-13 · 개정 2026-09-24(규모 목표 1천~1만 명, AI 서빙 실측 반영) · docs 폴더</footer>
+  <footer>kdance 베타 인프라 가이드 · 작성 2026-09-13 · 개정 2026-09-24(규모 목표 1천~1만 명, AI 서빙 실측 반영) · 2026-10-09(설계 상한 10만 명) · docs 폴더</footer>
 
 </div>
