@@ -456,7 +456,7 @@ O.refund=web("환불 처리",`<div class="head"><div><span class="tiny">요청 4
    <tr><td class="num">10/11</td><td>이도현</td><td>바차타 센슈얼 입문 <span class="tag info">정규</span></td><td class="num">90,000</td><td class="tiny">대학생 50% 결제분</td><td><div class="input" style="height:36px;width:104px"><span class="num">60,000</span></div></td><td class="r"><div class="btn sm">환불 실행</div></td></tr></table>
    <p class="tiny" style="margin-top:12px">카드 결제는 원거래 취소, 가상계좌는 별도 송금이에요. 환불액은 결제액을 넘지 않고 원 단위로 올림 처리돼요.</p></div>
   <div class="stack"><div class="card stack" style="gap:8px"><div class="between"><b>행사 일괄 취소</b><span class="tag flame">되돌릴 수 없음</span></div><div class="input"><span>바차타 워크숍 · 10/20</span><span class="tiny">참가 24명</span></div><div class="between"><span class="tiny">전원 100% 환불 · 24건</span><b class="num">840,000원</b></div><div class="hstack"><span class="check on" style="background:var(--ink);border-color:var(--ink);width:20px;height:20px;font-size:11px">✓</span><span class="tiny" style="font-weight:500">참가자 전원에게 취소 알림을 보내요</span></div><div class="btn flame sm">24건 일괄 환불 실행</div></div>
-  <div class="card soft"><b style="font-size:13px">환불 비용 부담</b><p class="tiny" style="margin-top:4px;font-weight:500">대학생 50%·1+1 할인 차액과 환불 비용은 대표 부담이에요. 정산 원장에 차액 항목으로 표시됩니다.</p></div></div>
+  <div class="card soft"><b style="font-size:13px">환불 비용 부담</b><p class="tiny" style="margin-top:4px;font-weight:500">대학생 50% 할인 차액과 환불 비용은 대표 부담이에요. 정산 원장에 차액 항목으로 표시됩니다. 1+1 추가 수업은 결제가 0원이라 금액 없이 사용 여부만 표시돼요.</p></div></div>
  </div>`);
 
 O.ledger=web("정산 · 원장",`<div class="head"><div><span class="tiny">10월 · 정규형 11/5 지급 · 이벤트형 환불 마감 뒤 바로</span><h2>정산 · 원장</h2></div><div class="hstack"><span class="chip on">10월</span><span class="chip">9월</span><div class="btn ghost sm">내보내기</div></div></div>
@@ -473,7 +473,7 @@ O.ledger=web("정산 · 원장",`<div class="head"><div><span class="tiny">10월
    <tr><td class="num">10/14</td><td><span class="tag warn">차액</span></td><td>대학생 첫 결제 50% · 대표 부담</td><td>—</td><td class="r num">−90,000</td></tr>
    <tr><td class="num">10/13</td><td><span class="tag ok">결제</span></td><td>바차타 워크숍 · 참가 24명</td><td>혼합</td><td class="r num">840,000</td></tr>
    <tr><td class="num">10/12</td><td><span class="tag flame">환불</span></td><td>살사 온투 기초 · 최하은 · 환불표 66%</td><td>가상계좌 송금</td><td class="r num">−120,000</td></tr>
-   <tr><td class="num">10/11</td><td><span class="tag warn">차액</span></td><td>1+1 쿠폰 · 바차타 커플반 2건</td><td>—</td><td class="r num">−180,000</td></tr>
+   <tr><td class="num">10/11</td><td><span class="tag">표기</span></td><td>1+1 쿠폰 사용 · 바차타 커플반 2건</td><td>—</td><td class="r num faint">금액 없음</td></tr>
    <tr><td class="num">10/10</td><td><span class="tag ok">결제</span></td><td>살사 중급반 · 12명</td><td>카드</td><td class="r num">2,160,000</td></tr></table></div>
   <div class="stack"><div class="card stack" style="gap:8px"><b>장르 · 상품별</b><div class="between"><span>살사/바차타 · 정규형</span><span class="num">2,400,000</span></div><div class="between"><span>살사/바차타 · 이벤트형</span><span class="num">840,000</span></div><div class="between"><span>결제수단 · 카드 / 계좌</span><span class="num">78% / 22%</span></div></div>
   <div class="card night stack" style="gap:6px"><span class="tiny" style="color:var(--night-fg-2)">플랫폼 수수료 · 베타</span><b class="num" style="font-size:28px">0%</b><p class="tiny" style="color:var(--night-fg-2)">수수료율이 바뀌면 미래 날짜부터 적용되고 미리 알려드려요.</p></div></div>
@@ -521,7 +521,7 @@ document.getElementById("board").innerHTML=
  sec("sec-instructor","02 · 강사 앱 (390×844)","오늘 → 수업 만들기 → 명단·출석·레벨 → 정산 · spec US2 · US7 · FR-160~161",
   frame("I1","강사 홈","오늘 수업 · 실시간 명단 · 새 반 추천",I.home)+frame("I2","수업 만들기","AI 초안 · 남·여 정원 · 강의실 겹침",I.create)+frame("I3","명단 · 출석 · 레벨","레벨 0~10 · 결제자만 · 분포",I.roster)+frame("I4","정산","정규형 매월 5일 · 이벤트형 마감 뒤 바로",I.payout))+
  sec("sec-owner","03 · 대표 콘솔 (1280×832 웹)","대시보드 → 포스터 등록 → 환불 처리 → 정산·원장 · spec US3 · US4 · FR-119 · FR-121d~e",
-  frame("O1","대시보드","오늘 수업 · 1+1 참여 · 해야 할 일",O.dash)+frame("O2","포스터로 수업 등록","자동 읽기 · 확인필요 · 강의실 충돌 차단",O.poster)+frame("O3","환불 요청 처리","이벤트형 계산값 미리 채움 · 행사 일괄 취소",O.refund)+frame("O4","정산 · 원장","원 단위 원장 · 할인 차액 대표 부담",O.ledger));
+  frame("O1","대시보드","오늘 수업 · 1+1 참여 · 해야 할 일",O.dash)+frame("O2","포스터로 수업 등록","자동 읽기 · 확인필요 · 강의실 충돌 차단",O.poster)+frame("O3","환불 요청 처리","이벤트형 계산값 미리 채움 · 행사 일괄 취소",O.refund)+frame("O4","정산 · 원장","원 단위 원장 · 대학생 할인 차액 대표 부담",O.ledger));
 </script>
 </body>
 </html>

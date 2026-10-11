@@ -465,9 +465,9 @@ function memberScreen(){
     <div class="search" style="margin-top:14px">${I.spark}<span>메시지 입력…</span></div>`,"chat");
   case "me": return phoneShell(`
     <div class="apphead"><h2>마이</h2></div>
-    <div class="hero"><div class="l">월 멤버십 중 · 카드 자동 갱신</div><div class="b">다음 결제 10/13 · 1,000원</div><div style="font-size:12px;opacity:.75;margin-top:6px">연 멤버십으로 바꾸면 10,800원 (10% 할인)</div></div>
-    <div class="card" style="border-color:var(--accent)"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><div style="min-width:0"><div style="font-weight:700">🎟 1+1 할인권 <span class="chip ok">사용 가능</span></div><div class="dim" style="font-size:12px;margin-top:3px">정가 수업 1달치 + 비슷한 레벨 추가 수업 1달치 50%</div></div><div style="text-align:right;flex:none"><div class="mono" style="font-weight:700;color:var(--accent)">D-18</div><div class="faint" style="font-size:10.5px">11/9 소멸</div></div></div></div>
-    <div class="card"><div class="row"><span class="k">멤버십 유지</span><span class="v">연속 3개월째 · 다음 할인권 12/13</span></div><div class="row"><span class="k">대학생 인증</span><span class="v ok">인증됨 · 첫 결제 할인 사용</span></div><div class="row"><span class="k">내 레벨</span><span class="v">살사 4 · 바차타 2 <span class="faint">(강사 부여)</span></span></div></div>
+    <div class="hero"><div class="l">3개월 멤버십 중 · 카드 자동 갱신</div><div class="b">다음 결제 10/13 · 3,000원</div><div style="font-size:12px;opacity:.75;margin-top:6px">연 멤버십으로 바꾸면 10,800원 (12,000원에서 10% 할인)</div></div>
+    <div class="card" style="border-color:var(--accent)"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><div style="min-width:0"><div style="font-weight:700">🎟 1+1 할인권 <span class="chip ok">사용 가능</span></div><div class="dim" style="font-size:12px;margin-top:3px">정가 수업 1달 + 내 레벨 이하 정규 수업 1달 무료</div></div><div style="text-align:right;flex:none"><div class="mono" style="font-weight:700;color:var(--accent)">D-18</div><div class="faint" style="font-size:10.5px">11/9 소멸</div></div></div></div>
+    <div class="card"><div class="row"><span class="k">멤버십 유지</span><span class="v">다음 결제 10/13 · 결제하면 할인권 바로 지급</span></div><div class="row"><span class="k">대학생 인증</span><span class="v ok">인증됨 · 첫 결제 할인 사용</span></div><div class="row"><span class="k">내 레벨</span><span class="v">살사 4 · 바차타 2 <span class="faint">(강사 부여)</span></span></div></div>
     <div class="card"><div class="row"><span class="k">예약 내역</span><span class="faint">${I.chev}</span></div><div class="row"><span class="k">결제·환불 내역 · 영수증</span><span class="faint">${I.chev}</span></div><div class="row"><span class="k">알림 시점</span><span class="v">30분 전</span></div><div class="row"><span class="k">멤버십 관리</span><span class="v" style="font-weight:500;font-size:12px">언제든 해지 · 결제 뒤 환불 없음</span></div></div>`,"me");
   }
 }
@@ -591,14 +591,14 @@ function ownerScreen(){
       <tr><td>KD-0355</td><td>고객 환불 · 정도* (중도)</td><td><span class="chip">상계</span></td><td class="num amt neg">−90,000</td></tr>
       <tr><td>EV-0102</td><td>판매 · 할로윈 파티 · 24명</td><td><span class="chip warn">보류 · 마감 10/26 뒤 지급</span></td><td class="num amt pos">+720,000</td></tr>
       <tr><td>EV-0102</td><td>취소 수수료 배분 (학원 50%)</td><td>—</td><td class="num amt pos">+1,500</td></tr>
-      <tr><td>—</td><td>1+1 쿠폰 사용 6건 · 추가 수업 50% 학원 부담</td><td>—</td><td class="num faint">표기</td></tr></table></div></div>
+      <tr><td>—</td><td>1+1 쿠폰 사용 6건 · 금액 없이 사용 여부만 표시</td><td>—</td><td class="num faint">표기</td></tr></table></div></div>
     <div><div class="panel"><div class="ph">지급 시점</div><div class="pb"><div class="row"><span class="k">정규·단기 · 개인 레슨</span><span class="v">수업 기간 끝난 몫 · 매월 5일</span></div><div class="row"><span class="k">행사형</span><span class="v">환불 마감일 다음 날</span></div><div class="row"><span class="k">지급 뒤 환불</span><span class="v">다음 정산 상계</span></div></div></div>
     <div class="panel" style="margin-top:12px"><div class="ph">강사 정산 · 소속 전원</div><div class="pb"><div class="row"><span class="k">박지연</span><span class="v">보류 1,240,000 · 예정 2,010,000</span></div><div class="row"><span class="k">강민수</span><span class="v">보류 480,000 · 예정 640,000</span></div></div></div></div></div>`;
   if(o.screen==="settings") inner=`
     <div class="head"><div><h2>입점 · 설정</h2><p>정산 계좌 · 등록 형태 · 항목별 동의 · 환불·취소 공지 양식</p></div><span class="chip ok">입점 심사 통과 · 2026-09-13</span></div>
     <div class="grid2"><div>
       <div class="panel"><div class="ph">등록 형태 · 증빙</div><div class="pb"><div class="row"><span class="k">등록 형태</span><span class="v">학원 (교육청 등록)</span></div><div class="row"><span class="k">증빙</span><span class="v ok">학원 등록증 · 확인됨</span></div><div class="row"><span class="k">업종코드</span><span class="v">921902 <span class="faint">(판정에는 쓰지 않음)</span></span></div><div class="row"><span class="k">정산 계좌 · PG 하위 판매자</span><span class="v">국민 ****8801 · 등록됨</span></div></div></div>
-      <div class="panel" style="margin-top:12px"><div class="ph">항목별 동의 · 시각 기록</div><div class="pb">${[["판매 수수료 5% · 입점 1년 면제","09-13 14:02"],["카드·PG 결제 수수료 대표 부담","09-13 14:02"],["1+1 할인권 참여 (추가 수업 50% 부담)","09-13 14:03"],["콘텐츠 무상 이용 허락 · 홍보 목적","09-13 14:03"]].map(r=>`<div class="row"><span class="k">${r[0]}</span><span class="chip ok">동의 · ${r[1]}</span></div>`).join("")}</div></div>
+      <div class="panel" style="margin-top:12px"><div class="ph">항목별 동의 · 시각 기록</div><div class="pb">${[["판매 수수료 5% · 입점 1년 면제","09-13 14:02"],["카드·PG 결제 수수료 대표 부담","09-13 14:02"],["1+1 할인권 참여 (추가 수업 1달 무료 자리 제공)","09-13 14:03"],["콘텐츠 무상 이용 허락 · 홍보 목적","09-13 14:03"]].map(r=>`<div class="row"><span class="k">${r[0]}</span><span class="chip ok">동의 · ${r[1]}</span></div>`).join("")}</div></div>
     </div><div>
       <div class="panel"><div class="ph">환불·취소 공지 · 6항목 <span class="faint" style="font-weight:500">등록 안 하면 수업을 게시할 수 없음</span></div><div class="pb">
         <div class="fld"><label for="s1">1. 취소 가능 시점</label><input class="input" id="s1" value="수업 시작 전까지 앱 문의로 요청"></div>

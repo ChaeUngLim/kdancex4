@@ -4,7 +4,7 @@
 - 근거: `docs/planning/plan-summary.md`에 정리된 기획 문서 전체. 각 항목에 원 출처 파일을 표기해 추적 가능하게 함.
 - 원칙: 문서에 명시되지 않은 내용은 "명시 안 됨, 확인 필요"로 표기하고 추측하지 않음.
 
-> ⚠ **이 문서의 금액·결제·환불 규칙은 2026-09-25·2026-09-26 에 대체됐다.** 본문은 당시 기록으로 남긴다. 지금 규칙은 아래 표와 spec(`specs/001-ai-dance-class-platform/spec.md`)을 본다.
+> ⚠ **이 문서의 금액·결제·환불 규칙은 2026-09-25·2026-09-26 에 대체됐다.** 환불·결제 경로 설명은 당시 기록으로 남기고, 수수료·대학생·멤버십 수치는 2026-10-11 에 현행 값으로 맞췄다. 지금 규칙은 아래 표와 spec(`specs/001-ai-dance-class-platform/spec.md`)을 본다.
 
 > | 항목 | 지금 규칙(2026-09-26) | 근거 |
 > |---|---|---|
@@ -14,7 +14,7 @@
 > | 행사 일괄 취소 | 대표만 결정하고 사유를 고른다. 연기 참가 없이 곧바로 결제자 전원에게 전액 PG 일괄 환불(예매 수수료 포함). 학원 계좌 직접 송금 금지. 돌려받지 못한 PG 수수료는 불가항력이어도 대표 | FR-099e(행사 일괄 취소) |
 > | 수수료 | 플랫폼 5%(입점 1년 면제), 결제·카드 수수료는 대표 부담, 취소로 남은 금액 5:5. 예매 수수료가 붙은 결제는 결제·카드 수수료를 금액 비율로 나눠 대표는 수업료 몫만 낸다. 영수증은 판매자별로 나눈다 | FR-124(플랫폼 수수료 5%·1년 면제) · FR-125e(취소 수수료 5:5·판매 수수료 5%) · FR-282b(예매 수수료 결제 수수료 안분) · FR-282c(판매자별 영수증·정산 분배) |
 > | 대학생 | 첫 결제 1회 50%, 차액 학원 부담 | FR-118(대학생 첫 결제 50%) |
-> | 멤버십 | 월·연(10% 할인), 결제 뒤 환불 없음(해지만), 1+1 할인권은 3개월 유지마다 1장 | FR-112a(연 멤버십 10% 할인) · FR-297a(멤버십 환불 없음) · FR-120a(쿠폰 생성 조건) |
+> | 멤버십 | 3개월·연(10% 할인), 결제 뒤 환불 없음(해지만), 1+1 할인권은 3개월 멤버십만 결제 즉시 1장(연 멤버십은 1+1 없이 동반자 첫 수업 무료 쿠폰 1년 1장) | FR-112a(연 멤버십 10% 할인) · FR-297a(멤버십 환불 없음) · FR-120a(쿠폰 생성 조건) |
 > | 약관 | `docs/legal/terms-of-service.md` · `docs/legal/merchant-terms.md` · `docs/legal/privacy-policy.md` | — |
 
 ## 1. 기능 요구사항 (도메인별)
@@ -46,18 +46,18 @@
 
 ### 1.4 결제 / 가격 정책
 
-- FR-30: 체크아웃 화면에서 정가 대비 할인·쿠폰이 항목별로 순차 표시(대학생 할인, 분기 1+1 쿠폰 등) (`../guide/kdance-screens-spec.html` 화면04)
+- FR-30: 체크아웃 화면에서 정가 대비 할인·쿠폰이 항목별로 순차 표시(대학생 할인, 1+1 쿠폰 등) (`../guide/kdance-screens-spec.html` 화면04)
 - FR-31: `POST /orders` — 정가-대학생할인-쿠폰 계산 후 PG 호출, `Order` 모델 (`social-dance-app-dev-guide.html` 화면 매핑표)
-- FR-32: 대학생 3개월 램프 요금제(1개월 무료→2개월 반값→3개월부터 정상가), 차액은 학원 부담 (`../policy/pricing-policy.md`, `social-dance-app-dev-guide.html`)
-- FR-33: 월 멤버십 결제자에게 분기 1회(연 4회) 1+1 쿠폰 자동 지급, 기존 결제 1건 이상 포함 시에만 사용 가능, 미사용 시 분기 말 소멸, 양도 불가 (`../policy/pricing-policy.md`, `social-dance-app-dev-guide.html`, `../guide/kdance-screens-spec.html`)
+- FR-32: 대학생 최초 첫 결제 1회 50%, 차액은 학원 부담 (`../policy/pricing-policy.md`, `social-dance-app-dev-guide.html`)
+- FR-33: 3개월 멤버십 결제자에게 결제(첫 결제·갱신)할 때마다 1+1 쿠폰 1장 즉시 지급(연 멤버십에는 1+1 쿠폰이 없다 — 동반자 첫 수업 무료 쿠폰 1년 1장만 받는다), 정가 정규 수업 1개 신청 때 한 신청에 1장 사용 가능(가입 후 3개월 체험엔 쿠폰 없음, 본인 레벨 이하의 정규 수업 1개를 1달 무료, 정가 수업 개강일 앞뒤 30일 안에 개강하는 수업만 — 정규 수업끼리만, 대표 정산에는 금액 없이 '1+1 쿠폰 사용' 여부만 표시, 참여 학원은 그 자리를 1달 무료로 내줌), 발급일부터 3개월 뒤 소멸, 본인 사용 (`../policy/pricing-policy.md`, `social-dance-app-dev-guide.html`, `../guide/kdance-screens-spec.html`)
 - FR-34: 체크아웃 서버 검증 — "유료 수업 1건 이상 포함 여부"와 "쿠폰 대상 수업이 결제 수업과 같은 장르·비슷한 레벨인지"를 서버에서 동시 검증 (`social-dance-app-dev-guide.html`)
-- FR-35: 할인·쿠폰 부정사용 방지는 기기 단위가 아니라 사람(전화번호 본인인증) 단위·분기 단위로 제한 (`social-dance-app-dev-guide.html`)
+- FR-35: 할인·쿠폰 부정사용 방지는 기기 단위가 아니라 사람(전화번호 본인인증) 단위로 제한(쿠폰 사용은 한 신청에 1장, 분기 단위 제한 없음) (`social-dance-app-dev-guide.html`)
 - FR-36: 정기결제(빌링키) 지원 — 매달 카드 정보 재입력 없이 자동 청구, 실패 시(카드 만료 등) 재시도 정책 필요 (`social-dance-app-dev-guide.html`)
-- FR-37: `Coupon` 테이블 — 발급 시각, 유효기간(분기 말), 사용 여부, 사용된 예약 ID 보유. 쿠폰 발급은 APScheduler 배치가 멤버십 결제 성공 이력 기반으로 처리 (`social-dance-app-dev-guide.html`)
-- FR-38: 일반 결제 수수료 학원 8% 부담, 92% 지급. 학원 정산은 매월 5일, 베타 첫 6개월 수수료 전액 면제 (`social-dance-app-dev-guide.html`, `../guide/kdance-screens-spec.html`)
+- FR-37: `Coupon` 테이블 — 발급 시각, 유효기간(발급일부터 3개월 뒤), 사용 여부, 사용된 예약 ID 보유. 쿠폰 발급은 APScheduler 배치가 멤버십 결제 성공 이력 기반으로 처리 (`social-dance-app-dev-guide.html`)
+- FR-38: 일반 결제 플랫폼 이용 수수료 5%(학원 부담), 95% 지급. 학원 정산은 매월 5일, 입점일부터 1년 수수료 전액 면제 (`social-dance-app-dev-guide.html`, `../guide/kdance-screens-spec.html`)
 - FR-39: 정산 대시보드 — 총 결제액/수수료/실지급액, 1+1 쿠폰 사용 건수(수수료 계산엔 미반영, 별도 표기), 신규 회원 수. `GET /admin/settlements` (`../guide/kdance-screens-spec.html` 화면12, `social-dance-app-dev-guide.html`)
 - FR-40: MVP 단계는 학원이 직접 PG 가맹점을 갖는 단순 결제 구조, 로드맵 4단계에서 정산 분배형(하위 가맹점) 결제로 전환 (`social-dance-app-dev-guide.html`)
-- FR-41: 단건 예약 결제는 가상계좌(무통장입금)를 기본 결제수단으로 제공, 월 멤버십(정기결제)은 카드만 지원 (`../policy/payment-method-policy.md`, 2026-09-14 확정)
+- FR-41: 단건 예약 결제는 가상계좌(무통장입금)를 기본 결제수단으로 제공, 멤버십(3개월·연)은 카드·간편결제·계좌이체 모두 지원 (`../policy/payment-method-policy.md`, 2026-09-14 확정)
 - FR-42: 가상계좌 발급 시점에 해당 슬롯을 Redis 락으로 잠그고, 입금 확인 시 확정·기한 초과 시 해제. 동일 슬롯에 복수 가상계좌가 발급된 경우 먼저 입금 확인된 주문만 확정 (`../policy/payment-method-policy.md`)
 - FR-43: PG 웹훅(`payment.completed`) 수신 시 구매자·학원 관리자 양쪽에 즉시 앱 내 알림(Expo Push) 발송 — SMS는 사용하지 않음 (`../policy/payment-method-policy.md`, FR-90과 연계)
 

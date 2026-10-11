@@ -381,7 +381,7 @@ def test_24h_boundary_is_inclusive_of_full_refund(label, before, expected_rate_b
         <tr><th>상수</th><th><code>fee_policy.py</code> 의 값</th><th>지금 spec</th></tr>
         <tr><td><code>PLATFORM_FEE_RATE_BP</code></td><td><code>800</code> (8%)</td><td>모든 수업 결제 5% — FR-124(플랫폼 수수료 5%·1년 면제)</td></tr>
         <tr><td><code>BETA_FEE_WAIVED</code></td><td><code>True</code> (베타 6개월 면제)</td><td>학원 입점일부터 1년 면제 — FR-124(플랫폼 수수료 5%·1년 면제)</td></tr>
-        <tr><td><code>PG_FEE_BEARER</code></td><td><code>"platform"</code> (플랫폼 부담)</td><td>수업 결제의 PG 수수료와 환불로 못 돌려받은 PG 수수료는 대표 부담. 월·연 멤버십 환불분만 플랫폼 — FR-125c(환불 PG 수수료 대표 부담)·FR-125d(PG 결제 수수료 대표 부담)</td></tr>
+        <tr><td><code>PG_FEE_BEARER</code></td><td><code>"platform"</code> (플랫폼 부담)</td><td>수업 결제의 PG 수수료와 환불로 못 돌려받은 PG 수수료는 대표 부담. 3개월·연 멤버십 환불분만 플랫폼 — FR-125c(환불 PG 수수료 대표 부담)·FR-125d(PG 결제 수수료 대표 부담)</td></tr>
         <tr><td><code>SETTLEMENT_REFUND_RECOVERY</code></td><td><code>"next_month_deduction"</code> (다음 달 정산에서 차감)</td><td>학원 정산금에서 상계하고 남은 금액은 다음 정산으로 넘긴다 — FR-253(정산 상계). 방향은 같고 범위가 넓어졌다</td></tr>
       </table>
       <i>취소 수수료 배분도 새로 생겼다. 이벤트·원데이·파티·공연·대회 취소로 남은 금액은 플랫폼과 대표가 5:5 로 나눈다 — FR-125e(취소 수수료 5:5·판매 수수료 5%).</i>
