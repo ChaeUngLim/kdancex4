@@ -352,7 +352,7 @@ GitHub spec-kit 의 `specify → plan → tasks → implement → analyze → co
 | 리스크(`R1~`)와 미해결 질문(`Q1~`) |
 | SCH 대응 관계 |
 
-**spec 전체를 한 번에 넘기지 않는다.** kdance 의 spec 은 FR 205개(하위 번호 포함, 2026-09-24) 규모라 통째로는 어느
+**spec 전체를 한 번에 넘기지 않는다.** kdance 의 spec 은 FR 약 345개(하위 번호 포함, 2026-10-11 실측) 규모라 통째로는 어느
 Phase 도 삼킬 수 없다. Phase 1 의 첫 일이 **어디를 자를지 정하는 것**이다.
 
 spec 이 없으면 Phase 1 은 기존대로 처음부터 분석한다 — spec-kit 사용은 선택이다.
