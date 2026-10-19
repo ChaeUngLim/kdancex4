@@ -742,7 +742,7 @@ ADR-004, 경계는 「11-3. 백엔드 교체」). `Agent 서버`·`Agent`·`Agen
 | Mobile | Expo SDK | 58.0.0-preview.6 | 모바일 툴체인 · RN 앵커 |
 | Mobile | React Native | 0.88.0-rc.1 | Android/iOS App (Expo SDK 핀) |
 | Language | TypeScript | 6.0.3 | 타입 안정성                        |
-| Runtime | Node.js | 24.21.0 LTS (Krypton) | Next.js/Prisma 실행환경           |
+| Runtime | Node.js | 24.22.0 LTS (Krypton) | Next.js/Prisma 실행환경           |
 | CSS | Tailwind CSS | 4.3.3 | UI 스타일                        |
 | UI System | shadcn/ui | 4.21.0 | 디자인 시스템                       |
 | Client State | Zustand | 5.0.15 | UI 상태                         |
@@ -873,7 +873,7 @@ API 다. AI SDK 7 은 agent 루프와 tool 호출 구조가 6 과 다르고, Lan
 | TypeScript 6.0.3 | 7.0.2 에서 **6.0.3 으로 내렸다**(2026-09-23). `typescript-eslint@8.70.0` 의 peer 가 `>=4.8.4 <6.1.0` 이라 7 을 받지 않고, Expo 58 도 `~6.0.3` 을 기대한다. 설치된 전 패키지의 TS peer 를 대조한 결과 **7 을 요구하는 패키지는 0개**다 — Next.js 16.3.5 는 peer 선언이 없고 코드상 최소 5.1.0, AI SDK·LangGraph·MCP SDK·Better Auth·Prisma 8 도 6.0.3 을 받는다. 6.x 안정판은 6.0.2·6.0.3 둘뿐이라 최신 패치인 6.0.3 을 쓰고, `typescript-eslint` 상한을 넘지 않게 `~6.0.3` 으로 고정한다. 검증: admin-web `next build` 성공, mobile `tsc --noEmit` exit 0, `expo install --check` 의 TS 경고 소멸. 예외: `capnp-es@0.0.14`(Prisma 경유 optional)는 `^5.7.3` 이라 6·7 모두 벗어난다 — 전부터 있던 경고다 | **적용** |
 | admin-web lint | TS 를 6.0.3 으로 내린 뒤에도 `npm run lint` 는 실패한다. 남은 원인은 `eslint.config.mjs` 가 `FlatCompat` 으로 `next/core-web-vitals` 를 감싸는 옛 방식이라 생기는 순환 참조(`Converting circular structure to JSON`)다. Next 16.3 문서(`dist/docs/.../03-eslint.md`)는 `eslint-config-next/core-web-vitals` 를 직접 import 하는 방식을 쓴다. 원인이 두 겹이었고 TS 쪽 하나만 풀렸다 | **미해결** |
 | Temporal 부재 | Prisma 8 Postgres 타깃은 `timestamptz` 를 `Temporal.Instant` 로 읽고 쓴다. 런타임 가드가 `typeof Temporal === "undefined"` 면 `RUNTIME.TEMPORAL_UNAVAILABLE` 로 던진다(`orm-target-postgres/dist/*.mjs` 실측). **`globalThis.Temporal` 은 Node 26.8.2+ 에만 있고 우리는 24.21.0 LTS 다.** 이 프로젝트는 `starts_at`·`paid_at`·`cancelled_at`·`created_at`/`updated_at` 이 전부 timestamptz 라 첫 읽기/쓰기에서 죽는다 | **해결** |
-| Temporal 대응 | `temporal-polyfill@1.0.5` 를 도입했다(2026-09-20). 가드가 맨 식별자 `Temporal` 을 보므로 `import 'temporal-polyfill/global'` 로 전역에 심으면 통과한다 — 실측: 주입 전 `undefined` → 주입 후 `object`, `Temporal.Instant.from()` 왕복 정상. **Node 26 은 아직 LTS 가 아니라(2026-09-20 기준 v26.9.0 LTS:False) 런타임 업그레이드 대신 폴리필을 택했다.** 26 이 LTS 가 되면 폴리필만 걷어낸다 | **적용** |
+| Temporal 대응 | `temporal-polyfill@1.0.5` 를 도입했다(2026-09-20). 가드가 맨 식별자 `Temporal` 을 보므로 `import 'temporal-polyfill/global'` 로 전역에 심으면 통과한다 — 실측: 주입 전 `undefined` → 주입 후 `object`, `Temporal.Instant.from()` 왕복 정상. **Node 26 은 아직 LTS 가 아니라(2026-09-20 기준 v26.9.0 LTS:False) 런타임 업그레이드 대신 폴리필을 택했다.** 26 이 LTS 가 되면 폴리필만 걷어낸다. **2026-10-19 재확인**: 최신 v26.12.0 도 LTS:False, 공식 일정표상 LTS 전환은 **2026-10-28** — 같은 날 런타임은 24 라인 최신 24.22.0 으로 올렸다(`next build` 성공·mobile `tsc` 통과·폴리필 주입 정상) | **적용** |
 | Temporal 대안 | 쓰지 않았지만 기록한다 — Prisma 8 은 코덱을 쌍으로 제공한다(`timestampTemporalColumn` ↔ `timestampStringColumn`, `date`/`time` 도 동일). 문자열 코덱은 Temporal 없이 동작하는 **정식 경로**다. 폴리필이 문제를 일으키면 이쪽으로 옮길 수 있다 | 대안 확보 |
 | 폴리필 주입 시점 | 폴리필은 **Prisma 코드가 처음 돌기 전에** 로드되어야 한다. Next.js 에서는 `instrumentation.ts` 같은 최초 진입점이 후보다. 어디에 넣을지는 Phase 3(구현 계획)에서 정한다 | **미검증** |
 | Python ↔ AI SDK 스트림 | 에이전트가 Python 이라(ADR-004) `@ai-sdk/langchain` 어댑터는 쓰지 않는다. 대신 Python 서버의 스트림을 AI SDK 7 `useChat` 에 붙이는 방법이 남는다 — Python 이 AI SDK UI 스트림 형식을 직접 내보낼지, Next.js 가 중간에서 변환할지 확인하지 않았다. **구현 첫 단계에서 검증한다** | **미검증** |
