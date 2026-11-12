@@ -1,0 +1,15 @@
+const B=FIND('C26A ·');
+const Y0=180,HH=64,X0=60,CW=44;
+[18,19,20,21,22].forEach((h,i)=>{const y=Y0+i*HH;T(B,20,y-8,h+':00',9,'600',C.ink3);R(B,X0,y,308,1,C.line);});
+const BL=(d,s,e,label,kind)=>{const x=X0+d*CW+2,y=Y0+(s-18)*HH,h=(e-s)*HH-2;
+ if(kind==='on')R(B,x,y,CW-4,h,C.plum,{r:8,name:'수업 '+label});
+ else if(kind==='past')R(B,x,y,CW-4,h,C.plumL,{r:8,name:'지난 수업 '+label});
+ else if(kind==='abs')R(B,x,y,CW-4,h,'#ffffff',{r:8,stroke:C.warn,sw:1.5,name:'결석 예정 '+label});
+ else R(B,x,y,CW-4,h,'#ffffff',{r:8,stroke:C.ink3,dash:true,name:'대기 '+label});
+ T(B,x,y+6,label,9,'700',kind==='on'?'#ffffff':kind==='abs'?C.warn:kind==='past'?C.plum:C.ink3,{w:CW-4,align:'center'});};
+BL(0,20.5,21.5,'쌈바','past');
+BL(1,19,20,'바차타','past');
+BL(2,19,20,'바차타\n결석','abs');
+BL(2,20.5,21.5,'쌈바','on');
+BL(3,21.17,22.17,'대기 살사','wait');
+return B.id;

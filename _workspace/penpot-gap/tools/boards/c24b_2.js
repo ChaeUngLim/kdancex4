@@ -1,0 +1,11 @@
+const B=FIND('C24B ·');
+const SEG=(x,y,abs)=>{R(B,x,y,124,32,'#f4f1ec',{r:10,stroke:C.line,name:'seg:참석|결석'});R(B,x+(abs?62:2),y+2,60,28,abs?C.warnL:'#ffffff',{r:8,stroke:abs?null:C.selLine,name:abs?'결석 켜짐':'참석 켜짐'});T(B,x,y+6,'참석',12,abs?'600':'800',abs?C.ink3:C.plum,{w:64,align:'center'});T(B,x+62,y+6,'결석',12,abs?'800':'600',abs?C.warn:C.ink3,{w:62,align:'center'});};
+const L=[['바차타 센슈얼 입문','19:00–20:00 · B홀',true],['쌈바(입문)','20:30–21:30 · A홀',false]];
+L.forEach(([n,d,abs],i)=>{const y=262+i*84;CARD(B,20,y,350,72,{r:16,fill:abs?'#faf7f3':C.card});R(B,20,y,4,72,C.plum,{r:2,name:'장르 띠'});T(B,36,y+12,n,14,'700',abs?C.ink3:C.ink,{w:190});T(B,36,y+36,d,11,'500',C.ink3,{w:190});if(abs)T(B,36,y+52,'결석 예정',11,'700',C.warn);SEG(230,y+20,abs);});
+T(B,20,442,'바꾸면 그 회차 강사에게 「결석 예정」으로만 보여요. 수업이 시작되면 더 바꿀 수 없어요.',11,'500',C.ink3,{w:350});
+T(B,20,476,'레벨 · 환불 · 대기 순번과는 상관없어요',11,'600',C.ink2,{w:350});
+T(B,20,510,'내 수업이 아닌 것',12,'700',C.ink3);
+CARD(B,20,534,350,64,{r:16});
+T(B,36,546,'대기 · 살사 온투 기초 · 여 자리',13,'700');
+T(B,36,568,'살사홀릭 강남 · 21:10 · 대기 1번',11,'500',C.ink3,{w:318});
+return B.id;

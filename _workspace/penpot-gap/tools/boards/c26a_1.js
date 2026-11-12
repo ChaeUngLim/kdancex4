@@ -1,0 +1,12 @@
+const B=PAGE_M('C26A · 캘린더 · 주 보기 (M11 의 `주` · 한 주 시간표 · 결석 예정은 속 빈 칸 · 대기는 점선 · 날을 누르면 그날 시트(C24B))',45,'11월');
+R(B,250,30,120,32,'#ffffff',{r:10,stroke:C.line,name:'seg:월|주'});
+T(B,250,36,'월',12,'600',C.ink3,{w:60,align:'center'});
+R(B,312,33,56,26,C.plumL,{r:8,name:'seg:주 켜짐'});
+T(B,312,36,'주',12,'800',C.plum,{w:56,align:'center'});
+T(B,20,88,'‹',16,'700',C.ink3);
+T(B,40,88,'11월 9일 – 15일',15,'800',C.ink,{w:310,align:'center'});
+T(B,358,88,'›',16,'700',C.ink3);
+R(B,148,120,44,44,C.plumL,{r:12,name:'오늘 · 11일'});
+const D=['월','화','수','목','금','토','일'];
+D.forEach((d,i)=>{const x=60+i*44;T(B,x,124,d,10,'600',i===2?C.plum:C.ink3,{w:44,align:'center'});T(B,x,140,String(9+i),13,i===2?'800':'600',i===2?C.plum:C.ink,{w:44,align:'center'});});
+return B.id;

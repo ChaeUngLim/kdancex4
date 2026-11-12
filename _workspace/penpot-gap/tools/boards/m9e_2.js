@@ -1,0 +1,13 @@
+const M=FIND('M9 · 결제');const B=FIND('M9E ·');
+const screen=M.children.find(c=>c.name==='screen');
+R(B,20,340,350,44,C.sel,{r:12,stroke:C.selLine});
+T(B,34,353,'10/15 (목)까지 취소할 수 있어요 · 그 뒤에는 환불되지 않아요',12,'600',C.ink2);
+T(B,20,398,'결제수단 · 행사는 계좌이체로만 결제해요',11,'500',C.ink3);
+const rows=[['간편 계좌이체','즉시 확정',true],['가상계좌','입금 확인 뒤 확정',false]];
+rows.forEach((r,i)=>{const y=422+i*54;R(B,20,y,350,46,'#ffffff',{r:16,stroke:r[2]?C.plum:C.line,sw:r[2]?1.5:1});RADIO(B,36,y+13,r[2]);T(B,68,y+12,r[0],15,r[2]?'700':'500');T(B,214,y+15,r[1],11,'500',C.ink3,{w:140,align:'right'});});
+T(B,20,532,'카드와 간편결제는 받지 않아요. 환불은 입력하신 환불 계좌로 보내 드려요.',11,'500',C.ink3,{w:350});
+const chk=screen.children.find(c=>c.name==='row'&&Math.round(c.y-M.y)===505).clone();B.appendChild(chk);chk.x=B.x+20;chk.y=B.y+572;
+R(B,20,778,350,54,C.plum,{r:18,name:'btn:32,000원 결제'});
+T(B,20,794,'32,000원 결제',15,'700','#ffffff',{w:350,align:'center'});
+penpot.selection=[];penpot.viewport.zoomIntoView([M,B]);
+return B.children.length;

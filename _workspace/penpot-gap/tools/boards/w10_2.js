@@ -1,0 +1,13 @@
+const B=FIND('W10 ·');
+const TABS=['원장','강사별 매출','주문 · 결제','강사 지급','지급 보류','정산 명세','이의 제기'],ON='주문 · 결제';
+R(B,268,112,980,40,'#ffffff',{r:12,stroke:C.line,name:'정산 탭'});let x=280;
+TABS.forEach(t=>{const w=tw(t,13)+28;if(t===ON)R(B,x,118,w,28,C.plum,{r:9});T(B,x,123,t,13,'700',t===ON?'#ffffff':C.ink2,{w,align:'center'});x+=w+6;});
+CARD(B,268,168,980,64,{r:14});
+INPUT(B,284,182,210,'11/1 ~ 11/30 · 이번 달',{fs:13});
+INPUT(B,506,182,180,'수업 · 전체 ▾',{fs:13});
+INPUT(B,698,182,150,'상태 · 전체 ▾',{fs:13});
+INPUT(B,860,182,150,'결제 수단 · 전체 ▾',{fs:13});
+INPUT(B,1022,182,210,'주문 번호 · 닉네임 찾기',{fs:13,fw:'500',col:C.ink3});
+const S=[['전체 61',true],['결제완료 48',false],['부분 환불 3',false],['환불 3',false],['미결제 2',false],['만료 · 입금 전 취소 5',false]];
+let cx=268;S.forEach(([s,on])=>{cx+=CHIP(B,cx,246,s,on?C.plum:'#ffffff',on?'#ffffff':C.ink2,12)+8;});
+return B.id;

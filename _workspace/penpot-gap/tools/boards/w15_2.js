@@ -1,0 +1,11 @@
+const B=FIND('W15 ·');
+const S=[['전체 9',true],['정규 6',false],['이벤트형 2',false],['승인 대기 1',false],['지난 수업',false]];
+let cx=268;S.forEach(([s,on])=>{cx+=CHIP(B,cx,120,s,on?C.plum:'#ffffff',on?'#ffffff':C.ink2,12)+8;});
+INPUT(B,1018,114,230,'수업 이름 · 강사 찾기',{fs:13,fw:'500',col:C.ink3});
+CARD(B,268,164,980,644,{r:16});
+const H=[['수업',292],['구분',560],['기간',650],['정원 남 · 여',800],['결제',940],['상태',1040]];
+H.forEach(([h,x])=>T(B,x,184,h,12,'600',C.ink3));
+R(B,292,210,932,1,C.line);
+const ROWS=[['바차타 센슈얼 입문','이준호 · 화·토 20:00 · A홀','정규','11/3 – 11/28 · 8회','6/6 · 6/6','12명','마감',C.note,C.ink2]];
+ROWS.forEach(([n,s,k,p,cap,pay,st,f,col],i)=>{const y=222+i*64;T(B,292,y+8,n,14,'700');T(B,292,y+30,s,11,'500',C.ink3);T(B,560,y+18,k,12,'600',C.ink2);T(B,650,y+18,p,12,'600',C.ink2);T(B,800,y+18,cap,13,'700');T(B,940,y+18,pay,13,'700');CHIP(B,1040,y+16,st,f,col,11);T(B,1210,y+16,'›',15,'600',C.ink3);R(B,292,y+62,932,1,C.line);});
+return B.id;

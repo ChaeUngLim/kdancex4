@@ -1,0 +1,723 @@
+[
+ {
+  "board": "C13A",
+  "role": "member",
+  "tab": "학원",
+  "sure": true,
+  "why": "수업 상세, 수업을 고르다 들어온다(notes_A, M2 학원 탭 표)"
+ },
+ {
+  "board": "C13B",
+  "role": "member",
+  "tab": "학원",
+  "sure": true,
+  "why": "수업 상세, 수업을 고르다 들어온다(notes_A, M2 학원 탭 표)"
+ },
+ {
+  "board": "C9A",
+  "role": "member",
+  "tab": "마이",
+  "sure": true,
+  "why": "내 예약의 환불 요청에서 들어온다(notes_A, M2 마이 표)"
+ },
+ {
+  "board": "C9B",
+  "role": "member",
+  "tab": "마이",
+  "sure": true,
+  "why": "영수증, 결제 내역에서 연다(M2 마이 표)"
+ },
+ {
+  "board": "C8A",
+  "role": "member",
+  "tab": "마이",
+  "sure": true,
+  "why": "마이 › 멤버십 화면(notes_A)"
+ },
+ {
+  "board": "C8B",
+  "role": "member",
+  "tab": "마이",
+  "sure": true,
+  "why": "마이 › 멤버십 화면(notes_A)"
+ },
+ {
+  "board": "C5A",
+  "role": "member",
+  "tab": "캘린더",
+  "sure": false,
+  "why": "다음 기간 우선 결제, M2 표는 캘린더 탭에 둠. 알림·예약 진입일 수도 있음"
+ },
+ {
+  "board": "C3A",
+  "role": "member",
+  "tab": "홈",
+  "sure": true,
+  "why": "파티·공연 피드(M24)가 홈 탭이라 그 상세로 들어온다(M2 홈 탭 표)"
+ },
+ {
+  "board": "C3B",
+  "role": "member",
+  "tab": "홈",
+  "sure": true,
+  "why": "파티·공연 피드(M24)가 홈 탭이라 그 상세로 들어온다(M2 홈 탭 표)"
+ },
+ {
+  "board": "C3C",
+  "role": "member",
+  "tab": "홈",
+  "sure": true,
+  "why": "파티·공연 피드(M24)가 홈 탭이라 그 상세로 들어온다(M2 홈 탭 표)"
+ },
+ {
+  "board": "C4A",
+  "role": "member",
+  "tab": "학원",
+  "sure": true,
+  "why": "수업 상세에서 동반·단체 신청(M2 학원 탭 표)"
+ },
+ {
+  "board": "C4B",
+  "role": "member",
+  "tab": "학원",
+  "sure": true,
+  "why": "수업 상세에서 동반·단체 신청(M2 학원 탭 표)"
+ },
+ {
+  "board": "C4C",
+  "role": "member",
+  "tab": "마이",
+  "sure": false,
+  "why": "내 예약 상세에서 연다(notes_B). M2 표는 캘린더에 둠"
+ },
+ {
+  "board": "C7A",
+  "role": "member",
+  "tab": "학원",
+  "sure": true,
+  "why": "결제 화면의 1+1 쿠폰 칸에서 들어옴, 수업 신청 흐름(notes_C)"
+ },
+ {
+  "board": "C1A",
+  "role": "member",
+  "tab": "마이",
+  "sure": true,
+  "why": "마이 › 알림 설정(notes_C)"
+ },
+ {
+  "board": "C6A",
+  "role": "member",
+  "tab": "마이",
+  "sure": true,
+  "why": "마이 › 자녀 관리 › 자녀 추가(notes_C)"
+ },
+ {
+  "board": "C6B",
+  "role": "member",
+  "tab": "학원",
+  "sure": true,
+  "why": "수강 신청 중 누가 듣나요, 수업 신청 흐름(M2 학원 탭 표)"
+ },
+ {
+  "board": "C10A",
+  "role": "member",
+  "tab": "마이",
+  "sure": false,
+  "why": "약관 변경 재동의, 앱 첫 접속 때 뜨는 화면. M2 는 마이 표에 둠"
+ },
+ {
+  "board": "C10B",
+  "role": "member",
+  "tab": "마이",
+  "sure": true,
+  "why": "마이 › 약관 · 사업자 정보(notes_D)"
+ },
+ {
+  "board": "C11A",
+  "role": "member",
+  "tab": "학원",
+  "sure": false,
+  "why": "수업·학원·강사 화면 「…」 메뉴에서 진입(notes_D). M2 표는 마이에 둠"
+ },
+ {
+  "board": "C11B",
+  "role": "member",
+  "tab": "마이",
+  "sure": true,
+  "why": "마이 › 탈퇴(M2 마이 표)"
+ },
+ {
+  "board": "C2A",
+  "role": "member",
+  "tab": "AI 플래너",
+  "sure": false,
+  "why": "AI 문의 답변·판단형 질문 줄 서기. M2 표는 마이(M22 문의)와 묶음"
+ },
+ {
+  "board": "C2B",
+  "role": "member",
+  "tab": "AI 플래너",
+  "sure": false,
+  "why": "AI 문의 답변·판단형 질문 줄 서기. M2 표는 마이(M22 문의)와 묶음"
+ },
+ {
+  "board": "C15A",
+  "role": "member",
+  "tab": "마이",
+  "sure": true,
+  "why": "환불 요청·문의 내역(M2)"
+ },
+ {
+  "board": "C15B",
+  "role": "member",
+  "tab": "마이",
+  "sure": true,
+  "why": "환불 요청·문의 내역(M2)"
+ },
+ {
+  "board": "C15C",
+  "role": "member",
+  "tab": "마이",
+  "sure": true,
+  "why": "환불 요청·문의 내역(M2)"
+ },
+ {
+  "board": "C15D",
+  "role": "member",
+  "tab": "캘린더",
+  "sure": true,
+  "why": "휴강 알림에서 다른 회차로 옮기기(M2)"
+ },
+ {
+  "board": "C16A",
+  "role": "member",
+  "tab": "마이",
+  "sure": true,
+  "why": "멤버십 결제 수단·갱신 안내(M2)"
+ },
+ {
+  "board": "C16B",
+  "role": "member",
+  "tab": "마이",
+  "sure": true,
+  "why": "멤버십 결제 수단·갱신 안내(M2)"
+ },
+ {
+  "board": "C17A",
+  "role": "member",
+  "tab": "학원",
+  "sure": true,
+  "why": "결제 흐름·무료 수업 신청(M2)"
+ },
+ {
+  "board": "C17B",
+  "role": "member",
+  "tab": "학원",
+  "sure": true,
+  "why": "결제 흐름·무료 수업 신청(M2)"
+ },
+ {
+  "board": "C18A",
+  "role": "member",
+  "tab": "홈",
+  "sure": true,
+  "why": "대회 참가 신청, 홈 피드에서 들어옴(M2)"
+ },
+ {
+  "board": "C19A",
+  "role": "member",
+  "tab": "마이",
+  "sure": true,
+  "why": "관심·취향 설정, 찜 목록(M2)"
+ },
+ {
+  "board": "C19B",
+  "role": "member",
+  "tab": "마이",
+  "sure": true,
+  "why": "관심·취향 설정, 찜 목록(M2)"
+ },
+ {
+  "board": "C20A",
+  "role": "member",
+  "tab": "학원",
+  "sure": true,
+  "why": "서비스 점검 중 결제 멈춤(M2)"
+ },
+ {
+  "board": "C21A",
+  "role": "member",
+  "tab": "마이",
+  "sure": true,
+  "why": "마이 › 내 정보(M2)"
+ },
+ {
+  "board": "C22A",
+  "role": "member",
+  "tab": "학원",
+  "sure": true,
+  "why": "구독한 학원, 학원·강사 검색 결과(M2)"
+ },
+ {
+  "board": "C22B",
+  "role": "member",
+  "tab": "학원",
+  "sure": true,
+  "why": "구독한 학원, 학원·강사 검색 결과(M2)"
+ },
+ {
+  "board": "C23A",
+  "role": "member",
+  "tab": "AI 플래너",
+  "sure": true,
+  "why": "AI 플래너 멤버십 없음(M2)"
+ },
+ {
+  "board": "C24A",
+  "role": "member",
+  "tab": "마이",
+  "sure": true,
+  "why": "카드 모음 비어 있음(M2)"
+ },
+ {
+  "board": "C24B",
+  "role": "member",
+  "tab": "캘린더",
+  "sure": true,
+  "why": "캘린더 날짜 시트(M2)"
+ },
+ {
+  "board": "C25A",
+  "role": "member",
+  "tab": "학원",
+  "sure": true,
+  "why": "학원 환불·취소 규정(M2)"
+ },
+ {
+  "board": "C26A",
+  "role": "member",
+  "tab": "캘린더",
+  "sure": true,
+  "why": "캘린더 주 보기(notes_O3)"
+ },
+ {
+  "board": "C27A",
+  "role": "member",
+  "tab": "마이",
+  "sure": true,
+  "why": "내 예약 › 지난 주문(notes_O3)"
+ },
+ {
+  "board": "C28A",
+  "role": "member",
+  "tab": "마이",
+  "sure": true,
+  "why": "쿠폰함 › 지난 쿠폰(notes_O3)"
+ },
+ {
+  "board": "C29A",
+  "role": "member",
+  "tab": "홈",
+  "sure": true,
+  "why": "홈 검색 거르기 시트(notes_O3)"
+ },
+ {
+  "board": "C30A",
+  "role": "member",
+  "tab": "마이",
+  "sure": true,
+  "why": "마이 › 문의, 대표 답변 받음(notes_O3)"
+ },
+ {
+  "board": "C31A",
+  "role": "member",
+  "tab": "학원",
+  "sure": true,
+  "why": "학원 상세 › 강사 목록(notes_O3)"
+ },
+ {
+  "board": "I16",
+  "role": "instructor",
+  "tab": "마이",
+  "sure": true,
+  "why": "운영 문의, 마이에서 연다(notes_D 운영 문의 기준)"
+ },
+ {
+  "board": "I17",
+  "role": "instructor",
+  "tab": "마이",
+  "sure": true,
+  "why": "마이 › 정산(notes_I2)"
+ },
+ {
+  "board": "I17B",
+  "role": "instructor",
+  "tab": "마이",
+  "sure": true,
+  "why": "마이 › 정산(notes_I2)"
+ },
+ {
+  "board": "I17C",
+  "role": "instructor",
+  "tab": "마이",
+  "sure": true,
+  "why": "마이 › 정산(notes_I2)"
+ },
+ {
+  "board": "I17D",
+  "role": "instructor",
+  "tab": "마이",
+  "sure": true,
+  "why": "마이 › 정산(notes_I2)"
+ },
+ {
+  "board": "I18",
+  "role": "instructor",
+  "tab": "마이",
+  "sure": true,
+  "why": "마이 › 정산 계좌(notes_I2)"
+ },
+ {
+  "board": "I18B",
+  "role": "instructor",
+  "tab": "마이",
+  "sure": true,
+  "why": "마이 › 정산 계좌(notes_I2)"
+ },
+ {
+  "board": "I19",
+  "role": "instructor",
+  "tab": "수업",
+  "sure": true,
+  "why": "수업 탭 화면(notes_I2)"
+ },
+ {
+  "board": "I19B",
+  "role": "instructor",
+  "tab": "수업",
+  "sure": true,
+  "why": "수업 탭 화면(notes_I2)"
+ },
+ {
+  "board": "I20",
+  "role": "instructor",
+  "tab": "수업",
+  "sure": true,
+  "why": "수업 탭 화면(notes_I2)"
+ },
+ {
+  "board": "I20B",
+  "role": "instructor",
+  "tab": "수업",
+  "sure": true,
+  "why": "수업 탭 화면(notes_I2)"
+ },
+ {
+  "board": "I20C",
+  "role": "instructor",
+  "tab": "수업",
+  "sure": true,
+  "why": "수업 탭 화면(notes_I2)"
+ },
+ {
+  "board": "I22",
+  "role": "instructor",
+  "tab": "수업",
+  "sure": true,
+  "why": "회차 상세·수업 관리(notes_I2)"
+ },
+ {
+  "board": "I23",
+  "role": "instructor",
+  "tab": "수업",
+  "sure": true,
+  "why": "회차 상세·수업 관리(notes_I2)"
+ },
+ {
+  "board": "I24",
+  "role": "instructor",
+  "tab": "수업",
+  "sure": true,
+  "why": "회차 상세·수업 관리(notes_I2)"
+ },
+ {
+  "board": "I25",
+  "role": "instructor",
+  "tab": "수업",
+  "sure": true,
+  "why": "회차 상세·수업 관리(notes_I2)"
+ },
+ {
+  "board": "I26",
+  "role": "instructor",
+  "tab": "수업",
+  "sure": true,
+  "why": "회차 상세·수업 관리(notes_I2)"
+ },
+ {
+  "board": "I22B",
+  "role": "instructor",
+  "tab": "홈",
+  "sure": true,
+  "why": "알림함·홈 표에서 들어옴(notes_I2)"
+ },
+ {
+  "board": "I27",
+  "role": "instructor",
+  "tab": "학원",
+  "sure": true,
+  "why": "소속 신청·해제(notes_I2)"
+ },
+ {
+  "board": "I27B",
+  "role": "instructor",
+  "tab": "학원",
+  "sure": true,
+  "why": "소속 신청·해제(notes_I2)"
+ },
+ {
+  "board": "I28",
+  "role": "instructor",
+  "tab": "학원",
+  "sure": true,
+  "why": "소속 신청·해제(notes_I2)"
+ },
+ {
+  "board": "I29",
+  "role": "instructor",
+  "tab": "마이",
+  "sure": true,
+  "why": "수업 관리 플러스·탈퇴(notes_I2)"
+ },
+ {
+  "board": "I30",
+  "role": "instructor",
+  "tab": "마이",
+  "sure": true,
+  "why": "수업 관리 플러스·탈퇴(notes_I2)"
+ },
+ {
+  "board": "I32",
+  "role": "instructor",
+  "tab": "수업",
+  "sure": true,
+  "why": "수업 탭(notes_I3)"
+ },
+ {
+  "board": "I33",
+  "role": "instructor",
+  "tab": "수업",
+  "sure": true,
+  "why": "수업 탭(notes_I3)"
+ },
+ {
+  "board": "I34",
+  "role": "instructor",
+  "tab": "수업",
+  "sure": true,
+  "why": "수업 탭(notes_I3)"
+ },
+ {
+  "board": "I38",
+  "role": "instructor",
+  "tab": "수업",
+  "sure": true,
+  "why": "수업 탭(notes_I3)"
+ },
+ {
+  "board": "I35",
+  "role": "instructor",
+  "tab": "홈",
+  "sure": true,
+  "why": "홈 빈 상태(notes_I3)"
+ },
+ {
+  "board": "I36",
+  "role": "instructor",
+  "tab": "캘린더",
+  "sure": true,
+  "why": "캘린더 탭(notes_I3)"
+ },
+ {
+  "board": "I36B",
+  "role": "instructor",
+  "tab": "캘린더",
+  "sure": true,
+  "why": "캘린더 탭(notes_I3)"
+ },
+ {
+  "board": "I37",
+  "role": "instructor",
+  "tab": "수업",
+  "sure": false,
+  "why": "플러스 잠김 안내 창, 그 기능이 있는 탭에서 뜸(예시는 수업 › 회원 관리)"
+ },
+ {
+  "board": "I37B",
+  "role": "instructor",
+  "tab": "마이",
+  "sure": true,
+  "why": "마이 › 수업 관리 플러스 › 해지(notes_I3)"
+ },
+ {
+  "board": "I39",
+  "role": "instructor",
+  "tab": "학원",
+  "sure": true,
+  "why": "I12 학원 공지 전체 보기(notes_I3)"
+ },
+ {
+  "board": "I40",
+  "role": "instructor",
+  "tab": "마이",
+  "sure": true,
+  "why": "I9 프로필·약관(notes_I3)"
+ },
+ {
+  "board": "I40B",
+  "role": "instructor",
+  "tab": "마이",
+  "sure": true,
+  "why": "I9 프로필·약관(notes_I3)"
+ },
+ {
+  "board": "I2D",
+  "role": "instructor",
+  "tab": "수업",
+  "sure": true,
+  "why": "수업 만들기·대타 요청·새 반 열기, 수업 탭 흐름(notes_I2)"
+ },
+ {
+  "board": "I2E",
+  "role": "instructor",
+  "tab": "수업",
+  "sure": true,
+  "why": "수업 만들기·대타 요청·새 반 열기, 수업 탭 흐름(notes_I2)"
+ },
+ {
+  "board": "I14",
+  "role": "instructor",
+  "tab": "수업",
+  "sure": true,
+  "why": "수업 만들기·대타 요청·새 반 열기, 수업 탭 흐름(notes_I2)"
+ },
+ {
+  "board": "I14B",
+  "role": "instructor",
+  "tab": "수업",
+  "sure": true,
+  "why": "수업 만들기·대타 요청·새 반 열기, 수업 탭 흐름(notes_I2)"
+ },
+ {
+  "board": "I14C",
+  "role": "instructor",
+  "tab": "수업",
+  "sure": true,
+  "why": "수업 만들기·대타 요청·새 반 열기, 수업 탭 흐름(notes_I2)"
+ },
+ {
+  "board": "I15",
+  "role": "instructor",
+  "tab": "수업",
+  "sure": true,
+  "why": "수업 만들기·대타 요청·새 반 열기, 수업 탭 흐름(notes_I2)"
+ },
+ {
+  "board": "I15B",
+  "role": "instructor",
+  "tab": "수업",
+  "sure": true,
+  "why": "수업 만들기·대타 요청·새 반 열기, 수업 탭 흐름(notes_I2)"
+ },
+ {
+  "board": "O23",
+  "role": "owner",
+  "tab": "캘린더",
+  "sure": true,
+  "why": "캘린더 탭 첫 화면(notes_O2)"
+ },
+ {
+  "board": "O24",
+  "role": "owner",
+  "tab": "수업",
+  "sure": true,
+  "why": "수업 탭 첫 화면·행사 명단(notes_O2)"
+ },
+ {
+  "board": "O27",
+  "role": "owner",
+  "tab": "수업",
+  "sure": true,
+  "why": "수업 탭 첫 화면·행사 명단(notes_O2)"
+ },
+ {
+  "board": "O25",
+  "role": "owner",
+  "tab": "마이",
+  "sure": true,
+  "why": "마이 탭 첫 화면·알림 설정(notes_O2/O3)"
+ },
+ {
+  "board": "O34",
+  "role": "owner",
+  "tab": "마이",
+  "sure": true,
+  "why": "마이 탭 첫 화면·알림 설정(notes_O2/O3)"
+ },
+ {
+  "board": "O26",
+  "role": "owner",
+  "tab": "홈",
+  "sure": true,
+  "why": "지급 요약·매출 요약·알림함(notes_O2)"
+ },
+ {
+  "board": "O29",
+  "role": "owner",
+  "tab": "홈",
+  "sure": true,
+  "why": "지급 요약·매출 요약·알림함(notes_O2)"
+ },
+ {
+  "board": "O21B",
+  "role": "owner",
+  "tab": "홈",
+  "sure": true,
+  "why": "지급 요약·매출 요약·알림함(notes_O2)"
+ },
+ {
+  "board": "O28",
+  "role": "owner",
+  "tab": "학원",
+  "sure": true,
+  "why": "공지 쓰기·학원 페이지 수정·권한 토글·회원/강사 상세(notes_O2/O3)"
+ },
+ {
+  "board": "O30",
+  "role": "owner",
+  "tab": "학원",
+  "sure": true,
+  "why": "공지 쓰기·학원 페이지 수정·권한 토글·회원/강사 상세(notes_O2/O3)"
+ },
+ {
+  "board": "O31",
+  "role": "owner",
+  "tab": "학원",
+  "sure": true,
+  "why": "공지 쓰기·학원 페이지 수정·권한 토글·회원/강사 상세(notes_O2/O3)"
+ },
+ {
+  "board": "O32",
+  "role": "owner",
+  "tab": "학원",
+  "sure": true,
+  "why": "공지 쓰기·학원 페이지 수정·권한 토글·회원/강사 상세(notes_O2/O3)"
+ },
+ {
+  "board": "O33",
+  "role": "owner",
+  "tab": "학원",
+  "sure": true,
+  "why": "공지 쓰기·학원 페이지 수정·권한 토글·회원/강사 상세(notes_O2/O3)"
+ }
+]

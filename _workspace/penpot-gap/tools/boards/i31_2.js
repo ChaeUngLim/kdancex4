@@ -1,0 +1,10 @@
+const B=FIND('I31 ·');
+T(B,20,672,'약관 동의',12,'700',C.ink3);
+CARD(B,20,696,350,142,{r:16});
+CHECK(B,36,708,false);
+T(B,68,708,'전체 동의',14,'800');
+R(B,36,740,318,1,C.line);
+[['[필수] 입점 이용약관 (학원·강사)',1],['[필수] 개인정보 수집·이용',1],['[필수] 만 19세 이상이에요',1],['[선택] 광고성 알림 · 밤 9시~아침 8시 제외',0]].forEach(([s,on],i)=>{const y=750+i*21;
+ R(B,38,y+3,14,14,on?C.plum:'#ffffff',{r:4,stroke:on?null:'#cfc8c0',name:on?'check:on':'check:off'});T(B,62,y,s,11,'600',on?C.ink:C.ink2);T(B,300,y,'보기 ›',11,'700',C.plum,{w:54,align:'right'});});
+BTN(B,20,850,'가입하고 본인확인으로','primary',{w:350,h:54,r:18,fs:15});
+return B.children.length;

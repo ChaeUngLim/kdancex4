@@ -1,0 +1,12 @@
+const B=PAGE_M('C18A · 대회 참가 신청 (종목 · 부문 · 파트너 · 파티 신청 양식과 다름 · 한 쌍을 한 사람이 결제 · 간편 계좌이체·가상계좌만 · 예매 수수료 1인 2,000원)',33,'대회 참가 신청');
+CARD(B,20,88,350,76,{r:16});
+T(B,36,100,'강남 라틴 컵 2026',15,'800');
+let x=354;['학원 주최','대회'].forEach(s=>{const w=tw(s,11)+20;x-=w;CHIP(B,x,100,s,C.plumL,C.plum,11);x-=6;});
+T(B,36,128,'라틴하우스 강남 · 12/12 (토) 10:00 · 강남구민회관',12,'500',C.ink3,{w:318});
+T(B,20,180,'종목',14,'800');
+T(B,20,204,'하나 이상 골라요 · 종목마다 한 쌍 30,000원',11,'500',C.ink3,{w:350});
+[['쌈바',true],['룸바',false],['차차차',true],['자이브',false]].forEach(([s,on],i)=>{const x=20+(i%2)*179,y=228+Math.floor(i/2)*52;R(B,x,y,171,44,on?C.sel:'#ffffff',{r:12,stroke:on?C.selLine:C.line,name:'event:'+s});T(B,x,y+12,(on?'✓ ':'')+s,13,on?'800':'600',on?C.plum:C.ink2,{w:171,align:'center'});});
+T(B,20,346,'부문',14,'800');
+T(B,20,370,'나이·경력 기준은 대회 공지를 따라요',11,'500',C.ink3,{w:350});
+[['신인부',true],['일반부',false],['시니어부',false]].forEach(([s,on],i)=>{const x=20+i*119;R(B,x,394,112,40,on?C.sel:'#ffffff',{r:12,stroke:on?C.selLine:C.line,name:'div:'+s});T(B,x,404,s,13,on?'800':'600',on?C.plum:C.ink2,{w:112,align:'center'});});
+return B.id;

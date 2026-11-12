@@ -1,0 +1,11 @@
+const B=FIND('W11 ·');
+const TABS=['원장','강사별 매출','주문 · 결제','강사 지급','지급 보류','정산 명세','이의 제기'],ON='강사 지급';
+R(B,268,112,980,40,'#ffffff',{r:12,stroke:C.line,name:'정산 탭'});let x=280;
+TABS.forEach(t=>{const w=tw(t,13)+28;if(t===ON)R(B,x,118,w,28,C.plum,{r:9});T(B,x,123,t,13,'700',t===ON?'#ffffff':C.ink2,{w,align:'center'});x+=w+6;});
+CARD(B,268,168,640,64,{r:14});
+const S=['지급액 확인','승인하고 내려받기','은행 대량이체','지급 완료 표시'];let sx=288;
+S.forEach((s,i)=>{const w=tw(s,12)+40;R(B,sx,186,w,28,i===0?C.plum:'#ffffff',{r:14,stroke:i===0?null:C.line});T(B,sx,191,(i+1)+'. '+s,12,'700',i===0?'#ffffff':C.ink2,{w,align:'center'});sx+=w;if(i<3){T(B,sx+4,190,'›',13,'700',C.ink3);sx+=18;}});
+R(B,924,168,324,64,C.warnL,{r:14,name:'안내 · 승인 기한'});
+T(B,940,178,'승인 기한 12/11 (금)',13,'800',C.warn);
+T(B,940,200,'정산일 12/5 뒤 5영업일 · 넘기면 다시 알려요',11,'500',C.ink2,{w:296});
+return B.id;

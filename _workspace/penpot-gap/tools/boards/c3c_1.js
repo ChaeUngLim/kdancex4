@@ -1,0 +1,17 @@
+const B=PAGE_M('C3C · 공연 상세 · 외부 예매 (출연자·장르 · 앱 결제 없음 · 예매 사이트로 이동 · ♡ 관심 알림)',9,'공연 상세');
+R(B,20,84,350,140,C.plum,{r:16,name:'poster'});
+T(B,36,114,'NOCHE',26,'800','#ffffff');
+T(B,36,158,'BACHATA SHOWCASE · 10.24 SAT 19:00',12,'600','#ffffff');
+T(B,334,94,'♡',18,'700','#ffffff');
+let x=20;
+x+=CHIP(B,x,236,'공연')+6;
+x+=CHIP(B,x,236,'학원 주최',C.sel,C.ink2)+6;
+x+=CHIP(B,x,236,'바차타',C.sel,C.ink2)+6;
+CHIP(B,x,236,'외부 예매',C.warnL,C.warn);
+T(B,20,270,'바차타 쇼케이스 〈Noche〉',20,'800');
+T(B,20,306,'댄스랩 서초 · 출연 6팀',12,'500',C.ink3);
+CARD(B,20,336,350,120,{r:16});
+const L=[['일시','10/24 (토) 19:00 · 약 2시간'],['장소','댄스랩 서초 지하 1층 공연장'],['주최','댄스랩 서초 (학원)']];
+L.forEach(([k,v],i)=>{const y=336+i*40;if(i)R(B,36,y,318,1,C.line);T(B,36,y+11,k,12,'600',C.ink3);T(B,100,y+10,v,13,'700',C.ink,{w:254,align:'right'});});
+B.setPluginData('ok','1');
+return B.id;

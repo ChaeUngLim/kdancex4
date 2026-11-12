@@ -1,0 +1,12 @@
+const B=PAGE_M('C32A · 실시간 인기 수업 TOP 10 · 여러 장르 (아이보리판 · 고른 장르마다 10위까지 · 검색 조회수 기준 · 최근 6시간 · 6시간마다 갱신 · 잔여 자리는 열 때 새로 읽음 · 전체 학원 순위 토글)',51,'실시간 인기 수업');
+let x=20;[['살사/바차타',true],['댄스스포츠',false]].forEach(([s,on])=>{x+=CHIP(B,x,86,s,on?C.plum:'#ffffff',on?'#ffffff':C.ink2)+8;});
+T(B,270,89,'장르변경 ›',11,'700',C.plum,{w:100,align:'right'});
+T(B,20,122,'실시간 인기 수업 TOP 10',16,'800');
+CHIP(B,316,122,'LIVE',C.warnL,C.warn,11);
+T(B,20,148,'검색 조회수 기준 · 최근 6시간 · 살사/바차타',11,'500',C.ink3,{w:350});
+T(B,240,173,'전체 학원 순위',11,'600',C.ink3,{w:84,align:'right'});
+TOG(B,334,172,false);
+CARD(B,20,202,350,526,{r:16});
+const ROW=(i,[n,ac,d,seat,ch])=>{const y=206+i*52;if(i)R(B,36,y,318,1,C.line);T(B,36,y+8,String(i+1),16,"800",C.plum,{w:26,align:"center"});T(B,64,y+5,n,13,"700");T(B,230,y+7,seat,11,"700",seat.startsWith("마감")?C.warn:C.ink2,{w:124,align:"right"});const tw0=tw(ac,11)+12;R(B,64,y+27,tw0,18,C.sel,{r:6,stroke:C.selLine,name:"tag:1+1 참여학원"});T(B,70,y+27,ac,11,"600",C.ink2);T(B,64+tw0+8,y+28,d,11,"500",C.ink3);T(B,310,y+28,ch,11,"700",ch==="NEW"?C.plum:C.ink3,{w:44,align:"right"});};
+[['바차타 센슈얼 입문','라틴하우스 강남','12/1 (화) 20:00 개강','잔여 남 1 · 여 3','▲ 2'],['살사 온투 기초','살사홀릭 강남','12/2 (수) 20:00 개강','마감 · 대기 가능','—']].forEach((r,i)=>ROW(i,r));
+return B.id;

@@ -1,0 +1,20 @@
+const A=FIND('I14 ·');
+const old=A.children.find(c=>c.type==='text'&&c.characters==='그 시간에 다른 수업이 있어요');
+if(old){const x=Math.round(old.x-A.x),y=Math.round(old.y-A.y);old.remove();T(A,x,y,'그 시간에 일정이 있어요',11,'500',C.warn);}
+const B=PAGE('I14B · 대타 요청 상태 (요청한 강사 · 수락됨 → 대표 확인 대기 → 수강생 공지 · 대표 확인 전까지 취소)',3080,'대타 요청');
+CARD(B,20,88,350,70,{r:16});
+T(B,36,100,'11/18 (수) 20:30–21:30 · 쌈바(입문)',14,'800');
+T(B,36,124,'라틴하우스 강남 A홀 · 수강생 남 4 · 여 6',12,'500',C.ink3);
+CARD(B,20,172,350,330,{r:16});
+const S=[['done','요청을 보냈어요','11/12 (목) 10:20 · 김하나 · 박서윤 강사에게'],['done','김하나 강사가 수락했어요','11/12 (목) 11:05 · 먼저 수락한 강사로 정해졌어요'],['now','대표 확인을 기다려요','라틴하우스 강남 대표에게 알림이 갔어요'],['todo','수강생 공지','대표가 확인하면 수강생 10명에게 「이번 회차는 김하나 강사가 진행해요」 알림이 가요']];
+let y=190;
+S.forEach(([st,t,d],i)=>{const e=penpot.createEllipse();B.appendChild(e);e.resize(20,20);e.x=B.x+36;e.y=B.y+y;
+ e.fills=[{fillColor:st==='done'?C.plum:'#ffffff',fillOpacity:1}];e.strokes=[{strokeColor:st==='todo'?'#cfc8c0':C.plum,strokeOpacity:1,strokeWidth:st==='now'?6:1.5,strokeAlignment:'inner'}];
+ if(st==='done')T(B,36,y+2,'✓',11,'800','#ffffff',{w:20,align:'center'});
+ if(i<3)R(B,45,y+24,2,48,st==='done'?C.plum:'#e3ddd5');
+ T(B,70,y-1,t,14,st==='todo'?'600':'800',st==='todo'?C.ink3:C.ink);const dd=T(B,70,y+22,d,11,'500',C.ink3,{w:284});y+=76;});
+R(B,20,516,350,48,C.plumL,{r:12});
+T(B,34,524,'이 회차의 정산은 실제로 수업한 강사 몫으로 잡혀요.',11,'600',C.plum,{w:322});
+T(B,20,580,'대표가 확인하기 전까지는 요청을 취소할 수 있어요.',11,'500',C.ink3,{w:350});
+BTN(B,20,778,'요청 취소','ghost',{w:350,h:54,r:18,fs:15});
+return B.id;

@@ -1,0 +1,12 @@
+const B=FIND('W14 ·');
+const TABS=['원장','강사별 매출','주문 · 결제','강사 지급','지급 보류','정산 명세','이의 제기'],ON='이의 제기';
+R(B,268,112,980,40,'#ffffff',{r:12,stroke:C.line,name:'정산 탭'});let x=280;
+TABS.forEach(t=>{const w=tw(t,13)+28;if(t===ON)R(B,x,118,w,28,C.plum,{r:9});T(B,x,123,t,13,'700',t===ON?'#ffffff':C.ink2,{w,align:'center'});x+=w+6;});
+CARD(B,268,168,580,640,{r:16});
+T(B,292,188,'플랫폼에 이의 내기',16,'800');
+T(B,292,222,'어느 명세인가요',12,'600',C.ink3);
+INPUT(B,292,242,532,'2026년 11월분 · 12/5 (토) 지급 · 실지급 3,422,300원',{fs:13});
+T(B,292,294,'어느 줄인가요',12,'600',C.ink3);
+const O=[['카드 결제 수수료 · −100,800',true],['PG 결제 수수료 · −4,200',false],['환불 조정 · −90,000',false],['지급 보류 · −160,000',false]];
+O.forEach(([s,on],i)=>{const y=316+i*38;R(B,292,y,532,32,on?C.sel:'#ffffff',{r:10,stroke:on?C.selLine:C.line});RADIO(B,304,y+6,on);T(B,334,y+5,s,13,on?'700':'600',on?C.ink:C.ink2);});
+return B.id;
