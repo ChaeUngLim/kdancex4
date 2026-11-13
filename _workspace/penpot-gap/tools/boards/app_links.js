@@ -1,0 +1,17 @@
+const P=penpot.currentPage.root.children.filter(x=>x.type==='board'&&!/이전 안/.test(x.name));const bd=n=>P.find(x=>x.name.startsWith(n+' ·'));
+const all=(b)=>{const a=[];const w=s=>{for(const c of (s.children||[])){a.push(c);w(c);}};w(b);return a;};
+const go=(s,to,l)=>{if(!s)return l+': 없음';(s.interactions||[]).slice().forEach(i=>s.removeInteraction(i));s.addInteraction('click',{type:'navigate-to',destination:bd(to)});return l+'→'+to;};
+const byName=(b,re)=>all(bd(b)).filter(s=>re.test(s.name||''));
+const byText=(b,re)=>all(bd(b)).filter(s=>s.type==='text'&&re.test(s.characters));
+const btn=(b,label)=>{const r=byName(b,new RegExp('^btn:'+label));return r.length?r:byText(b,new RegExp('^'+label));};
+const out=[];const L=(arr,to,l)=>{if(!arr.length)out.push(l+': 없음');arr.forEach(s=>out.push(go(s,to,l)));};
+L(byName('O25',/^entry:1\+1/),'O41','O25 1+1');L(byName('O25',/^entry:자주/),'O42','O25 FAQ');
+L(byName('O29',/^entry:주문/),'O45','O29 주문');L(byName('O29',/^entry:지급 보류/),'O47','O29 보류');L(byName('O29',/^entry:정산 이의/),'O46','O29 이의');L(byName('O29',/^entry:강사 지급/),'O49','O29 지급');
+L(byText('O31',/^소속 신청·초대·해제와/),'O37','O31');L(byText('O33',/^관리 웹 위임 권한도/),'O38','O33');
+L(byText('O6',/^오늘 현장 등록/),'O40','O6');L(byText('O24',/^정원·휴강은/),'O43','O24');L(byText('O22',/^답하기 ›   환불 처리/),'O48','O22');L(byText('O26',/^정식 운영부터 앱에서/),'O49','O26');
+L(byName('O37',/^link:O38/),'O38','O37 권한');L(byName('O38',/^link:O39/),'O39','O38 해제');
+const o39=bd('O39');const bot=all(o39).filter(s=>s.type==='rectangle'&&Math.round(s.y-o39.y)>=770&&Math.round(s.y-o39.y)<=790);L(bot,'O39B','O39 버튼');
+L(btn('O39B','돌아가기'),'O39','O39B 돌아가기');L(btn('O39B','알림 보내고 해제'),'O37','O39B 해제');
+L(btn('O43','휴강'),'O44','O43 휴강');L(byText('O45',/환불 요청 보기/),'O48','O45');
+L(btn('O48','지문으로 확인하고 환불'),'O48B','O48');L(btn('O48B','취소'),'O48','O48B 취소');L(btn('O48B','지문으로 확인'),'O22','O48B 확인');
+return out;
