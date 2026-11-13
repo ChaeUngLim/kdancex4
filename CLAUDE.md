@@ -32,7 +32,25 @@
 
 ## Code Style
 
-<!-- Not yet established. -->
+2026-11-13 전역 규칙(`~/.claude/CLAUDE.md`)과 같은 규칙을 이 프로젝트에도 적용한다(사용자 지시).
+
+- **React 의 `useEffect` 처럼 추상화 수준이 높은 코드는 쓰지 않는다**(admin-web·mobile 공통). 언제 실행되는지가 코드에 바로 드러나지 않아 읽기 어렵기 때문이다. 대신 이벤트 핸들러 안에서 직접 처리하거나, 렌더링 중에 값을 바로 계산하거나, Next.js 서버 컴포넌트에서 미리 데이터를 받아 오는 방식처럼 흐름이 눈에 보이는 방법을 쓴다.
+- **핵심 코드에는 한국어로 쉬운 주석을 단다.** 무엇을 하는지, 왜 이렇게 했는지를 처음 보는 사람도 알아듣게 쓴다. 핵심 함수·분기·계산 같은 주요 지점에 달고, 문체는 `.claude/skills/kdance-dev-harness/references/beginner-comment-style.md` 를 따른다.
+
+## Astryx 디자인 시스템 (2026-11-13 사용자 지시로 허용)
+
+- 스킬 사본 `.claude/skills/astryx/SKILL.md`(Meta `meta/astryx` 고정 사본, 전역 `~/.claude/skills/astryx/` 와 같은 내용)를 프로젝트에 두었다 — 다른 PC 에서도 쓰이게. CLI 는 각 PC 에서 `npm i -g @astryxdesign/cli@0.7.15` 로 깐다(보안 검사 기록은 전역 `~/.claude/CLAUDE.md`).
+- **admin-web 에서만 쓴다**(Next 16.3 · React 19.3 — Astryx 는 React 19 이상). **mobile(React Native)에는 쓰지 않는다** — Astryx 는 웹 전용이다.
+- 테마는 확정된 아이보리 바탕 + 딥 플럼·샴페인(2026-11-09)을 따른다. Astryx 기본 테마를 그대로 쓰지 않고 CSS 변수 덮어쓰기로 맞춘다.
+- admin-web 에 `@astryxdesign/*` 패키지를 넣거나 `astryx init` 을 돌리는 것은 사용자 확인 뒤에 한다(아직 넣지 않았다).
+
+## 프론트엔드 화면 검증
+
+- **프론트엔드 작업(admin-web·mobile)은 언제나 브라우저 스크린샷으로 화면을 검증한다.** 화면을 바꿨으면 실제 브라우저로 열어 스크린샷을 남긴다. admin-web 은 `npm run dev` 로 띄운 뒤 Playwright MCP(`mcp__playwright__browser_take_screenshot`)로 찍고, mobile 은 Expo 웹(`npx expo start --web`)으로 열어 같은 방법으로 찍는다. 에이전트가 먼저 그 스크린샷을 직접 보고 의도대로 나왔는지 확인한 뒤, 사람에게 보고할 때 스크린샷 파일 경로를 함께 보여 준다. `npm run build`·`npx tsc --noEmit` 이 통과한 것만으로 화면이 맞다고 하지 않는다.
+
+## 대화 마무리
+
+- **대화를 마무리할 때는 그 대화에서 한 작업의 흐름을 Mermaid 다이어그램으로 보여 준다.** 답변 끝에 ` ```mermaid ` 코드 블록으로 붙인다. 무엇을 확인했고, 무엇을 바꿨고, 무엇이 남았는지가 순서대로 보이게 그린다.
 
 ## Architecture
 
