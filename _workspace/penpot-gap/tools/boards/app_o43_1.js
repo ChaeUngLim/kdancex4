@@ -1,4 +1,4 @@
-const B=PAGE_O('O43 · 대표 앱 · 수업 간단 수정 (정원 · 휴강 · 결제한 회원이 있을 때 규칙 · 가격·시간 변경은 관리 웹 · 웹 W16 과 같은 규칙)',3080,'바차타 센슈얼 입문');
+const B=PAGE_O('O43 · 대표 앱 · 수업 간단 수정 (정원 · 휴강 · 결제한 회원이 있을 때 규칙 · 가격·시간 변경은 관리자 웹 · 웹 W16 과 같은 규칙)',3080,'바차타 센슈얼 입문');
 function STEP(B,x,y,n,dim){R(B,x,y,32,32,"#ffffff",{r:10,stroke:C.line,name:"minus"});T(B,x,y+5,"−",16,"700",dim?C.ink3:C.ink,{w:32,align:"center"});T(B,x+34,y+4,String(n),16,"800",C.ink,{w:36,align:"center"});R(B,x+72,y,32,32,C.plumL,{r:10,name:"plus"});T(B,x+72,y+5,"+",16,"700",C.plum,{w:32,align:"center"});}
 CARD(B,20,94,350,76,{r:16});
 T(B,36,108,'결제한 회원 12명',14,'800');

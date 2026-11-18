@@ -7,7 +7,7 @@ const btn=(b,label)=>{const r=byName(b,new RegExp('^btn:'+label));return r.lengt
 const out=[];const L=(arr,to,l)=>{if(!arr.length)out.push(l+': 없음');arr.forEach(s=>out.push(go(s,to,l)));};
 L(byName('O25',/^entry:1\+1/),'O41','O25 1+1');L(byName('O25',/^entry:자주/),'O42','O25 FAQ');
 L(byName('O29',/^entry:주문/),'O45','O29 주문');L(byName('O29',/^entry:지급 보류/),'O47','O29 보류');L(byName('O29',/^entry:정산 이의/),'O46','O29 이의');L(byName('O29',/^entry:강사 지급/),'O49','O29 지급');
-L(byText('O31',/^소속 신청·초대·해제와/),'O37','O31');L(byText('O33',/^관리 웹 위임 권한도/),'O38','O33');
+L(byText('O31',/^소속 신청·초대·해제와/),'O37','O31');L(byText('O33',/^관리자 웹 위임 권한도/),'O38','O33');
 L(byText('O6',/^오늘 현장 등록/),'O40','O6');L(byText('O24',/^정원·휴강은/),'O43','O24');L(byText('O22',/^답하기 ›   환불 처리/),'O48','O22');L(byText('O26',/^정식 운영부터 앱에서/),'O49','O26');
 L(byName('O37',/^link:O38/),'O38','O37 권한');L(byName('O38',/^link:O39/),'O39','O38 해제');
 const o39=bd('O39');const bot=all(o39).filter(s=>s.type==='rectangle'&&Math.round(s.y-o39.y)>=770&&Math.round(s.y-o39.y)<=790);L(bot,'O39B','O39 버튼');

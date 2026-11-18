@@ -1,4 +1,4 @@
-// 관리 웹 로그인 흐름 클릭 연결: W1a → W1b(패스키) → W1c(콘솔), 대체 W1b2(OTP), 첫 등록 W1b3
+// 관리자 웹 로그인 흐름 클릭 연결: W1a → W1b(패스키) → W1c(콘솔), 대체 W1b2(OTP), 첫 등록 W1b3
 const P=penpot.currentPage.root.children;
 const bd=n=>P.find(x=>x.name.startsWith(n));
 const A=bd('W1a ·'),PK=bd('W1b ·'),OTP=bd('W1b2 ·'),REG=bd('W1b3 ·'),CON=bd('W1c ·');

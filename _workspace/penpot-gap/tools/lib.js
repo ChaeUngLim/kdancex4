@@ -1,4 +1,4 @@
-// 대표 관리 웹 보드 공통 도우미 — python3 pp.py lib.js <보드.js> 로 앞에 붙여 쓴다
+// 대표 관리자 웹 보드 공통 도우미 — python3 pp.py lib.js <보드.js> 로 앞에 붙여 쓴다
 // 좌표는 모두 보드 왼쪽 위 기준. 텍스트는 자동 크기가 안 돼 폭을 직접 계산한다(tw).
 const C={bg:'#f4f1ec',side:'#2a1f2e',sideOn:'#3a2c40',sideTx:'#a9a2af',gold:'#d6b46a',ink:'#141216',ink2:'#5d5763',ink3:'#8b8490',line:'#e7e1d8',card:'#ffffff',plum:'#5b3a63',plumL:'#efe6f0',sel:'#f6efe2',selLine:'#e3cf9f',warn:'#b23a3a',warnL:'#f9e9e6',input:'#f8f6f2',note:'#f4f1ec'};
 const FONT={fontFamily:'Noto Sans KR',fontId:'gfont-noto-sans-kr'};

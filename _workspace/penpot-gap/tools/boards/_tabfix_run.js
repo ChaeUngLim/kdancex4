@@ -1,5 +1,5 @@
 
-const ITEMS=[{"board": "O48", "role": "owner", "tab": "홈"}, {"board": "O48B", "role": "owner", "tab": "홈"}, {"board": "O49", "role": "owner", "tab": "학원"}];const out=[];const roots=penpot.currentPage.root.children.filter(s=>s.type==='board');
+const ITEMS=[{"board": "M10F", "role": "member", "tab": "AI 플래너"}];const out=[];const roots=penpot.currentPage.root.children.filter(s=>s.type==='board');
 const tabOf=b=>(b.children||[]).find(c=>c.name&&c.name.startsWith('tabbar'));
 const onOf=tb=>{const t=(tb.children||[]).filter(c=>c.type==='text').find(t=>String(t.fontWeight)>='700');return t?t.characters:null;};
 const kindOf=tb=>tb.name.includes('회원')?'member':tb.name.includes('강사')?'instructor':tb.name.includes('대표')?'owner':'?';
