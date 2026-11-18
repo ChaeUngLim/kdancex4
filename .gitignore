@@ -52,3 +52,11 @@ _workspace/20[0-9][0-9]-[0-1][0-9]-[0-3][0-9]-[0-9][0-9][0-9]/
 
 # Review.md 의 그림 — Review.md 와 함께 로컬 전용(푸시하지 않는다)
 docs/assets/review/
+
+# Penpot 보드 그리기 실행 대기열 — 실행할 때마다 생기고 바뀌는 중간 파일(2026-11-18)
+_workspace/penpot-gap/tools/boards/queue_*
+_workspace/penpot-gap/tools/boards/_done.tmp
+
+# 이력서·포트폴리오 — 실명 개인 문서라 저장소에 올리지 않는다(2026-11-18)
+_workspace/resume/
+_workspace/portfolio/
