@@ -1,6 +1,6 @@
 // 강사 앱 화면 공통 틀 — I2 의 상태바·뒤로 버튼·하단 탭을 복제하고 제목은 새로 쓴다
 function PAGE(name,minX,title,H=928,opts={}){
- const S=FIND('I2 · 수업 만들기');const y0=Math.round(S.y);let x=minX;
+ const y0=24300;let x=6200; // 2026-11-13 재배치: 강사 기둥(x 6200) 아래 임시 줄. minX 인자는 위치에 쓰지 않는다
  const roots=penpot.currentPage.root.children.filter(s=>s.type==='board');
  while(roots.some(r=>r.x<x+390&&r.x+r.width>x&&r.y<y0+H&&r.y+r.height>y0))x+=440;
  const B=BOARD(name,x,y0,390,H);

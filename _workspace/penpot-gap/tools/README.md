@@ -1,7 +1,7 @@
 # Penpot 보드 도우미
 
 - `pp.py` — Penpot MCP 서버(localhost:4401)에 직접 붙어 `execute_code` 를 돌린다. `python3 pp.py lib.js 보드.js`
-- `lib.js` — 대표 관리 웹 보드 공통 함수(SIDE·CARD·T·BTN·CHIP·TOG·RADIO·INPUT·BOARD·FIND)와 색 상수
+- `lib.js` — 대표 관리자 웹 보드 공통 함수(SIDE·CARD·T·BTN·CHIP·TOG·RADIO·INPUT·BOARD·FIND)와 색 상수
 
 쓰는 법
 1. 서버 켜기: `~/.npm/_npx/f4739471492be2e8/node_modules/@penpot/mcp` 에서 `pnpm run start`(Node 24.21.0 bin 경로)

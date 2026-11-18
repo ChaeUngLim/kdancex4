@@ -1,9 +1,11 @@
 // 회원 앱 화면 공통 틀 — M9 의 상태바·뒤로 버튼·회원 하단 탭을 복제하고 제목은 새로 쓴다.
 // slot 은 새 회원 보드 줄(y=ROW_Y, x=3080 부터)에서 왼쪽부터 몇 번째 칸인지(0부터). 칸마다 440px.
-const ROW_Y=13100;
+const ROW_Y=24300; // 2026-11-13 재배치: 새 보드는 임시 줄(y 24300)에 그린 뒤 해당 소제목 줄 끝으로 옮긴다. slot 인자는 위치에 쓰지 않는다
 function PAGE_M(name,slot,title,H=928,opts={}){
  const S=FIND('M9 · 결제');
- const B=BOARD(name,3080+slot*440,ROW_Y,390,H);
+ const y0=ROW_Y;let x=0;const roots=penpot.currentPage.root.children.filter(s=>s.type==='board');
+ while(roots.some(r=>r.x<x+390&&r.x+r.width>x&&r.y<y0+H&&r.y+r.height>y0))x+=440;
+ const B=BOARD(name,x,ROW_Y,390,H);
  const put=(src)=>{const rx=src.x-S.x,ry=src.y-S.y;const c=src.clone();B.appendChild(c);c.x=B.x+rx;c.y=B.y+ry;return c;};
  const kids=S.children;const scr=kids.find(c=>c.name==='screen');
  put(kids.find(c=>c.name==='status'));
