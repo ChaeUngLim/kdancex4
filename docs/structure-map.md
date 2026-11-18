@@ -74,8 +74,11 @@ kdance/
 │   ├── structure-map.md            이 문서 (원본)
 │   ├── policy/ (6)                 정책 원본 — payment-method · pricing · distribution · genre-taxonomy · admin-input · subscription-benefits
 │   ├── legal/ (3 + archive/)       약관 3종(terms-of-service · merchant-terms · privacy-policy, 법률 검토 전 초안) + archive/terms-2026-09-25/ 상세판 보관본. 같은 내용의 .zip 은 미추적 중복
-│   ├── planning/ (4)               kdancex4_service_definition_and_tech_stack.md(서비스 정의 · 「11. 기술 스택 고정표」= 버전 원본, 136KB) · plan-summary · requirements-analysis · role-split-analysis
-│   ├── guide/ (13 html)            사람이 읽는 가이드 — structure-map(이 문서의 그림판, 재생성) · harness-ecc-guide · payment-system-guide-for-beginners · reservation-refund-diagrams · kdance-screens-spec · kdance-beta-infra · omniroute-setup · omniroute-setup-visual-guide · penpot-mcp-guide · playwright-mcp-… · social-dance-app-dev-guide · social-dance-academy-pitch
+│   ├── planning/                   kdancex4_service_definition_and_tech_stack.md(서비스 정의서 목차 46줄 — 11-13 에 나눔) · plan-summary · requirements-analysis · role-split-analysis
+│   │   ├── features/ (11)          기능 정의서 — README(역할별 지도) · 00-overview · member/member · instructor/{instructor, instructor-app, instructor-web} · owner/{owner, owner-web, owner-app} · events · permissions
+│   │   ├── tech/ (5)               기술 문서 — tech-stack(「11. 기술 스택 고정표」= 버전 원본) · ai · architecture · data-model · dev-environment
+│   │   └── roadmap/ (1)            priorities(개발 우선순위, 핵심 방향, 결정 질문)
+│   ├── guide/ (14 html)            사람이 읽는 가이드 — structure-map(이 문서의 그림판, 재생성) · harness-ecc-guide · payment-system-guide-for-beginners · reservation-refund-diagrams · kdance-screens-spec · kdance-beta-infra · omniroute-setup · omniroute-setup-visual-guide · penpot-mcp-guide · playwright-mcp-… · social-dance-app-dev-guide · social-dance-academy-pitch · kdance-implementation-roadmap(구현 로드맵 — 문서 읽는 순서와 원자 Task)
 │   ├── agent/                      에이전트가 읽는 문서 + 인수인계 — ai-coding-agent.html(스택 개요, 원본) · handoff.md + handoff/(설정 묶음) · claude-skills-checklist.md
 │   ├── deprecated/ (2)             ⛔ 09-25 폐기 — payment-deeplink-reference · sch-payment-deeplink-implementation (기록으로만)
 │   ├── deck/ (2 pptx)              K-DanceX4_입점설명회_대표강사회원.pptx(09-30, 미추적) · kdance_화면명세서.pptx(09-14) — scripts/build_*_pptx.py 가 만든다 (재생성)
@@ -127,7 +130,7 @@ kdance/
 | 값 | 원본 (여기서만 고친다) | 참조하는 곳 |
 |---|---|---|
 | 요구사항 FR·US·SC 와 공식 짧은 이름 | `specs/…/spec.md` | SCH_kdance.html · 약관 · Review · 가이드 · 정의서 |
-| 버전 | 정의서 「11. 기술 스택 고정표」 (`docs/planning/`) | CLAUDE.md · ai-coding-agent.html · 에이전트 md (값을 복제하지 않고 표를 가리킨다) |
+| 버전 | `docs/planning/tech/tech-stack.md` 「11. 기술 스택 고정표」 | CLAUDE.md · ai-coding-agent.html · 에이전트 md (값을 복제하지 않고 표를 가리킨다) |
 | 실제 설치본 | `package.json` · `pyproject.toml` · `docker-compose.yml` | 실측 뒤 고정표를 고친다 — 표가 설치본을 따라간다 |
 | 규칙 | `.claude/rules/core-rules.md` | CLAUDE.md · 하네스 스킬 · 에이전트 · `.specify/memory/constitution.md`(포인터) |
 | 설계 결정 | `CLAUDE-decisions.md` (ADR) | 정의서 · Review · 스케줄표 |
@@ -271,7 +274,7 @@ admin-web 에 설치된 prisma 8 · better-auth · ai · langgraph · MCP SDK �
 |---|---|---|
 | `docs/policy/` | 정책 6종 | 값을 바꾸는 자리를 한 곳에 |
 | `docs/legal/` | 약관 3종 + `archive/` | 약관은 법률 검토가 따로 붙는 문서라 분리 |
-| `docs/planning/` | 서비스 정의(고정표) · 기획 요약 · 요구사항 분석 · 역할 분리 분석 | 버전 원본이 여기 있다 |
+| `docs/planning/` | 서비스 정의서 목차 · features/ · tech/ · roadmap/ + 기획 요약 · 요구사항 분석 · 역할 분리 분석 | 버전 원본(`tech/tech-stack.md`)이 여기 있다. 11-13 에 정의서를 나눴다 |
 | `docs/guide/` | HTML 가이드 11개 (옛 `docs/가이드/` 5 + `docs/*.html` 5 + 새 구조 지도) | 한글 폴더명을 ASCII 로 |
 | `docs/agent/` | `ai-coding-agent.html` · `handoff.md` + `handoff/` · 스킬 체크리스트 | 에이전트와 인수인계용 |
 | `docs/deprecated/` | 딥링크 A안 문서 2종 | 09-25 폐기, 기록으로만 |

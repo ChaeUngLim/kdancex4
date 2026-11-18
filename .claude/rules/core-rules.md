@@ -443,7 +443,7 @@ SCH 가이드는 "그 작업이 어떻게 끝났는지". 정작 배우는 데 �
 
 **호환되는 선에서 최신을 쓴다.** "최신"과 "의존성 호환"이 충돌하면 **호환이 이긴다.**
 
-확정된 버전표는 `docs/planning/kdancex4_service_definition_and_tech_stack.md` 의
+확정된 버전표는 `docs/planning/tech/tech-stack.md` 의
 「11. 기술 스택 고정표」다. 버전을 말하거나 문서에 적을 때는 **거기를 먼저 본다.**
 
 ### 버전을 추정하지 않는다

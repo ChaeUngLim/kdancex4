@@ -107,14 +107,38 @@ TREE = [
             N("docs/legal/privacy-policy.md", "spec", ["원본"], "개인정보 처리방침"),
             N("docs/legal/archive/terms-2026-09-25/", "spec", ["파생"], "약관 상세판 보관본 — 조문별 근거. 같은 내용의 .zip 은 미추적 중복(삭제 결정 대기)"),
         ]),
-        N("docs/planning/", "spec", [], "서비스 정의 · 기획 · 분석", [
-            N("docs/planning/kdancex4_service_definition_and_tech_stack.md", "spec", ["원본"], "서비스 정의 · 「11. 기술 스택 고정표」= 버전 값의 원본 (약 136KB)"),
+        N("docs/planning/", "spec", [], "서비스 정의서 목차 · 기능 정의서 · 기술 문서 · 우선순위 · 기획 · 분석", [
+            N("docs/planning/kdancex4_service_definition_and_tech_stack.md", "spec", ["파생"], "서비스 정의서 목차 (46줄) — 옛 장 번호가 어느 새 파일로 갔는지 안내. 내용은 아래 features/ · tech/ · roadmap/ 으로 나눴다 (11-13)"),
+            N("docs/planning/features/", "spec", [], "기능 정의서 — 역할별 지도", [
+                N("docs/planning/features/README.md", "spec", ["파생"], "역할별 지도 — 어느 역할이 어느 파일을 읽는가"),
+                N("docs/planning/features/00-overview.md", "spec", ["파생"], "서비스 한 줄 정의, 전체 구조, 역할별 재분석 요약, 최종 제품 정의"),
+                N("docs/planning/features/member/member.md", "spec", ["파생"], "회원 기능 정의서"),
+                N("docs/planning/features/instructor/instructor.md", "spec", ["파생"], "강사 기능 정의서"),
+                N("docs/planning/features/instructor/instructor-app.md", "spec", ["파생"], "강사 — 강사 앱에서 하는 일"),
+                N("docs/planning/features/instructor/instructor-web.md", "spec", ["파생"], "강사 — 관리자 웹에서 하는 일(위임받았을 때만)"),
+                N("docs/planning/features/owner/owner.md", "spec", ["파생"], "대표 기능 정의서 (입점과 약관 동의 포함)"),
+                N("docs/planning/features/owner/owner-web.md", "spec", ["파생"], "대표 — 관리자 웹에서 하는 일"),
+                N("docs/planning/features/owner/owner-app.md", "spec", ["파생"], "대표 — 대표 앱에서 하는 일"),
+                N("docs/planning/features/events.md", "spec", ["파생"], "이벤트·원데이·파티·공연·대회"),
+                N("docs/planning/features/permissions.md", "spec", ["파생"], "권한 구조, 웹·앱 역할 분리, 플랫폼 관리자 정산 콘솔"),
+            ]),
+            N("docs/planning/tech/", "spec", [], "기술 문서", [
+                N("docs/planning/tech/tech-stack.md", "spec", ["원본"], "기술 스택 고정표 — 버전 값의 원본. 버전을 정한 이유, 알려진 위험, 백엔드 교체"),
+                N("docs/planning/tech/ai.md", "spec", ["파생"], "AI 추천, AI 에이전트 역할, LLM·RAG, 임베딩·벡터 검색, 리랭커"),
+                N("docs/planning/tech/architecture.md", "spec", ["파생"], "최종 아키텍처 — 전체 다이어그램, 서브 다이어그램, 파이프라인"),
+                N("docs/planning/tech/data-model.md", "spec", ["파생"], "데이터 모델 핵심 엔티티"),
+                N("docs/planning/tech/dev-environment.md", "spec", ["파생"], "개발 환경 — Claude Code·MCP·Skills, OmniRoute"),
+            ]),
+            N("docs/planning/roadmap/", "spec", [], "우선순위", [
+                N("docs/planning/roadmap/priorities.md", "spec", ["파생"], "개발 우선순위, 핵심 방향, 결정 질문"),
+            ]),
             N("docs/planning/plan-summary.md", "spec", ["파생"], "기획 요약"),
             N("docs/planning/requirements-analysis.md", "spec", ["파생"], "FR 별 출처 분석"),
             N("docs/planning/role-split-analysis.md", "env", ["파생"], "4계층 역할 분리 근거 (core-rules 가 가리킨다)"),
         ]),
         N("docs/guide/", "expl", [], "사람이 읽는 HTML 가이드 11개 — GitHub 에서는 raw 로만 보이니 내려받아 연다", [
             N("docs/guide/structure-map.html", "expl", ["재생성"], "이 파일 — scripts/build_structure_map.py 가 만든다"),
+            N("docs/guide/kdance-implementation-roadmap.html", "expl", [], "구현 로드맵 — 문서 읽는 순서와 원자 Task"),
             N("docs/guide/harness-ecc-guide.html", "expl", [], "Harness × ECC 왕초보 완벽분석가이드 — 개발 방식 전체 그림"),
             N("docs/guide/payment-system-guide-for-beginners.html", "expl", [], "결제 시스템 왕초보 설명"),
             N("docs/guide/reservation-refund-diagrams.html", "expl", [], "예약 취소 · 환불 흐름 그림"),
@@ -243,7 +267,7 @@ SOURCE_LAYERS = [
 PLACEMENT_RULES = [
     ("새 API 하나", "backend/app/routers/ 에 문 → schemas/ 에 모양 → services/ 에 판단 → 필요하면 adapters/ 에 경계 → tests/ 에 짝. SCH-21 이후에는 admin-web/app/api/ 와 server actions 로 같은 구분을 옮긴다"),
     ("정책 값(수수료·환불 비율·장르)", "docs/policy/*.md 가 원본. 코드에는 상수로 옮기고 주석에 정책 파일 경로를 적는다(backend/app/adapters/*.py 가 그 예)"),
-    ("버전", "docs/planning/…tech_stack.md 「11. 기술 스택 고정표」만 고친다. CLAUDE.md · ai-coding-agent.html 은 값을 복제하지 않고 표를 가리킨다"),
+    ("버전", "docs/planning/tech/tech-stack.md 「11. 기술 스택 고정표」만 고친다. CLAUDE.md · ai-coding-agent.html 은 값을 복제하지 않고 표를 가리킨다"),
     ("사람이 읽는 설명", "docs/guide/*.html. SCH 단위 가이드는 _workspace/guides/"),
     ("에이전트가 읽는 설명", "docs/agent/. SCH 단위는 _workspace/guides/SCH-XX(기능명).md"),
     ("일회성 생성 스크립트", "scripts/. 산출물은 docs/deck/ 같은 결과 폴더에, 스크립트는 결과 폴더에 두지 않는다"),
@@ -253,7 +277,7 @@ PLACEMENT_RULES = [
 
 SOURCE_OF_TRUTH = [
     ("요구사항 FR·US·SC 와 공식 짧은 이름", "specs/…/spec.md", "SCH_kdance.html · 약관 · Review · 가이드 · 정의서"),
-    ("버전", "정의서 「11. 기술 스택 고정표」", "CLAUDE.md · ai-coding-agent.html · 에이전트 md"),
+    ("버전", "docs/planning/tech/tech-stack.md 「11. 기술 스택 고정표」", "CLAUDE.md · ai-coding-agent.html · 에이전트 md"),
     ("실제 설치본", "package.json · pyproject.toml · docker-compose.yml", "실측 뒤 고정표를 고친다 — 표가 설치본을 따라간다"),
     ("규칙", ".claude/rules/core-rules.md", "CLAUDE.md · 하네스 스킬 · 에이전트 · constitution.md(포인터)"),
     ("설계 결정", "CLAUDE-decisions.md (ADR)", "정의서 · Review · 스케줄표"),
@@ -266,7 +290,7 @@ SOURCE_OF_TRUTH = [
 REORG_LOG = [
     ("docs/policy/", "정책 6종", "docs/*.md 25개가 한 층에 섞여 있어 읽는 사람이 헤맸다 — 성격별로 나눴다"),
     ("docs/legal/", "약관 3종 + archive/", "약관은 법률 검토가 따로 붙는 문서라 분리"),
-    ("docs/planning/", "서비스 정의 · 기획 · 분석 4종", "버전 원본(고정표)이 여기 있다"),
+    ("docs/planning/", "서비스 정의서 목차 · features/ · tech/ · roadmap/ + 기획·분석", "버전 원본(고정표)은 tech/tech-stack.md — 11-13 에 2,143줄 정의서를 나눴다"),
     ("docs/guide/", "HTML 가이드 11개 (옛 docs/가이드/ + docs/*.html)", "한글 폴더명을 ASCII 로 — 도구와 링크가 안전하다"),
     ("docs/agent/", "ai-coding-agent.html · handoff · 스킬 체크리스트", "에이전트와 인수인계용"),
     ("docs/deprecated/", "딥링크 A안 문서 2종", "09-25 폐기 결정, 기록으로만"),

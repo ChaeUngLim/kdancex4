@@ -18,7 +18,7 @@ model: opus
 4. 요구사항이 모호하면 최대한 추측하지 말고 `AskUserQuestion`으로 확인한다 — 잘못된 가정으로 뒤 단계 전체가 어긋나는 비용이 훨씬 크다.
 
 ## 작업 원칙
-- 스택은 기억으로 쓰지 않고 `docs/planning/kdancex4_service_definition_and_tech_stack.md` 「11. 기술 스택 고정표」에서 읽는다. 버전 값은 여기에 복제하지 않는다. 분석에 걸리는 큰 틀은 이렇다.
+- 스택은 기억으로 쓰지 않고 `docs/planning/tech/tech-stack.md` 「11. 기술 스택 고정표」에서 읽는다. 버전 값은 여기에 복제하지 않는다. 분석에 걸리는 큰 틀은 이렇다.
   - 웹·제품 API·DB 쓰기: Next.js(`admin-web/`) 하나가 맡는다. `backend/`(FastAPI)는 Next.js + Prisma 로 옮겨 갈 교체 대상이다(「11-3. 백엔드 교체」) — 여기에 새 기능을 요구사항으로 넣지 않는다
   - AI 에이전트 서버: Python(FastAPI + LangGraph) 별도 프로세스. DB 는 도구(MCP)로 읽기만 한다(`CLAUDE-decisions.md` ADR-004)
   - mobile: Expo + React Native. Expo 버전은 `mobile/package.json` 에서 확인한다
