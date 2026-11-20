@@ -203,6 +203,29 @@
 <!-- ▼ 새 날짜는 이 줄 바로 아래에 추가한다 -->
 
 <section class="log-day">
+  <h3>2026-11-20 (금)</h3>
+  <p>운영자 보드 P7~P11 과 W31 은 전날 이미 그려져 있었다. O48C 만 빈 틀로 남아 있어서 다시 그렸다.</p>
+
+  <div class="issue">
+    <h4><span class="tag fixed">해결</span>페이지 전체를 뒤지는 조회를 보냈다가 플러그인 연결이 끊김</h4>
+    <dl>
+      <dt>증상</dt><dd>보드 이름을 찾으려고 <code>penpot.currentPage.findShapes()</code> 로 모든 도형을 훑었다. 30초 시간 초과가 났고, 곧이어 서버 로그에 <code>WebSocket connection closed</code> 가 찍혔다. 다음 호출부터는 <code>No Penpot plugin instances are currently connected</code> 가 났다.</dd>
+      <dt>원인</dt><dd>보드가 수백 장이라 모든 도형을 한 번에 훑으면 브라우저가 오래 멈춘다. 그 사이 플러그인 연결이 닫혔다.</dd>
+      <dt>해결</dt><dd>사용자가 Connect 를 다시 눌렀다. 보드를 찾을 때는 <code>penpot.currentPage.root.children</code>(맨 위 보드만)으로 거른다. 도구의 <code>FIND</code> 도 이 방식이다. <code>findShapes()</code> 는 쓰지 않는다.</dd>
+    </dl>
+  </div>
+
+  <div class="issue">
+    <h4><span class="tag fixed">해결</span>O48C 가 빈 보드로만 생김 — <code>S</code> 가 정의되지 않음</h4>
+    <dl>
+      <dt>증상</dt><dd><code>o48c_1.js</code> 가 <code>Cannot read properties of undefined (reading 'children')</code> 로 멈췄다. 보드 틀만 만들어진 상태라 도형 0개짜리 O48C 가 남았다. 전날 빈 보드가 남은 것도 같은 원인이었다.</dd>
+      <dt>원인</dt><dd><code>boards/owner_lib.js</code> 의 <code>PAGE_O</code> 는 기준 보드 O21 을 담은 전역 변수 <code>S</code> 를 복제 원본으로 쓴다. 그런데 <code>S</code> 를 정의하는 줄이 세션 임시 폴더에만 있었고, 세션이 끝나면서 사라졌다.</dd>
+      <dt>해결</dt><dd>빈 O48C 를 지우고 <code>const S=FIND('O21 ·');</code> 한 줄을 owner_lib 뒤에 붙여 실행했다: <code>pp.py lib.js boards/owner_lib.js boards/owner_src.js boards/o48c_N.js</code>(S 정의를 <code>boards/owner_src.js</code> 로 저장소에 남겼다). 실행 전에 O21 구조(첫 자식 상태바 · <code>screen</code> 안 <code>topnav</code> · <code>tabbar</code>)가 맞는지 먼저 확인했다. 저장은 스냅샷 1135 로 확인했다.</dd>
+    </dl>
+  </div>
+</section>
+
+<section class="log-day">
   <h3>2026-11-18 (수)</h3>
   <p>11-13 저녁에 한 보드 재배치(역할별 4기둥)가 파일에 없다는 것을 찾아내고 다시 적용했다.</p>
 
