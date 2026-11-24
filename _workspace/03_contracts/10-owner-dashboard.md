@@ -73,7 +73,7 @@ M1 이 만드는 직원 알림(받는 사람 · category)
 ## 수용 시나리오
 
 1. **Given** 소속 신청 1건이 들어온 학원 **When** 대표가 대시보드를 연다 **Then** `todos` 에 소속 신청 1줄, 결제 타일은 `available: false` 이고 숫자 칸은 `null`
-2. **Given** 위임 강사(`roster_view`) **When** `GET …/dashboard` **Then** 403 `FORBIDDEN`
+2. **Given** 위임 강사(`roster_manage`) **When** `GET …/dashboard` **Then** 403 `FORBIDDEN`
 3. **Given** 대표에게 읽지 않은 `approval` 2건·`operations` 1건 **When** `read-all {category: "approval"}` **Then** `updated: 2`, `unread-count.total` 이 1
 4. **Given** 강사 A 의 알림 id **When** 강사 B 가 읽음 처리 **Then** 404, A 의 `read_at` 그대로
 5. **Given** 같은 소속 신청의 알림 쓰기가 재시도로 두 번 돈다 **When** 대표 알림함 조회 **Then** 1건(`dedupe_key`)

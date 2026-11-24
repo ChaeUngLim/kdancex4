@@ -8,9 +8,37 @@
 | `01-member-onboarding.md` | 로그인·가짜 본인확인·가입·취향·기준 장르 | US1-A1(가입·취향) |
 | `02-catalog.md` | 홈 목록(거르기)·수업 상세·기본 자리 | US1-A2(시드·검색·상세) |
 | `03-checkout-payment.md` | 주문 생성·조회·셀프 취소·웹훅·만료·가짜 PG 시험 경로 | US1-A3·A4 |
-| `04-me-calendar-notifications.md` | 내 캘린더·알림 조회 | US1-A4 |
+| `04-me-calendar-notifications.md` | 내 캘린더·알림 조회 · 결석 예정 토글·강사·대표 결석 표시·48시간 확정·이의 · 내 결제 내역 | US1-A4 · M3: S3-4 |
 | `05-cancellation-migrated.md` | 이관하는 취소 미리보기·취소 | S0-M4(취소 API 이관) |
 | `06-ports.md` | 어댑터 포트·산정 함수 시그니처(§4.3·§4.10) | S0-M3 이후 전부 |
+| `07-owner-onboarding.md` | 입점 신청·심사·학원 정보·정산 계좌·파일·약관 동의 | S1-1(입점 신청·심사·학원 정보·정산 계좌) |
+| `08-owner-staff.md` | 강사 초대·소속 승인/거절·위임 권한·소속 해제 | S1-2(강사 소속·권한 위임·강의실) |
+| `09-owner-notices.md` | 환불·취소 공지 판본·노쇼 기준·학원 공지 | S1-3(환불·취소 공지 양식·노쇼 기준) · S1-4(학원 공지) |
+| `10-owner-dashboard.md` | 대표 대시보드(W29)·직원 알림함 | S1-4(학원 공지·대표 대시보드 뼈대·대표 알림함) |
+| `11-instructor.md` | 강사 가입·프로필·수업 등록·승인·변경·휴강·대타·공지·소속 해제 완성·개인 레슨·일정 | M2: S2-1 ~ S2-4 |
+| `12-refund-cancel-waitlist.md` | 환불 요청·대표 처리·계좌 환불 송금·이벤트형 취소·행사 일괄 취소·휴강 선택·옮기기·대기·우선 결제·동반·단체 | M4: S4-1 ~ S4-4 |
+| `13-settlement.md` | 정산 원장·강사 정산 유형·계좌·명세·대표 승인 일괄 지급·대사·월 마감 · **운영자 P9(공휴일)·P10(예금주 확인)·P11(사업자 점검)** | M5: S5-1 ~ S5-4 · M7 의 S7-4.8a~c(P9~P11 API) |
+| `14-membership-benefits.md` | 멤버십·정기결제·쿠폰·대학생 혜택·참여 학원·순위판·레벨·카드·개강 후보·행사 피드 | M6: S6-1 ~ S6-4 |
+| `15-ops.md` | 알림 발송·설정·푸시·문의·신고·이용 제한 절차·약관·탈퇴·입점 해지·권리·자녀·운영자 콘솔(P1~P8)·점검·PG 장애·앱 버전 | M7: S7-1 ~ S7-4 |
+| `16-ai-agent.md` | 에이전트 서버·문의 AI·포스터 읽기·강사 수업 말로 찾기·홍보 이미지·소개 문구 | MX: SX-1 ~ SX-6 |
+| `17-real-adapters.md` | 실 PG(포트원 V2)·웹훅 서명·하위 판매자·영수증·지급대행·소셜 로그인·휴대폰 본인확인 | M8: S8-1 · S8-2 |
+| `18-after-payment-views.md` | 결제 뒤 대표·강사 쪽 보기 — 대표 주문 목록·회원 조회·회차 명단·연락처 전체 열람(사유·감사)·현장 등록 인원·오늘 인원·오늘 결석 목록·강사 집계 | M3: S3-5(결제 뒤 대표·강사 쪽 보기) |
+
+**한 경로는 한 파일에만 정의한다**(2026-11-20 통합). 다른 파일이 기존 경로를 넓힐 때는 「더하는 것」 표로만 적는다 — 아래 §0 모음표가 그 목록이다. 겹침을 어떻게 정했는지는 `_workspace/evidence/penpot-doc-sync-2026-11-20/integration.md`.
+
+### 0. 다른 계약이 기존 경로에 더하는 것 (2026-11-20 통합 모음)
+
+| 원래 경로(정의 파일) | 더하는 파일 | 더하는 것 |
+|---|---|---|
+| 주문 생성(03) | `12` §5-2·§5-4 | 선택 칸 `offerId`(대기 결제 기회)·`prioritySlotId`(우선 결제 자리) · 대기 줄이 살아 있으면 일반 신청 409 `SEAT_SOLD_OUT` |
+| 주문 생성(03) | `14` §4-2 · §7-2 | 쿠폰·대학생 혜택(`coupon` 묶음) · 행사·대회 신청 `competitionEntry` |
+| 주문 생성(03) | `15` §0-1 | 409 `TERMS_RECONSENT_REQUIRED` · 503 `MAINTENANCE_ACTIVE` · `attendeeChildId` |
+| 주문 생성(03) | `17` §0 · §3-1 | 응답에 `checkout`(실 PG 결제창 재료) |
+| 웹훅(03) | `17` §4 | 실 PG 서명 규격(`webhook-id` 멱등) |
+| 취소 미리보기(05) | `12` §2-1 | 응답 교체(비율표 → 공지 요약·이벤트형 수수료 표) |
+| 대시보드 응답(10 §1) | `18` §0 · 열린 점 ⑦ | 칸 `newMembers`(이번 달 이 학원에서 첫 결제 완료한 회원 수 — 대표 앱 홈 O6) · `sessions` 타일 계산은 18 §7 의 오늘 인원 함수 |
+| 캘린더 조회(04 §1) | `04` §4-1 | 항목 칸 `sessionId` · `absence`(결석 상태 — M11 의 참석/결석 토글) |
+| 파일 올리기(07) | `11` 열린 점 ⑩ · `13` §3-4 · `15` §0-1 · `16` §4-6 | `purpose` 값 추가(데이터 모델 §14-2 의 통합 목록이 원본) |
 
 ---
 
@@ -115,9 +143,13 @@ FastAPI 의 `{"detail": …}` 모양을 **유지하고** 기계용 `code` 를 �
 ```json
 { "accountId": "…", "displayName": "이준호", "roles": ["instructor"], "secondFactorVerified": true, "consoleAccess": true,
   "academies": [ { "academyId": "…", "name": "라틴하우스 강남", "as": "delegate",
-                   "permissions": ["roster_view", "headcount_manage"], "menus": ["roster"] } ] }
+                   "permissions": ["roster_manage"], "menus": ["roster"] } ],
+  "platformMenus": [] }
 ```
-`as` 는 `owner` · `delegate` 둘. `menus` 는 서버가 권한에서 계산한다(대응: `roster_view`·`headcount_manage` → `roster`(예약·명단), `class_manage` → `classes`(수업·포스터 등록), 대표는 전체, `admin` 역할은 `platform_settlement` 추가). 화면은 이 목록만 그린다.
+`as` 는 `owner` · `delegate` 둘. `menus` 는 서버가 권한에서 계산한다(대응: `roster_manage` → `roster`(예약·명단), `class_manage` → `classes`(수업·포스터 등록), 대표는 전체, `admin` 역할은 `platform_settlement` 추가). 화면은 이 목록만 그린다.
+- (2026-11-20 S0-3.7(직원 정보 조회 API) 구현 때 더함) 학원에 매이지 않는 운영자 메뉴는 `platformMenus` 에 담는다 — `admin` 역할이면 `["platform_settlement"]`, 아니면 `[]`. 대표의 `permissions` 는 `["owner"]`. 위임이 하나도 없는 학원은 `academies` 에 넣지 않는다. `consoleAccess` = `platformMenus` 또는 어느 학원의 `menus` 가 비어 있지 않음. 「대표는 전체」는 지금 이름이 정해진 `roster`·`classes` 둘이고, 대표 전용 화면의 메뉴 이름은 그 화면의 Task 가 여기에 먼저 적는다. 응답 스키마 원본: `admin-web/lib/server/services/staff-me.ts` 의 `staffMeResponseSchema`
+- (2026-11-21 S1-1.32(학원 설정 화면 W2b·W22) 구현 때 더함) 대표 전용 메뉴 `settings`(입점·설정, 보드 W2b·W22)를 `menus` 에 더했다 — 대표는 이제 `["roster", "classes", "settings"]` 를 받는다. 위임으로는 열리지 않는다. 화면 주소는 `/academies/{academyId}/settings`(입점·설정)·`/academies/{academyId}/app-page`(학원 앱 페이지)
+- (2026-11-21 S1-2.14(강사·소속 화면 W3a) 구현 때 더함) 대표 전용 메뉴 `instructors`(강사 관리, 보드 W3a)를 `menus` 에 더했다 — 대표는 이제 `["roster", "classes", "instructors", "settings"]` 를 받는다. 소속 승인·위임 관리는 대표 고유 권한이라(08 시나리오 6) 위임으로는 열리지 않는다. 화면 주소는 `/academies/{academyId}/instructors`
 
 ### 6-2. `requireStaff(permission, { academyId?, surface })` 판정 순서
 
@@ -127,11 +159,11 @@ FastAPI 의 `{"detail": …}` 모양을 **유지하고** 기계용 `code` 를 �
 |---|---|---|
 | 1 | 세션이 있다 | 401 `UNAUTHENTICATED` |
 | 2 | 세션의 사용자에게 `staff_accounts` 가 있고 `active` 다 | 403 `STAFF_ACCOUNT_REQUIRED` · 403 `ACCOUNT_SUSPENDED` |
-| 3 | `surface='web'` 이면 이 세션이 2단계 인증을 마쳤다 | 401 `SECOND_FACTOR_REQUIRED` |
+| 3 | `surface='web'` 이면 이 세션이 2단계 인증을 마쳤다. 대표 앱도 부르는 콘솔 경로(명세 `appToo: true` — 대시보드·소속 목록·승인·거절·위임·초대 만들기·해제·해제 미리 보기·동의 기록·약관 통지 읽음)는 Bearer 요청을 `surface='app'` 으로 보고 쿠키 요청만 `web` 으로 본다(2026-11-23 사용자 결정 — 대표 앱이 실서버에서 401 이던 문제, 수업 승인 경로와 같은 방식). 직원 본인 경로(`staff_self` — 직원 알림함 `GET/POST /api/staff/notifications…`)도 2단계는 쿠키 요청에만 묻는다(11 열린 점 ⑩ 적용, 같은 날) | 401 `SECOND_FACTOR_REQUIRED` |
 | 4 | `permission` 이 `admin` 이면 `role_grants(admin, active)` | 403 `FORBIDDEN` |
 | 5 | `academyId` 가 있으면 학원이 있다 | 404 `NOT_FOUND` |
 | 6 | 대표 권한(`owner`)이면 `academy_owners(active)` 가 그 계정이다 | 403 `FORBIDDEN` |
-| 7 | 위임 권한(`roster_view`·`class_manage`·`headcount_manage`)이면 대표이거나, `active` 소속 + 그 위임 행이 있다 | 403 `FORBIDDEN` |
+| 7 | 위임 권한(`roster_manage`·`class_manage`)이면 대표이거나, `active` 소속 + 그 위임 행이 있다 | 403 `FORBIDDEN` |
 | 8 | 경로별 학원 상태 조건(예: `restricted` 학원의 새 게시 거부) | 409 각 계약의 코드 |
 
 - 다른 학원의 id 로 부르면 6·7 에서 403 이다 — §4 의 「404 로 숨기지 않는다」를 따른다

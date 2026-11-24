@@ -47,6 +47,9 @@ interface IdentityVerificationPort {
 }
 
 interface NotificationSenderPort { deliver(notificationIds: readonly string[]): Promise<void> } // 커밋 뒤. 1회차 Fake = 기록만
+
+// S0-4.10(특일 정보 수집 작업). 실패는 SpecialDayProviderError(code: HTTP_ERROR·RESULT_CODE·BAD_RESPONSE·TIMEOUT·NETWORK_ERROR·NOT_CONFIGURED)로 던진다 — 빈 배열로 돌려주지 않는다
+interface SpecialDayProviderPort { fetchPublicHolidays(year: number): Promise<readonly { date: string; name: string; kind: HolidayKind }[]> }
 ```
 
 | 포트 | 1회차 구현 | 상태 저장 |
@@ -55,6 +58,7 @@ interface NotificationSenderPort { deliver(notificationIds: readonly string[]): 
 | WebhookVerifier | HMAC-SHA256(Standard Webhooks 모양) | — |
 | IdentityVerificationPort | `FakeIdentityVerification` — 서명 토큰(HMAC, 비밀값 `FAKE_IDENTITY_SECRET`), CI = HMAC(`IDENTITY_CI_PEPPER`, personKey) | 없음 |
 | NotificationSenderPort | `FakeNotificationSender` — 호출 기록 | 메모리 |
+| SpecialDayProviderPort(S0-4.10) | `FakeSpecialDayProvider` — 연도별로 넣어 둔 응답(공휴일 목록 또는 실패 코드). 실 어댑터 `KasiSpecialDayProvider`(`lib/server/adapters/kasi-special-days.ts`, S0-4.11) — `PUBLIC_DATA_HOLIDAY_KEY` 가 있으면 deps.ts 가 고른다. 같은 계약 시험(`tests/unit/special-days-adapter.test.ts`)을 둘 다 통과 | 메모리 / 없음 |
 | 슬롯 락 | **없음**(폐기 — plan D8) | — |
 
 `ciHash` 는 원래 CI 를 저장하지 않으려고 HMAC 한 값이다. 실제 기관이 붙어도 같은 함수로 만든다.
