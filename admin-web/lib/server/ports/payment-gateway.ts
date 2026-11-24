@@ -39,17 +39,28 @@ export interface CreatePaymentResult {
 
 /** PG 가 말하는 결제 상태. 웹훅 본문을 믿지 않고 이것으로 다시 묻는다(FR-287(웹훅 확정), plan D9) */
 export interface GatewayPayment {
-  status: "ready" | "paid" | "cancelled" | "expired";
+  /** `failed` 는 카드 승인 실패 — 돈이 빠져나가지 않은 채 PG 가 결제를 닫았다(계약 03 §8 M-03, S3-3.8) */
+  status: "ready" | "paid" | "cancelled" | "expired" | "failed";
   /** 입금 뒤에는 실제 입금액 — FR-115(결제 금액 대조)의 「PG 응답 금액」 */
   amount: number;
   paidAt?: Temporal.Instant;
   transactionId?: string;
+  /**
+   * PG 가 실제로 승인·입금받은 수단(S3-3.10(이벤트형 카드 승인 통지 전액 취소)).
+   * 회원이 결제창에서 수단을 바꿔 승인하면 우리 결제 행(`payments.method`)과 다를 수 있다 — 그래서 PG 말을 따로 받는다.
+   * 없으면(가짜 PG 의 기본 동작) 부르는 쪽이 결제 행의 수단을 쓴다.
+   */
+  method?: PaymentMethod;
 }
 
 export interface PaymentGatewayPort {
   createPayment(req: CreatePaymentRequest): Promise<CreatePaymentResult>;
   getPayment(gatewayPaymentId: string): Promise<GatewayPayment>;
-  /** 입금 전 취소·만료 — 발급 계좌 폐기 */
+  /**
+   * 입금 전 취소·만료 — 발급 계좌 폐기.
+   * 이미 승인된 **카드·간편결제**면 승인 전액 취소다(계약 17 §3-3 — 이벤트형 카드 승인을 돌려줄 때, S3-3.10).
+   * 입금된 계좌 결제(가상계좌·간편 계좌이체)는 PG 가 돌려줄 수단이 없어 거부한다 — 환불 경로로 간다.
+   */
   cancelPayment(gatewayPaymentId: string, reason: string): Promise<void>;
   /** 옛 `PaymentGateway.refund` 그대로 이식 */
   refund(req: RefundRequest): Promise<RefundResult>;
@@ -133,14 +144,15 @@ export class PaymentGatewayError extends Error {
 }
 
 /**
- * 지원하지 않는 결제수단으로 환불을 시도했다. 카드 승인취소는 범위 밖이다(옛 Q2 확정).
+ * 지원하지 않는 결제수단으로 환불을 시도했다. 카드·간편결제는 S4-1.5(수단별 환불 실행)부터 부분 취소로 받는다 —
+ * 옛 이관 취소 경로(cancellation.ts)는 여전히 카드를 받지 않고 스스로 이 예외를 던진다(옛 Q2 동작 보존).
  * 조용히 가상계좌 경로로 흘리면 없는 환불 계좌로 송금하는 꼴이라 시끄럽게 실패한다.
  */
 export class UnsupportedPaymentMethodError extends PaymentGatewayError {
   readonly method: string;
 
   constructor(method: string) {
-    super(`지원하지 않는 결제수단입니다: ${JSON.stringify(method)}. 이번 슬라이스는 virtual_account 환불만 지원한다.`);
+    super(`지원하지 않는 결제수단입니다: ${JSON.stringify(method)}. PG 환불은 카드·간편결제 부분 취소와 virtual_account(옛 이관 경로)만 지원한다.`);
     this.name = "UnsupportedPaymentMethodError";
     this.method = method;
   }

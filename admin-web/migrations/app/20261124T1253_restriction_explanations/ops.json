@@ -1,0 +1,496 @@
+[
+  {
+    "id": "dropCheckConstraint.notifications.notifications_kind_check_9cd0e089",
+    "label": "Drop check constraint \"notifications_kind_check_9cd0e089\" on \"notifications\"",
+    "operationClass": "widening",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "checkConstraint",
+        "name": "notifications_kind_check_9cd0e089",
+        "table": "notifications"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"notifications_kind_check_9cd0e089\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "notifications_kind_check_9cd0e089",
+          "public",
+          "\"public\".\"notifications\""
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "constraint \"notifications_kind_check_9cd0e089\" on \"notifications\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "drop check constraint \"notifications_kind_check_9cd0e089\"",
+        "sql": "ALTER TABLE \"public\".\"notifications\" DROP CONSTRAINT \"notifications_kind_check_9cd0e089\""
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"notifications_kind_check_9cd0e089\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "notifications_kind_check_9cd0e089",
+          "public",
+          "\"public\".\"notifications\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "constraint \"notifications_kind_check_9cd0e089\" on \"notifications\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "table.restriction_explanations",
+    "label": "Create table \"restriction_explanations\"",
+    "summary": "Creates table \"restriction_explanations\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "restriction_explanations"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"restriction_explanations\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"restriction_explanations\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"restriction_explanations\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"restriction_explanations\"",
+        "sql": "CREATE TABLE \"public\".\"restriction_explanations\" (\n  \"body\" text NOT NULL,\n  \"case_id\" uuid NOT NULL,\n  \"created_at\" timestamptz DEFAULT (now()) NOT NULL,\n  \"id\" uuid NOT NULL,\n  \"submitted_by_member_id\" uuid,\n  \"submitted_by_staff_account_id\" uuid,\n  PRIMARY KEY (\"id\"),\n  CONSTRAINT \"ck_explanation_body_cefcd8bc\" CHECK (char_length(btrim(body)) > 0),\n  CONSTRAINT \"ck_explanation_submitter_a72c651a\" CHECK (num_nonnulls(submitted_by_member_id, submitted_by_staff_account_id) = 1)\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"restriction_explanations\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3))) AS \"result\"",
+        "params": [
+          "\"public\".\"restriction_explanations\"",
+          "r",
+          "p"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"restriction_explanations\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "checkConstraint.notifications.notifications_kind_check_e5a5726e",
+    "label": "Add check constraint \"notifications_kind_check_e5a5726e\" on \"notifications\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "checkConstraint",
+        "name": "notifications_kind_check_e5a5726e",
+        "table": "notifications"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"notifications_kind_check_e5a5726e\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "notifications_kind_check_e5a5726e",
+          "public",
+          "\"public\".\"notifications\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "constraint \"notifications_kind_check_e5a5726e\" on \"notifications\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add check constraint \"notifications_kind_check_e5a5726e\"",
+        "sql": "ALTER TABLE \"public\".\"notifications\" ADD CONSTRAINT \"notifications_kind_check_e5a5726e\" CHECK (\"kind\" IN ('payment_confirmed_member', 'payment_confirmed_owner', 'reservation_cancelled', 'refund_pending', 'refund_failed', 'payment_refund_due', 'share_rate_changed', 'affiliation_requested', 'affiliation_approved', 'affiliation_rejected', 'delegation_changed', 'staff_notice_published', 'merchant_application_approved', 'merchant_application_rejected', 'payout_account_changed', 'terms_change_notice', 'restriction_notice', 'listing_suspended', 'business_restriction_lifted', 'release_completed', 'release_requested', 'class_submitted', 'class_approved', 'class_revision_requested', 'class_approval_reminder', 'session_time_place_changed', 'session_cancelled', 'class_closed', 'instructor_session_changed', 'substitute_requested', 'substitute_accepted', 'substitute_confirmed', 'instructor_changed', 'class_announcement', 'substitute_assigned', 'private_lesson_booked', 'private_lesson_cancelled', 'class_edit_requested', 'class_edit_approved', 'class_edit_rejected', 'class_changed', 'release_declined', 'absence_marked', 'absence_dispute_requested', 'absence_dispute_resolved', 'payment_deadline_soon', 'gender_imbalance', 'pre_class_reminder', 'inquiry_received', 'inquiry_answered', 'inquiry_overdue', 'report_received', 'report_filed', 'report_in_review', 'report_resolved', 'refund_completed', 'refund_account_reinput'))"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify check constraint \"notifications_kind_check_e5a5726e\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4)) AS \"result\"",
+        "params": [
+          "notifications_kind_check_e5a5726e",
+          "public",
+          "\"public\".\"notifications\"",
+          "c"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.restriction_explanations.ix_explanations_case_b1bb100a",
+    "label": "Create index \"ix_explanations_case_b1bb100a\" on \"restriction_explanations\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "ix_explanations_case_b1bb100a",
+        "table": "restriction_explanations"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"ix_explanations_case_b1bb100a\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ix_explanations_case_b1bb100a\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"ix_explanations_case_b1bb100a\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"ix_explanations_case_b1bb100a\"",
+        "sql": "CREATE INDEX \"ix_explanations_case_b1bb100a\" ON \"public\".\"restriction_explanations\" (\"case_id\", \"created_at\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"ix_explanations_case_b1bb100a\" exists on \"restriction_explanations\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"ix_explanations_case_b1bb100a\"",
+          "i",
+          "I",
+          "\"public\".\"restriction_explanations\"",
+          "btree",
+          "[\"case_id\",\"created_at\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.restriction_explanations.restriction_explanations_case_id_idx_f7ec4395",
+    "label": "Create index \"restriction_explanations_case_id_idx_f7ec4395\" on \"restriction_explanations\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "restriction_explanations_case_id_idx_f7ec4395",
+        "table": "restriction_explanations"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"restriction_explanations_case_id_idx_f7ec4395\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"restriction_explanations_case_id_idx_f7ec4395\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"restriction_explanations_case_id_idx_f7ec4395\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"restriction_explanations_case_id_idx_f7ec4395\"",
+        "sql": "CREATE INDEX \"restriction_explanations_case_id_idx_f7ec4395\" ON \"public\".\"restriction_explanations\" (\"case_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"restriction_explanations_case_id_idx_f7ec4395\" exists on \"restriction_explanations\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"restriction_explanations_case_id_idx_f7ec4395\"",
+          "i",
+          "I",
+          "\"public\".\"restriction_explanations\"",
+          "btree",
+          "[\"case_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.restriction_explanations.restriction_explanations_submitted_by_member_id_idx_d89cb364",
+    "label": "Create index \"restriction_explanations_submitted_by_member_id_idx_d89cb364\" on \"restriction_explanations\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "restriction_explanations_submitted_by_member_id_idx_d89cb364",
+        "table": "restriction_explanations"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"restriction_explanations_submitted_by_member_id_idx_d89cb364\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"restriction_explanations_submitted_by_member_id_idx_d89cb364\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"restriction_explanations_submitted_by_member_id_idx_d89cb364\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"restriction_explanations_submitted_by_member_id_idx_d89cb364\"",
+        "sql": "CREATE INDEX \"restriction_explanations_submitted_by_member_id_idx_d89cb364\" ON \"public\".\"restriction_explanations\" (\"submitted_by_member_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"restriction_explanations_submitted_by_member_id_idx_d89cb364\" exists on \"restriction_explanations\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"restriction_explanations_submitted_by_member_id_idx_d89cb364\"",
+          "i",
+          "I",
+          "\"public\".\"restriction_explanations\"",
+          "btree",
+          "[\"submitted_by_member_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.restriction_explanations.restriction_explanations_submitted_by_staff_account_id_5b4394bc",
+    "label": "Create index \"restriction_explanations_submitted_by_staff_account_id_5b4394bc\" on \"restriction_explanations\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "restriction_explanations_submitted_by_staff_account_id_5b4394bc",
+        "table": "restriction_explanations"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"restriction_explanations_submitted_by_staff_account_id_5b4394bc\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"restriction_explanations_submitted_by_staff_account_id_5b4394bc\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"restriction_explanations_submitted_by_staff_account_id_5b4394bc\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"restriction_explanations_submitted_by_staff_account_id_5b4394bc\"",
+        "sql": "CREATE INDEX \"restriction_explanations_submitted_by_staff_account_id_5b4394bc\" ON \"public\".\"restriction_explanations\" (\"submitted_by_staff_account_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"restriction_explanations_submitted_by_staff_account_id_5b4394bc\" exists on \"restriction_explanations\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"restriction_explanations_submitted_by_staff_account_id_5b4394bc\"",
+          "i",
+          "I",
+          "\"public\".\"restriction_explanations\"",
+          "btree",
+          "[\"submitted_by_staff_account_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.restriction_explanations.restriction_explanations_case_id_fkey",
+    "label": "Add foreign key \"restriction_explanations_case_id_fkey\" on \"restriction_explanations\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "restriction_explanations_case_id_fkey",
+        "table": "restriction_explanations"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"restriction_explanations_case_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "restriction_explanations_case_id_fkey",
+          "public",
+          "\"public\".\"restriction_explanations\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"restriction_explanations_case_id_fkey\" on \"restriction_explanations\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"restriction_explanations_case_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"restriction_explanations\"\nADD CONSTRAINT \"restriction_explanations_case_id_fkey\"\nFOREIGN KEY (\"case_id\")\nREFERENCES \"public\".\"restriction_cases\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"restriction_explanations_case_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "restriction_explanations_case_id_fkey",
+          "public",
+          "\"public\".\"restriction_explanations\"",
+          "f",
+          "[\"case_id\"]",
+          "\"public\".\"restriction_cases\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.restriction_explanations.restriction_explanations_submitted_by_member_id_fkey",
+    "label": "Add foreign key \"restriction_explanations_submitted_by_member_id_fkey\" on \"restriction_explanations\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "restriction_explanations_submitted_by_member_id_fkey",
+        "table": "restriction_explanations"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"restriction_explanations_submitted_by_member_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "restriction_explanations_submitted_by_member_id_fkey",
+          "public",
+          "\"public\".\"restriction_explanations\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"restriction_explanations_submitted_by_member_id_fkey\" on \"restriction_explanations\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"restriction_explanations_submitted_by_member_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"restriction_explanations\"\nADD CONSTRAINT \"restriction_explanations_submitted_by_member_id_fkey\"\nFOREIGN KEY (\"submitted_by_member_id\")\nREFERENCES \"public\".\"members\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"restriction_explanations_submitted_by_member_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "restriction_explanations_submitted_by_member_id_fkey",
+          "public",
+          "\"public\".\"restriction_explanations\"",
+          "f",
+          "[\"submitted_by_member_id\"]",
+          "\"public\".\"members\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.restriction_explanations.restriction_explanations_submitted_by_staff_account_id_fkey",
+    "label": "Add foreign key \"restriction_explanations_submitted_by_staff_account_id_fkey\" on \"restriction_explanations\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "restriction_explanations_submitted_by_staff_account_id_fkey",
+        "table": "restriction_explanations"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"restriction_explanations_submitted_by_staff_account_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "restriction_explanations_submitted_by_staff_account_id_fkey",
+          "public",
+          "\"public\".\"restriction_explanations\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"restriction_explanations_submitted_by_staff_account_id_fkey\" on \"restriction_explanations\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"restriction_explanations_submitted_by_staff_account_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"restriction_explanations\"\nADD CONSTRAINT \"restriction_explanations_submitted_by_staff_account_id_fkey\"\nFOREIGN KEY (\"submitted_by_staff_account_id\")\nREFERENCES \"public\".\"staff_accounts\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"restriction_explanations_submitted_by_staff_account_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "restriction_explanations_submitted_by_staff_account_id_fkey",
+          "public",
+          "\"public\".\"restriction_explanations\"",
+          "f",
+          "[\"submitted_by_staff_account_id\"]",
+          "\"public\".\"staff_accounts\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  }
+]

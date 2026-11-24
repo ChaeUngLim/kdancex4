@@ -1,0 +1,30 @@
+[project]
+name = "kdance-agent-server"
+version = "0.1.0"
+description = "kdance AI 에이전트 서버 (FastAPI + LangGraph, ADR-004)"
+requires-python = ">=3.12,<3.13"
+# 버전 값의 원본은 docs/planning/tech/tech-stack.md 「11. 기술 스택 고정표」다.
+# 이 서버는 DB 드라이버(psycopg·sqlalchemy 등)를 의존성에 넣지 않는다 — DB 쓰기는 Next.js 하나(ADR-004).
+dependencies = [
+    "fastapi==0.141.1",
+    "pydantic==2.13.5",
+    "langgraph==1.2.12",
+    "langchain-core==1.6.4",
+    "langgraph-checkpoint==4.2.0",
+    # 계약 16 §0: Docker 없이 `uv run uvicorn` 으로 띄운다
+    "uvicorn==0.53.0",
+    "mcp==2.2.0",
+]
+
+[dependency-groups]
+dev = [
+    "httpx>=0.28.1",
+    "pytest>=9.1.1",
+]
+
+[tool.uv]
+package = false
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]

@@ -253,17 +253,32 @@ describe("FakePaymentGateway.refund", () => {
     expect(result.failureCode).toBe("REFUND_ACCOUNT_REQUIRED");
   });
 
-  test("카드 환불은 예외로 막고 기록을 남기지 않는다 [옛 test_card_method_raises_unsupported_payment_method_error]", async () => {
+  test("카드 환불은 부분 취소로 받는다 — S4-1.5(수단별 환불 실행). 옛 「카드 거부」(옛 test_card_method_raises_unsupported_payment_method_error)를 대신한다", async () => {
+    // 옛 이관 경로의 「카드 → 미지원」 동작은 cancellation.ts 가 포트를 부르기 전에 스스로 지킨다(cancellation-service.test.ts)
     const gateway = makeGateway();
-    const error = await gateway.refund(makeRequest("pay_card", { method: "card" })).catch((e: unknown) => e);
-    expect(error).toBeInstanceOf(UnsupportedPaymentMethodError);
-    expect((error as UnsupportedPaymentMethodError).method).toBe("card");
-    expect(gateway.refundCalls()).toHaveLength(0);
-    expect(gateway.refundLedgerSize()).toBe(0);
+    const result = await gateway.refund(makeRequest("pay_card", { method: "card", refundAccount: undefined }));
+    expect(result.status).toBe("succeeded");
+    expect(gateway.refundCalls()).toHaveLength(1);
+    expect(gateway.refundLedgerSize()).toBe(1);
+    // 같은 키로 다시 부르면 같은 결과(두 번 취소되지 않는다)
+    expect(await gateway.refund(makeRequest("pay_card", { method: "card", refundAccount: undefined }))).toEqual(result);
+    expect(gateway.refundLedgerSize()).toBe(1);
   });
 
-  test.each(["card", "kakaopay", "", "VIRTUAL_ACCOUNT"])(
-    "가상계좌가 아닌 수단 %j 은 거부한다 [옛 test_non_virtual_account_methods_are_rejected]",
+  test("카드 부분 취소는 원장의 승인 금액을 넘지 못하고, 승인 전 결제는 취소할 수 없다", async () => {
+    const gateway = makeGateway();
+    const dueAt = FIXED_NOW.add({ hours: 1 });
+    await gateway.createPayment({ gatewayPaymentId: "pay_cap", method: "card", amount: 10000, dueAt, orderName: "살사" });
+    expect((await gateway.refund(makeRequest("pay_cap", { method: "card", amount: 10000, idempotencyKey: "k-ready" }))).failureCode).toBe("PAYMENT_NOT_PAID");
+    gateway.deposit("pay_cap", 10000);
+    expect((await gateway.refund(makeRequest("pay_cap", { method: "card", amount: 6000, idempotencyKey: "k-1" }))).status).toBe("succeeded");
+    const over = await gateway.refund(makeRequest("pay_cap", { method: "card", amount: 4001, idempotencyKey: "k-2" }));
+    expect(over).toMatchObject({ status: "failed", failureCode: "CANCEL_AMOUNT_EXCEEDS_CANCELLABLE_AMOUNT" });
+    expect((await gateway.refund(makeRequest("pay_cap", { method: "card", amount: 4000, idempotencyKey: "k-3" }))).status).toBe("succeeded");
+  });
+
+  test.each(["easy_transfer", "kakaopay", "", "VIRTUAL_ACCOUNT"])(
+    "가상계좌·카드·간편결제가 아닌 수단 %j 은 거부한다 [옛 test_non_virtual_account_methods_are_rejected]",
     async (method) => {
       await expect(makeGateway().refund(makeRequest("pay_x", { method }))).rejects.toBeInstanceOf(
         UnsupportedPaymentMethodError,

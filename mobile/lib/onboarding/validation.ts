@@ -10,6 +10,34 @@ const BIRTH_DATE = /^\d{4}-\d{2}-\d{2}$/;
 const PHONE = /^01\d{8,9}$/;
 const TIME = /^([01]\d|2[0-3]):[0-5]\d$/;
 
+/**
+ * 닉네임 규칙 — 계약 01 §3 「닉네임」 표(서버 `admin-web/lib/domain/member-nickname.ts` 와 같은 값).
+ * 앱은 다른 패키지라 import 할 수 없어 다시 적었다. 금칙어는 서버만 본다(목록을 앱에 퍼뜨리지 않는다).
+ */
+export const NICKNAME_MIN = 2;
+export const NICKNAME_MAX = 12;
+const NICKNAME_CHARS = /^[가-힣A-Za-z0-9 _.]+$/u;
+
+/** 서버와 같은 정리: 앞뒤 공백을 자르고 가운데 연속 공백은 한 칸으로. 보내는 값은 이 결과다. */
+export function normalizeNickname(raw: string): string {
+  return raw.trim().replace(/\s+/gu, ' ');
+}
+
+/** 닉네임 모양 검사. 비었으면 본명으로 채우지 않고 막는다(본명 노출 방지 — 계약 01 §3). */
+export function validateNickname(normalized: string): string | null {
+  const length = [...normalized].length;
+  if (length === 0) {
+    return '닉네임을 적어 주세요. 본명을 써도 돼요.';
+  }
+  if (length < NICKNAME_MIN || length > NICKNAME_MAX) {
+    return `닉네임은 ${NICKNAME_MIN}~${NICKNAME_MAX}자로 적어 주세요.`;
+  }
+  if (!NICKNAME_CHARS.test(normalized)) {
+    return '닉네임에는 한글·영문·숫자·공백·_·. 만 쓸 수 있어요.';
+  }
+  return null;
+}
+
 /** 계약 §5(취향) `regions` 최대 개수. */
 export const MAX_REGIONS = 20;
 

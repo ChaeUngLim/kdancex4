@@ -3,7 +3,7 @@
  *
  * 서버는 영문 값만 주고 받는다(공유 계약 README 「장르·구분 값」: 한글 이름은 앱이 붙인다).
  */
-import type { ExperienceLevel, Gender, Genre } from './types';
+import type { ConsentKey, ExperienceLevel, Gender, Genre } from './types';
 
 /** FR-020(장르 4종) 카드에 올릴 이름·한 줄 설명. 문구는 보드 sec-tokens 장르 카드에서 가져왔다. */
 export const GENRE_LABELS: Readonly<Record<Genre, { readonly name: string; readonly description: string }>> = {
@@ -29,11 +29,37 @@ export const GENDER_LABELS: Readonly<Record<Gender, string>> = {
 };
 
 /**
- * FR-002(가입 정보 수집·고지) — 필수 3항목을 왜 받는지 가입 화면에서 알린다.
- * 문구는 보드 M3(가입 정보)의 항목별 설명을 따른다.
+ * FR-002(가입 정보 수집·고지) — 가입 정보 화면(보드 M3)에 보이는 칸과 수집 목적 한 줄.
+ * 2026-11-18 사용자 결정으로 생년은 칸으로 두지 않는다 — 고칠 수 없는 인증 값이라 화면 설명 한 줄로만 알린다.
  */
-export const SIGNUP_PURPOSES: readonly { readonly field: string; readonly purpose: string }[] = [
-  { field: '생년월일', purpose: '미성년자 결제 보호에 씁니다' },
-  { field: '성별', purpose: '남·여 정원 배정에 씁니다' },
-  { field: '연락처', purpose: '예약 확정·취소·환불 알림에 씁니다' },
+export const SIGNUP_PURPOSES = {
+  gender: '남·여 정원 배정에 씁니다',
+  phone: '예약 확정·환불 알림에 씁니다',
+} as const;
+
+/** 가입 정보 화면 설명. 생년월일을 어디에 쓰는지 여기서 알린다(보드 M3 문구 그대로). */
+export const SIGNUP_SUBTITLE = '앞에서 인증한 휴대폰 정보로 미리 채워 뒀어요. 생년월일은 나이 확인과 연령대 추천에만 써요.';
+
+/** 닉네임 칸 안내 — 계약 01 열린 점 ①의 추천 문구 · FR-019a(회원 닉네임 표시)의 「한 번 정하면 고정」. */
+export const NICKNAME_HINTS = {
+  fixed: '한 번 정하면 바꿀 수 없어요',
+  visibility: '강사·대표·다른 회원에게는 닉네임만 보여요. 본명을 써도 돼요.',
+} as const;
+
+/**
+ * M-01(동의 항목) · 보드 C14A(약관 동의) — 항목 이름과 한 줄 설명. 순서도 보드와 같다.
+ * `required` 가 true 인 넷에 모두 동의해야 다음으로 넘어간다.
+ */
+export const CONSENT_ITEMS: readonly {
+  readonly key: ConsentKey;
+  readonly required: boolean;
+  readonly title: string;
+  readonly description: string;
+}[] = [
+  { key: 'memberTerms', required: true, title: '이용약관', description: '회사는 통신판매중개자예요 · 수업 판매는 학원' },
+  { key: 'memberPrivacyCollection', required: true, title: '개인정보 수집·이용', description: '이름·성별·생년·연락처 · 본인확인 연계정보' },
+  { key: 'academySharing', required: true, title: '학원에 개인정보 제공', description: '신청한 학원에만 이름·성별·연락처를 줘요' },
+  { key: 'age19Plus', required: true, title: '만 19세 이상이에요', description: '19세 미만은 보호자 계정에서 자녀로 등록해요' },
+  { key: 'marketing', required: false, title: '광고성 알림 받기', description: '새 수업·쿠폰·이벤트 · 밤 9시~아침 8시엔 안 보내요' },
+  { key: 'location', required: false, title: '위치 정보', description: '「내 주변」 검색에만 써요' },
 ];

@@ -44,6 +44,8 @@ export interface ProfileInput {
 export interface Member {
   readonly id: string;
   readonly name: string;
+  /** FR-019a(회원 닉네임 표시) — 강사·대표·다른 회원에게 보이는 이름. 가입 때 한 번 정한다. */
+  readonly nickname: string;
   readonly gender: Gender;
   readonly birthDate: string;
   readonly phoneMasked: string;
@@ -53,6 +55,24 @@ export interface Member {
     readonly profileDone: boolean;
     readonly baseGenreDone: boolean;
   };
+}
+
+/**
+ * 계약 §3(가입 완료) `consents` 여섯 칸 — M-01(동의 항목) · 보드 C14A(약관 동의).
+ * 앞 넷이 필수, `marketing`·`location` 이 선택이다. 서버는 필수 넷 중 하나라도 false 면
+ * 422 `CONSENT_REQUIRED` 로 가입을 막는다(S3-1 수용 ①).
+ */
+export const REQUIRED_CONSENTS = ['memberTerms', 'memberPrivacyCollection', 'academySharing', 'age19Plus'] as const;
+export const OPTIONAL_CONSENTS = ['marketing', 'location'] as const;
+export type ConsentKey = (typeof REQUIRED_CONSENTS)[number] | (typeof OPTIONAL_CONSENTS)[number];
+export type SignupConsents = Readonly<Record<ConsentKey, boolean>>;
+
+/** 계약 §3(가입 완료) 요청 본문. 이름·성별·생년·연락처는 본인확인 값으로만 채우므로 싣지 않는다. */
+export interface SignupInput {
+  readonly verificationToken: string;
+  readonly noticeAcknowledged: true;
+  readonly nickname: string;
+  readonly consents: SignupConsents;
 }
 
 /** 계약 §2(가짜 본인확인) 요청 본문. dev 전용 경로다. */

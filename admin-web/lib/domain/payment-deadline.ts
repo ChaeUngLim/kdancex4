@@ -2,6 +2,9 @@
 //
 // 규칙(03-checkout-payment.md §4):
 //   card            → 발급(주문) 시각 + PAYMENT_CARD_DEADLINE_MINUTES(기본 15분)
+//   easy_pay · easy_transfer → 카드와 같은 결제창 기한(S3-3.4(주문 생성 API)에서 더함).
+//                     spec FR-285 표가 간편 계좌이체를 「결제 창을 연 뒤 정해진 몇 분」으로 적었다. 간편결제는 표에 없지만
+//                     같은 결제창 수단이라 같은 규칙을 쓴다 — 플랜 S3-3 열린 점 「카드 결제 기한 15분이 간편결제에도 맞는지」의 사후 확인 대상
 //   virtual_account → min(발급 시각 + PAYMENT_VA_DEADLINE_HOURS(기본 24시간),
 //                         첫 회차 시작 − PAYMENT_VA_CUTOFF_MINUTES(기본 60분))
 //
@@ -91,7 +94,9 @@ export interface ComputeDueAtInput {
 export function computeDueAt(input: ComputeDueAtInput): Temporal.Instant {
   const { method, issuedAt, firstSessionStartsAt, config } = input;
 
-  if (method === "card") {
+  // 가상계좌만 「발급 + 24시간 vs 첫 회차 − 60분」이고, 결제창으로 결제하는 나머지 셋(카드·간편결제·간편 계좌이체)은 창 기한이다.
+  // 예전에는 card 만 창 기한이고 나머지를 모두 가상계좌로 봤는데, 수단이 4종이 되면서 간편 수단이 24시간을 받는 틈이 생겨 고쳤다.
+  if (method !== "virtual_account") {
     return issuedAt.add({ minutes: config.cardDeadlineMinutes });
   }
 

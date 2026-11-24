@@ -1,0 +1,548 @@
+[
+  {
+    "id": "table.academy_staff_notice_recipients",
+    "label": "Create table \"academy_staff_notice_recipients\"",
+    "summary": "Creates table \"academy_staff_notice_recipients\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "academy_staff_notice_recipients"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"academy_staff_notice_recipients\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"academy_staff_notice_recipients\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"academy_staff_notice_recipients\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"academy_staff_notice_recipients\"",
+        "sql": "CREATE TABLE \"public\".\"academy_staff_notice_recipients\" (\n  \"instructor_account_id\" uuid NOT NULL,\n  \"notice_id\" uuid NOT NULL,\n  \"read_at\" timestamptz,\n  PRIMARY KEY (\"notice_id\", \"instructor_account_id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"academy_staff_notice_recipients\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3))) AS \"result\"",
+        "params": [
+          "\"public\".\"academy_staff_notice_recipients\"",
+          "r",
+          "p"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"academy_staff_notice_recipients\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "table.academy_staff_notices",
+    "label": "Create table \"academy_staff_notices\"",
+    "summary": "Creates table \"academy_staff_notices\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "academy_staff_notices"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"academy_staff_notices\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"academy_staff_notices\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"academy_staff_notices\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"academy_staff_notices\"",
+        "sql": "CREATE TABLE \"public\".\"academy_staff_notices\" (\n  \"academy_id\" uuid NOT NULL,\n  \"author_account_id\" uuid NOT NULL,\n  \"body\" text NOT NULL,\n  \"category\" text NOT NULL,\n  \"created_at\" timestamptz DEFAULT (now()) NOT NULL,\n  \"id\" uuid NOT NULL,\n  \"published_at\" timestamptz,\n  \"recipient_count\" int4,\n  \"status\" text DEFAULT 'draft' NOT NULL,\n  \"title\" text NOT NULL,\n  \"updated_at\" timestamptz NOT NULL,\n  PRIMARY KEY (\"id\"),\n  CONSTRAINT \"academy_staff_notices_category_check_5db2cfb4\" CHECK (\"category\" IN ('class_cancelled', 'class_changed', 'academy_schedule', 'other')),\n  CONSTRAINT \"academy_staff_notices_status_check_e888e82e\" CHECK (\"status\" IN ('draft', 'published')),\n  CONSTRAINT \"ck_staff_notice_published_c0d3d421\" CHECK ((status = 'published') = (published_at IS NOT NULL)),\n  CONSTRAINT \"ck_staff_notice_title_length_ade378da\" CHECK (char_length(title) BETWEEN 1 AND 100)\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"academy_staff_notices\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3))) AS \"result\"",
+        "params": [
+          "\"public\".\"academy_staff_notices\"",
+          "r",
+          "p"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"academy_staff_notices\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "index.academy_staff_notice_recipients.academy_staff_notice_recipients_instructor_account_id__d1ef9c5f",
+    "label": "Create index \"academy_staff_notice_recipients_instructor_account_id__d1ef9c5f\" on \"academy_staff_notice_recipients\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "academy_staff_notice_recipients_instructor_account_id__d1ef9c5f",
+        "table": "academy_staff_notice_recipients"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"academy_staff_notice_recipients_instructor_account_id__d1ef9c5f\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"academy_staff_notice_recipients_instructor_account_id__d1ef9c5f\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"academy_staff_notice_recipients_instructor_account_id__d1ef9c5f\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"academy_staff_notice_recipients_instructor_account_id__d1ef9c5f\"",
+        "sql": "CREATE INDEX \"academy_staff_notice_recipients_instructor_account_id__d1ef9c5f\" ON \"public\".\"academy_staff_notice_recipients\" (\"instructor_account_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"academy_staff_notice_recipients_instructor_account_id__d1ef9c5f\" exists on \"academy_staff_notice_recipients\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"academy_staff_notice_recipients_instructor_account_id__d1ef9c5f\"",
+          "i",
+          "I",
+          "\"public\".\"academy_staff_notice_recipients\"",
+          "btree",
+          "[\"instructor_account_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.academy_staff_notice_recipients.academy_staff_notice_recipients_notice_id_idx_81bf085e",
+    "label": "Create index \"academy_staff_notice_recipients_notice_id_idx_81bf085e\" on \"academy_staff_notice_recipients\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "academy_staff_notice_recipients_notice_id_idx_81bf085e",
+        "table": "academy_staff_notice_recipients"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"academy_staff_notice_recipients_notice_id_idx_81bf085e\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"academy_staff_notice_recipients_notice_id_idx_81bf085e\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"academy_staff_notice_recipients_notice_id_idx_81bf085e\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"academy_staff_notice_recipients_notice_id_idx_81bf085e\"",
+        "sql": "CREATE INDEX \"academy_staff_notice_recipients_notice_id_idx_81bf085e\" ON \"public\".\"academy_staff_notice_recipients\" (\"notice_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"academy_staff_notice_recipients_notice_id_idx_81bf085e\" exists on \"academy_staff_notice_recipients\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"academy_staff_notice_recipients_notice_id_idx_81bf085e\"",
+          "i",
+          "I",
+          "\"public\".\"academy_staff_notice_recipients\"",
+          "btree",
+          "[\"notice_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.academy_staff_notices.academy_staff_notices_academy_id_idx_f46ade77",
+    "label": "Create index \"academy_staff_notices_academy_id_idx_f46ade77\" on \"academy_staff_notices\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "academy_staff_notices_academy_id_idx_f46ade77",
+        "table": "academy_staff_notices"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"academy_staff_notices_academy_id_idx_f46ade77\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"academy_staff_notices_academy_id_idx_f46ade77\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"academy_staff_notices_academy_id_idx_f46ade77\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"academy_staff_notices_academy_id_idx_f46ade77\"",
+        "sql": "CREATE INDEX \"academy_staff_notices_academy_id_idx_f46ade77\" ON \"public\".\"academy_staff_notices\" (\"academy_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"academy_staff_notices_academy_id_idx_f46ade77\" exists on \"academy_staff_notices\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"academy_staff_notices_academy_id_idx_f46ade77\"",
+          "i",
+          "I",
+          "\"public\".\"academy_staff_notices\"",
+          "btree",
+          "[\"academy_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.academy_staff_notices.academy_staff_notices_author_account_id_idx_c7cc91a9",
+    "label": "Create index \"academy_staff_notices_author_account_id_idx_c7cc91a9\" on \"academy_staff_notices\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "academy_staff_notices_author_account_id_idx_c7cc91a9",
+        "table": "academy_staff_notices"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"academy_staff_notices_author_account_id_idx_c7cc91a9\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"academy_staff_notices_author_account_id_idx_c7cc91a9\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"academy_staff_notices_author_account_id_idx_c7cc91a9\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"academy_staff_notices_author_account_id_idx_c7cc91a9\"",
+        "sql": "CREATE INDEX \"academy_staff_notices_author_account_id_idx_c7cc91a9\" ON \"public\".\"academy_staff_notices\" (\"author_account_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"academy_staff_notices_author_account_id_idx_c7cc91a9\" exists on \"academy_staff_notices\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"academy_staff_notices_author_account_id_idx_c7cc91a9\"",
+          "i",
+          "I",
+          "\"public\".\"academy_staff_notices\"",
+          "btree",
+          "[\"author_account_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.academy_staff_notices.ix_staff_notices_academy_pub_25328051",
+    "label": "Create index \"ix_staff_notices_academy_pub_25328051\" on \"academy_staff_notices\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "ix_staff_notices_academy_pub_25328051",
+        "table": "academy_staff_notices"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"ix_staff_notices_academy_pub_25328051\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ix_staff_notices_academy_pub_25328051\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"ix_staff_notices_academy_pub_25328051\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"ix_staff_notices_academy_pub_25328051\"",
+        "sql": "CREATE INDEX \"ix_staff_notices_academy_pub_25328051\" ON \"public\".\"academy_staff_notices\" (\"academy_id\", \"published_at\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"ix_staff_notices_academy_pub_25328051\" exists on \"academy_staff_notices\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"ix_staff_notices_academy_pub_25328051\"",
+          "i",
+          "I",
+          "\"public\".\"academy_staff_notices\"",
+          "btree",
+          "[\"academy_id\",\"published_at\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.academy_staff_notice_recipients.academy_staff_notice_recipients_notice_id_fkey",
+    "label": "Add foreign key \"academy_staff_notice_recipients_notice_id_fkey\" on \"academy_staff_notice_recipients\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "academy_staff_notice_recipients_notice_id_fkey",
+        "table": "academy_staff_notice_recipients"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"academy_staff_notice_recipients_notice_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "academy_staff_notice_recipients_notice_id_fkey",
+          "public",
+          "\"public\".\"academy_staff_notice_recipients\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"academy_staff_notice_recipients_notice_id_fkey\" on \"academy_staff_notice_recipients\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"academy_staff_notice_recipients_notice_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"academy_staff_notice_recipients\"\nADD CONSTRAINT \"academy_staff_notice_recipients_notice_id_fkey\"\nFOREIGN KEY (\"notice_id\")\nREFERENCES \"public\".\"academy_staff_notices\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"academy_staff_notice_recipients_notice_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "academy_staff_notice_recipients_notice_id_fkey",
+          "public",
+          "\"public\".\"academy_staff_notice_recipients\"",
+          "f",
+          "[\"notice_id\"]",
+          "\"public\".\"academy_staff_notices\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.academy_staff_notice_recipients.academy_staff_notice_recipients_instructor_account_id_fkey",
+    "label": "Add foreign key \"academy_staff_notice_recipients_instructor_account_id_fkey\" on \"academy_staff_notice_recipients\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "academy_staff_notice_recipients_instructor_account_id_fkey",
+        "table": "academy_staff_notice_recipients"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"academy_staff_notice_recipients_instructor_account_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "academy_staff_notice_recipients_instructor_account_id_fkey",
+          "public",
+          "\"public\".\"academy_staff_notice_recipients\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"academy_staff_notice_recipients_instructor_account_id_fkey\" on \"academy_staff_notice_recipients\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"academy_staff_notice_recipients_instructor_account_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"academy_staff_notice_recipients\"\nADD CONSTRAINT \"academy_staff_notice_recipients_instructor_account_id_fkey\"\nFOREIGN KEY (\"instructor_account_id\")\nREFERENCES \"public\".\"staff_accounts\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"academy_staff_notice_recipients_instructor_account_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "academy_staff_notice_recipients_instructor_account_id_fkey",
+          "public",
+          "\"public\".\"academy_staff_notice_recipients\"",
+          "f",
+          "[\"instructor_account_id\"]",
+          "\"public\".\"staff_accounts\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.academy_staff_notices.academy_staff_notices_academy_id_fkey",
+    "label": "Add foreign key \"academy_staff_notices_academy_id_fkey\" on \"academy_staff_notices\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "academy_staff_notices_academy_id_fkey",
+        "table": "academy_staff_notices"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"academy_staff_notices_academy_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "academy_staff_notices_academy_id_fkey",
+          "public",
+          "\"public\".\"academy_staff_notices\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"academy_staff_notices_academy_id_fkey\" on \"academy_staff_notices\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"academy_staff_notices_academy_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"academy_staff_notices\"\nADD CONSTRAINT \"academy_staff_notices_academy_id_fkey\"\nFOREIGN KEY (\"academy_id\")\nREFERENCES \"public\".\"academies\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"academy_staff_notices_academy_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "academy_staff_notices_academy_id_fkey",
+          "public",
+          "\"public\".\"academy_staff_notices\"",
+          "f",
+          "[\"academy_id\"]",
+          "\"public\".\"academies\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.academy_staff_notices.academy_staff_notices_author_account_id_fkey",
+    "label": "Add foreign key \"academy_staff_notices_author_account_id_fkey\" on \"academy_staff_notices\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "academy_staff_notices_author_account_id_fkey",
+        "table": "academy_staff_notices"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"academy_staff_notices_author_account_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "academy_staff_notices_author_account_id_fkey",
+          "public",
+          "\"public\".\"academy_staff_notices\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"academy_staff_notices_author_account_id_fkey\" on \"academy_staff_notices\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"academy_staff_notices_author_account_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"academy_staff_notices\"\nADD CONSTRAINT \"academy_staff_notices_author_account_id_fkey\"\nFOREIGN KEY (\"author_account_id\")\nREFERENCES \"public\".\"staff_accounts\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"academy_staff_notices_author_account_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "academy_staff_notices_author_account_id_fkey",
+          "public",
+          "\"public\".\"academy_staff_notices\"",
+          "f",
+          "[\"author_account_id\"]",
+          "\"public\".\"staff_accounts\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  }
+]

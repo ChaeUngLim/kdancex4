@@ -1,0 +1,105 @@
+/* 운영자 신고 처리 화면(S7-2.10b) — 콘솔과 같은 아이보리 바탕 + 흰 카드 + 딥 플럼 강조. 표·탭·버튼은 입점 심사·학원 설정 모듈을 같이 쓴다 */
+.layout {
+  margin-top: 16px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 420px;
+  gap: 20px;
+  align-items: start;
+}
+.layoutSingle {
+  margin-top: 16px;
+}
+.rowSelected td {
+  background: #f6eef7;
+}
+.target {
+  display: block;
+  font-weight: 700;
+  color: #2f2633;
+}
+.targetKind {
+  font-size: 12px;
+  color: #7d7483;
+}
+.detail {
+  margin-top: 12px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  background: #faf7f3;
+  border: 1px solid #e8e2da;
+  font-size: 14px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  color: #2f2633;
+}
+.steps {
+  margin-top: 12px;
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  font-size: 12px;
+}
+.step {
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: #f1ece6;
+  color: #7d7483;
+  font-weight: 600;
+}
+.stepDone {
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: #efe3f1;
+  color: #4a2f52;
+  font-weight: 700;
+}
+.radioRow {
+  display: flex;
+  gap: 18px;
+  margin: 8px 0 4px;
+  font-size: 14px;
+}
+.radio {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+.select {
+  width: 100%;
+  padding: 9px 12px;
+  border-radius: 10px;
+  border: 1px solid #e3d6e6;
+  background: #faf7f3;
+  font: inherit;
+  font-size: 14px;
+}
+.check {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-top: 10px;
+  font-size: 14px;
+  font-weight: 600;
+}
+.restriction {
+  margin-top: 10px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px dashed #d8c7dc;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.count {
+  font-size: 12px;
+  color: #a59cab;
+  text-align: right;
+}
+/* 날짜·상태 칸은 줄바꿈하지 않는다 — 처리 칸이 열려 표가 좁아져도 「처리 끝 · 인정」이 두 줄로 깨지지 않게 */
+.nowrap {
+  white-space: nowrap;
+}
+/* 표 위 여백은 거르기 탭 아래 칸(layout)이 이미 준다 — 클래스를 두 번 써서 입점 심사 표의 margin-top 보다 우선한다 */
+.flatTable.flatTable {
+  margin-top: 0;
+}

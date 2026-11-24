@@ -1,0 +1,109 @@
+/* 빠진 회차 정산 안내(보드 W8B) — 아이보리 바탕 + 흰 카드 + 딥 플럼·샴페인. 색은 환불·취소 공지 화면과 같다 */
+.title {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 800;
+}
+.subtitle {
+  margin: 10px 0 0;
+  font-size: 13px;
+  color: #6d6573;
+}
+.grid {
+  margin-top: 20px;
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+  gap: 20px;
+  align-items: start;
+}
+.card {
+  background: #fff;
+  border: 1px solid #e8e2da;
+  border-radius: 20px;
+  padding: 24px;
+}
+.cardTitle {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 800;
+}
+.muted {
+  margin: 4px 0 0;
+  font-size: 12px;
+  color: #7d7483;
+}
+.headline {
+  margin-top: 16px;
+  padding: 18px 20px;
+  border-radius: 14px;
+  background: #f6ecdf;
+  border: 1px solid #e6cfa6;
+}
+.headlineTitle {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 800;
+}
+.headlineDetail {
+  margin: 8px 0 0;
+  font-size: 12px;
+  color: #5c4a2e;
+}
+.points {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.points li {
+  margin-top: 30px;
+}
+.pointTitle {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 800;
+}
+.pointDetail {
+  margin: 6px 0 0;
+  font-size: 12px;
+  color: #5c5562;
+}
+.preview {
+  margin-top: 16px;
+  padding: 18px;
+  border-radius: 16px;
+  border: 1px solid #e8e2da;
+  background: #f3efe9;
+}
+.previewName {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 800;
+}
+.previewText {
+  margin: 14px 0 0;
+  padding-top: 14px;
+  border-top: 1px solid #e3dccf;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.6;
+}
+.previewTip {
+  margin: 18px 0 0;
+  font-size: 12px;
+  line-height: 1.6;
+  color: #5c5562;
+}
+.nothingToSave {
+  margin: 20px 0 0;
+  padding: 14px 16px;
+  border-radius: 14px;
+  background: #efe6f1;
+  font-size: 12px;
+  line-height: 1.6;
+  color: #5c3a64;
+}
+.version {
+  margin: 10px 0 0;
+  font-size: 11px;
+  color: #a59cab;
+}

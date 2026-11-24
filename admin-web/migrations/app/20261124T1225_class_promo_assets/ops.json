@@ -1,0 +1,503 @@
+[
+  {
+    "id": "table.class_promo_assets",
+    "label": "Create table \"class_promo_assets\"",
+    "summary": "Creates table \"class_promo_assets\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "class_promo_assets"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"class_promo_assets\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"class_promo_assets\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"class_promo_assets\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"class_promo_assets\"",
+        "sql": "CREATE TABLE \"public\".\"class_promo_assets\" (\n  \"ai_image_generation_id\" uuid,\n  \"class_id\" uuid NOT NULL,\n  \"cover_source\" text,\n  \"intro_draft_id\" uuid,\n  \"intro_source\" text,\n  \"intro_text\" text,\n  \"reviewed_at\" timestamptz,\n  \"reviewed_by_staff_account_id\" uuid,\n  \"updated_at\" timestamptz DEFAULT (now()) NOT NULL,\n  \"uploaded_photo_file_id\" uuid,\n  PRIMARY KEY (\"class_id\"),\n  CONSTRAINT \"ck_promo_assets_cover_6970b23a\" CHECK ((uploaded_photo_file_id IS NULL OR cover_source = 'uploaded_photo') AND (cover_source IS DISTINCT FROM 'ai_image' OR (ai_image_generation_id IS NOT NULL AND uploaded_photo_file_id IS NULL)) AND (cover_source IS NOT NULL OR (uploaded_photo_file_id IS NULL AND ai_image_generation_id IS NULL))),\n  CONSTRAINT \"ck_promo_assets_intro_ca7d2f03\" CHECK ((intro_text IS NULL) = (intro_source IS NULL)),\n  CONSTRAINT \"ck_promo_assets_intro_len_04874cc3\" CHECK (intro_text IS NULL OR char_length(intro_text) BETWEEN 1 AND 600),\n  CONSTRAINT \"ck_promo_assets_review_68120c21\" CHECK ((reviewed_at IS NULL) = (reviewed_by_staff_account_id IS NULL)),\n  CONSTRAINT \"class_promo_assets_cover_source_check_94ea384e\" CHECK (\"cover_source\" IN ('uploaded_photo', 'ai_image')),\n  CONSTRAINT \"class_promo_assets_intro_source_check_cea4d1ef\" CHECK (\"intro_source\" IN ('ai', 'ai_edited', 'user'))\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"class_promo_assets\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3))) AS \"result\"",
+        "params": [
+          "\"public\".\"class_promo_assets\"",
+          "r",
+          "p"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"class_promo_assets\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "index.class_promo_assets.class_promo_assets_ai_image_generation_id_idx_e4432ccc",
+    "label": "Create index \"class_promo_assets_ai_image_generation_id_idx_e4432ccc\" on \"class_promo_assets\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "class_promo_assets_ai_image_generation_id_idx_e4432ccc",
+        "table": "class_promo_assets"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"class_promo_assets_ai_image_generation_id_idx_e4432ccc\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"class_promo_assets_ai_image_generation_id_idx_e4432ccc\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"class_promo_assets_ai_image_generation_id_idx_e4432ccc\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"class_promo_assets_ai_image_generation_id_idx_e4432ccc\"",
+        "sql": "CREATE INDEX \"class_promo_assets_ai_image_generation_id_idx_e4432ccc\" ON \"public\".\"class_promo_assets\" (\"ai_image_generation_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"class_promo_assets_ai_image_generation_id_idx_e4432ccc\" exists on \"class_promo_assets\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"class_promo_assets_ai_image_generation_id_idx_e4432ccc\"",
+          "i",
+          "I",
+          "\"public\".\"class_promo_assets\"",
+          "btree",
+          "[\"ai_image_generation_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.class_promo_assets.class_promo_assets_intro_draft_id_idx_3da8a245",
+    "label": "Create index \"class_promo_assets_intro_draft_id_idx_3da8a245\" on \"class_promo_assets\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "class_promo_assets_intro_draft_id_idx_3da8a245",
+        "table": "class_promo_assets"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"class_promo_assets_intro_draft_id_idx_3da8a245\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"class_promo_assets_intro_draft_id_idx_3da8a245\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"class_promo_assets_intro_draft_id_idx_3da8a245\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"class_promo_assets_intro_draft_id_idx_3da8a245\"",
+        "sql": "CREATE INDEX \"class_promo_assets_intro_draft_id_idx_3da8a245\" ON \"public\".\"class_promo_assets\" (\"intro_draft_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"class_promo_assets_intro_draft_id_idx_3da8a245\" exists on \"class_promo_assets\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"class_promo_assets_intro_draft_id_idx_3da8a245\"",
+          "i",
+          "I",
+          "\"public\".\"class_promo_assets\"",
+          "btree",
+          "[\"intro_draft_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.class_promo_assets.class_promo_assets_reviewed_by_staff_account_id_idx_149ea153",
+    "label": "Create index \"class_promo_assets_reviewed_by_staff_account_id_idx_149ea153\" on \"class_promo_assets\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "class_promo_assets_reviewed_by_staff_account_id_idx_149ea153",
+        "table": "class_promo_assets"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"class_promo_assets_reviewed_by_staff_account_id_idx_149ea153\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"class_promo_assets_reviewed_by_staff_account_id_idx_149ea153\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"class_promo_assets_reviewed_by_staff_account_id_idx_149ea153\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"class_promo_assets_reviewed_by_staff_account_id_idx_149ea153\"",
+        "sql": "CREATE INDEX \"class_promo_assets_reviewed_by_staff_account_id_idx_149ea153\" ON \"public\".\"class_promo_assets\" (\"reviewed_by_staff_account_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"class_promo_assets_reviewed_by_staff_account_id_idx_149ea153\" exists on \"class_promo_assets\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"class_promo_assets_reviewed_by_staff_account_id_idx_149ea153\"",
+          "i",
+          "I",
+          "\"public\".\"class_promo_assets\"",
+          "btree",
+          "[\"reviewed_by_staff_account_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.class_promo_assets.class_promo_assets_uploaded_photo_file_id_idx_85e8b143",
+    "label": "Create index \"class_promo_assets_uploaded_photo_file_id_idx_85e8b143\" on \"class_promo_assets\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "class_promo_assets_uploaded_photo_file_id_idx_85e8b143",
+        "table": "class_promo_assets"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"class_promo_assets_uploaded_photo_file_id_idx_85e8b143\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"class_promo_assets_uploaded_photo_file_id_idx_85e8b143\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"class_promo_assets_uploaded_photo_file_id_idx_85e8b143\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"class_promo_assets_uploaded_photo_file_id_idx_85e8b143\"",
+        "sql": "CREATE INDEX \"class_promo_assets_uploaded_photo_file_id_idx_85e8b143\" ON \"public\".\"class_promo_assets\" (\"uploaded_photo_file_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"class_promo_assets_uploaded_photo_file_id_idx_85e8b143\" exists on \"class_promo_assets\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"class_promo_assets_uploaded_photo_file_id_idx_85e8b143\"",
+          "i",
+          "I",
+          "\"public\".\"class_promo_assets\"",
+          "btree",
+          "[\"uploaded_photo_file_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.class_promo_assets.class_promo_assets_class_id_fkey",
+    "label": "Add foreign key \"class_promo_assets_class_id_fkey\" on \"class_promo_assets\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "class_promo_assets_class_id_fkey",
+        "table": "class_promo_assets"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"class_promo_assets_class_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "class_promo_assets_class_id_fkey",
+          "public",
+          "\"public\".\"class_promo_assets\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"class_promo_assets_class_id_fkey\" on \"class_promo_assets\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"class_promo_assets_class_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"class_promo_assets\"\nADD CONSTRAINT \"class_promo_assets_class_id_fkey\"\nFOREIGN KEY (\"class_id\")\nREFERENCES \"public\".\"classes\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"class_promo_assets_class_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "class_promo_assets_class_id_fkey",
+          "public",
+          "\"public\".\"class_promo_assets\"",
+          "f",
+          "[\"class_id\"]",
+          "\"public\".\"classes\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.class_promo_assets.class_promo_assets_uploaded_photo_file_id_fkey",
+    "label": "Add foreign key \"class_promo_assets_uploaded_photo_file_id_fkey\" on \"class_promo_assets\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "class_promo_assets_uploaded_photo_file_id_fkey",
+        "table": "class_promo_assets"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"class_promo_assets_uploaded_photo_file_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "class_promo_assets_uploaded_photo_file_id_fkey",
+          "public",
+          "\"public\".\"class_promo_assets\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"class_promo_assets_uploaded_photo_file_id_fkey\" on \"class_promo_assets\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"class_promo_assets_uploaded_photo_file_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"class_promo_assets\"\nADD CONSTRAINT \"class_promo_assets_uploaded_photo_file_id_fkey\"\nFOREIGN KEY (\"uploaded_photo_file_id\")\nREFERENCES \"public\".\"uploaded_files\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"class_promo_assets_uploaded_photo_file_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "class_promo_assets_uploaded_photo_file_id_fkey",
+          "public",
+          "\"public\".\"class_promo_assets\"",
+          "f",
+          "[\"uploaded_photo_file_id\"]",
+          "\"public\".\"uploaded_files\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.class_promo_assets.class_promo_assets_ai_image_generation_id_fkey",
+    "label": "Add foreign key \"class_promo_assets_ai_image_generation_id_fkey\" on \"class_promo_assets\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "class_promo_assets_ai_image_generation_id_fkey",
+        "table": "class_promo_assets"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"class_promo_assets_ai_image_generation_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "class_promo_assets_ai_image_generation_id_fkey",
+          "public",
+          "\"public\".\"class_promo_assets\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"class_promo_assets_ai_image_generation_id_fkey\" on \"class_promo_assets\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"class_promo_assets_ai_image_generation_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"class_promo_assets\"\nADD CONSTRAINT \"class_promo_assets_ai_image_generation_id_fkey\"\nFOREIGN KEY (\"ai_image_generation_id\")\nREFERENCES \"public\".\"promo_image_generations\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"class_promo_assets_ai_image_generation_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "class_promo_assets_ai_image_generation_id_fkey",
+          "public",
+          "\"public\".\"class_promo_assets\"",
+          "f",
+          "[\"ai_image_generation_id\"]",
+          "\"public\".\"promo_image_generations\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.class_promo_assets.class_promo_assets_intro_draft_id_fkey",
+    "label": "Add foreign key \"class_promo_assets_intro_draft_id_fkey\" on \"class_promo_assets\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "class_promo_assets_intro_draft_id_fkey",
+        "table": "class_promo_assets"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"class_promo_assets_intro_draft_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "class_promo_assets_intro_draft_id_fkey",
+          "public",
+          "\"public\".\"class_promo_assets\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"class_promo_assets_intro_draft_id_fkey\" on \"class_promo_assets\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"class_promo_assets_intro_draft_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"class_promo_assets\"\nADD CONSTRAINT \"class_promo_assets_intro_draft_id_fkey\"\nFOREIGN KEY (\"intro_draft_id\")\nREFERENCES \"public\".\"class_intro_drafts\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"class_promo_assets_intro_draft_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "class_promo_assets_intro_draft_id_fkey",
+          "public",
+          "\"public\".\"class_promo_assets\"",
+          "f",
+          "[\"intro_draft_id\"]",
+          "\"public\".\"class_intro_drafts\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.class_promo_assets.class_promo_assets_reviewed_by_staff_account_id_fkey",
+    "label": "Add foreign key \"class_promo_assets_reviewed_by_staff_account_id_fkey\" on \"class_promo_assets\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "class_promo_assets_reviewed_by_staff_account_id_fkey",
+        "table": "class_promo_assets"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"class_promo_assets_reviewed_by_staff_account_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "class_promo_assets_reviewed_by_staff_account_id_fkey",
+          "public",
+          "\"public\".\"class_promo_assets\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"class_promo_assets_reviewed_by_staff_account_id_fkey\" on \"class_promo_assets\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"class_promo_assets_reviewed_by_staff_account_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"class_promo_assets\"\nADD CONSTRAINT \"class_promo_assets_reviewed_by_staff_account_id_fkey\"\nFOREIGN KEY (\"reviewed_by_staff_account_id\")\nREFERENCES \"public\".\"staff_accounts\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"class_promo_assets_reviewed_by_staff_account_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "class_promo_assets_reviewed_by_staff_account_id_fkey",
+          "public",
+          "\"public\".\"class_promo_assets\"",
+          "f",
+          "[\"reviewed_by_staff_account_id\"]",
+          "\"public\".\"staff_accounts\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  }
+]

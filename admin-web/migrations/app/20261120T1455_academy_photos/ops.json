@@ -1,0 +1,251 @@
+[
+  {
+    "id": "table.academy_photos",
+    "label": "Create table \"academy_photos\"",
+    "summary": "Creates table \"academy_photos\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "academy_photos"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"academy_photos\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"academy_photos\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"academy_photos\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"academy_photos\"",
+        "sql": "CREATE TABLE \"public\".\"academy_photos\" (\n  \"academy_id\" uuid NOT NULL,\n  \"file_id\" uuid NOT NULL,\n  \"position\" int4 NOT NULL,\n  PRIMARY KEY (\"academy_id\", \"position\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"academy_photos\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3))) AS \"result\"",
+        "params": [
+          "\"public\".\"academy_photos\"",
+          "r",
+          "p"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"academy_photos\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "index.academy_photos.academy_photos_academy_id_idx_f46ade77",
+    "label": "Create index \"academy_photos_academy_id_idx_f46ade77\" on \"academy_photos\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "academy_photos_academy_id_idx_f46ade77",
+        "table": "academy_photos"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"academy_photos_academy_id_idx_f46ade77\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"academy_photos_academy_id_idx_f46ade77\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"academy_photos_academy_id_idx_f46ade77\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"academy_photos_academy_id_idx_f46ade77\"",
+        "sql": "CREATE INDEX \"academy_photos_academy_id_idx_f46ade77\" ON \"public\".\"academy_photos\" (\"academy_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"academy_photos_academy_id_idx_f46ade77\" exists on \"academy_photos\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"academy_photos_academy_id_idx_f46ade77\"",
+          "i",
+          "I",
+          "\"public\".\"academy_photos\"",
+          "btree",
+          "[\"academy_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.academy_photos.uq_academy_photos_file_723b0a69",
+    "label": "Create index \"uq_academy_photos_file_723b0a69\" on \"academy_photos\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "uq_academy_photos_file_723b0a69",
+        "table": "academy_photos"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"uq_academy_photos_file_723b0a69\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"uq_academy_photos_file_723b0a69\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"uq_academy_photos_file_723b0a69\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"uq_academy_photos_file_723b0a69\"",
+        "sql": "CREATE UNIQUE INDEX \"uq_academy_photos_file_723b0a69\" ON \"public\".\"academy_photos\" (\"file_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"uq_academy_photos_file_723b0a69\" exists on \"academy_photos\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND \"i\".\"indisunique\" AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"uq_academy_photos_file_723b0a69\"",
+          "i",
+          "I",
+          "\"public\".\"academy_photos\"",
+          "btree",
+          "[\"file_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.academy_photos.academy_photos_academy_id_fkey",
+    "label": "Add foreign key \"academy_photos_academy_id_fkey\" on \"academy_photos\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "academy_photos_academy_id_fkey",
+        "table": "academy_photos"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"academy_photos_academy_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "academy_photos_academy_id_fkey",
+          "public",
+          "\"public\".\"academy_photos\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"academy_photos_academy_id_fkey\" on \"academy_photos\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"academy_photos_academy_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"academy_photos\"\nADD CONSTRAINT \"academy_photos_academy_id_fkey\"\nFOREIGN KEY (\"academy_id\")\nREFERENCES \"public\".\"academies\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"academy_photos_academy_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "academy_photos_academy_id_fkey",
+          "public",
+          "\"public\".\"academy_photos\"",
+          "f",
+          "[\"academy_id\"]",
+          "\"public\".\"academies\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.academy_photos.academy_photos_file_id_fkey",
+    "label": "Add foreign key \"academy_photos_file_id_fkey\" on \"academy_photos\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "academy_photos_file_id_fkey",
+        "table": "academy_photos"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"academy_photos_file_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "academy_photos_file_id_fkey",
+          "public",
+          "\"public\".\"academy_photos\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"academy_photos_file_id_fkey\" on \"academy_photos\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"academy_photos_file_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"academy_photos\"\nADD CONSTRAINT \"academy_photos_file_id_fkey\"\nFOREIGN KEY (\"file_id\")\nREFERENCES \"public\".\"uploaded_files\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"academy_photos_file_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "academy_photos_file_id_fkey",
+          "public",
+          "\"public\".\"academy_photos\"",
+          "f",
+          "[\"file_id\"]",
+          "\"public\".\"uploaded_files\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  }
+]

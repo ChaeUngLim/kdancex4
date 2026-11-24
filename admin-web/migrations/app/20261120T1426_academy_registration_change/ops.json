@@ -1,0 +1,376 @@
+[
+  {
+    "id": "column.public.academies.pending_registration_evidence_file_id",
+    "label": "Add column \"pending_registration_evidence_file_id\" to \"academies\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "pending_registration_evidence_file_id",
+        "table": "academies"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"pending_registration_evidence_file_id\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "academies",
+          "pending_registration_evidence_file_id"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "column \"pending_registration_evidence_file_id\" on \"academies\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"pending_registration_evidence_file_id\"",
+        "sql": "ALTER TABLE \"public\".\"academies\" ADD COLUMN \"pending_registration_evidence_file_id\" uuid"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"pending_registration_evidence_file_id\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "academies",
+          "pending_registration_evidence_file_id"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "column \"pending_registration_evidence_file_id\" on \"academies\""
+        }
+      },
+      {
+        "description": "verify column \"pending_registration_evidence_file_id\" has type \"uuid\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_attribute\" AS \"a\" INNER JOIN \"pg_class\" AS \"c\" ON \"c\".\"oid\" = \"a\".\"attrelid\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"a\".\"attname\" = $3 AND (format_type(\"a\".\"atttypid\", \"a\".\"atttypmod\")) = $4 AND NOT (\"a\".\"attisdropped\"))) AS \"result\"",
+        "params": [
+          "public",
+          "academies",
+          "pending_registration_evidence_file_id",
+          "uuid"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "column.public.academies.pending_registration_type",
+    "label": "Add column \"pending_registration_type\" to \"academies\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "pending_registration_type",
+        "table": "academies"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"pending_registration_type\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "academies",
+          "pending_registration_type"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "column \"pending_registration_type\" on \"academies\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"pending_registration_type\"",
+        "sql": "ALTER TABLE \"public\".\"academies\" ADD COLUMN \"pending_registration_type\" text"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"pending_registration_type\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "academies",
+          "pending_registration_type"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "column \"pending_registration_type\" on \"academies\""
+        }
+      },
+      {
+        "description": "verify column \"pending_registration_type\" has type \"text\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_attribute\" AS \"a\" INNER JOIN \"pg_class\" AS \"c\" ON \"c\".\"oid\" = \"a\".\"attrelid\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"a\".\"attname\" = $3 AND (format_type(\"a\".\"atttypid\", \"a\".\"atttypmod\")) = $4 AND NOT (\"a\".\"attisdropped\"))) AS \"result\"",
+        "params": [
+          "public",
+          "academies",
+          "pending_registration_type",
+          "text"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "column.public.academies.registration_change_requested_at",
+    "label": "Add column \"registration_change_requested_at\" to \"academies\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "registration_change_requested_at",
+        "table": "academies"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"registration_change_requested_at\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "academies",
+          "registration_change_requested_at"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "column \"registration_change_requested_at\" on \"academies\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"registration_change_requested_at\"",
+        "sql": "ALTER TABLE \"public\".\"academies\" ADD COLUMN \"registration_change_requested_at\" timestamptz"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"registration_change_requested_at\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "academies",
+          "registration_change_requested_at"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "column \"registration_change_requested_at\" on \"academies\""
+        }
+      },
+      {
+        "description": "verify column \"registration_change_requested_at\" has type \"timestamp with time zone\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_attribute\" AS \"a\" INNER JOIN \"pg_class\" AS \"c\" ON \"c\".\"oid\" = \"a\".\"attrelid\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"a\".\"attname\" = $3 AND (format_type(\"a\".\"atttypid\", \"a\".\"atttypmod\")) = $4 AND NOT (\"a\".\"attisdropped\"))) AS \"result\"",
+        "params": [
+          "public",
+          "academies",
+          "registration_change_requested_at",
+          "timestamp with time zone"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "checkConstraint.academies.academies_pending_registration_type_check_71059ac0",
+    "label": "Add check constraint \"academies_pending_registration_type_check_71059ac0\" on \"academies\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "checkConstraint",
+        "name": "academies_pending_registration_type_check_71059ac0",
+        "table": "academies"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"academies_pending_registration_type_check_71059ac0\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "academies_pending_registration_type_check_71059ac0",
+          "public",
+          "\"public\".\"academies\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "constraint \"academies_pending_registration_type_check_71059ac0\" on \"academies\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add check constraint \"academies_pending_registration_type_check_71059ac0\"",
+        "sql": "ALTER TABLE \"public\".\"academies\" ADD CONSTRAINT \"academies_pending_registration_type_check_71059ac0\" CHECK (\"pending_registration_type\" IN ('academy', 'tutoring_center', 'sports_facility', 'unregistered'))"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify check constraint \"academies_pending_registration_type_check_71059ac0\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4)) AS \"result\"",
+        "params": [
+          "academies_pending_registration_type_check_71059ac0",
+          "public",
+          "\"public\".\"academies\"",
+          "c"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "checkConstraint.academies.ck_academies_registration_change_3df96d61",
+    "label": "Add check constraint \"ck_academies_registration_change_3df96d61\" on \"academies\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "checkConstraint",
+        "name": "ck_academies_registration_change_3df96d61",
+        "table": "academies"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"ck_academies_registration_change_3df96d61\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "ck_academies_registration_change_3df96d61",
+          "public",
+          "\"public\".\"academies\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "constraint \"ck_academies_registration_change_3df96d61\" on \"academies\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add check constraint \"ck_academies_registration_change_3df96d61\"",
+        "sql": "ALTER TABLE \"public\".\"academies\" ADD CONSTRAINT \"ck_academies_registration_change_3df96d61\" CHECK (((pending_registration_type IS NULL) = (registration_change_requested_at IS NULL)) AND (pending_registration_type IS NOT NULL OR pending_registration_evidence_file_id IS NULL))"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify check constraint \"ck_academies_registration_change_3df96d61\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4)) AS \"result\"",
+        "params": [
+          "ck_academies_registration_change_3df96d61",
+          "public",
+          "\"public\".\"academies\"",
+          "c"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.academies.academies_pending_registration_evidence_file_id_idx_04bc7276",
+    "label": "Create index \"academies_pending_registration_evidence_file_id_idx_04bc7276\" on \"academies\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "academies_pending_registration_evidence_file_id_idx_04bc7276",
+        "table": "academies"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"academies_pending_registration_evidence_file_id_idx_04bc7276\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"academies_pending_registration_evidence_file_id_idx_04bc7276\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"academies_pending_registration_evidence_file_id_idx_04bc7276\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"academies_pending_registration_evidence_file_id_idx_04bc7276\"",
+        "sql": "CREATE INDEX \"academies_pending_registration_evidence_file_id_idx_04bc7276\" ON \"public\".\"academies\" (\"pending_registration_evidence_file_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"academies_pending_registration_evidence_file_id_idx_04bc7276\" exists on \"academies\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"academies_pending_registration_evidence_file_id_idx_04bc7276\"",
+          "i",
+          "I",
+          "\"public\".\"academies\"",
+          "btree",
+          "[\"pending_registration_evidence_file_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.academies.academies_pending_registration_evidence_file_id_fkey",
+    "label": "Add foreign key \"academies_pending_registration_evidence_file_id_fkey\" on \"academies\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "academies_pending_registration_evidence_file_id_fkey",
+        "table": "academies"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"academies_pending_registration_evidence_file_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "academies_pending_registration_evidence_file_id_fkey",
+          "public",
+          "\"public\".\"academies\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"academies_pending_registration_evidence_file_id_fkey\" on \"academies\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"academies_pending_registration_evidence_file_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"academies\"\nADD CONSTRAINT \"academies_pending_registration_evidence_file_id_fkey\"\nFOREIGN KEY (\"pending_registration_evidence_file_id\")\nREFERENCES \"public\".\"uploaded_files\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"academies_pending_registration_evidence_file_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "academies_pending_registration_evidence_file_id_fkey",
+          "public",
+          "\"public\".\"academies\"",
+          "f",
+          "[\"pending_registration_evidence_file_id\"]",
+          "\"public\".\"uploaded_files\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  }
+]

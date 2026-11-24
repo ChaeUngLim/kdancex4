@@ -6,7 +6,6 @@ import type { CSSProperties } from "react";
 
 const TABS: { href: string; label: string }[] = [
   { href: "/", label: "대시보드" },
-  { href: "/refund-policy", label: "환불 정책" },
 ];
 
 function linkStyle(active: boolean): CSSProperties {

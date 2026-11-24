@@ -4,36 +4,35 @@
  * 화면이 지키는 규칙
  *  - 기본 자리: 서버가 정한 `defaultSeatKind`(AC-7(성별 자리 기본값)). 그 자리가 마감이어도
  *    기본 선택을 바꾸지 않고 「마감」 표시 + 결제 버튼을 끈다. 반대 자리가 남았으면 회원이 직접 바꾼다
- *  - 결제 버튼은 환불 공지·중개자 고지·가격 내역이 모두 보이고 공지 확인에 체크해야 열린다
- *    (FR-282(결제 화면 필수 표시)). 학원 공지가 없으면(`refundNotice: null`) 끝까지 닫혀 있다
- *  - 결제 수단 기본값은 가상계좌(FR-111), 카드도 고를 수 있다(FR-111a)
- *  - 주문 생성은 `Idempotency-Key` 를 붙인다(README §5). 같은 선택으로 다시 누르면 같은 키 →
- *    서버가 같은 주문을 돌려준다. 자리나 수단을 바꾸면 다른 시도이므로 새 키를 만든다
+ *  - 「결제하기」는 결제 화면(보드 M9·M9E, `app/pay/[offeringId].tsx`)으로 고른 자리를 넘긴다.
+ *    결제수단 고르기·동의·주문 시작은 그 화면이 한다(S3-3.16(앱 결제 화면)).
+ *    학원 공지가 없거나(`refundNotice: null`) 가격 내역이 없거나 자리가 마감이면 버튼이 닫혀 있다
+ *  - 정원은 좌석 칸으로 보인다(보드 M8 남·여 두 덩어리 / C13A 단일 정원 한 줄 + 「남녀 구분 없음」 칩)
+ *  - 판매자 정보(상호·대표자·사업자번호 등 6항목)와 중개자 고지를 결제 버튼 위에 늘 펼쳐 둔다
+ *    (S3-2.4(판매자 정보·결제 전 정책), FR-248(사업자 정보 표시)·FR-241(결제 전 정책 표시)) — 접어 두면 결제 전에 못 보고 지나친다
+ *  - 가격 내역 미리 보기(`priceBreakdownPreview`)는 서버 값 그대로 보인다(S3-3.15b). 없으면(옛 서버) 정가 한 줄만 보이고 버튼은 닫혀 있다
  */
-import { useCallback, useRef, useState } from 'react';
+import { useState } from 'react';
 import { router, useLocalSearchParams } from 'expo-router';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { apiFetch } from '../../lib/api';
 import { formatKstDateTime, formatKstTime, formatWon, seatLabel } from '../../lib/catalog/format';
 import { colors, font, MIN_TOUCH, radius, space } from '../../lib/theme';
-import type { CreateOrderBody, OfferingDetail, Order, PaymentMethod, SeatKind } from '../../lib/catalog/types';
+import type { OfferingDetail, PriceLine, SeatKind } from '../../lib/catalog/types';
+import { SellerCard } from '../../lib/catalog/seller-card';
+import { NoGenderChip, SeatGrid } from '../../lib/catalog/seat-grid';
 import {
   Card,
-  CapacityBar,
-  CheckRow,
   DetailScreen,
   ErrorView,
-  InlineError,
   LoadingView,
   NoticeBox,
-  PoolSummary,
   PriceBreakdown,
   PrimaryButton,
   SectionTitle,
   shared,
 } from '../../lib/catalog/ui';
-import { newIdempotencyKey, readRouteId, toApiError, useApiResource } from '../../lib/catalog/use-api-resource';
+import { readRouteId, useApiResource } from '../../lib/catalog/use-api-resource';
 
 export default function OfferingDetailScreen() {
   const offeringId = readRouteId(useLocalSearchParams<{ id: string }>().id);
@@ -52,17 +51,18 @@ export default function OfferingDetailScreen() {
     <DetailScreen title="수업 상세" tab="home">
       {state.status === 'loading' && <LoadingView />}
       {state.status === 'error' && <ErrorView error={state.error} onRetry={reload} />}
-      {state.status === 'ready' && <OfferingBody detail={state.data} onStale={reload} />}
+      {state.status === 'ready' && <OfferingBody detail={state.data} />}
     </DetailScreen>
   );
 }
 
-function OfferingBody({ detail, onStale }: { detail: OfferingDetail; onStale: () => void }) {
+function OfferingBody({ detail }: { detail: OfferingDetail }) {
   return (
     <>
       <OfferingSummaryCard detail={detail} />
+      <CapacityCard detail={detail} />
       <SessionsCard detail={detail} />
-      <CheckoutForm detail={detail} onStale={onStale} />
+      <CheckoutForm detail={detail} />
     </>
   );
 }
@@ -72,14 +72,52 @@ function OfferingSummaryCard({ detail }: { detail: OfferingDetail }) {
     <Card>
       <Text style={shared.title}>{detail.title}</Text>
       <Text style={shared.muted}>
-        {detail.academy?.name} · 강사 {detail.instructorName} · {detail.label}
+        {detail.academy?.name} · 강사 {detail.instructorName} · {weeklyTimeText(detail)}
       </Text>
-      <Text style={styles.price}>{formatWon(detail.priceAmount)}</Text>
+      {/* 강사 프로필(M15) 입구 — 거기서 「이 강사 수업 물어보기」로 AI 플래너를 연다(SX-5.7) */}
+      {detail.instructorId ? (
+        <Pressable
+          onPress={() => router.push(`/instructors/${detail.instructorId}`)}
+          accessibilityRole="link"
+          style={styles.instructorLink}
+        >
+          <Text style={styles.instructorLinkText}>{detail.instructorName} 강사 프로필 보기 ›</Text>
+        </Pressable>
+      ) : null}
+      <View style={styles.priceRow}>
+        <Text style={shared.muted}>수강료 · {detail.label}</Text>
+        <Text style={styles.price}>{formatWon(detail.priceAmount)}</Text>
+      </View>
+    </Card>
+  );
+}
+
+/** 「화 20:00–21:00」 — 첫 회차의 요일·시각. 회차 목록은 아래 카드에 따로 있다 */
+function weeklyTimeText(detail: OfferingDetail): string {
+  const first = detail.sessions?.[0];
+  if (first === undefined) {
+    return '일정 미정';
+  }
+  const day = formatKstDateTime(first.startsAt).match(/\((.)\)/)?.[1] ?? '';
+  return `${day} ${formatKstTime(first.startsAt)}–${formatKstTime(first.endsAt)}`;
+}
+
+/**
+ * 정원 카드(FR-090(정원·신청 인원 표시)). 신청 인원은 확정 수만 센 값이다(결제 대기는 안 셈, S3-2.3).
+ * 단일 정원이면 「남녀 구분 없음」 칩과 「성별과 상관없이 먼저 신청한 순서로 자리가 차요」를 단다(보드 C13A).
+ */
+function CapacityCard({ detail }: { detail: OfferingDetail }) {
+  const single = detail.seatMode === 'single';
+  return (
+    <Card>
+      <View style={styles.capacityHead}>
+        <SectionTitle>정원 {detail.capacity?.total ?? 0}명</SectionTitle>
+        {single && <NoGenderChip />}
+      </View>
+      <SeatGrid pools={detail.capacity?.pools ?? []} size="large" />
       <Text style={shared.muted}>
-        정원 {detail.capacity?.total ?? 0} · 신청 {detail.capacity?.enrolled ?? 0}
+        {single ? '성별과 상관없이 먼저 신청한 순서로 자리가 차요' : '신청 인원은 결제가 끝난 자리만 세요'}
       </Text>
-      <CapacityBar enrolled={detail.capacity?.enrolled ?? 0} total={detail.capacity?.total ?? 0} />
-      <PoolSummary pools={detail.capacity?.pools ?? []} />
     </Card>
   );
 }
@@ -98,86 +136,41 @@ function SessionsCard({ detail }: { detail: OfferingDetail }) {
   );
 }
 
-/** 주문 시작에 필요한 선택값과 전송 상태. 화면에서 떼어 내 결제 버튼 조건을 한곳에 모은다. */
-function useCheckoutStart(detail: OfferingDetail, onStale: () => void) {
+/**
+ * 결제 화면으로 넘어가기 전 상태 — 고른 자리와 버튼이 열리는 조건.
+ * 결제수단·동의·주문 시작은 결제 화면(M9)이 맡는다. 여기서는 「어느 자리로 결제하러 가나」만 정한다.
+ */
+function CheckoutForm({ detail }: { detail: OfferingDetail }) {
   const [chosenSeat, setChosenSeat] = useState<SeatKind | null>(null);
-  const [method, setMethodState] = useState<PaymentMethod>('virtual_account');
-  const [acknowledged, setAcknowledged] = useState(false);
-  const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const attemptKey = useRef<string>(newIdempotencyKey());
-
   const seatKind = chosenSeat ?? detail.seatSelection?.defaultSeatKind ?? 'any';
-  const seatOption = detail.seatSelection?.options?.find((option) => option.seatKind === seatKind);
-  const seatAvailable = seatOption?.available === true;
-
-  const chooseSeat = useCallback((next: SeatKind) => {
-    attemptKey.current = newIdempotencyKey();
-    setChosenSeat(next);
-  }, []);
-  const setMethod = useCallback((next: PaymentMethod) => {
-    attemptKey.current = newIdempotencyKey();
-    setMethodState(next);
-  }, []);
-
-  const submit = useCallback(async () => {
-    setSubmitting(true);
-    setError(null);
-    const body: CreateOrderBody = { offeringId: detail.offeringId, seatKind, method, noticesAcknowledged: true };
-    try {
-      const order = await apiFetch<Order>('/api/orders', { method: 'POST', body, idempotencyKey: attemptKey.current });
-      router.replace(`/checkout/${encodeURIComponent(order.orderId)}`);
-    } catch (caught: unknown) {
-      const apiError = toApiError(caught);
-      setError(apiError.detail);
-      // 자리가 그사이 찼거나 판매가 닫혔으면 화면 숫자가 낡았다 — 다시 읽는다.
-      if (apiError.code === 'SEAT_SOLD_OUT' || apiError.code === 'CHECKOUT_CLOSED') {
-        attemptKey.current = newIdempotencyKey();
-        onStale();
-      }
-    } finally {
-      setSubmitting(false);
-    }
-  }, [detail.offeringId, method, onStale, seatKind]);
-
-  const hasNotices = detail.refundNotice !== null && (detail.priceBreakdownPreview?.length ?? 0) > 0;
+  const seatAvailable = detail.seatSelection?.options?.find((option) => option.seatKind === seatKind)?.available === true;
+  // 가격 내역 미리 보기·환불 공지가 없으면 결제 화면도 금액을 못 그린다 — 넘어가지 않는다
+  const hasPreview = (detail.priceBreakdownPreview?.length ?? 0) > 0;
   const alreadyReserved = detail.myReservation !== null && detail.myReservation !== undefined;
-  const canPay = hasNotices && seatAvailable && acknowledged && !submitting && !alreadyReserved;
-
-  return {
-    seatKind, seatAvailable, chooseSeat, method, setMethod, acknowledged, setAcknowledged,
-    submitting, error, submit, canPay, hasNotices, alreadyReserved,
-  };
-}
-
-function CheckoutForm({ detail, onStale }: { detail: OfferingDetail; onStale: () => void }) {
-  const form = useCheckoutStart(detail, onStale);
-  const payLabel = form.submitting
-    ? '결제 준비 중…'
-    : !form.seatAvailable
-      ? `${seatLabel(form.seatKind)} 자리 마감`
-      : `${seatLabel(form.seatKind)} 자리로 결제하기`;
+  const canGo = hasPreview && detail.refundNotice !== null && seatAvailable && !alreadyReserved;
+  const finalAmount = detail.priceBreakdownPreview?.find((line) => line.kind === 'final')?.amount ?? detail.priceAmount;
+  const seatName = seatKind === 'any' ? '자리 1개' : `${seatLabel(seatKind)} 자리`;
+  const payLabel = !seatAvailable ? `${seatName} 마감` : `${seatName} 결제하기 · ${formatWon(finalAmount)}`;
+  // 미리 보기가 없을 때 보이는 정가 한 줄(가격 내역 첫 줄과 같은 모양)
+  const listPriceOnly: readonly PriceLine[] = [{ kind: 'list_price', label: '수강료', amount: detail.priceAmount }];
+  const goPay = () =>
+    router.push(`/pay/${encodeURIComponent(detail.offeringId)}?seat=${encodeURIComponent(seatKind)}`);
   return (
     <>
-      <SeatPicker detail={detail} selected={form.seatKind} onSelect={form.chooseSeat} />
+      <SeatPicker detail={detail} selected={seatKind} onSelect={setChosenSeat} />
       <Card>
         <SectionTitle>가격 내역</SectionTitle>
-        <PriceBreakdown lines={detail.priceBreakdownPreview} />
+        <PriceBreakdown lines={hasPreview ? detail.priceBreakdownPreview : listPriceOnly} />
+        {!hasPreview && <Text style={shared.muted}>쿠폰·혜택 할인은 결제 단계에서 계산돼요.</Text>}
       </Card>
-      <MethodPicker method={form.method} onSelect={form.setMethod} />
       <NoticeBox title="환불·취소 공지">
         {detail.refundNotice?.body ?? '학원이 환불 공지를 아직 등록하지 않아 지금은 결제할 수 없어요.'}
       </NoticeBox>
       <NoticeBox title="통신판매중개자 고지">{detail.intermediaryNotice?.body ?? '-'}</NoticeBox>
-      {form.alreadyReserved && <Text style={shared.muted}>이미 신청한 수업이에요. 캘린더에서 확인해 주세요.</Text>}
-      <CheckRow
-        checked={form.acknowledged}
-        disabled={!form.hasNotices}
-        label="환불 공지와 가격 내역을 확인했어요"
-        onToggle={() => form.setAcknowledged((prev) => !prev)}
-      />
-      <InlineError message={form.error} />
-      <PrimaryButton label={payLabel} onPress={() => void form.submit()} disabled={!form.canPay} />
+      <SellerCard seller={detail.seller} />
+      {alreadyReserved && <Text style={shared.muted}>이미 신청한 수업이에요. 캘린더에서 확인해 주세요.</Text>}
+      {!hasPreview && <Text style={shared.muted}>결제는 곧 열려요. 지금은 수업 정보만 볼 수 있어요.</Text>}
+      <PrimaryButton label={payLabel} onPress={goPay} disabled={!canGo} />
     </>
   );
 }
@@ -188,12 +181,28 @@ interface SeatPickerProps {
   onSelect: (seat: SeatKind) => void;
 }
 
-/** 자리 고르기. 단일 정원(`single`)이면 고를 것이 없어 안내만 한다. */
+/**
+ * 자리 고르기. 단일 정원(`single`)이면 고를 것이 없어 「자리 1개 · 남녀 구분 없음」 한 줄만 보인다(보드 C13A,
+ * FR-092c(성별 구분 없는 단일 정원)). 남녀 정원이면 남·여 칩 — 기본은 본인확인 성별 자리다.
+ */
 function SeatPicker({ detail, selected, onSelect }: SeatPickerProps) {
   const options = detail.seatSelection?.options ?? [];
   if (detail.seatMode === 'single' || options.length <= 1) {
     const soldOut = options[0]?.available === false;
-    return <Text style={shared.muted}>{soldOut ? '정원이 마감됐어요.' : '자리 구분 없이 신청해요.'}</Text>;
+    return (
+      <Card>
+        <SectionTitle>신청 자리</SectionTitle>
+        <View style={styles.singleSeat} accessible accessibilityLabel="자리 1개, 남녀 구분 없음">
+          <View style={styles.radioOuter}>
+            <View style={styles.radioInner} />
+          </View>
+          <View style={styles.singleSeatText}>
+            <Text style={styles.singleSeatTitle}>{soldOut ? '자리 1개 · 마감' : '자리 1개 · 남녀 구분 없음'}</Text>
+            <Text style={shared.muted}>이 수업은 남·여 자리를 고르지 않아요</Text>
+          </View>
+        </View>
+      </Card>
+    );
   }
   return (
     <Card>
@@ -213,21 +222,6 @@ function SeatPicker({ detail, selected, onSelect }: SeatPickerProps) {
   );
 }
 
-function MethodPicker({ method, onSelect }: { method: PaymentMethod; onSelect: (m: PaymentMethod) => void }) {
-  return (
-    <Card>
-      <SectionTitle>결제 수단</SectionTitle>
-      <View style={styles.chips}>
-        <Chip label="계좌이체 · 가상계좌" selected={method === 'virtual_account'} onPress={() => onSelect('virtual_account')} />
-        <Chip label="카드" selected={method === 'card'} onPress={() => onSelect('card')} />
-      </View>
-      <Text style={shared.muted}>
-        {method === 'virtual_account' ? '입금이 확인되면 신청이 확정돼요.' : '카드 승인이 확인되면 신청이 확정돼요.'}
-      </Text>
-    </Card>
-  );
-}
-
 function Chip({ label, selected, onPress }: { label: string; selected: boolean; onPress: () => void }) {
   return (
     <Pressable
@@ -242,7 +236,25 @@ function Chip({ label, selected, onPress }: { label: string; selected: boolean; 
 }
 
 const styles = StyleSheet.create({
+  instructorLink: { alignSelf: 'flex-start', minHeight: 32, justifyContent: 'center' },
+  instructorLinkText: { fontSize: font.small, color: colors.brown, fontWeight: '700' },
   price: { fontSize: font.num - 4, fontWeight: '800', color: colors.ink },
+  priceRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  capacityHead: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  singleSeat: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: space.md,
+    padding: space.md,
+    borderRadius: radius.md,
+    borderWidth: 1.5,
+    borderColor: colors.brown,
+    backgroundColor: colors.brownSoft,
+  },
+  singleSeatText: { flex: 1, gap: 2 },
+  singleSeatTitle: { fontSize: font.body, fontWeight: '700', color: colors.ink },
+  radioOuter: { width: 22, height: 22, borderRadius: 11, borderWidth: 2, borderColor: colors.brown, alignItems: 'center', justifyContent: 'center' },
+  radioInner: { width: 10, height: 10, borderRadius: 5, backgroundColor: colors.brown },
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: space.sm },
   chip: {
     minHeight: MIN_TOUCH - 8,

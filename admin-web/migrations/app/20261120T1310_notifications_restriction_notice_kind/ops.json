@@ -1,0 +1,99 @@
+[
+  {
+    "id": "dropCheckConstraint.notifications.notifications_kind_check_38a94aac",
+    "label": "Drop check constraint \"notifications_kind_check_38a94aac\" on \"notifications\"",
+    "operationClass": "widening",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "checkConstraint",
+        "name": "notifications_kind_check_38a94aac",
+        "table": "notifications"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"notifications_kind_check_38a94aac\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "notifications_kind_check_38a94aac",
+          "public",
+          "\"public\".\"notifications\""
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "constraint \"notifications_kind_check_38a94aac\" on \"notifications\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "drop check constraint \"notifications_kind_check_38a94aac\"",
+        "sql": "ALTER TABLE \"public\".\"notifications\" DROP CONSTRAINT \"notifications_kind_check_38a94aac\""
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"notifications_kind_check_38a94aac\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "notifications_kind_check_38a94aac",
+          "public",
+          "\"public\".\"notifications\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "constraint \"notifications_kind_check_38a94aac\" on \"notifications\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "checkConstraint.notifications.notifications_kind_check_5b3d9260",
+    "label": "Add check constraint \"notifications_kind_check_5b3d9260\" on \"notifications\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "checkConstraint",
+        "name": "notifications_kind_check_5b3d9260",
+        "table": "notifications"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"notifications_kind_check_5b3d9260\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "notifications_kind_check_5b3d9260",
+          "public",
+          "\"public\".\"notifications\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "constraint \"notifications_kind_check_5b3d9260\" on \"notifications\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add check constraint \"notifications_kind_check_5b3d9260\"",
+        "sql": "ALTER TABLE \"public\".\"notifications\" ADD CONSTRAINT \"notifications_kind_check_5b3d9260\" CHECK (\"kind\" IN ('payment_confirmed_member', 'payment_confirmed_owner', 'reservation_cancelled', 'refund_pending', 'refund_failed', 'payment_refund_due', 'share_rate_changed', 'affiliation_requested', 'affiliation_approved', 'affiliation_rejected', 'delegation_changed', 'staff_notice_published', 'merchant_application_approved', 'merchant_application_rejected', 'payout_account_changed', 'terms_change_notice', 'restriction_notice'))"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify check constraint \"notifications_kind_check_5b3d9260\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4)) AS \"result\"",
+        "params": [
+          "notifications_kind_check_5b3d9260",
+          "public",
+          "\"public\".\"notifications\"",
+          "c"
+        ]
+      }
+    ]
+  }
+]

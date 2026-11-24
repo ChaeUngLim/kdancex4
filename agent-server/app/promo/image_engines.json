@@ -1,0 +1,36 @@
+{
+  "engines": [
+    {
+      "id": "cloudflare_flux_schnell",
+      "label": "FLUX.1 [schnell]",
+      "speed": "빠름",
+      "runtime": "cloudflare_workers_ai",
+      "model": "@cf/black-forest-labs/flux-1-schnell",
+      "enabled": true
+    },
+    {
+      "id": "local_sana_sprint",
+      "label": "Sana Sprint 0.6B",
+      "speed": "빠름",
+      "runtime": "local_gpu",
+      "model": "Sana_Sprint_0.6B_1024px",
+      "enabled": false
+    },
+    {
+      "id": "local_flux2_klein",
+      "label": "FLUX.2 [klein] 4B",
+      "speed": "보통",
+      "runtime": "local_gpu",
+      "model": "FLUX.2-klein-4B",
+      "enabled": false
+    },
+    {
+      "id": "local_z_image_turbo",
+      "label": "Z-Image Turbo",
+      "speed": "화질 우선",
+      "runtime": "local_gpu",
+      "model": "Z-Image-Turbo",
+      "enabled": false
+    }
+  ]
+}

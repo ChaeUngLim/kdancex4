@@ -1,0 +1,405 @@
+/* 관리자 웹 로그인 화면(W1a·W1b2) — 2026-11-23 앱 로그인 구성으로(S3-1.9).
+   색: 바탕 짙은 남색(앱 스플래시·로그인 바탕과 같은 #0B0B1A), 글자 아이보리, 로그인 버튼 딥 플럼, 고른 역할·로고 샴페인. 녹색은 쓰지 않는다. */
+.page {
+  --navy: #0b0b1a;
+  --ivory: #f4f1ec;
+  --plum: #5b3a63;
+  --plum-hover: #6c4775;
+  --champagne: #d9b86a;
+  --muted: #a7a2b4;
+  display: grid;
+  grid-template-columns: minmax(520px, 1.15fr) minmax(480px, 1fr);
+  gap: 24px;
+  min-height: 100svh;
+  box-sizing: border-box;
+  padding: 24px;
+  background: var(--navy);
+  font-family: "Pretendard", system-ui, "Segoe UI", sans-serif;
+  letter-spacing: 0;
+}
+/* 왼쪽 패널 — 사진을 깔고 어둡게 덮은 뒤 글을 얹는다 */
+.brandPane {
+  position: relative;
+  overflow: hidden;
+  border-radius: 24px;
+  color: var(--ivory);
+}
+.brandPhoto {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 40% 25%; /* 두 사람의 얼굴이 패널 가운데쯤 오게 */
+}
+/* 사진 위 그늘: 위·아래 글자가 놓이는 곳을 더 어둡게 해 글자가 읽히게 한다 */
+.brandShade {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg, rgba(11, 11, 26, 0.78) 0%, rgba(11, 11, 26, 0.35) 34%, rgba(11, 11, 26, 0.45) 60%, rgba(11, 11, 26, 0.92) 100%),
+    rgba(11, 11, 26, 0.2);
+}
+.brandContent {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+  box-sizing: border-box;
+  padding: 48px 56px;
+}
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-size: 20px;
+  font-weight: 700;
+}
+.logo {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: var(--champagne);
+}
+.sloganBlock {
+  max-width: 420px;
+}
+.slogan {
+  margin: 0;
+  font-size: 40px;
+  line-height: 1.3;
+  font-weight: 800;
+  color: var(--ivory);
+}
+.sloganSub {
+  margin: 18px 0 0;
+  font-size: 16px;
+  color: #d6d1dc;
+}
+/* 오른쪽 — 앱 M1B·M1C 의 로그인 묶음 */
+.formPane {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 24px;
+}
+.loginStack {
+  width: 420px;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  color: var(--ivory);
+}
+.roleRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.roleButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 54px;
+  border-radius: 14px;
+  border: 1px solid rgba(244, 241, 236, 0.22);
+  background: rgba(244, 241, 236, 0.06);
+  color: var(--ivory);
+  font: inherit;
+  cursor: pointer;
+}
+.roleButton:hover {
+  background: rgba(244, 241, 236, 0.12);
+}
+.roleButton:focus-visible {
+  outline: 2px solid var(--champagne);
+  outline-offset: 2px;
+}
+.roleButtonSelected,
+.roleButtonSelected:hover {
+  background: var(--champagne);
+  border-color: var(--champagne);
+  color: #141216;
+}
+.roleEnglish {
+  font-size: 15px;
+  font-weight: 700;
+}
+.roleKorean {
+  font-size: 14px;
+  opacity: 0.85;
+}
+.darkForm {
+  display: flex;
+  flex-direction: column;
+}
+.darkField {
+  display: block;
+  margin-top: 14px;
+}
+.darkField:first-child {
+  margin-top: 0;
+}
+.darkLabel {
+  display: block;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ivory);
+  margin-bottom: 6px;
+}
+.darkInput {
+  width: 100%;
+  box-sizing: border-box;
+  height: 54px;
+  padding: 0 16px;
+  font: inherit;
+  font-size: 16px;
+  color: var(--ivory);
+  background: rgba(244, 241, 236, 0.06);
+  border: 1px solid rgba(244, 241, 236, 0.22);
+  border-radius: 14px;
+}
+.darkInput::placeholder {
+  color: #8d889a;
+}
+/* 커서가 들어간 칸은 테두리를 샴페인으로(앱과 같은 규칙) */
+.darkInput:focus {
+  outline: none;
+  border-color: var(--champagne);
+}
+.darkError {
+  margin: 14px 0 0;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: rgba(214, 74, 72, 0.16);
+  border: 1px solid rgba(240, 128, 124, 0.45);
+  color: #ffd2cf;
+  font-size: 14px;
+  font-weight: 600;
+}
+.findRow {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  margin-top: 18px;
+  font-size: 14px;
+  color: var(--muted);
+}
+.findBar {
+  color: rgba(244, 241, 236, 0.25);
+}
+.pendingBadge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(244, 241, 236, 0.12);
+  color: #d6d1dc;
+  font-size: 12px;
+  font-weight: 700;
+}
+.signupBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 18px;
+}
+.signupButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 52px;
+  border-radius: 14px;
+  border: 1px solid rgba(217, 184, 106, 0.55);
+  background: transparent;
+  color: var(--champagne);
+  font: inherit;
+  font-size: 16px;
+  font-weight: 700;
+}
+.signupButton:disabled {
+  cursor: default;
+}
+.signupNote {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.5;
+  text-align: center;
+  color: var(--muted);
+}
+.card {
+  width: 440px;
+  box-sizing: border-box;
+  background: #fff;
+  border: 1px solid #e8e2da;
+  border-radius: 20px;
+  padding: 40px;
+  color: #1d1a1f;
+}
+.title {
+  margin: 0;
+  font-size: 26px;
+  font-weight: 800;
+  color: #1d1a1f;
+}
+.subtitle {
+  margin: 6px 0 0;
+  font-size: 14px;
+  color: #8a8390;
+}
+.field {
+  display: block;
+  margin-top: 24px;
+}
+.label {
+  display: block;
+  font-size: 13px;
+  font-weight: 700;
+  color: #3a3340;
+  margin-bottom: 6px;
+}
+.input {
+  width: 100%;
+  box-sizing: border-box;
+  height: 48px;
+  padding: 0 16px;
+  font: inherit;
+  font-size: 16px;
+  color: #1d1a1f;
+  background: #f6f3ee;
+  border: 1px solid #e8e2da;
+  border-radius: 12px;
+}
+.input:focus {
+  outline: 2px solid #5c3a64;
+  outline-offset: -1px;
+}
+.primary {
+  width: 100%;
+  height: 50px;
+  margin-top: 20px;
+  border: 0;
+  border-radius: 12px;
+  background: #5b3a63;
+  color: #fff;
+  font: inherit;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.primary:hover:not(:disabled) {
+  background: #6c4775;
+}
+.primary:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+.linkRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 22px;
+  font-size: 14px;
+  color: #3a3340;
+}
+.strongLink {
+  font-weight: 700;
+  color: #4a2a52;
+}
+.error {
+  margin: 14px 0 0;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: #fbeeee;
+  color: #a1302f;
+  font-size: 14px;
+  font-weight: 600;
+}
+.accountChip {
+  margin-top: 20px;
+  padding: 10px 16px;
+  border-radius: 12px;
+  background: #f6f3ee;
+  border: 1px solid #e8e2da;
+  font-size: 14px;
+  font-weight: 700;
+  color: #3a3340;
+}
+.codeRow {
+  display: flex;
+  gap: 10px;
+}
+.codeBox {
+  width: 52px;
+  height: 56px;
+  box-sizing: border-box;
+  text-align: center;
+  font: inherit;
+  font-size: 22px;
+  font-weight: 700;
+  color: #1d1a1f;
+  background: #f6f3ee;
+  border: 1px solid #e8e2da;
+  border-radius: 12px;
+}
+.codeBox:focus {
+  outline: none;
+  border-color: #5c3a64;
+  background: #fff;
+}
+.codeBoxError {
+  border-color: #d26b6a;
+}
+.hint {
+  margin: 8px 0 0;
+  font-size: 13px;
+  color: #8a8390;
+}
+.divider {
+  margin: 22px 0 16px;
+  border: 0;
+  border-top: 1px solid #e8e2da;
+}
+.trust {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #3a3340;
+  cursor: pointer;
+}
+.trust input {
+  width: 18px;
+  height: 18px;
+  accent-color: #5c3a64;
+}
+.qrFrame {
+  margin-top: 20px;
+  display: flex;
+  justify-content: center;
+  padding: 16px;
+  border: 1px solid #e8e2da;
+  border-radius: 14px;
+  background: #fff;
+}
+.steps {
+  margin: 16px 0 0;
+  padding-left: 20px;
+  font-size: 14px;
+  color: #3a3340;
+  line-height: 1.7;
+}
+.textButton {
+  border: 0;
+  background: none;
+  padding: 0;
+  font: inherit;
+  color: #3a3340;
+  cursor: pointer;
+  text-decoration: underline;
+}

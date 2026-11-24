@@ -1,0 +1,564 @@
+[
+  {
+    "id": "dropIndex.refund_notice_versions.uq_refund_notice_academy_version_d4c7060f",
+    "label": "Drop index \"uq_refund_notice_academy_version_d4c7060f\"",
+    "operationClass": "widening",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "uq_refund_notice_academy_version_d4c7060f",
+        "table": "refund_notice_versions"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"uq_refund_notice_academy_version_d4c7060f\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"uq_refund_notice_academy_version_d4c7060f\""
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "index \"uq_refund_notice_academy_version_d4c7060f\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "drop index \"uq_refund_notice_academy_version_d4c7060f\"",
+        "sql": "DROP INDEX \"public\".\"uq_refund_notice_academy_version_d4c7060f\"",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"uq_refund_notice_academy_version_d4c7060f\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"uq_refund_notice_academy_version_d4c7060f\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"uq_refund_notice_academy_version_d4c7060f\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "column.public.refund_notice_versions.content",
+    "label": "Add column \"content\" to \"refund_notice_versions\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "content",
+        "table": "refund_notice_versions"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"content\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "refund_notice_versions",
+          "content"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "column \"content\" on \"refund_notice_versions\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"content\"",
+        "sql": "ALTER TABLE \"public\".\"refund_notice_versions\" ADD COLUMN \"content\" json DEFAULT ('{}'::jsonb) NOT NULL"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"content\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "refund_notice_versions",
+          "content"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "column \"content\" on \"refund_notice_versions\""
+        }
+      },
+      {
+        "description": "verify column \"content\" has type \"json\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_attribute\" AS \"a\" INNER JOIN \"pg_class\" AS \"c\" ON \"c\".\"oid\" = \"a\".\"attrelid\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"a\".\"attname\" = $3 AND (format_type(\"a\".\"atttypid\", \"a\".\"atttypmod\")) = $4 AND NOT (\"a\".\"attisdropped\"))) AS \"result\"",
+        "params": [
+          "public",
+          "refund_notice_versions",
+          "content",
+          "json"
+        ]
+      },
+      {
+        "description": "verify column \"content\" is NOT NULL",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3 AND \"is_nullable\" = $4)) AS \"result\"",
+        "params": [
+          "public",
+          "refund_notice_versions",
+          "content",
+          "NO"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "column.public.refund_notice_versions.created_by_account_id",
+    "label": "Add column \"created_by_account_id\" to \"refund_notice_versions\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "created_by_account_id",
+        "table": "refund_notice_versions"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"created_by_account_id\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "refund_notice_versions",
+          "created_by_account_id"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "column \"created_by_account_id\" on \"refund_notice_versions\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"created_by_account_id\"",
+        "sql": "ALTER TABLE \"public\".\"refund_notice_versions\" ADD COLUMN \"created_by_account_id\" uuid"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"created_by_account_id\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "refund_notice_versions",
+          "created_by_account_id"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "column \"created_by_account_id\" on \"refund_notice_versions\""
+        }
+      },
+      {
+        "description": "verify column \"created_by_account_id\" has type \"uuid\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_attribute\" AS \"a\" INNER JOIN \"pg_class\" AS \"c\" ON \"c\".\"oid\" = \"a\".\"attrelid\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"a\".\"attname\" = $3 AND (format_type(\"a\".\"atttypid\", \"a\".\"atttypmod\")) = $4 AND NOT (\"a\".\"attisdropped\"))) AS \"result\"",
+        "params": [
+          "public",
+          "refund_notice_versions",
+          "created_by_account_id",
+          "uuid"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "column.public.refund_notice_versions.notice_kind",
+    "label": "Add column \"notice_kind\" to \"refund_notice_versions\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "notice_kind",
+        "table": "refund_notice_versions"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"notice_kind\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "refund_notice_versions",
+          "notice_kind"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "column \"notice_kind\" on \"refund_notice_versions\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"notice_kind\"",
+        "sql": "ALTER TABLE \"public\".\"refund_notice_versions\" ADD COLUMN \"notice_kind\" text DEFAULT 'regular' NOT NULL"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"notice_kind\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "refund_notice_versions",
+          "notice_kind"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "column \"notice_kind\" on \"refund_notice_versions\""
+        }
+      },
+      {
+        "description": "verify column \"notice_kind\" has type \"text\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_attribute\" AS \"a\" INNER JOIN \"pg_class\" AS \"c\" ON \"c\".\"oid\" = \"a\".\"attrelid\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"a\".\"attname\" = $3 AND (format_type(\"a\".\"atttypid\", \"a\".\"atttypmod\")) = $4 AND NOT (\"a\".\"attisdropped\"))) AS \"result\"",
+        "params": [
+          "public",
+          "refund_notice_versions",
+          "notice_kind",
+          "text"
+        ]
+      },
+      {
+        "description": "verify column \"notice_kind\" is NOT NULL",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3 AND \"is_nullable\" = $4)) AS \"result\"",
+        "params": [
+          "public",
+          "refund_notice_versions",
+          "notice_kind",
+          "NO"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "column.public.refund_notice_versions.template_code",
+    "label": "Add column \"template_code\" to \"refund_notice_versions\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "template_code",
+        "table": "refund_notice_versions"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"template_code\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "refund_notice_versions",
+          "template_code"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "column \"template_code\" on \"refund_notice_versions\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"template_code\"",
+        "sql": "ALTER TABLE \"public\".\"refund_notice_versions\" ADD COLUMN \"template_code\" text"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"template_code\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "refund_notice_versions",
+          "template_code"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "column \"template_code\" on \"refund_notice_versions\""
+        }
+      },
+      {
+        "description": "verify column \"template_code\" has type \"text\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_attribute\" AS \"a\" INNER JOIN \"pg_class\" AS \"c\" ON \"c\".\"oid\" = \"a\".\"attrelid\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"a\".\"attname\" = $3 AND (format_type(\"a\".\"atttypid\", \"a\".\"atttypmod\")) = $4 AND NOT (\"a\".\"attisdropped\"))) AS \"result\"",
+        "params": [
+          "public",
+          "refund_notice_versions",
+          "template_code",
+          "text"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "column.public.refund_notice_versions.template_version",
+    "label": "Add column \"template_version\" to \"refund_notice_versions\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "template_version",
+        "table": "refund_notice_versions"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"template_version\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "refund_notice_versions",
+          "template_version"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "column \"template_version\" on \"refund_notice_versions\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"template_version\"",
+        "sql": "ALTER TABLE \"public\".\"refund_notice_versions\" ADD COLUMN \"template_version\" text"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"template_version\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "refund_notice_versions",
+          "template_version"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "column \"template_version\" on \"refund_notice_versions\""
+        }
+      },
+      {
+        "description": "verify column \"template_version\" has type \"text\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_attribute\" AS \"a\" INNER JOIN \"pg_class\" AS \"c\" ON \"c\".\"oid\" = \"a\".\"attrelid\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"a\".\"attname\" = $3 AND (format_type(\"a\".\"atttypid\", \"a\".\"atttypmod\")) = $4 AND NOT (\"a\".\"attisdropped\"))) AS \"result\"",
+        "params": [
+          "public",
+          "refund_notice_versions",
+          "template_version",
+          "text"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "checkConstraint.refund_notice_versions.refund_notice_versions_notice_kind_check_f7170114",
+    "label": "Add check constraint \"refund_notice_versions_notice_kind_check_f7170114\" on \"refund_notice_versions\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "checkConstraint",
+        "name": "refund_notice_versions_notice_kind_check_f7170114",
+        "table": "refund_notice_versions"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"refund_notice_versions_notice_kind_check_f7170114\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "refund_notice_versions_notice_kind_check_f7170114",
+          "public",
+          "\"public\".\"refund_notice_versions\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "constraint \"refund_notice_versions_notice_kind_check_f7170114\" on \"refund_notice_versions\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add check constraint \"refund_notice_versions_notice_kind_check_f7170114\"",
+        "sql": "ALTER TABLE \"public\".\"refund_notice_versions\" ADD CONSTRAINT \"refund_notice_versions_notice_kind_check_f7170114\" CHECK (\"notice_kind\" IN ('regular', 'event', 'private_lesson'))"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify check constraint \"refund_notice_versions_notice_kind_check_f7170114\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4)) AS \"result\"",
+        "params": [
+          "refund_notice_versions_notice_kind_check_f7170114",
+          "public",
+          "\"public\".\"refund_notice_versions\"",
+          "c"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.refund_notice_versions.refund_notice_versions_created_by_account_id_idx_01ca7524",
+    "label": "Create index \"refund_notice_versions_created_by_account_id_idx_01ca7524\" on \"refund_notice_versions\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "refund_notice_versions_created_by_account_id_idx_01ca7524",
+        "table": "refund_notice_versions"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"refund_notice_versions_created_by_account_id_idx_01ca7524\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"refund_notice_versions_created_by_account_id_idx_01ca7524\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"refund_notice_versions_created_by_account_id_idx_01ca7524\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"refund_notice_versions_created_by_account_id_idx_01ca7524\"",
+        "sql": "CREATE INDEX \"refund_notice_versions_created_by_account_id_idx_01ca7524\" ON \"public\".\"refund_notice_versions\" (\"created_by_account_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"refund_notice_versions_created_by_account_id_idx_01ca7524\" exists on \"refund_notice_versions\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"refund_notice_versions_created_by_account_id_idx_01ca7524\"",
+          "i",
+          "I",
+          "\"public\".\"refund_notice_versions\"",
+          "btree",
+          "[\"created_by_account_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.refund_notice_versions.uq_refund_notice_academy_kind_version_450d8177",
+    "label": "Create index \"uq_refund_notice_academy_kind_version_450d8177\" on \"refund_notice_versions\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "uq_refund_notice_academy_kind_version_450d8177",
+        "table": "refund_notice_versions"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"uq_refund_notice_academy_kind_version_450d8177\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"uq_refund_notice_academy_kind_version_450d8177\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"uq_refund_notice_academy_kind_version_450d8177\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"uq_refund_notice_academy_kind_version_450d8177\"",
+        "sql": "CREATE UNIQUE INDEX \"uq_refund_notice_academy_kind_version_450d8177\" ON \"public\".\"refund_notice_versions\" (\"academy_id\", \"notice_kind\", \"version\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"uq_refund_notice_academy_kind_version_450d8177\" exists on \"refund_notice_versions\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND \"i\".\"indisunique\" AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"uq_refund_notice_academy_kind_version_450d8177\"",
+          "i",
+          "I",
+          "\"public\".\"refund_notice_versions\"",
+          "btree",
+          "[\"academy_id\",\"notice_kind\",\"version\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.refund_notice_versions.refund_notice_versions_created_by_account_id_fkey",
+    "label": "Add foreign key \"refund_notice_versions_created_by_account_id_fkey\" on \"refund_notice_versions\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "refund_notice_versions_created_by_account_id_fkey",
+        "table": "refund_notice_versions"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"refund_notice_versions_created_by_account_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "refund_notice_versions_created_by_account_id_fkey",
+          "public",
+          "\"public\".\"refund_notice_versions\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"refund_notice_versions_created_by_account_id_fkey\" on \"refund_notice_versions\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"refund_notice_versions_created_by_account_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"refund_notice_versions\"\nADD CONSTRAINT \"refund_notice_versions_created_by_account_id_fkey\"\nFOREIGN KEY (\"created_by_account_id\")\nREFERENCES \"public\".\"staff_accounts\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"refund_notice_versions_created_by_account_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "refund_notice_versions_created_by_account_id_fkey",
+          "public",
+          "\"public\".\"refund_notice_versions\"",
+          "f",
+          "[\"created_by_account_id\"]",
+          "\"public\".\"staff_accounts\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  }
+]

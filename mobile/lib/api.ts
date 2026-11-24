@@ -11,6 +11,8 @@
  *
  * 성공 응답은 감싸지 않은 자원 JSON 이다(§4.8 끝 줄). 그래서 성공이면 본문을 그대로 돌려준다.
  */
+import { fetch as expoFetch } from 'expo/fetch';
+
 import { clearSessionToken, getSessionToken } from './session';
 
 /** §4.8(오류 응답 형식)의 `fields` 한 줄 — 검증 실패(422 `VALIDATION_FAILED`)에만 온다. */
@@ -53,14 +55,26 @@ export class ApiError extends Error {
   readonly code: ApiErrorCode;
   readonly detail: string;
   readonly fields: readonly ApiFieldError[];
+  /**
+   * 실패 본문의 나머지 칸(SX-6.9). 홍보 이미지의 `remaining`·`reason`·`quotaScope`·`resetsAt` 처럼
+   * 오류 코드마다 덧붙는 값을 화면이 읽는다. 없으면 빈 객체.
+   */
+  readonly extra: Readonly<Record<string, unknown>>;
 
-  constructor(status: number, code: ApiErrorCode, detail: string, fields: readonly ApiFieldError[] = []) {
+  constructor(
+    status: number,
+    code: ApiErrorCode,
+    detail: string,
+    fields: readonly ApiFieldError[] = [],
+    extra: Readonly<Record<string, unknown>> = {},
+  ) {
     super(detail);
     this.name = 'ApiError';
     this.status = status;
     this.code = code;
     this.detail = detail;
     this.fields = fields;
+    this.extra = extra;
   }
 }
 
@@ -88,7 +102,7 @@ const UNEXPECTED_RESPONSE_DETAIL = '알 수 없는 오류가 났어요. 잠시 �
  * API 기본 주소. Expo 는 `EXPO_PUBLIC_` 접두 변수만 번들에 넣어 준다.
  * 값이 없으면 엉뚱한 주소로 조용히 보내지 않고 바로 알린다.
  */
-function getBaseUrl(): string {
+export function getBaseUrl(): string {
   const baseUrl = process.env.EXPO_PUBLIC_API_URL;
   if (!baseUrl) {
     throw new Error('EXPO_PUBLIC_API_URL 이 설정되지 않았다. mobile/.env.example 을 참고해 mobile/.env 를 만든다');
@@ -120,7 +134,7 @@ async function toApiError(response: Response): Promise<ApiError> {
   }
 
   if (isRecord(body) && typeof body.detail === 'string' && typeof body.code === 'string') {
-    return new ApiError(response.status, body.code, body.detail, parseFields(body.fields));
+    return new ApiError(response.status, body.code, body.detail, parseFields(body.fields), body);
   }
   return new ApiError(response.status, 'UNEXPECTED_RESPONSE', UNEXPECTED_RESPONSE_DETAIL);
 }
@@ -134,9 +148,69 @@ async function toApiError(response: Response): Promise<ApiError> {
  * @param path `/api/...` 로 시작하는 경로(README §1(경로·런타임))
  */
 export async function apiFetch<T>(path: string, options: ApiRequestOptions = {}): Promise<T> {
+  const response = await sendRequest(path, options, 'application/json');
+  // 204 처럼 본문이 없는 성공도 있다.
+  if (response.status === 204) {
+    return undefined as T;
+  }
+  return (await response.json()) as T;
+}
+
+/**
+ * 본문을 JSON 이 아니라 글자 그대로 받는다 — AI 플래너의 답(`POST /api/ai/chat`, AI SDK UI 스트림)처럼
+ * `data: {...}` 줄이 이어지는 응답용(SX-5.7). 주소·인증·오류 처리는 apiFetch 와 똑같다.
+ * 스트림을 끝까지 받은 뒤 한 번에 돌려준다(휴대폰 기본 fetch 는 본문을 조금씩 읽을 수 없어서다).
+ */
+export async function apiFetchText(path: string, options: ApiRequestOptions = {}): Promise<string> {
+  const response = await sendRequest(path, options, 'text/event-stream, application/json');
+  return response.text();
+}
+
+/**
+ * 본문을 **오는 대로 조금씩** 받는다 — AI 플래너 답이 글자가 흘러나오듯 보이게(SX-5.8(말로 찾기 실동작·챗봇 대화형 AI 답변)).
+ * 휴대폰 기본 fetch 는 본문을 끝까지 모은 뒤에야 주므로, 조금씩 읽을 수 있는 Expo 의 fetch(`expo/fetch`)로 보낸다.
+ * 웹에서는 같은 이름으로 브라우저 fetch 가 쓰인다. 주소·인증·오류 처리는 apiFetch 와 똑같다.
+ *
+ * @param onText 새로 받은 글자 조각. 줄 단위로 끊겨 오지 않으니 받는 쪽이 이어 붙여 읽는다
+ * @returns 받은 글자 전체
+ */
+export async function apiFetchStream(path: string, options: ApiRequestOptions, onText: (piece: string) => void): Promise<string> {
+  const response = await sendRequest(path, options, 'text/event-stream, application/json', expoFetch as unknown as typeof fetch);
+  const reader = response.body?.getReader();
+  // 조금씩 읽을 수 없는 환경이면 한 번에 받아 한 조각으로 넘긴다
+  if (reader === undefined) {
+    const whole = await response.text();
+    onText(whole);
+    return whole;
+  }
+  const decoder = new TextDecoder();
+  let all = '';
+  for (;;) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    // stream: true — 한글처럼 여러 바이트 글자가 두 조각에 걸쳐 와도 깨지지 않게
+    const piece = decoder.decode(value, { stream: true });
+    all += piece;
+    if (piece !== '') onText(piece);
+  }
+  const tail = decoder.decode();
+  if (tail !== '') {
+    all += tail;
+    onText(tail);
+  }
+  return all;
+}
+
+/** 실제로 보내는 곳. 성공 응답(2xx)만 돌려주고, 실패는 ApiError 로 던진다 */
+async function sendRequest(
+  path: string,
+  options: ApiRequestOptions,
+  accept: string,
+  send: typeof fetch = fetch,
+): Promise<Response> {
   const { method = 'GET', body, idempotencyKey, auth = true, signal } = options;
 
-  const headers: Record<string, string> = { Accept: 'application/json' };
+  const headers: Record<string, string> = { Accept: accept };
   if (body !== undefined) {
     headers['Content-Type'] = 'application/json';
   }
@@ -155,7 +229,7 @@ export async function apiFetch<T>(path: string, options: ApiRequestOptions = {})
 
   let response: Response;
   try {
-    response = await fetch(`${getBaseUrl()}${path}`, {
+    response = await send(`${getBaseUrl()}${path}`, {
       method,
       headers,
       body: body === undefined ? undefined : JSON.stringify(body),
@@ -182,10 +256,5 @@ export async function apiFetch<T>(path: string, options: ApiRequestOptions = {})
     }
     throw apiError;
   }
-
-  // 204 처럼 본문이 없는 성공도 있다.
-  if (response.status === 204) {
-    return undefined as T;
-  }
-  return (await response.json()) as T;
+  return response;
 }

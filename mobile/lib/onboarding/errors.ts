@@ -10,7 +10,7 @@ import { clearSessionToken } from '../session';
 /** 화면이 할 일: 문구만 보여 줄지, 다른 화면으로 보낼지. */
 export type ErrorOutcome =
   | { readonly kind: 'message'; readonly message: string }
-  | { readonly kind: 'redirect'; readonly to: '/login' | '/identity'; readonly message: string };
+  | { readonly kind: 'redirect'; readonly to: '/login' | '/consent'; readonly message: string };
 
 const FALLBACK_MESSAGE = '알 수 없는 오류가 났어요. 잠시 뒤 다시 시도해 주세요.';
 
@@ -35,7 +35,12 @@ export async function toErrorOutcome(error: unknown): Promise<ErrorOutcome> {
       await clearSessionToken();
       return { kind: 'redirect', to: '/login', message: '로그인이 풀렸어요. 다시 로그인해 주세요.' };
     case 'SIGNUP_INCOMPLETE':
-      return { kind: 'redirect', to: '/identity', message: '가입을 먼저 마쳐 주세요.' };
+      // 가입은 약관 동의(보드 C14A)부터 시작한다 — 동의 없이 본인확인으로 바로 가지 않는다.
+      return { kind: 'redirect', to: '/consent', message: '가입을 먼저 마쳐 주세요.' };
+    case 'CONSENT_REQUIRED':
+      return { kind: 'redirect', to: '/consent', message: '필수 약관에 모두 동의해야 가입을 마칠 수 있어요.' };
+    case 'NICKNAME_NOT_ALLOWED':
+      return { kind: 'message', message: '쓸 수 없는 말이 들어 있어요. 다른 닉네임을 적어 주세요.' };
     case 'IDENTITY_ALREADY_USED':
       return {
         kind: 'message',

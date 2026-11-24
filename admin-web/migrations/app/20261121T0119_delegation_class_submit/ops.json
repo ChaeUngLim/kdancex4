@@ -1,0 +1,99 @@
+[
+  {
+    "id": "dropCheckConstraint.instructor_delegations.instructor_delegations_permission_check_25bd9bbc",
+    "label": "Drop check constraint \"instructor_delegations_permission_check_25bd9bbc\" on \"instructor_delegations\"",
+    "operationClass": "widening",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "checkConstraint",
+        "name": "instructor_delegations_permission_check_25bd9bbc",
+        "table": "instructor_delegations"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"instructor_delegations_permission_check_25bd9bbc\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "instructor_delegations_permission_check_25bd9bbc",
+          "public",
+          "\"public\".\"instructor_delegations\""
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "constraint \"instructor_delegations_permission_check_25bd9bbc\" on \"instructor_delegations\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "drop check constraint \"instructor_delegations_permission_check_25bd9bbc\"",
+        "sql": "ALTER TABLE \"public\".\"instructor_delegations\" DROP CONSTRAINT \"instructor_delegations_permission_check_25bd9bbc\""
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"instructor_delegations_permission_check_25bd9bbc\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "instructor_delegations_permission_check_25bd9bbc",
+          "public",
+          "\"public\".\"instructor_delegations\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "constraint \"instructor_delegations_permission_check_25bd9bbc\" on \"instructor_delegations\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "checkConstraint.instructor_delegations.instructor_delegations_permission_check_a350417e",
+    "label": "Add check constraint \"instructor_delegations_permission_check_a350417e\" on \"instructor_delegations\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "checkConstraint",
+        "name": "instructor_delegations_permission_check_a350417e",
+        "table": "instructor_delegations"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"instructor_delegations_permission_check_a350417e\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "instructor_delegations_permission_check_a350417e",
+          "public",
+          "\"public\".\"instructor_delegations\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "constraint \"instructor_delegations_permission_check_a350417e\" on \"instructor_delegations\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add check constraint \"instructor_delegations_permission_check_a350417e\"",
+        "sql": "ALTER TABLE \"public\".\"instructor_delegations\" ADD CONSTRAINT \"instructor_delegations_permission_check_a350417e\" CHECK (\"permission\" IN ('roster_manage', 'class_manage', 'class_submit'))"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify check constraint \"instructor_delegations_permission_check_a350417e\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4)) AS \"result\"",
+        "params": [
+          "instructor_delegations_permission_check_a350417e",
+          "public",
+          "\"public\".\"instructor_delegations\"",
+          "c"
+        ]
+      }
+    ]
+  }
+]

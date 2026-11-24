@@ -23,3 +23,10 @@ node_modules
 *.njsproj
 *.sln
 *.sw?
+
+# Playwright 화면 테스트 결과물(S1-0.1)
+/test-results/
+/playwright-report/
+
+# 로컬 디스크 파일 저장소 기본 위치(S1-1.5 · FILE_STORAGE_DIR 을 비웠을 때)
+/.data/

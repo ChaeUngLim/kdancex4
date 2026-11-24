@@ -1,0 +1,25 @@
+{
+  "examples": [
+    {
+      "id": "salsa_couple_studio_red",
+      "genre": "salsa_bachata",
+      "genreLabel": "살사",
+      "text": "커플이 스튜디오에서 빨간 조명 아래 열정적으로 살사를 추는 모습. 여자의 치마가 회전하며 펼쳐진다.",
+      "chips": { "who": "커플", "mood": "열정적인", "place": "스튜디오", "color": "빨간 조명" }
+    },
+    {
+      "id": "tango_couple_hall_sunset",
+      "genre": "argentine_tango",
+      "genreLabel": "아르헨티나 탱고",
+      "text": "커플이 파티 홀에서 따뜻한 노을빛 조명 아래 우아하게 가까이 안고 걷는 탱고.",
+      "chips": { "who": "커플", "mood": "우아한", "place": "파티 홀", "color": "따뜻한 노을빛" }
+    },
+    {
+      "id": "latin_group_studio_daylight",
+      "genre": "dance_sport",
+      "genreLabel": "댄스스포츠 라틴",
+      "text": "여러 사람이 밝은 자연광이 드는 스튜디오에서 편안하게 라틴 기본 스텝을 배우는 모습.",
+      "chips": { "who": "단체", "mood": "편안한", "place": "스튜디오", "color": "밝은 자연광" }
+    }
+  ]
+}

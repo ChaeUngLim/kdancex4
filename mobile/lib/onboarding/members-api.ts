@@ -13,6 +13,7 @@ import type {
   Member,
   ProfileInput,
   SignInResponse,
+  SignupInput,
 } from './types';
 
 /**
@@ -44,12 +45,12 @@ export function fakeVerifyIdentity(input: FakeVerifyInput): Promise<FakeVerifyRe
   return apiFetch<FakeVerifyResult>('/api/dev/identity/fake-verify', { method: 'POST', body: input });
 }
 
-/** 계약 §3 — 가입 완료. 처음이면 201, 이미 가입했으면 200 으로 같은 회원이 온다. */
-export function completeSignup(verificationToken: string): Promise<Member> {
-  return apiFetch<Member>('/api/members', {
-    method: 'POST',
-    body: { verificationToken, noticeAcknowledged: true },
-  });
+/**
+ * 계약 §3 — 가입 완료. 처음이면 201, 이미 가입했으면 200 으로 같은 회원이 온다.
+ * 본문은 본인확인 토큰·고지 확인·닉네임·동의 여섯 칸이다(S3-1.8(앱 가입·동의·취향 화면 보정)에서 닉네임·동의를 더함).
+ */
+export function completeSignup(input: SignupInput): Promise<Member> {
+  return apiFetch<Member>('/api/members', { method: 'POST', body: input });
 }
 
 /** 계약 §5 — 취향 전체 교체(FR-022(사용자 프로필)). */

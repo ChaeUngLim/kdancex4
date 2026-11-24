@@ -1,0 +1,99 @@
+[
+  {
+    "id": "table.holiday_sync_runs",
+    "label": "Create table \"holiday_sync_runs\"",
+    "summary": "Creates table \"holiday_sync_runs\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "holiday_sync_runs"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"holiday_sync_runs\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"holiday_sync_runs\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"holiday_sync_runs\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"holiday_sync_runs\"",
+        "sql": "CREATE TABLE \"public\".\"holiday_sync_runs\" (\n  \"error_code\" text,\n  \"id\" uuid NOT NULL,\n  \"ran_at\" timestamptz DEFAULT (now()) NOT NULL,\n  \"rows_upserted\" int4 DEFAULT 0 NOT NULL,\n  \"source\" text DEFAULT 'kasi_special_days' NOT NULL,\n  \"status\" text NOT NULL,\n  \"year\" int4 NOT NULL,\n  PRIMARY KEY (\"id\"),\n  CONSTRAINT \"ck_holiday_sync_error_16e180e3\" CHECK ((status = 'failed') = (error_code IS NOT NULL)),\n  CONSTRAINT \"ck_holiday_sync_rows_74c43965\" CHECK (rows_upserted >= 0 AND (status = 'success' OR rows_upserted = 0)),\n  CONSTRAINT \"ck_holiday_sync_source_f9aad6bf\" CHECK (source = 'kasi_special_days'),\n  CONSTRAINT \"holiday_sync_runs_status_check_53a996d1\" CHECK (\"status\" IN ('success', 'failed'))\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"holiday_sync_runs\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3))) AS \"result\"",
+        "params": [
+          "\"public\".\"holiday_sync_runs\"",
+          "r",
+          "p"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"holiday_sync_runs\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "index.holiday_sync_runs.ix_holiday_sync_ran_fae25c81",
+    "label": "Create index \"ix_holiday_sync_ran_fae25c81\" on \"holiday_sync_runs\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "ix_holiday_sync_ran_fae25c81",
+        "table": "holiday_sync_runs"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"ix_holiday_sync_ran_fae25c81\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ix_holiday_sync_ran_fae25c81\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"ix_holiday_sync_ran_fae25c81\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"ix_holiday_sync_ran_fae25c81\"",
+        "sql": "CREATE INDEX \"ix_holiday_sync_ran_fae25c81\" ON \"public\".\"holiday_sync_runs\" (\"ran_at\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"ix_holiday_sync_ran_fae25c81\" exists on \"holiday_sync_runs\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"ix_holiday_sync_ran_fae25c81\"",
+          "i",
+          "I",
+          "\"public\".\"holiday_sync_runs\"",
+          "btree",
+          "[\"ran_at\"]"
+        ]
+      }
+    ]
+  }
+]

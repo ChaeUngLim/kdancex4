@@ -1,0 +1,1541 @@
+[
+  {
+    "id": "table.academy_branches",
+    "label": "Create table \"academy_branches\"",
+    "summary": "Creates table \"academy_branches\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "academy_branches"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"academy_branches\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"academy_branches\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"academy_branches\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"academy_branches\"",
+        "sql": "CREATE TABLE \"public\".\"academy_branches\" (\n  \"academy_id\" uuid NOT NULL,\n  \"accessibility\" text,\n  \"address\" text NOT NULL,\n  \"created_at\" timestamptz DEFAULT (now()) NOT NULL,\n  \"facilities\" text,\n  \"id\" uuid NOT NULL,\n  \"name\" text NOT NULL,\n  \"opening_hours\" text,\n  \"parking\" text,\n  \"phone\" text,\n  \"region_gu\" text NOT NULL,\n  \"region_sido\" text NOT NULL,\n  \"updated_at\" timestamptz NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"academy_branches\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3))) AS \"result\"",
+        "params": [
+          "\"public\".\"academy_branches\"",
+          "r",
+          "p"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"academy_branches\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "column.public.academies.business_status",
+    "label": "Add column \"business_status\" to \"academies\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "business_status",
+        "table": "academies"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"business_status\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "academies",
+          "business_status"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "column \"business_status\" on \"academies\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"business_status\"",
+        "sql": "ALTER TABLE \"public\".\"academies\" ADD COLUMN \"business_status\" text"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"business_status\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "academies",
+          "business_status"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "column \"business_status\" on \"academies\""
+        }
+      },
+      {
+        "description": "verify column \"business_status\" has type \"text\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_attribute\" AS \"a\" INNER JOIN \"pg_class\" AS \"c\" ON \"c\".\"oid\" = \"a\".\"attrelid\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"a\".\"attname\" = $3 AND (format_type(\"a\".\"atttypid\", \"a\".\"atttypmod\")) = $4 AND NOT (\"a\".\"attisdropped\"))) AS \"result\"",
+        "params": [
+          "public",
+          "academies",
+          "business_status",
+          "text"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "column.public.academies.business_status_checked_at",
+    "label": "Add column \"business_status_checked_at\" to \"academies\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "business_status_checked_at",
+        "table": "academies"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"business_status_checked_at\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "academies",
+          "business_status_checked_at"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "column \"business_status_checked_at\" on \"academies\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"business_status_checked_at\"",
+        "sql": "ALTER TABLE \"public\".\"academies\" ADD COLUMN \"business_status_checked_at\" timestamptz"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"business_status_checked_at\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "academies",
+          "business_status_checked_at"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "column \"business_status_checked_at\" on \"academies\""
+        }
+      },
+      {
+        "description": "verify column \"business_status_checked_at\" has type \"timestamp with time zone\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_attribute\" AS \"a\" INNER JOIN \"pg_class\" AS \"c\" ON \"c\".\"oid\" = \"a\".\"attrelid\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"a\".\"attname\" = $3 AND (format_type(\"a\".\"atttypid\", \"a\".\"atttypmod\")) = $4 AND NOT (\"a\".\"attisdropped\"))) AS \"result\"",
+        "params": [
+          "public",
+          "academies",
+          "business_status_checked_at",
+          "timestamp with time zone"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "column.public.academies.card_payment_enabled",
+    "label": "Add column \"card_payment_enabled\" to \"academies\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "card_payment_enabled",
+        "table": "academies"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"card_payment_enabled\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "academies",
+          "card_payment_enabled"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "column \"card_payment_enabled\" on \"academies\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"card_payment_enabled\"",
+        "sql": "ALTER TABLE \"public\".\"academies\" ADD COLUMN \"card_payment_enabled\" bool DEFAULT false NOT NULL"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"card_payment_enabled\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "academies",
+          "card_payment_enabled"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "column \"card_payment_enabled\" on \"academies\""
+        }
+      },
+      {
+        "description": "verify column \"card_payment_enabled\" has type \"boolean\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_attribute\" AS \"a\" INNER JOIN \"pg_class\" AS \"c\" ON \"c\".\"oid\" = \"a\".\"attrelid\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"a\".\"attname\" = $3 AND (format_type(\"a\".\"atttypid\", \"a\".\"atttypmod\")) = $4 AND NOT (\"a\".\"attisdropped\"))) AS \"result\"",
+        "params": [
+          "public",
+          "academies",
+          "card_payment_enabled",
+          "boolean"
+        ]
+      },
+      {
+        "description": "verify column \"card_payment_enabled\" is NOT NULL",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3 AND \"is_nullable\" = $4)) AS \"result\"",
+        "params": [
+          "public",
+          "academies",
+          "card_payment_enabled",
+          "NO"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "column.public.academies.industry_code",
+    "label": "Add column \"industry_code\" to \"academies\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "industry_code",
+        "table": "academies"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"industry_code\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "academies",
+          "industry_code"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "column \"industry_code\" on \"academies\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"industry_code\"",
+        "sql": "ALTER TABLE \"public\".\"academies\" ADD COLUMN \"industry_code\" text"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"industry_code\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "academies",
+          "industry_code"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "column \"industry_code\" on \"academies\""
+        }
+      },
+      {
+        "description": "verify column \"industry_code\" has type \"text\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_attribute\" AS \"a\" INNER JOIN \"pg_class\" AS \"c\" ON \"c\".\"oid\" = \"a\".\"attrelid\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"a\".\"attname\" = $3 AND (format_type(\"a\".\"atttypid\", \"a\".\"atttypmod\")) = $4 AND NOT (\"a\".\"attisdropped\"))) AS \"result\"",
+        "params": [
+          "public",
+          "academies",
+          "industry_code",
+          "text"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "column.public.academies.intro",
+    "label": "Add column \"intro\" to \"academies\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "intro",
+        "table": "academies"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"intro\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "academies",
+          "intro"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "column \"intro\" on \"academies\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"intro\"",
+        "sql": "ALTER TABLE \"public\".\"academies\" ADD COLUMN \"intro\" text"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"intro\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "academies",
+          "intro"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "column \"intro\" on \"academies\""
+        }
+      },
+      {
+        "description": "verify column \"intro\" has type \"text\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_attribute\" AS \"a\" INNER JOIN \"pg_class\" AS \"c\" ON \"c\".\"oid\" = \"a\".\"attrelid\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"a\".\"attname\" = $3 AND (format_type(\"a\".\"atttypid\", \"a\".\"atttypmod\")) = $4 AND NOT (\"a\".\"attisdropped\"))) AS \"result\"",
+        "params": [
+          "public",
+          "academies",
+          "intro",
+          "text"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "column.public.academies.mail_order_report_number",
+    "label": "Add column \"mail_order_report_number\" to \"academies\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "mail_order_report_number",
+        "table": "academies"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"mail_order_report_number\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "academies",
+          "mail_order_report_number"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "column \"mail_order_report_number\" on \"academies\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"mail_order_report_number\"",
+        "sql": "ALTER TABLE \"public\".\"academies\" ADD COLUMN \"mail_order_report_number\" text"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"mail_order_report_number\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "academies",
+          "mail_order_report_number"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "column \"mail_order_report_number\" on \"academies\""
+        }
+      },
+      {
+        "description": "verify column \"mail_order_report_number\" has type \"text\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_attribute\" AS \"a\" INNER JOIN \"pg_class\" AS \"c\" ON \"c\".\"oid\" = \"a\".\"attrelid\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"a\".\"attname\" = $3 AND (format_type(\"a\".\"atttypid\", \"a\".\"atttypmod\")) = $4 AND NOT (\"a\".\"attisdropped\"))) AS \"result\"",
+        "params": [
+          "public",
+          "academies",
+          "mail_order_report_number",
+          "text"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "column.public.academies.platform_fee_exempt_until",
+    "label": "Add column \"platform_fee_exempt_until\" to \"academies\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "platform_fee_exempt_until",
+        "table": "academies"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"platform_fee_exempt_until\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "academies",
+          "platform_fee_exempt_until"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "column \"platform_fee_exempt_until\" on \"academies\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"platform_fee_exempt_until\"",
+        "sql": "ALTER TABLE \"public\".\"academies\" ADD COLUMN \"platform_fee_exempt_until\" date"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"platform_fee_exempt_until\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "academies",
+          "platform_fee_exempt_until"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "column \"platform_fee_exempt_until\" on \"academies\""
+        }
+      },
+      {
+        "description": "verify column \"platform_fee_exempt_until\" has type \"date\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_attribute\" AS \"a\" INNER JOIN \"pg_class\" AS \"c\" ON \"c\".\"oid\" = \"a\".\"attrelid\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"a\".\"attname\" = $3 AND (format_type(\"a\".\"atttypid\", \"a\".\"atttypmod\")) = $4 AND NOT (\"a\".\"attisdropped\"))) AS \"result\"",
+        "params": [
+          "public",
+          "academies",
+          "platform_fee_exempt_until",
+          "date"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "column.public.academies.registration_verified_at",
+    "label": "Add column \"registration_verified_at\" to \"academies\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "registration_verified_at",
+        "table": "academies"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"registration_verified_at\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "academies",
+          "registration_verified_at"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "column \"registration_verified_at\" on \"academies\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"registration_verified_at\"",
+        "sql": "ALTER TABLE \"public\".\"academies\" ADD COLUMN \"registration_verified_at\" timestamptz"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"registration_verified_at\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "academies",
+          "registration_verified_at"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "column \"registration_verified_at\" on \"academies\""
+        }
+      },
+      {
+        "description": "verify column \"registration_verified_at\" has type \"timestamp with time zone\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_attribute\" AS \"a\" INNER JOIN \"pg_class\" AS \"c\" ON \"c\".\"oid\" = \"a\".\"attrelid\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"a\".\"attname\" = $3 AND (format_type(\"a\".\"atttypid\", \"a\".\"atttypmod\")) = $4 AND NOT (\"a\".\"attisdropped\"))) AS \"result\"",
+        "params": [
+          "public",
+          "academies",
+          "registration_verified_at",
+          "timestamp with time zone"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "column.public.academies.status",
+    "label": "Add column \"status\" to \"academies\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "status",
+        "table": "academies"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"status\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "academies",
+          "status"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "column \"status\" on \"academies\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"status\"",
+        "sql": "ALTER TABLE \"public\".\"academies\" ADD COLUMN \"status\" text DEFAULT 'active' NOT NULL"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"status\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "academies",
+          "status"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "column \"status\" on \"academies\""
+        }
+      },
+      {
+        "description": "verify column \"status\" has type \"text\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_attribute\" AS \"a\" INNER JOIN \"pg_class\" AS \"c\" ON \"c\".\"oid\" = \"a\".\"attrelid\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"a\".\"attname\" = $3 AND (format_type(\"a\".\"atttypid\", \"a\".\"atttypmod\")) = $4 AND NOT (\"a\".\"attisdropped\"))) AS \"result\"",
+        "params": [
+          "public",
+          "academies",
+          "status",
+          "text"
+        ]
+      },
+      {
+        "description": "verify column \"status\" is NOT NULL",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3 AND \"is_nullable\" = $4)) AS \"result\"",
+        "params": [
+          "public",
+          "academies",
+          "status",
+          "NO"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "column.public.academies.tagline",
+    "label": "Add column \"tagline\" to \"academies\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "tagline",
+        "table": "academies"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"tagline\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "academies",
+          "tagline"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "column \"tagline\" on \"academies\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"tagline\"",
+        "sql": "ALTER TABLE \"public\".\"academies\" ADD COLUMN \"tagline\" text"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"tagline\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "academies",
+          "tagline"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "column \"tagline\" on \"academies\""
+        }
+      },
+      {
+        "description": "verify column \"tagline\" has type \"text\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_attribute\" AS \"a\" INNER JOIN \"pg_class\" AS \"c\" ON \"c\".\"oid\" = \"a\".\"attrelid\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"a\".\"attname\" = $3 AND (format_type(\"a\".\"atttypid\", \"a\".\"atttypmod\")) = $4 AND NOT (\"a\".\"attisdropped\"))) AS \"result\"",
+        "params": [
+          "public",
+          "academies",
+          "tagline",
+          "text"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "column.academies.approved_at",
+    "label": "Add column approved_at to academies",
+    "summary": "Adds column approved_at to table academies",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "academies"
+      }
+    },
+    "operationClass": "additive",
+    "precheck": [
+      {
+        "description": "ensure column \"approved_at\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "academies",
+          "approved_at"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "column \"approved_at\" on \"academies\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"approved_at\"",
+        "sql": "ALTER TABLE \"public\".\"academies\" ADD COLUMN \"approved_at\" timestamptz DEFAULT ('epoch') NOT NULL"
+      },
+      {
+        "description": "drop temporary default from column \"approved_at\"",
+        "sql": "ALTER TABLE \"public\".\"academies\" ALTER COLUMN \"approved_at\" DROP DEFAULT"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"approved_at\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "academies",
+          "approved_at"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "column \"approved_at\" on \"academies\""
+        }
+      },
+      {
+        "description": "verify column \"approved_at\" is NOT NULL",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3 AND \"is_nullable\" = $4)) AS \"result\"",
+        "params": [
+          "public",
+          "academies",
+          "approved_at",
+          "NO"
+        ]
+      },
+      {
+        "description": "verify column \"approved_at\" has no default after temporary default removal",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3 AND \"column_default\" IS NOT NULL)) AS \"result\"",
+        "params": [
+          "public",
+          "academies",
+          "approved_at"
+        ]
+      },
+      {
+        "description": "verify column \"approved_at\" has type \"timestamp with time zone\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_attribute\" AS \"a\" INNER JOIN \"pg_class\" AS \"c\" ON \"c\".\"oid\" = \"a\".\"attrelid\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"a\".\"attname\" = $3 AND (format_type(\"a\".\"atttypid\", \"a\".\"atttypmod\")) = $4 AND NOT (\"a\".\"attisdropped\"))) AS \"result\"",
+        "params": [
+          "public",
+          "academies",
+          "approved_at",
+          "timestamp with time zone"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "column.academies.business_address",
+    "label": "Add column business_address to academies",
+    "summary": "Adds column business_address to table academies",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "academies"
+      }
+    },
+    "operationClass": "additive",
+    "precheck": [
+      {
+        "description": "ensure column \"business_address\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "academies",
+          "business_address"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "column \"business_address\" on \"academies\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"business_address\"",
+        "sql": "ALTER TABLE \"public\".\"academies\" ADD COLUMN \"business_address\" text DEFAULT ('') NOT NULL"
+      },
+      {
+        "description": "drop temporary default from column \"business_address\"",
+        "sql": "ALTER TABLE \"public\".\"academies\" ALTER COLUMN \"business_address\" DROP DEFAULT"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"business_address\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "academies",
+          "business_address"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "column \"business_address\" on \"academies\""
+        }
+      },
+      {
+        "description": "verify column \"business_address\" is NOT NULL",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3 AND \"is_nullable\" = $4)) AS \"result\"",
+        "params": [
+          "public",
+          "academies",
+          "business_address",
+          "NO"
+        ]
+      },
+      {
+        "description": "verify column \"business_address\" has no default after temporary default removal",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3 AND \"column_default\" IS NOT NULL)) AS \"result\"",
+        "params": [
+          "public",
+          "academies",
+          "business_address"
+        ]
+      },
+      {
+        "description": "verify column \"business_address\" has type \"text\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_attribute\" AS \"a\" INNER JOIN \"pg_class\" AS \"c\" ON \"c\".\"oid\" = \"a\".\"attrelid\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"a\".\"attname\" = $3 AND (format_type(\"a\".\"atttypid\", \"a\".\"atttypmod\")) = $4 AND NOT (\"a\".\"attisdropped\"))) AS \"result\"",
+        "params": [
+          "public",
+          "academies",
+          "business_address",
+          "text"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "column.academies.business_name",
+    "label": "Add column business_name to academies",
+    "summary": "Adds column business_name to table academies",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "academies"
+      }
+    },
+    "operationClass": "additive",
+    "precheck": [
+      {
+        "description": "ensure column \"business_name\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "academies",
+          "business_name"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "column \"business_name\" on \"academies\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"business_name\"",
+        "sql": "ALTER TABLE \"public\".\"academies\" ADD COLUMN \"business_name\" text DEFAULT ('') NOT NULL"
+      },
+      {
+        "description": "drop temporary default from column \"business_name\"",
+        "sql": "ALTER TABLE \"public\".\"academies\" ALTER COLUMN \"business_name\" DROP DEFAULT"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"business_name\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "academies",
+          "business_name"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "column \"business_name\" on \"academies\""
+        }
+      },
+      {
+        "description": "verify column \"business_name\" is NOT NULL",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3 AND \"is_nullable\" = $4)) AS \"result\"",
+        "params": [
+          "public",
+          "academies",
+          "business_name",
+          "NO"
+        ]
+      },
+      {
+        "description": "verify column \"business_name\" has no default after temporary default removal",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3 AND \"column_default\" IS NOT NULL)) AS \"result\"",
+        "params": [
+          "public",
+          "academies",
+          "business_name"
+        ]
+      },
+      {
+        "description": "verify column \"business_name\" has type \"text\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_attribute\" AS \"a\" INNER JOIN \"pg_class\" AS \"c\" ON \"c\".\"oid\" = \"a\".\"attrelid\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"a\".\"attname\" = $3 AND (format_type(\"a\".\"atttypid\", \"a\".\"atttypmod\")) = $4 AND NOT (\"a\".\"attisdropped\"))) AS \"result\"",
+        "params": [
+          "public",
+          "academies",
+          "business_name",
+          "text"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "column.academies.business_registration_number",
+    "label": "Add column business_registration_number to academies",
+    "summary": "Adds column business_registration_number to table academies",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "academies"
+      }
+    },
+    "operationClass": "additive",
+    "precheck": [
+      {
+        "description": "ensure column \"business_registration_number\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "academies",
+          "business_registration_number"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "column \"business_registration_number\" on \"academies\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"business_registration_number\"",
+        "sql": "ALTER TABLE \"public\".\"academies\" ADD COLUMN \"business_registration_number\" text DEFAULT ('') NOT NULL"
+      },
+      {
+        "description": "drop temporary default from column \"business_registration_number\"",
+        "sql": "ALTER TABLE \"public\".\"academies\" ALTER COLUMN \"business_registration_number\" DROP DEFAULT"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"business_registration_number\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "academies",
+          "business_registration_number"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "column \"business_registration_number\" on \"academies\""
+        }
+      },
+      {
+        "description": "verify column \"business_registration_number\" is NOT NULL",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3 AND \"is_nullable\" = $4)) AS \"result\"",
+        "params": [
+          "public",
+          "academies",
+          "business_registration_number",
+          "NO"
+        ]
+      },
+      {
+        "description": "verify column \"business_registration_number\" has no default after temporary default removal",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3 AND \"column_default\" IS NOT NULL)) AS \"result\"",
+        "params": [
+          "public",
+          "academies",
+          "business_registration_number"
+        ]
+      },
+      {
+        "description": "verify column \"business_registration_number\" has type \"text\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_attribute\" AS \"a\" INNER JOIN \"pg_class\" AS \"c\" ON \"c\".\"oid\" = \"a\".\"attrelid\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"a\".\"attname\" = $3 AND (format_type(\"a\".\"atttypid\", \"a\".\"atttypmod\")) = $4 AND NOT (\"a\".\"attisdropped\"))) AS \"result\"",
+        "params": [
+          "public",
+          "academies",
+          "business_registration_number",
+          "text"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "column.academies.phone",
+    "label": "Add column phone to academies",
+    "summary": "Adds column phone to table academies",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "academies"
+      }
+    },
+    "operationClass": "additive",
+    "precheck": [
+      {
+        "description": "ensure column \"phone\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "academies",
+          "phone"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "column \"phone\" on \"academies\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"phone\"",
+        "sql": "ALTER TABLE \"public\".\"academies\" ADD COLUMN \"phone\" text DEFAULT ('') NOT NULL"
+      },
+      {
+        "description": "drop temporary default from column \"phone\"",
+        "sql": "ALTER TABLE \"public\".\"academies\" ALTER COLUMN \"phone\" DROP DEFAULT"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"phone\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "academies",
+          "phone"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "column \"phone\" on \"academies\""
+        }
+      },
+      {
+        "description": "verify column \"phone\" is NOT NULL",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3 AND \"is_nullable\" = $4)) AS \"result\"",
+        "params": [
+          "public",
+          "academies",
+          "phone",
+          "NO"
+        ]
+      },
+      {
+        "description": "verify column \"phone\" has no default after temporary default removal",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3 AND \"column_default\" IS NOT NULL)) AS \"result\"",
+        "params": [
+          "public",
+          "academies",
+          "phone"
+        ]
+      },
+      {
+        "description": "verify column \"phone\" has type \"text\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_attribute\" AS \"a\" INNER JOIN \"pg_class\" AS \"c\" ON \"c\".\"oid\" = \"a\".\"attrelid\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"a\".\"attname\" = $3 AND (format_type(\"a\".\"atttypid\", \"a\".\"atttypmod\")) = $4 AND NOT (\"a\".\"attisdropped\"))) AS \"result\"",
+        "params": [
+          "public",
+          "academies",
+          "phone",
+          "text"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "column.academies.registration_type",
+    "label": "Add column registration_type to academies",
+    "summary": "Adds column registration_type to table academies",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "registration_type",
+        "table": "academies"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"registration_type\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "academies",
+          "registration_type"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "column \"registration_type\" on \"academies\""
+        }
+      },
+      {
+        "description": "ensure table \"academies\" is empty before adding NOT NULL column without default",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"public\".\"academies\" LIMIT 1) AS \"result\"",
+        "params": [],
+        "meta": {
+          "requiredColumn": {
+            "table": "academies",
+            "column": "registration_type",
+            "reason": "newField"
+          }
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"registration_type\"",
+        "sql": "ALTER TABLE \"public\".\"academies\" ADD COLUMN \"registration_type\" text NOT NULL"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"registration_type\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "academies",
+          "registration_type"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "column \"registration_type\" on \"academies\""
+        }
+      },
+      {
+        "description": "verify column \"registration_type\" is NOT NULL",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3 AND \"is_nullable\" = $4)) AS \"result\"",
+        "params": [
+          "public",
+          "academies",
+          "registration_type",
+          "NO"
+        ]
+      },
+      {
+        "description": "verify column \"registration_type\" has type \"text\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_attribute\" AS \"a\" INNER JOIN \"pg_class\" AS \"c\" ON \"c\".\"oid\" = \"a\".\"attrelid\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"a\".\"attname\" = $3 AND (format_type(\"a\".\"atttypid\", \"a\".\"atttypmod\")) = $4 AND NOT (\"a\".\"attisdropped\"))) AS \"result\"",
+        "params": [
+          "public",
+          "academies",
+          "registration_type",
+          "text"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "column.academies.representative_name",
+    "label": "Add column representative_name to academies",
+    "summary": "Adds column representative_name to table academies",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "academies"
+      }
+    },
+    "operationClass": "additive",
+    "precheck": [
+      {
+        "description": "ensure column \"representative_name\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "academies",
+          "representative_name"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "column \"representative_name\" on \"academies\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"representative_name\"",
+        "sql": "ALTER TABLE \"public\".\"academies\" ADD COLUMN \"representative_name\" text DEFAULT ('') NOT NULL"
+      },
+      {
+        "description": "drop temporary default from column \"representative_name\"",
+        "sql": "ALTER TABLE \"public\".\"academies\" ALTER COLUMN \"representative_name\" DROP DEFAULT"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"representative_name\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "academies",
+          "representative_name"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "column \"representative_name\" on \"academies\""
+        }
+      },
+      {
+        "description": "verify column \"representative_name\" is NOT NULL",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3 AND \"is_nullable\" = $4)) AS \"result\"",
+        "params": [
+          "public",
+          "academies",
+          "representative_name",
+          "NO"
+        ]
+      },
+      {
+        "description": "verify column \"representative_name\" has no default after temporary default removal",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3 AND \"column_default\" IS NOT NULL)) AS \"result\"",
+        "params": [
+          "public",
+          "academies",
+          "representative_name"
+        ]
+      },
+      {
+        "description": "verify column \"representative_name\" has type \"text\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_attribute\" AS \"a\" INNER JOIN \"pg_class\" AS \"c\" ON \"c\".\"oid\" = \"a\".\"attrelid\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"a\".\"attname\" = $3 AND (format_type(\"a\".\"atttypid\", \"a\".\"atttypmod\")) = $4 AND NOT (\"a\".\"attisdropped\"))) AS \"result\"",
+        "params": [
+          "public",
+          "academies",
+          "representative_name",
+          "text"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "checkConstraint.academies.academies_registration_type_check_cfbdb865",
+    "label": "Add check constraint \"academies_registration_type_check_cfbdb865\" on \"academies\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "checkConstraint",
+        "name": "academies_registration_type_check_cfbdb865",
+        "table": "academies"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"academies_registration_type_check_cfbdb865\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "academies_registration_type_check_cfbdb865",
+          "public",
+          "\"public\".\"academies\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "constraint \"academies_registration_type_check_cfbdb865\" on \"academies\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add check constraint \"academies_registration_type_check_cfbdb865\"",
+        "sql": "ALTER TABLE \"public\".\"academies\" ADD CONSTRAINT \"academies_registration_type_check_cfbdb865\" CHECK (\"registration_type\" IN ('academy', 'tutoring_center', 'sports_facility', 'unregistered'))"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify check constraint \"academies_registration_type_check_cfbdb865\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4)) AS \"result\"",
+        "params": [
+          "academies_registration_type_check_cfbdb865",
+          "public",
+          "\"public\".\"academies\"",
+          "c"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "checkConstraint.academies.academies_status_check_8692a1fa",
+    "label": "Add check constraint \"academies_status_check_8692a1fa\" on \"academies\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "checkConstraint",
+        "name": "academies_status_check_8692a1fa",
+        "table": "academies"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"academies_status_check_8692a1fa\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "academies_status_check_8692a1fa",
+          "public",
+          "\"public\".\"academies\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "constraint \"academies_status_check_8692a1fa\" on \"academies\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add check constraint \"academies_status_check_8692a1fa\"",
+        "sql": "ALTER TABLE \"public\".\"academies\" ADD CONSTRAINT \"academies_status_check_8692a1fa\" CHECK (\"status\" IN ('active', 'restricted', 'termination_requested', 'terminated'))"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify check constraint \"academies_status_check_8692a1fa\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4)) AS \"result\"",
+        "params": [
+          "academies_status_check_8692a1fa",
+          "public",
+          "\"public\".\"academies\"",
+          "c"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "checkConstraint.academies.ck_academies_brn_ecfa93ad",
+    "label": "Add check constraint \"ck_academies_brn_ecfa93ad\" on \"academies\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "checkConstraint",
+        "name": "ck_academies_brn_ecfa93ad",
+        "table": "academies"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"ck_academies_brn_ecfa93ad\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "ck_academies_brn_ecfa93ad",
+          "public",
+          "\"public\".\"academies\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "constraint \"ck_academies_brn_ecfa93ad\" on \"academies\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add check constraint \"ck_academies_brn_ecfa93ad\"",
+        "sql": "ALTER TABLE \"public\".\"academies\" ADD CONSTRAINT \"ck_academies_brn_ecfa93ad\" CHECK (business_registration_number ~ '^[0-9]{10}$')"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify check constraint \"ck_academies_brn_ecfa93ad\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4)) AS \"result\"",
+        "params": [
+          "ck_academies_brn_ecfa93ad",
+          "public",
+          "\"public\".\"academies\"",
+          "c"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.academy_branches.academy_branches_academy_id_idx_f46ade77",
+    "label": "Create index \"academy_branches_academy_id_idx_f46ade77\" on \"academy_branches\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "academy_branches_academy_id_idx_f46ade77",
+        "table": "academy_branches"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"academy_branches_academy_id_idx_f46ade77\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"academy_branches_academy_id_idx_f46ade77\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"academy_branches_academy_id_idx_f46ade77\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"academy_branches_academy_id_idx_f46ade77\"",
+        "sql": "CREATE INDEX \"academy_branches_academy_id_idx_f46ade77\" ON \"public\".\"academy_branches\" (\"academy_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"academy_branches_academy_id_idx_f46ade77\" exists on \"academy_branches\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"academy_branches_academy_id_idx_f46ade77\"",
+          "i",
+          "I",
+          "\"public\".\"academy_branches\"",
+          "btree",
+          "[\"academy_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.academy_branches.uq_branches_academy_name_79aaccf2",
+    "label": "Create index \"uq_branches_academy_name_79aaccf2\" on \"academy_branches\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "uq_branches_academy_name_79aaccf2",
+        "table": "academy_branches"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"uq_branches_academy_name_79aaccf2\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"uq_branches_academy_name_79aaccf2\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"uq_branches_academy_name_79aaccf2\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"uq_branches_academy_name_79aaccf2\"",
+        "sql": "CREATE UNIQUE INDEX \"uq_branches_academy_name_79aaccf2\" ON \"public\".\"academy_branches\" (\"academy_id\", \"name\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"uq_branches_academy_name_79aaccf2\" exists on \"academy_branches\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND \"i\".\"indisunique\" AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"uq_branches_academy_name_79aaccf2\"",
+          "i",
+          "I",
+          "\"public\".\"academy_branches\"",
+          "btree",
+          "[\"academy_id\",\"name\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.academy_branches.academy_branches_academy_id_fkey",
+    "label": "Add foreign key \"academy_branches_academy_id_fkey\" on \"academy_branches\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "academy_branches_academy_id_fkey",
+        "table": "academy_branches"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"academy_branches_academy_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "academy_branches_academy_id_fkey",
+          "public",
+          "\"public\".\"academy_branches\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"academy_branches_academy_id_fkey\" on \"academy_branches\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"academy_branches_academy_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"academy_branches\"\nADD CONSTRAINT \"academy_branches_academy_id_fkey\"\nFOREIGN KEY (\"academy_id\")\nREFERENCES \"public\".\"academies\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"academy_branches_academy_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "academy_branches_academy_id_fkey",
+          "public",
+          "\"public\".\"academy_branches\"",
+          "f",
+          "[\"academy_id\"]",
+          "\"public\".\"academies\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  }
+]

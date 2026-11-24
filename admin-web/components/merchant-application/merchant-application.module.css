@@ -1,0 +1,468 @@
+/* 입점 신청 화면(보드 W2a) — 위쪽 딥 플럼 띠 + 아이보리 바탕 + 흰 카드 둘. 색은 로그인·콘솔 화면과 같다 */
+.page {
+  min-height: 100svh;
+  background: #f3efe9;
+  font-family: "Pretendard", system-ui, "Segoe UI", sans-serif;
+  letter-spacing: 0;
+  color: #1d1a1f;
+}
+.topbar {
+  height: 64px;
+  background: #2b1f2e;
+  color: #f3efe9;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 32px;
+}
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 17px;
+  font-weight: 700;
+}
+.logo {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: #d9b86a;
+}
+.topbarRight {
+  font-size: 13px;
+  color: #d8cfdc;
+}
+.main {
+  max-width: 1152px;
+  margin: 0 auto;
+  padding: 32px 0 48px;
+}
+.head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 24px;
+}
+.title {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 800;
+}
+.subtitle {
+  margin: 10px 0 0;
+  font-size: 13px;
+  color: #6d6573;
+}
+.steps {
+  display: flex;
+  gap: 12px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.step {
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px solid #e8e2da;
+  background: #fff;
+  font-size: 12px;
+  color: #6d6573;
+  min-width: 80px;
+}
+.stepActive {
+  composes: step;
+  background: #f6ecdc;
+  border-color: #e3cfa6;
+  color: #3a2440;
+  font-weight: 700;
+}
+.columns {
+  display: grid;
+  grid-template-columns: 1fr 488px;
+  gap: 24px;
+  margin-top: 24px;
+}
+.card {
+  background: #fff;
+  border: 1px solid #e8e2da;
+  border-radius: 20px;
+  padding: 20px 24px 28px;
+}
+.cardTitle {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 800;
+}
+.cardSub {
+  margin: 6px 0 16px;
+  font-size: 12px;
+  color: #6d6573;
+}
+.sectionTitle {
+  margin: 24px 0 10px;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.single {
+  margin-top: 24px;
+}
+
+/* 1단계 입력칸 */
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px 20px;
+}
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #3a3340;
+}
+.fieldWide {
+  composes: field;
+  grid-column: 1 / -1;
+}
+.input {
+  font: inherit;
+  font-weight: 400;
+  font-size: 14px;
+  padding: 11px 14px;
+  border-radius: 10px;
+  border: 1px solid #e3ddd4;
+  background: #f7f4ef;
+  color: #1d1a1f;
+}
+.inputError {
+  composes: input;
+  border-color: #b3261e;
+  background: #fff6f5;
+}
+.fieldError {
+  font-size: 12px;
+  font-weight: 400;
+  color: #b3261e;
+}
+.hint {
+  margin: 8px 0 0;
+  font-size: 12px;
+  color: #6d6573;
+}
+
+/* 2단계 등록 형태 */
+.typeList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.typeOption {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 18px;
+  border-radius: 12px;
+  border: 1px solid #e8e2da;
+  background: #f7f4ef;
+  cursor: pointer;
+}
+.typeOptionSelected {
+  composes: typeOption;
+  background: #f6ecdc;
+  border-color: #e3cfa6;
+}
+.typeOption input {
+  width: 18px;
+  height: 18px;
+  accent-color: #5c3a64;
+}
+.typeText {
+  flex: 1;
+}
+.typeName {
+  font-size: 14px;
+  font-weight: 700;
+}
+.typeDesc {
+  font-size: 12px;
+  color: #6d6573;
+}
+.typeEvidence {
+  font-size: 12px;
+  font-weight: 700;
+  color: #3a3340;
+}
+
+/* 증빙 올리기 */
+.fileRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  border: 1px solid #e8e2da;
+  background: #f7f4ef;
+  margin-bottom: 10px;
+}
+.fileBadge {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: #efe3f1;
+  color: #5c3a64;
+  font-size: 11px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.fileText {
+  flex: 1;
+  min-width: 0;
+}
+.fileName {
+  font-size: 14px;
+  font-weight: 700;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.fileMeta {
+  font-size: 12px;
+  color: #6d6573;
+}
+.uploadLabel {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 18px;
+  border-radius: 10px;
+  border: 1px solid #e3ddd4;
+  background: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  color: #1d1a1f;
+  cursor: pointer;
+}
+.linkLabel {
+  font-size: 13px;
+  font-weight: 700;
+  color: #5c3a64;
+  cursor: pointer;
+}
+.hiddenFile {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+.uploadLine {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 10px;
+}
+.uploadNote {
+  font-size: 12px;
+  color: #6d6573;
+}
+.codeRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.codeRow .input {
+  width: 280px;
+}
+
+/* 3단계 입점 조건 동의 */
+.consentList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.consent {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 14px 16px;
+  border-radius: 12px;
+  border: 1px solid #e8e2da;
+  background: #f7f4ef;
+  cursor: pointer;
+}
+.consent input {
+  width: 20px;
+  height: 20px;
+  margin: 1px 0 0;
+  accent-color: #5c3a64;
+}
+.consentText {
+  flex: 1;
+}
+.consentName {
+  display: block;
+  font-size: 14px;
+  font-weight: 800;
+}
+.consentDesc {
+  display: block;
+  margin-top: 4px;
+  font-size: 12px;
+  line-height: 1.5;
+  color: #6d6573;
+}
+.badge {
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: #efebe6;
+  font-size: 11px;
+  font-weight: 700;
+  color: #3a3340;
+  white-space: nowrap;
+}
+.badgeCard {
+  composes: badge;
+  background: #fbefe0;
+  color: #7a4b16;
+}
+.termsLink {
+  margin-top: 18px;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  color: #3a3340;
+  cursor: pointer;
+}
+.termsBody {
+  margin-top: 10px;
+  max-height: 180px;
+  overflow: auto;
+  padding: 12px;
+  border-radius: 10px;
+  background: #f7f4ef;
+  font-size: 12px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+
+/* 버튼·안내 */
+.primary {
+  display: block;
+  width: 100%;
+  margin-top: 20px;
+  padding: 14px;
+  border: 0;
+  border-radius: 12px;
+  background: #5c3a64;
+  color: #fff;
+  font: inherit;
+  font-size: 16px;
+  font-weight: 800;
+  cursor: pointer;
+}
+.primary:disabled {
+  background: #dcd3cd;
+  color: #fff;
+  cursor: not-allowed;
+}
+.secondary {
+  padding: 12px 20px;
+  border-radius: 12px;
+  border: 1px solid #5c3a64;
+  background: #fff;
+  color: #5c3a64;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 24px;
+}
+.actions .primary {
+  width: 220px;
+  margin-top: 0;
+}
+.remaining {
+  margin: 12px 0 0;
+  font-size: 13px;
+  font-weight: 700;
+  color: #b3261e;
+}
+.errorBox {
+  margin: 16px 0 0;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: #fff1ef;
+  color: #b3261e;
+  font-size: 13px;
+  font-weight: 700;
+}
+.notice {
+  margin: 16px 0 0;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: #f6ecdc;
+  color: #5a3d1a;
+  font-size: 13px;
+}
+
+/* 4단계 신청 완료 */
+.doneCard {
+  composes: card;
+  max-width: 560px;
+  margin: 48px auto 0;
+  padding: 40px;
+  text-align: center;
+}
+.doneMark {
+  width: 56px;
+  height: 56px;
+  margin: 0 auto;
+  border-radius: 50%;
+  background: #5c3a64;
+  color: #fff;
+  font-size: 28px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.doneTitle {
+  margin: 20px 0 0;
+  font-size: 22px;
+  font-weight: 800;
+}
+.doneText {
+  margin: 12px 0 0;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #5c5562;
+}
+.doneChip {
+  display: inline-block;
+  margin-top: 20px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: #f6ecdc;
+  font-size: 13px;
+  font-weight: 700;
+  color: #3a2440;
+}
+
+/* 반려된 지난 신청 안내 — 본문 폭에 맞춘다 */
+.pageNotice {
+  composes: notice;
+  max-width: 1104px;
+  margin: 24px auto 0;
+}

@@ -3,7 +3,7 @@
  *
  *  - 저장된 세션 토큰이 없으면 → 로그인(`/login`)
  *  - 토큰이 있으면 `GET /api/me` 로 어디까지 했는지 보고 남은 단계로 보낸다
- *    - 403 `SIGNUP_INCOMPLETE` → 본인확인(`/identity`). 로그인 화면과 같은 규칙이다
+ *    - 403 `SIGNUP_INCOMPLETE` → 약관 동의(`/consent`, 보드 C14A). 로그인 화면과 같은 규칙이다
  *    - 가입 끝 → 취향 / 기준 장르 / 홈 중 남은 곳(`nextOnboardingRoute`(가입 흐름 다음 화면))
  *  - 그 밖의 오류 → 로그인. 401 이면 `apiFetch` 가 이미 토큰을 지웠다
  *
@@ -14,7 +14,7 @@ import { useEffect, useState } from 'react';
 
 import { ApiError } from '../lib/api';
 import { LoadingView } from '../lib/catalog/ui';
-import { nextOnboardingRoute } from '../lib/onboarding/flow';
+import { nextOnboardingRoute, SIGNUP_START_ROUTE } from '../lib/onboarding/flow';
 import { fetchMe } from '../lib/onboarding/members-api';
 import { getSessionToken } from '../lib/session';
 
@@ -30,7 +30,7 @@ async function resolveEntryRoute(signal: AbortSignal): Promise<Href> {
     return nextOnboardingRoute(await fetchMe(signal));
   } catch (error: unknown) {
     if (error instanceof ApiError && error.code === 'SIGNUP_INCOMPLETE') {
-      return '/identity';
+      return SIGNUP_START_ROUTE;
     }
     throw error;
   }

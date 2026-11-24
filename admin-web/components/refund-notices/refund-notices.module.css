@@ -1,0 +1,365 @@
+/* 환불·취소 공지 화면(보드 W4a) — 아이보리 바탕 + 흰 카드 + 딥 플럼 강조. 색은 콘솔 틀·학원 설정 화면과 같다 */
+.head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 24px;
+}
+.title {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 800;
+}
+.subtitle {
+  margin: 10px 0 0;
+  font-size: 13px;
+  color: #6d6573;
+}
+.primary {
+  padding: 12px 22px;
+  border-radius: 12px;
+  border: 1px solid #5c3a64;
+  background: #5c3a64;
+  color: #fff;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.primary:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+.tabs {
+  margin-top: 22px;
+  display: flex;
+  gap: 28px;
+  border-bottom: 1px solid #e8e2da;
+}
+.tab {
+  padding: 0 0 10px;
+  font-size: 14px;
+  font-weight: 700;
+  border-bottom: 2px solid #5c3a64;
+  color: #1d1a1f;
+}
+.tabLink {
+  padding: 0 0 10px;
+  font-size: 14px;
+  color: #7d7483;
+  text-decoration: none;
+}
+.tabLink:hover {
+  color: #5c3a64;
+}
+.message {
+  margin: 16px 0 0;
+  padding: 12px 16px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 700;
+}
+.messageOk {
+  composes: message;
+  background: #efe6f1;
+  color: #5c3a64;
+}
+.messageError {
+  composes: message;
+  background: #fbe9e7;
+  color: #b3261e;
+}
+.grid {
+  margin-top: 20px;
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+  gap: 20px;
+  align-items: start;
+}
+.card {
+  background: #fff;
+  border: 1px solid #e8e2da;
+  border-radius: 20px;
+  padding: 24px;
+}
+.label {
+  margin: 0;
+  font-size: 12px;
+  color: #7d7483;
+}
+.registration {
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  color: #5c5562;
+}
+.badge {
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: #efe6f1;
+  color: #5c3a64;
+  font-size: 12px;
+  font-weight: 700;
+}
+.rule {
+  margin: 14px 0 0;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: #f6ecdf;
+  border: 1px solid #e6cfa6;
+  font-size: 12px;
+  color: #5c4a2e;
+}
+.section {
+  margin-top: 22px;
+}
+.sectionTitle {
+  margin: 0 0 8px;
+  font-size: 14px;
+  font-weight: 800;
+}
+.input,
+.textarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid #d9d0c6;
+  background: #faf7f3;
+  font: inherit;
+  font-size: 14px;
+  color: #1d1a1f;
+}
+.inputError {
+  border-color: #b3261e;
+  background: #fdf2f1;
+}
+.fixed {
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: #f3efe9;
+  font-size: 14px;
+  color: #7d7483;
+}
+.pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+.days {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+}
+.days .input {
+  width: 90px;
+  text-align: right;
+}
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+.table th {
+  padding: 0 0 8px;
+  font-size: 12px;
+  font-weight: 400;
+  color: #7d7483;
+  text-align: right;
+}
+.table th:first-child {
+  text-align: left;
+}
+.table td {
+  padding: 10px 0;
+  border-top: 1px solid #efe7da;
+}
+.min {
+  text-align: right;
+  color: #7d7483;
+  width: 110px;
+}
+.ours {
+  text-align: right;
+  width: 150px;
+}
+.percentBox {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.percentBox .input {
+  width: 84px;
+  text-align: right;
+  font-weight: 700;
+}
+.raised {
+  border-color: #5c3a64;
+  background: #f4eef6;
+}
+.note {
+  margin: 8px 0 0;
+  font-size: 12px;
+  color: #5c3a64;
+}
+.warn {
+  margin: 6px 0 0;
+  font-size: 12px;
+  color: #8a5a00;
+}
+.fieldError {
+  margin: 6px 0 0;
+  font-size: 12px;
+  font-weight: 700;
+  color: #b3261e;
+}
+.previewTitle {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 800;
+}
+.previewSub {
+  margin: 4px 0 0;
+  font-size: 12px;
+  color: #7d7483;
+}
+.preview {
+  margin-top: 14px;
+  padding: 18px;
+  border-radius: 16px;
+  border: 1px solid #e8e2da;
+  background: #faf7f3;
+}
+.previewName {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 800;
+}
+.previewRow {
+  display: grid;
+  grid-template-columns: 72px 1fr;
+  gap: 10px;
+  padding: 12px 0;
+  border-bottom: 1px solid #efe7da;
+  font-size: 13px;
+}
+.previewRow:last-child {
+  border-bottom: 0;
+}
+.previewKey {
+  color: #7d7483;
+}
+.previewValue {
+  margin: 0;
+  font-weight: 700;
+  white-space: pre-line;
+}
+.after {
+  margin-top: 16px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  background: #efe6f1;
+  font-size: 12px;
+  line-height: 1.6;
+  color: #5c3a64;
+}
+
+/* ---- 이벤트형 화면(보드 W4b, S1-3.10) ---- */
+.feeHead {
+  text-align: left !important;
+  font-size: 14px !important;
+  font-weight: 800 !important;
+  color: #1d1a1f !important;
+}
+.blocked {
+  text-align: center;
+  padding: 10px 0;
+  font-weight: 800;
+  color: #b3261e;
+  background: #fbe9e7;
+  border-radius: 10px;
+}
+.fixedBox {
+  margin-top: 16px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  background: #f3efe9;
+  border: 1px solid #e3dccf;
+}
+.fixedTitle {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 800;
+  color: #5c5562;
+}
+.fixedText {
+  margin: 6px 0 0;
+  font-size: 12px;
+  line-height: 1.6;
+  color: #5c5562;
+}
+.hint {
+  margin: 6px 0 0;
+  font-size: 12px;
+  color: #7d7483;
+}
+.short {
+  max-width: 260px;
+}
+.timeline {
+  margin: 18px 0 4px;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  justify-content: space-between;
+  position: relative;
+}
+.timeline::before {
+  content: "";
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  right: 6px;
+  height: 2px;
+  background: #e6cfa6;
+}
+.timeline li {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+}
+.timeline li small {
+  font-size: 11px;
+  color: #7d7483;
+}
+.dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #5c3a64;
+}
+.timelineBlocked b {
+  color: #b3261e;
+}
+.timelineBlocked .dot {
+  background: #b3261e;
+}
+.bullets {
+  margin: 18px 0 0;
+  padding-left: 18px;
+  font-size: 12px;
+  line-height: 1.6;
+  color: #5c5562;
+}
+.bullets li {
+  margin-top: 10px;
+}
+.bullets li::marker {
+  color: #c9a45c;
+}

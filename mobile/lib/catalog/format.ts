@@ -142,8 +142,19 @@ export function formatRemaining(ms: number): string | null {
   return `${hours}시간 ${minutes}분`;
 }
 
-/** 은행 코드 → 이름. 자주 쓰는 곳만. 모르는 코드는 코드 그대로 보여 준다. */
+/**
+ * 은행 코드 → 이름. 자주 쓰는 곳만. 모르는 코드는 코드 그대로 보여 준다.
+ * 숫자 코드(금융결제원 3자리)와 영문 코드(포트원 V2 은행 값 — 가짜 PG 가 `SHINHAN` 처럼 보낸다)를 둘 다 받는다.
+ */
 const BANK_NAMES: Readonly<Record<string, string>> = {
+  KOOKMIN: 'KB국민은행',
+  SHINHAN: '신한은행',
+  WOORI: '우리은행',
+  HANA: '하나은행',
+  NONGHYUP: 'NH농협은행',
+  IBK: 'IBK기업은행',
+  KAKAO: '카카오뱅크',
+  K_BANK: '케이뱅크',
   '003': 'IBK기업은행',
   '004': 'KB국민은행',
   '011': 'NH농협은행',

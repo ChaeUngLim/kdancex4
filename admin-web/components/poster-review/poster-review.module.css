@@ -1,0 +1,274 @@
+/* 포스터 검토 화면(보드 O2) — 아이보리 바탕 + 흰 카드 + 딥 플럼 강조. 색은 학원 공지 화면(W5)과 같다 */
+.head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 24px;
+}
+.crumb {
+  margin: 0;
+  font-size: 12px;
+  color: #6d6573;
+}
+.title {
+  margin: 6px 0 0;
+  font-size: 28px;
+  font-weight: 800;
+}
+.statusChip {
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: #e9e3f4;
+  color: #3b2a5c;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+/* 왼쪽 포스터(좁게) · 오른쪽 칸 목록(넓게) — 보드의 두 칸 배치 */
+.columns {
+  display: grid;
+  grid-template-columns: minmax(0, 0.8fr) minmax(0, 2fr);
+  gap: 20px;
+  margin-top: 20px;
+  align-items: start;
+}
+.poster {
+  margin: 0;
+  border-radius: 20px;
+  overflow: hidden;
+  background: #2a2030;
+  box-shadow: 0 12px 30px rgba(42, 32, 48, 0.18);
+}
+.posterImage {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.card {
+  background: #fff;
+  border: 1px solid #e8e2da;
+  border-radius: 20px;
+  padding: 24px;
+}
+.cardHead {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 16px;
+}
+.cardTitle {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 800;
+}
+.hint {
+  margin: 0;
+  font-size: 12px;
+  color: #6d6573;
+}
+
+/* 칸 14개 — 두 줄씩 */
+.grid {
+  list-style: none;
+  margin: 18px 0 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px 16px;
+}
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.fieldLabel {
+  font-size: 12px;
+  font-weight: 700;
+  color: #4a4250;
+}
+.box {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  min-height: 48px;
+  padding: 8px 12px 8px 14px;
+  border: 1px solid #e3ddd4;
+  border-radius: 12px;
+  background: #fff;
+}
+/* 확인필요 칸 — 색만으로 알리지 않고 딱지 글자를 함께 붙인다 */
+.boxFlagged {
+  border-color: #c9a46a;
+  background: #fdf8ef;
+}
+.value {
+  font-size: 15px;
+  color: #231c29;
+  overflow-wrap: anywhere;
+}
+.valueEmpty {
+  color: #9a919f;
+}
+.badges {
+  display: flex;
+  flex-shrink: 0;
+  gap: 6px;
+}
+.badgeCheck,
+.badgeAi,
+.badgeConfidence,
+.badgeHuman {
+  padding: 3px 8px;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.badgeCheck {
+  background: #f5e6cc;
+  color: #6b4513;
+}
+.badgeAi {
+  background: #ece6f5;
+  color: #4b2f78;
+}
+.badgeConfidence {
+  background: #f1eef3;
+  color: #4a4250;
+}
+.badgeHuman {
+  background: #eef0ea;
+  color: #3e4636;
+}
+
+.fieldActions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 12px;
+  font-size: 12px;
+}
+.confirm {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: #6b4513;
+  font-weight: 700;
+}
+/* 비어서 채워야 하는 기간 칸(SX-2.6) — 「맞아요」 대신 이 글자가 보인다 */
+.mustFill {
+  color: #8a3b12;
+  font-weight: 700;
+}
+.linkButton {
+  border: none;
+  background: none;
+  padding: 0;
+  color: #4b2f78;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.linkButton:hover,
+.linkButton:focus-visible {
+  text-decoration: underline;
+}
+
+.editRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+.input {
+  flex: 1;
+  min-width: 0;
+  padding: 6px 8px;
+  border: 1px solid #cfc6d8;
+  border-radius: 8px;
+  font-size: 14px;
+}
+.days {
+  display: flex;
+  flex: 1;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.day {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  font-size: 13px;
+}
+.smallPrimary,
+.smallGhost {
+  padding: 6px 10px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.smallPrimary {
+  border: none;
+  background: #4b2f78;
+  color: #fff;
+}
+.smallGhost {
+  border: 1px solid #d8d0e2;
+  background: #fff;
+  color: #4a4250;
+}
+
+.messageOk,
+.messageError {
+  margin: 16px 0 0;
+  padding: 10px 14px;
+  border-radius: 12px;
+  font-size: 13px;
+}
+.messageOk {
+  background: #ece6f5;
+  color: #3b2a5c;
+}
+.messageError {
+  background: #fbe9e7;
+  color: #8a2d20;
+}
+
+.actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin-top: 20px;
+  padding-top: 18px;
+  border-top: 1px solid #efe9e1;
+}
+.actionNote {
+  flex: 1;
+  margin: 0;
+  font-size: 13px;
+  color: #4a4250;
+}
+.primary {
+  min-width: 160px;
+  padding: 14px 20px;
+  border: none;
+  border-radius: 14px;
+  background: #4b2f78;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 800;
+  cursor: pointer;
+}
+.primary:disabled {
+  background: #e6e0d8;
+  color: #8f8794;
+  cursor: not-allowed;
+}
+.primary:not(:disabled):hover,
+.primary:not(:disabled):focus-visible {
+  background: #3b2a5c;
+}

@@ -1,0 +1,444 @@
+/* 예약·명단(보드 W6) — 아이보리 바탕 + 흰 카드 + 딥 플럼 강조. 색은 콘솔 틀·강사 관리·대시보드 화면과 같다 */
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.title {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 800;
+  color: #1d1a1f;
+}
+.subtitle {
+  margin: 10px 0 0;
+  font-size: 13px;
+  color: #6d6573;
+}
+.card {
+  background: #fff;
+  border: 1px solid #e8e2da;
+  border-radius: 20px;
+  padding: 20px 24px;
+}
+
+/* ---- 회차 고르기 ---- */
+.picker {
+  composes: card;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: 16px;
+}
+.arrow {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  border: 1px solid #d9d0c6;
+  background: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #1d1a1f;
+  text-decoration: none;
+  font-weight: 700;
+}
+.arrow:hover {
+  border-color: #5c3a64;
+}
+.arrowOff {
+  composes: arrow;
+  opacity: 0.35;
+  pointer-events: none;
+}
+.sessionText {
+  min-width: 300px;
+  padding: 0 6px;
+}
+.sessionTitle {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 800;
+  color: #1d1a1f;
+}
+.sessionSub {
+  margin: 3px 0 0;
+  font-size: 12px;
+  color: #7d7483;
+}
+.chips {
+  margin-left: auto;
+  display: flex;
+  gap: 8px;
+}
+.chip {
+  padding: 7px 16px;
+  border-radius: 999px;
+  background: #efe7da;
+  color: #3b2d40;
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+}
+.chipOn {
+  composes: chip;
+  background: #5c3a64;
+  color: #fff;
+}
+.chipOff {
+  composes: chip;
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+/* ---- 좌석 칸 ---- */
+.seatHead {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+.seatTitle {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 800;
+}
+.legend {
+  margin-left: auto;
+  display: flex;
+  gap: 22px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #5c5562;
+}
+.legendItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.seatRow {
+  display: grid;
+  grid-template-columns: 38px 1fr 180px 220px;
+  align-items: center;
+  gap: 12px;
+  margin-top: 18px;
+}
+.seatKind {
+  font-size: 16px;
+  font-weight: 800;
+}
+.cells {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.cell {
+  width: 36px;
+  height: 36px;
+  border-radius: 6px;
+  flex: none;
+}
+.cellApp {
+  composes: cell;
+  background: #5c3a64;
+}
+.cellAwaiting {
+  composes: cell;
+  background: #c9b6cd;
+}
+.cellOnsite {
+  composes: cell;
+  border: 1.5px dashed #5c3a64;
+  background: repeating-linear-gradient(135deg, #efe3f1 0 5px, #fff 5px 9px);
+  font-size: 10px;
+  font-weight: 700;
+  color: #5c3a64;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.cellEmpty {
+  composes: cell;
+  border: 1.5px solid #e6cfa6;
+  background: #fff;
+}
+.seatSummary {
+  font-size: 13px;
+  font-weight: 700;
+  color: #5c5562;
+}
+.stepper {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.stepButton {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  border: 1px solid #d9d0c6;
+  background: #fff;
+  font: inherit;
+  font-size: 18px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.stepButton:hover:not(:disabled) {
+  border-color: #5c3a64;
+}
+.stepButton:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+.stepValue {
+  width: 60px;
+  height: 36px;
+  border: 1.5px solid #e6cfa6;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  font-weight: 800;
+}
+.stepValueChanged {
+  composes: stepValue;
+  border-color: #5c3a64;
+  color: #5c3a64;
+}
+.maxNote {
+  font-size: 12px;
+  color: #7d7483;
+}
+.seatFoot {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 16px;
+}
+.footNote {
+  margin: 0;
+  font-size: 12px;
+  color: #7d7483;
+}
+.saveRow {
+  margin-left: auto;
+  display: flex;
+  gap: 8px;
+}
+
+/* ---- 버튼 · 안내 ---- */
+.button,
+.primary {
+  padding: 8px 16px;
+  border-radius: 10px;
+  border: 1px solid #d9d0c6;
+  background: #fff;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  color: #1d1a1f;
+  cursor: pointer;
+  text-decoration: none;
+}
+.primary {
+  background: #5c3a64;
+  border-color: #5c3a64;
+  color: #fff;
+}
+.button:hover:not(:disabled) {
+  border-color: #5c3a64;
+}
+.primary:hover:not(:disabled) {
+  background: #4b2e52;
+}
+.button:disabled,
+.primary:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+.ok {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 700;
+  color: #5c3a64;
+}
+.error {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 700;
+  color: #b3261e;
+}
+
+/* ---- 회원 명단 ---- */
+.listHead {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.search {
+  margin-left: auto;
+  display: flex;
+  gap: 8px;
+}
+.searchInput {
+  width: 220px;
+  padding: 9px 12px;
+  border: 1px solid #e4ddd3;
+  border-radius: 10px;
+  background: #faf7f3;
+  font: inherit;
+  font-size: 13px;
+}
+.table {
+  width: 100%;
+  margin-top: 14px;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+.table th {
+  text-align: left;
+  font-size: 12px;
+  font-weight: 700;
+  color: #7d7483;
+  padding: 10px 8px;
+  border-bottom: 1px solid #ece2d3;
+}
+.table td {
+  padding: 10px 8px;
+  border-bottom: 1px solid #f3efe9;
+  vertical-align: middle;
+}
+.rowSelected td {
+  background: #faf6f0;
+}
+.who {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: #e9e1d6;
+  flex: none;
+}
+.nickname {
+  margin: 0;
+  font-weight: 800;
+  color: #1d1a1f;
+}
+.whoSub {
+  margin: 2px 0 0;
+  font-size: 11px;
+  color: #7d7483;
+}
+.cellText {
+  font-weight: 700;
+  color: #3b2d40;
+}
+.badgeAbsent {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: #f6dede;
+  color: #9b2a2a;
+  font-size: 11px;
+  font-weight: 800;
+}
+.inquiryOpen {
+  font-weight: 800;
+  color: #5c3a64;
+}
+.more {
+  color: #5c3a64;
+  font-size: 18px;
+  font-weight: 700;
+  text-decoration: none;
+  padding: 0 6px;
+}
+.empty {
+  margin: 18px 0 4px;
+  font-size: 13px;
+  color: #7d7483;
+}
+.listFoot {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 14px;
+}
+
+/* ---- 회원 상세 ---- */
+.detail {
+  composes: card;
+  border-color: #c9b6cd;
+}
+.detailHead {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+}
+.detailName {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 800;
+}
+.detailGrid {
+  display: grid;
+  grid-template-columns: 1fr 1.4fr;
+  gap: 24px;
+  margin-top: 16px;
+}
+.detailLabel {
+  margin: 14px 0 4px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #7d7483;
+}
+.detailValue {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 700;
+  color: #1d1a1f;
+}
+.historyList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 13px;
+}
+.historyList li {
+  padding: 7px 0;
+  border-bottom: 1px solid #f3efe9;
+}
+.revealBox {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.reasonInput {
+  width: 100%;
+  min-height: 60px;
+  padding: 9px 12px;
+  border: 1px solid #e4ddd3;
+  border-radius: 10px;
+  font: inherit;
+  font-size: 13px;
+  resize: vertical;
+  box-sizing: border-box;
+}
+.phoneFull {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  color: #5c3a64;
+}
+.emptyCard {
+  composes: card;
+  text-align: center;
+  padding: 48px 24px;
+}

@@ -1,0 +1,130 @@
+[
+  {
+    "id": "dropCheckConstraint.poster_extraction_fields.poster_extraction_fields_field_key_check_9214e11b",
+    "label": "Drop check constraint \"poster_extraction_fields_field_key_check_9214e11b\" on \"poster_extraction_fields\"",
+    "operationClass": "widening",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "checkConstraint",
+        "name": "poster_extraction_fields_field_key_check_9214e11b",
+        "table": "poster_extraction_fields"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"poster_extraction_fields_field_key_check_9214e11b\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "poster_extraction_fields_field_key_check_9214e11b",
+          "public",
+          "\"public\".\"poster_extraction_fields\""
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "constraint \"poster_extraction_fields_field_key_check_9214e11b\" on \"poster_extraction_fields\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "drop check constraint \"poster_extraction_fields_field_key_check_9214e11b\"",
+        "sql": "ALTER TABLE \"public\".\"poster_extraction_fields\" DROP CONSTRAINT \"poster_extraction_fields_field_key_check_9214e11b\""
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"poster_extraction_fields_field_key_check_9214e11b\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "poster_extraction_fields_field_key_check_9214e11b",
+          "public",
+          "\"public\".\"poster_extraction_fields\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "constraint \"poster_extraction_fields_field_key_check_9214e11b\" on \"poster_extraction_fields\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "checkConstraint.poster_extraction_fields.poster_extraction_fields_field_key_check_748078e0",
+    "label": "Add check constraint \"poster_extraction_fields_field_key_check_748078e0\" on \"poster_extraction_fields\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "checkConstraint",
+        "name": "poster_extraction_fields_field_key_check_748078e0",
+        "table": "poster_extraction_fields"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"poster_extraction_fields_field_key_check_748078e0\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "poster_extraction_fields_field_key_check_748078e0",
+          "public",
+          "\"public\".\"poster_extraction_fields\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "constraint \"poster_extraction_fields_field_key_check_748078e0\" on \"poster_extraction_fields\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add check constraint \"poster_extraction_fields_field_key_check_748078e0\"",
+        "sql": "ALTER TABLE \"public\".\"poster_extraction_fields\" ADD CONSTRAINT \"poster_extraction_fields_field_key_check_748078e0\" CHECK (\"field_key\" IN ('genre', 'genre_detail', 'title', 'weekday', 'start_time', 'end_time', 'start_date', 'end_date', 'session_count', 'room_name', 'price_amount', 'capacity_male', 'capacity_female', 'capacity_total', 'instructor_name', 'level', 'class_kind'))"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify check constraint \"poster_extraction_fields_field_key_check_748078e0\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4)) AS \"result\"",
+        "params": [
+          "poster_extraction_fields_field_key_check_748078e0",
+          "public",
+          "\"public\".\"poster_extraction_fields\"",
+          "c"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "backfill.poster_period_fields",
+    "label": "Add unread period fields to poster extractions read before period fields existed",
+    "summary": "Insert start_date, end_date, session_count rows (value NULL, needs_check true, value_source ai) for extractions that already have field rows",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "poster_extraction_fields"
+      }
+    },
+    "precheck": [],
+    "execute": [
+      {
+        "description": "insert missing period field rows as unread (needs check)",
+        "sql": "INSERT INTO public.poster_extraction_fields (extraction_id, field_key, value, confidence, needs_check, value_source, updated_at)\n                  SELECT e.extraction_id, k.field_key, NULL, NULL, true, 'ai', now()\n                  FROM (SELECT DISTINCT extraction_id FROM public.poster_extraction_fields) e\n                  CROSS JOIN (VALUES ('start_date'), ('end_date'), ('session_count')) AS k(field_key)\n                  ON CONFLICT (extraction_id, field_key) DO NOTHING"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify every extraction with field rows has all three period rows",
+        "sql": "SELECT NOT EXISTS (SELECT 1 FROM (SELECT extraction_id, count(*) FILTER (WHERE field_key IN ('start_date', 'end_date', 'session_count')) AS n FROM public.poster_extraction_fields GROUP BY extraction_id) c WHERE c.n <> 3)",
+        "expectation": {
+          "expects": "absent",
+          "object": "poster extractions missing period field rows"
+        }
+      }
+    ]
+  }
+]

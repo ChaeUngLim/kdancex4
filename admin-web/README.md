@@ -15,16 +15,14 @@
 |---|---|
 | `app/layout.tsx` | 공통 레이아웃 |
 | `app/page.tsx` | 대시보드 |
-| `app/refund-policy/page.tsx` | 환불 비율표 설정 — **폐기 예정**(2026-09-25 환불이 대표 결정 방식으로 바뀜, spec Q11(환불 방식 변경의 뒤처리) ②). 대표 환불 입력 화면으로 대체 예정 — 이벤트형은 계산값을 미리 채우고 대표는 올리기만 한다. 행사 일괄 취소 화면 포함(FR-099e(행사 일괄 취소)) |
-| `lib/api-client.ts` | 백엔드 호출 래퍼 |
+| `lib/api-client.ts` | 같은 출처 `/api` 호출 래퍼(오류는 `status`·`code` 로 구분) |
 | `app/globals.css` | 전역 스타일 |
 
 ## 환경 변수
 
 `.env.example`을 `.env.local`로 복사해서 쓴다 (`.env.local`은 커밋하지 않는다).
 
-- `NEXT_PUBLIC_API_BASE_URL` — 백엔드 주소. 비우면 `lib/api-client.ts`의 기본값
-  `http://localhost:8000`이 쓰인다.
+- API 주소는 환경 변수로 받지 않는다. 화면은 같은 출처 `/api`(이 앱의 Route Handler)를 부른다.
 
 ## 실행
 
@@ -35,8 +33,7 @@ npm run build   # 프로덕션 빌드
 npm run start   # 빌드 결과 실행
 ```
 
-백엔드가 `localhost:8000`에 떠 있어야 화면에 데이터가 보인다. 백엔드의 CORS 허용
-출처는 `backend/app/main.py`의 `ALLOWED_ORIGINS`에 있다.
+화면이 부르는 API 는 같은 앱의 `app/api/` 에 있어서 옛 backend(`localhost:8000`)를 띄우지 않아도 된다.
 
 ## 알려진 문제
 

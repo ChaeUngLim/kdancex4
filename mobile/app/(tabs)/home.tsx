@@ -5,6 +5,9 @@
  * 쿼리가 아니라 서버가 내 프로필에서 읽는다 — 장르는 FR-022a(첫 화면 장르 선택·유지)의
  * 기준 장르 1개, 지역·시간대는 FR-022(사용자 프로필). 그래서 이 화면은 조건을 보내지 않는다.
  *
+ * 정렬은 칩 3개(추천순·마감 임박·남은 자리, S3-2.2(시간대 필터·정렬))로 고르고 `?sort=` 로 보낸다.
+ * 카드의 정원은 좌석 칸(SeatGrid)으로 보인다 — 남녀 정원은 「남 5/6 · 여 6/6 · 마감」, 단일 정원은 「9/12 · 3자리 남았어요」.
+ *
  * 기준 장르가 없으면 서버가 409 `BASE_GENRE_REQUIRED` 를 준다 → 기준 장르 화면으로 안내.
  * 정원이 찬 수업도 목록에 남는다. 마감 표시는 `remaining` 으로 앱이 한다.
  */
@@ -16,9 +19,11 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { apiFetch, type ApiError } from '../../lib/api';
 import { formatKstDateTime, formatWon, genreLabel } from '../../lib/catalog/format';
 import { colors, font, radius, space } from '../../lib/theme';
-import type { OfferingSummary, Page } from '../../lib/catalog/types';
-import { CapacityBar, EmptyView, ErrorView, isSoldOut, LoadingView, PoolSummary, shared } from '../../lib/catalog/ui';
+import type { HomeSort, OfferingSummary, Page } from '../../lib/catalog/types';
+import { SeatGrid } from '../../lib/catalog/seat-grid';
+import { EmptyView, ErrorView, isSoldOut, LoadingView, shared } from '../../lib/catalog/ui';
 import { toApiError } from '../../lib/catalog/use-api-resource';
+import { LevelUpOverlay } from '../../lib/levels/level-up-overlay';
 
 const PAGE_SIZE = 20;
 
@@ -31,17 +36,29 @@ interface FeedState {
 
 const INITIAL: FeedState = { items: [], nextCursor: null, status: 'loading', error: null };
 
-function pagePath(cursor: string | null): string {
+/**
+ * 정렬 칩 3개(보드 M7 「정렬 칩」, FR-036a(검색 결과 정렬 5종) 중 지금 서버가 받는 3종).
+ * 추천순이 기본값이다. 거리순·인기순은 서버에 아직 없어 칩도 두지 않는다 — 눌러도 422 가 나는 칩을 보이지 않는다.
+ */
+const SORT_OPTIONS: readonly { value: HomeSort; label: string }[] = [
+  { value: 'recommended', label: '추천순' },
+  { value: 'deadline', label: '마감 임박' },
+  { value: 'seats', label: '남은 자리' },
+];
+
+/** 커서는 정렬마다 따로라(계약 02 §1) 다음 장을 부를 때도 지금 정렬을 같이 보낸다. */
+function pagePath(sort: HomeSort, cursor: string | null): string {
   const cursorPart = cursor === null ? '' : `&cursor=${encodeURIComponent(cursor)}`;
-  return `/api/home/offerings?limit=${PAGE_SIZE}${cursorPart}`;
+  return `/api/home/offerings?limit=${PAGE_SIZE}&sort=${sort}${cursorPart}`;
 }
 
 /** 첫 장 불러오기·새로 고침·다음 장 이어 붙이기. 결과는 매번 새 객체로 갈아 끼운다. */
 function useOfferingFeed() {
   const [feed, setFeed] = useState<FeedState>(INITIAL);
+  const [sort, setSort] = useState<HomeSort>('recommended');
   const busy = useRef(false);
 
-  const load = useCallback(async (mode: 'first' | 'refresh' | 'more', cursor: string | null) => {
+  const load = useCallback(async (mode: 'first' | 'refresh' | 'more', cursor: string | null, sortBy: HomeSort) => {
     if (busy.current) {
       return;
     }
@@ -49,7 +66,7 @@ function useOfferingFeed() {
     const status = mode === 'more' ? 'loadingMore' : mode === 'refresh' ? 'refreshing' : 'loading';
     setFeed((prev) => ({ ...prev, status, error: null }));
     try {
-      const page = await apiFetch<Page<OfferingSummary>>(pagePath(cursor));
+      const page = await apiFetch<Page<OfferingSummary>>(pagePath(sortBy, cursor));
       const pageItems = page.items ?? [];
       setFeed((prev) => ({
         items: mode === 'more' ? [...prev.items, ...pageItems] : pageItems,
@@ -65,22 +82,37 @@ function useOfferingFeed() {
   }, []);
 
   useEffect(() => {
-    void load('first', null);
+    void load('first', null, 'recommended');
   }, [load]);
 
-  const refresh = useCallback(() => void load('refresh', null), [load]);
+  const refresh = useCallback(() => void load('refresh', null, sort), [load, sort]);
   const loadMore = useCallback(() => {
     if (feed.nextCursor !== null && feed.status === 'ready') {
-      void load('more', feed.nextCursor);
+      void load('more', feed.nextCursor, sort);
     }
-  }, [feed.nextCursor, feed.status, load]);
+  }, [feed.nextCursor, feed.status, load, sort]);
 
-  return { feed, refresh, loadMore };
+  /**
+   * 정렬 칩을 눌렀을 때 — 이벤트 처리기 안에서 바로 첫 장을 다시 부른다(효과 훅으로 sort 변화를 지켜보지 않는다).
+   * 앞 요청이 아직 도는 중이면 칩도 바꾸지 않는다. 칩만 바뀌고 목록은 옛 정렬로 남는 어긋남을 막는다.
+   */
+  const changeSort = useCallback(
+    (next: HomeSort) => {
+      if (next === sort || busy.current) {
+        return;
+      }
+      setSort(next);
+      void load('refresh', null, next);
+    },
+    [load, sort],
+  );
+
+  return { feed, sort, changeSort, refresh, loadMore };
 }
 
 export default function HomeScreen() {
   const insets = useSafeAreaInsets();
-  const { feed, refresh, loadMore } = useOfferingFeed();
+  const { feed, sort, changeSort, refresh, loadMore } = useOfferingFeed();
   const firstFocus = useRef(true);
 
   // 결제 대기·취소 뒤 돌아오면 남은 자리 수가 바뀌었을 수 있어 다시 읽는다.
@@ -99,6 +131,7 @@ export default function HomeScreen() {
   return (
     <View style={[styles.screen, { paddingTop: insets.top }]}>
       <HomeHeader items={feed.items} />
+      <SortChips sort={sort} onChange={changeSort} />
       <FeedBody feed={feed} onRetry={refresh} />
       {feed.items.length > 0 && (
         <FlatList
@@ -112,6 +145,8 @@ export default function HomeScreen() {
           ListFooterComponent={feed.status === 'loadingMore' ? <LoadingView label="더 불러오는 중" /> : undefined}
         />
       )}
+      {/* 받지 않은 레벨 카드·강사 승급 안내가 있으면 홈 위에 등급 연출을 덮는다(S6-3.10, FR-169e) */}
+      <LevelUpOverlay />
     </View>
   );
 }
@@ -134,11 +169,44 @@ function HomeHeader({ items }: { items: readonly OfferingSummary[] }) {
   // 응답에 기준 장르가 따로 오지 않아 첫 수업의 장르로 표시한다(summary 「계약 모호점」).
   const genre = items[0]?.genre;
   return (
-    <View style={styles.header}>
-      <Text style={shared.muted}>기준 장르</Text>
-      <Text style={styles.headerTitle} accessibilityRole="header">
-        {genre === undefined ? '오늘의 수업' : genreLabel(genre)}
-      </Text>
+    <View style={styles.headerRow}>
+      <View style={styles.header}>
+        <Text style={shared.muted}>기준 장르</Text>
+        <Text style={styles.headerTitle} accessibilityRole="header">
+          {genre === undefined ? '오늘의 수업' : genreLabel(genre)}
+        </Text>
+      </View>
+      {/* 알림함(보드 M21) 들어가는 곳 — 홈 머리 오른쪽 */}
+      <Pressable
+        style={styles.bell}
+        onPress={() => router.push('/notifications')}
+        accessibilityRole="button"
+        accessibilityLabel="알림함 열기"
+      >
+        <Text style={styles.bellText}>알림</Text>
+      </Pressable>
+    </View>
+  );
+}
+
+/** 정렬 칩 줄. 고른 칩은 플럼 테두리·옅은 바탕, 나머지는 흰 바탕(보드 M7 칩 규칙) */
+function SortChips({ sort, onChange }: { sort: HomeSort; onChange: (next: HomeSort) => void }) {
+  return (
+    <View style={styles.sortRow} accessibilityRole="radiogroup" accessibilityLabel="정렬">
+      {SORT_OPTIONS.map((option) => {
+        const selected = option.value === sort;
+        return (
+          <Pressable
+            key={option.value}
+            style={[styles.sortChip, selected && styles.sortChipOn]}
+            onPress={() => onChange(option.value)}
+            accessibilityRole="radio"
+            accessibilityState={{ selected }}
+          >
+            <Text style={[styles.sortText, selected && styles.sortTextOn]}>{option.label}</Text>
+          </Pressable>
+        );
+      })}
     </View>
   );
 }
@@ -163,10 +231,13 @@ function OfferingCard({ item }: { item: OfferingSummary }) {
         {item.academy?.name} · {item.academy?.regionGu} · {item.label} · {item.sessionCount}회
       </Text>
       <Text style={shared.muted}>첫 수업 {formatKstDateTime(item.firstSessionStartsAt)}</Text>
-      <CapacityBar enrolled={item.capacity?.enrolled ?? 0} total={item.capacity?.total ?? 0} />
+      {/* 정원 좌석 칸 — 남녀 정원은 남·여 두 덩어리, 단일 정원은 한 줄(보드 M7 카드 · spec 2026-10-05) */}
+      <SeatGrid pools={item.capacity?.pools ?? []} size="small" />
       <View style={styles.cardBottom}>
         <Text style={styles.price}>{formatWon(item.priceAmount)}</Text>
-        <PoolSummary pools={item.capacity?.pools ?? []} />
+        {item.capacity?.pools?.length === 1 && item.capacity.pools[0]?.seatKind === 'any' && (
+          <Text style={[shared.tag, shared.tagWarn]}>남녀 구분 없음</Text>
+        )}
       </View>
     </Pressable>
   );
@@ -174,9 +245,25 @@ function OfferingCard({ item }: { item: OfferingSummary }) {
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.bg },
-  header: { paddingHorizontal: space.lg, paddingVertical: space.md, gap: 2 },
+  headerRow: { flexDirection: 'row', alignItems: 'center', paddingRight: space.md },
+  header: { flex: 1, paddingHorizontal: space.lg, paddingVertical: space.md, gap: 2 },
+  bell: { minWidth: 48, minHeight: 48, alignItems: 'center', justifyContent: 'center' },
+  bellText: { fontSize: font.small, fontWeight: '700', color: colors.brown },
   headerTitle: { fontSize: font.h1 - 4, fontWeight: '800', color: colors.ink },
   list: { paddingHorizontal: space.lg, paddingBottom: space.xl, gap: space.md },
+  sortRow: { flexDirection: 'row', gap: space.sm, paddingHorizontal: space.lg, paddingBottom: space.md },
+  sortChip: {
+    minHeight: 36,
+    paddingHorizontal: space.md,
+    borderRadius: radius.pill,
+    borderWidth: 1,
+    borderColor: colors.line,
+    backgroundColor: colors.surface,
+    justifyContent: 'center',
+  },
+  sortChipOn: { borderColor: colors.brown, borderWidth: 1.5, backgroundColor: colors.brownSoft },
+  sortText: { fontSize: font.small, color: colors.ink },
+  sortTextOn: { color: colors.brown, fontWeight: '700' },
   inlineError: { color: colors.danger, fontSize: font.small, paddingHorizontal: space.lg },
   card: { backgroundColor: colors.surface, borderRadius: radius.lg, padding: space.lg, gap: space.sm },
   cardPressed: { opacity: 0.85 },

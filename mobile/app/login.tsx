@@ -5,15 +5,16 @@
  * 로그인한다(plan D10(인증)). 보드 M1 의 카카오·구글·네이버 버튼은 소셜 로그인이 붙을 때 바꾼다.
  *
  * 로그인 뒤 `GET /api/me` 로 어디까지 했는지 보고 다음 화면을 고른다.
- *  - 403 `SIGNUP_INCOMPLETE` → 본인확인(identity)
+ *  - 403 `SIGNUP_INCOMPLETE` → 약관 동의(consent, 보드 C14A) → 본인확인(identity) 순서로 가입을 시작한다
  *  - 가입 끝 → 취향 / 기준 장르 / 홈 중 남은 곳(`nextOnboardingRoute`)
  */
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
+import { Text } from 'react-native';
 
 import { ApiError } from '../lib/api';
-import { ErrorBox, Field, OnboardingScreen, PrimaryButton } from '../lib/onboarding/components';
-import { nextOnboardingRoute } from '../lib/onboarding/flow';
+import { ErrorBox, Field, OnboardingScreen, onboardingStyles, PrimaryButton } from '../lib/onboarding/components';
+import { nextOnboardingRoute, SIGNUP_START_ROUTE } from '../lib/onboarding/flow';
 import { fetchMe, signInWithEmail } from '../lib/onboarding/members-api';
 import { useRequest } from '../lib/onboarding/use-request';
 
@@ -30,7 +31,7 @@ function toLoginError(error: unknown): unknown {
   return error;
 }
 
-/** 로그인 → 내 정보 확인 → 다음 화면 주소. 가입 전이면 본인확인 화면. */
+/** 로그인 → 내 정보 확인 → 다음 화면 주소. 가입 전이면 약관 동의 화면. */
 async function signInAndResolveRoute(email: string, password: string) {
   try {
     await signInWithEmail(email, password);
@@ -41,7 +42,7 @@ async function signInAndResolveRoute(email: string, password: string) {
     return nextOnboardingRoute(await fetchMe());
   } catch (error: unknown) {
     if (error instanceof ApiError && error.code === 'SIGNUP_INCOMPLETE') {
-      return '/identity' as const;
+      return SIGNUP_START_ROUTE;
     }
     throw error;
   }
@@ -88,6 +89,8 @@ export default function LoginScreen() {
         onSubmitEditing={canSubmit ? handleSubmit : undefined}
       />
       <ErrorBox message={error} />
+      {/* 보드 M1(로그인) 아래 안내 한 줄 — 가입해야 쓸 수 있고, 19세 미만은 보호자 계정의 자녀로 등록한다(Q17) */}
+      <Text style={onboardingStyles.muted}>가입 뒤에만 이용할 수 있어요 · 만 19세 미만은 보호자 계정에서 자녀로 등록</Text>
     </OnboardingScreen>
   );
 }

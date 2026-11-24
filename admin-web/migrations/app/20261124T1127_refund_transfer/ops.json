@@ -1,0 +1,580 @@
+[
+  {
+    "id": "dropCheckConstraint.notifications.notifications_kind_check_9d299986",
+    "label": "Drop check constraint \"notifications_kind_check_9d299986\" on \"notifications\"",
+    "operationClass": "widening",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "checkConstraint",
+        "name": "notifications_kind_check_9d299986",
+        "table": "notifications"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"notifications_kind_check_9d299986\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "notifications_kind_check_9d299986",
+          "public",
+          "\"public\".\"notifications\""
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "constraint \"notifications_kind_check_9d299986\" on \"notifications\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "drop check constraint \"notifications_kind_check_9d299986\"",
+        "sql": "ALTER TABLE \"public\".\"notifications\" DROP CONSTRAINT \"notifications_kind_check_9d299986\""
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"notifications_kind_check_9d299986\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "notifications_kind_check_9d299986",
+          "public",
+          "\"public\".\"notifications\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "constraint \"notifications_kind_check_9d299986\" on \"notifications\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "column.public.refunds.reinput_reason",
+    "label": "Add column \"reinput_reason\" to \"refunds\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "reinput_reason",
+        "table": "refunds"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"reinput_reason\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "refunds",
+          "reinput_reason"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "column \"reinput_reason\" on \"refunds\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"reinput_reason\"",
+        "sql": "ALTER TABLE \"public\".\"refunds\" ADD COLUMN \"reinput_reason\" text"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"reinput_reason\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "refunds",
+          "reinput_reason"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "column \"reinput_reason\" on \"refunds\""
+        }
+      },
+      {
+        "description": "verify column \"reinput_reason\" has type \"text\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_attribute\" AS \"a\" INNER JOIN \"pg_class\" AS \"c\" ON \"c\".\"oid\" = \"a\".\"attrelid\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"a\".\"attname\" = $3 AND (format_type(\"a\".\"atttypid\", \"a\".\"atttypmod\")) = $4 AND NOT (\"a\".\"attisdropped\"))) AS \"result\"",
+        "params": [
+          "public",
+          "refunds",
+          "reinput_reason",
+          "text"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "column.public.refunds.reinput_requested_at",
+    "label": "Add column \"reinput_requested_at\" to \"refunds\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "reinput_requested_at",
+        "table": "refunds"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"reinput_requested_at\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "refunds",
+          "reinput_requested_at"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "column \"reinput_requested_at\" on \"refunds\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"reinput_requested_at\"",
+        "sql": "ALTER TABLE \"public\".\"refunds\" ADD COLUMN \"reinput_requested_at\" timestamptz"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"reinput_requested_at\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "refunds",
+          "reinput_requested_at"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "column \"reinput_requested_at\" on \"refunds\""
+        }
+      },
+      {
+        "description": "verify column \"reinput_requested_at\" has type \"timestamp with time zone\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_attribute\" AS \"a\" INNER JOIN \"pg_class\" AS \"c\" ON \"c\".\"oid\" = \"a\".\"attrelid\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"a\".\"attname\" = $3 AND (format_type(\"a\".\"atttypid\", \"a\".\"atttypmod\")) = $4 AND NOT (\"a\".\"attisdropped\"))) AS \"result\"",
+        "params": [
+          "public",
+          "refunds",
+          "reinput_requested_at",
+          "timestamp with time zone"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "column.public.refunds.transfer_completed_at",
+    "label": "Add column \"transfer_completed_at\" to \"refunds\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "transfer_completed_at",
+        "table": "refunds"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"transfer_completed_at\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "refunds",
+          "transfer_completed_at"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "column \"transfer_completed_at\" on \"refunds\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"transfer_completed_at\"",
+        "sql": "ALTER TABLE \"public\".\"refunds\" ADD COLUMN \"transfer_completed_at\" timestamptz"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"transfer_completed_at\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "refunds",
+          "transfer_completed_at"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "column \"transfer_completed_at\" on \"refunds\""
+        }
+      },
+      {
+        "description": "verify column \"transfer_completed_at\" has type \"timestamp with time zone\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_attribute\" AS \"a\" INNER JOIN \"pg_class\" AS \"c\" ON \"c\".\"oid\" = \"a\".\"attrelid\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"a\".\"attname\" = $3 AND (format_type(\"a\".\"atttypid\", \"a\".\"atttypmod\")) = $4 AND NOT (\"a\".\"attisdropped\"))) AS \"result\"",
+        "params": [
+          "public",
+          "refunds",
+          "transfer_completed_at",
+          "timestamp with time zone"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "column.public.refunds.transfer_completed_by_staff_account_id",
+    "label": "Add column \"transfer_completed_by_staff_account_id\" to \"refunds\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "transfer_completed_by_staff_account_id",
+        "table": "refunds"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"transfer_completed_by_staff_account_id\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "refunds",
+          "transfer_completed_by_staff_account_id"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "column \"transfer_completed_by_staff_account_id\" on \"refunds\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"transfer_completed_by_staff_account_id\"",
+        "sql": "ALTER TABLE \"public\".\"refunds\" ADD COLUMN \"transfer_completed_by_staff_account_id\" uuid"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"transfer_completed_by_staff_account_id\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "refunds",
+          "transfer_completed_by_staff_account_id"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "column \"transfer_completed_by_staff_account_id\" on \"refunds\""
+        }
+      },
+      {
+        "description": "verify column \"transfer_completed_by_staff_account_id\" has type \"uuid\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_attribute\" AS \"a\" INNER JOIN \"pg_class\" AS \"c\" ON \"c\".\"oid\" = \"a\".\"attrelid\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"a\".\"attname\" = $3 AND (format_type(\"a\".\"atttypid\", \"a\".\"atttypmod\")) = $4 AND NOT (\"a\".\"attisdropped\"))) AS \"result\"",
+        "params": [
+          "public",
+          "refunds",
+          "transfer_completed_by_staff_account_id",
+          "uuid"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "checkConstraint.notifications.notifications_kind_check_9cd0e089",
+    "label": "Add check constraint \"notifications_kind_check_9cd0e089\" on \"notifications\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "checkConstraint",
+        "name": "notifications_kind_check_9cd0e089",
+        "table": "notifications"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"notifications_kind_check_9cd0e089\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "notifications_kind_check_9cd0e089",
+          "public",
+          "\"public\".\"notifications\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "constraint \"notifications_kind_check_9cd0e089\" on \"notifications\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add check constraint \"notifications_kind_check_9cd0e089\"",
+        "sql": "ALTER TABLE \"public\".\"notifications\" ADD CONSTRAINT \"notifications_kind_check_9cd0e089\" CHECK (\"kind\" IN ('payment_confirmed_member', 'payment_confirmed_owner', 'reservation_cancelled', 'refund_pending', 'refund_failed', 'payment_refund_due', 'share_rate_changed', 'affiliation_requested', 'affiliation_approved', 'affiliation_rejected', 'delegation_changed', 'staff_notice_published', 'merchant_application_approved', 'merchant_application_rejected', 'payout_account_changed', 'terms_change_notice', 'restriction_notice', 'release_completed', 'release_requested', 'class_submitted', 'class_approved', 'class_revision_requested', 'class_approval_reminder', 'session_time_place_changed', 'session_cancelled', 'class_closed', 'instructor_session_changed', 'substitute_requested', 'substitute_accepted', 'substitute_confirmed', 'instructor_changed', 'class_announcement', 'substitute_assigned', 'private_lesson_booked', 'private_lesson_cancelled', 'class_edit_requested', 'class_edit_approved', 'class_edit_rejected', 'class_changed', 'release_declined', 'absence_marked', 'absence_dispute_requested', 'absence_dispute_resolved', 'payment_deadline_soon', 'gender_imbalance', 'pre_class_reminder', 'inquiry_received', 'inquiry_answered', 'inquiry_overdue', 'report_received', 'report_filed', 'report_in_review', 'report_resolved', 'refund_completed', 'refund_account_reinput'))"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify check constraint \"notifications_kind_check_9cd0e089\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4)) AS \"result\"",
+        "params": [
+          "notifications_kind_check_9cd0e089",
+          "public",
+          "\"public\".\"notifications\"",
+          "c"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "checkConstraint.refunds.ck_refunds_reinput_d22b2bf3",
+    "label": "Add check constraint \"ck_refunds_reinput_d22b2bf3\" on \"refunds\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "checkConstraint",
+        "name": "ck_refunds_reinput_d22b2bf3",
+        "table": "refunds"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"ck_refunds_reinput_d22b2bf3\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "ck_refunds_reinput_d22b2bf3",
+          "public",
+          "\"public\".\"refunds\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "constraint \"ck_refunds_reinput_d22b2bf3\" on \"refunds\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add check constraint \"ck_refunds_reinput_d22b2bf3\"",
+        "sql": "ALTER TABLE \"public\".\"refunds\" ADD CONSTRAINT \"ck_refunds_reinput_d22b2bf3\" CHECK ((reinput_requested_at IS NULL) = (reinput_reason IS NULL) AND (reinput_requested_at IS NULL OR status = 'failed'))"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify check constraint \"ck_refunds_reinput_d22b2bf3\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4)) AS \"result\"",
+        "params": [
+          "ck_refunds_reinput_d22b2bf3",
+          "public",
+          "\"public\".\"refunds\"",
+          "c"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "checkConstraint.refunds.ck_refunds_transfer_account_b3724566",
+    "label": "Add check constraint \"ck_refunds_transfer_account_b3724566\" on \"refunds\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "checkConstraint",
+        "name": "ck_refunds_transfer_account_b3724566",
+        "table": "refunds"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"ck_refunds_transfer_account_b3724566\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "ck_refunds_transfer_account_b3724566",
+          "public",
+          "\"public\".\"refunds\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "constraint \"ck_refunds_transfer_account_b3724566\" on \"refunds\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add check constraint \"ck_refunds_transfer_account_b3724566\"",
+        "sql": "ALTER TABLE \"public\".\"refunds\" ADD CONSTRAINT \"ck_refunds_transfer_account_b3724566\" CHECK (execution_kind IS DISTINCT FROM 'owner_bank_transfer' OR status <> 'succeeded' OR (refund_account_id IS NOT NULL AND transfer_completed_at IS NOT NULL AND transfer_completed_by_staff_account_id IS NOT NULL))"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify check constraint \"ck_refunds_transfer_account_b3724566\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4)) AS \"result\"",
+        "params": [
+          "ck_refunds_transfer_account_b3724566",
+          "public",
+          "\"public\".\"refunds\"",
+          "c"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "checkConstraint.refunds.refunds_reinput_reason_check_6bac0f30",
+    "label": "Add check constraint \"refunds_reinput_reason_check_6bac0f30\" on \"refunds\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "checkConstraint",
+        "name": "refunds_reinput_reason_check_6bac0f30",
+        "table": "refunds"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"refunds_reinput_reason_check_6bac0f30\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "refunds_reinput_reason_check_6bac0f30",
+          "public",
+          "\"public\".\"refunds\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "constraint \"refunds_reinput_reason_check_6bac0f30\" on \"refunds\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add check constraint \"refunds_reinput_reason_check_6bac0f30\"",
+        "sql": "ALTER TABLE \"public\".\"refunds\" ADD CONSTRAINT \"refunds_reinput_reason_check_6bac0f30\" CHECK (\"reinput_reason\" IN ('name_mismatch', 'returned'))"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify check constraint \"refunds_reinput_reason_check_6bac0f30\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4)) AS \"result\"",
+        "params": [
+          "refunds_reinput_reason_check_6bac0f30",
+          "public",
+          "\"public\".\"refunds\"",
+          "c"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.refunds.refunds_transfer_completed_by_staff_account_id_idx_5245c22c",
+    "label": "Create index \"refunds_transfer_completed_by_staff_account_id_idx_5245c22c\" on \"refunds\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "refunds_transfer_completed_by_staff_account_id_idx_5245c22c",
+        "table": "refunds"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"refunds_transfer_completed_by_staff_account_id_idx_5245c22c\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"refunds_transfer_completed_by_staff_account_id_idx_5245c22c\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"refunds_transfer_completed_by_staff_account_id_idx_5245c22c\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"refunds_transfer_completed_by_staff_account_id_idx_5245c22c\"",
+        "sql": "CREATE INDEX \"refunds_transfer_completed_by_staff_account_id_idx_5245c22c\" ON \"public\".\"refunds\" (\"transfer_completed_by_staff_account_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"refunds_transfer_completed_by_staff_account_id_idx_5245c22c\" exists on \"refunds\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"refunds_transfer_completed_by_staff_account_id_idx_5245c22c\"",
+          "i",
+          "I",
+          "\"public\".\"refunds\"",
+          "btree",
+          "[\"transfer_completed_by_staff_account_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.refunds.refunds_transfer_completed_by_staff_account_id_fkey",
+    "label": "Add foreign key \"refunds_transfer_completed_by_staff_account_id_fkey\" on \"refunds\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "refunds_transfer_completed_by_staff_account_id_fkey",
+        "table": "refunds"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"refunds_transfer_completed_by_staff_account_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "refunds_transfer_completed_by_staff_account_id_fkey",
+          "public",
+          "\"public\".\"refunds\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"refunds_transfer_completed_by_staff_account_id_fkey\" on \"refunds\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"refunds_transfer_completed_by_staff_account_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"refunds\"\nADD CONSTRAINT \"refunds_transfer_completed_by_staff_account_id_fkey\"\nFOREIGN KEY (\"transfer_completed_by_staff_account_id\")\nREFERENCES \"public\".\"staff_accounts\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"refunds_transfer_completed_by_staff_account_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "refunds_transfer_completed_by_staff_account_id_fkey",
+          "public",
+          "\"public\".\"refunds\"",
+          "f",
+          "[\"transfer_completed_by_staff_account_id\"]",
+          "\"public\".\"staff_accounts\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  }
+]

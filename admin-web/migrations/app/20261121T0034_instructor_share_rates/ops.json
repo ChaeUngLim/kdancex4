@@ -1,0 +1,696 @@
+[
+  {
+    "id": "table.instructor_share_rate_overrides",
+    "label": "Create table \"instructor_share_rate_overrides\"",
+    "summary": "Creates table \"instructor_share_rate_overrides\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "instructor_share_rate_overrides"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"instructor_share_rate_overrides\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"instructor_share_rate_overrides\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"instructor_share_rate_overrides\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"instructor_share_rate_overrides\"",
+        "sql": "CREATE TABLE \"public\".\"instructor_share_rate_overrides\" (\n  \"affiliation_id\" uuid NOT NULL,\n  \"class_id\" uuid NOT NULL,\n  \"created_at\" timestamptz DEFAULT (now()) NOT NULL,\n  \"created_by_account_id\" uuid NOT NULL,\n  \"effective_from\" timestamptz NOT NULL,\n  \"id\" uuid NOT NULL,\n  \"rate_bp\" int4 NOT NULL,\n  PRIMARY KEY (\"id\"),\n  CONSTRAINT \"ck_share_override_bp_3539371c\" CHECK (rate_bp BETWEEN 0 AND 10000)\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"instructor_share_rate_overrides\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3))) AS \"result\"",
+        "params": [
+          "\"public\".\"instructor_share_rate_overrides\"",
+          "r",
+          "p"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"instructor_share_rate_overrides\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "table.instructor_share_rates",
+    "label": "Create table \"instructor_share_rates\"",
+    "summary": "Creates table \"instructor_share_rates\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "instructor_share_rates"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"instructor_share_rates\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"instructor_share_rates\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"instructor_share_rates\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"instructor_share_rates\"",
+        "sql": "CREATE TABLE \"public\".\"instructor_share_rates\" (\n  \"affiliation_id\" uuid NOT NULL,\n  \"created_at\" timestamptz DEFAULT (now()) NOT NULL,\n  \"created_by_account_id\" uuid NOT NULL,\n  \"effective_from\" timestamptz NOT NULL,\n  \"id\" uuid NOT NULL,\n  \"rate_bp\" int4 NOT NULL,\n  PRIMARY KEY (\"id\"),\n  CONSTRAINT \"ck_share_rate_bp_3539371c\" CHECK (rate_bp BETWEEN 0 AND 10000)\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"instructor_share_rates\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3))) AS \"result\"",
+        "params": [
+          "\"public\".\"instructor_share_rates\"",
+          "r",
+          "p"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"instructor_share_rates\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "index.instructor_share_rate_overrides.instructor_share_rate_overrides_affiliation_id_idx_0c88d6bc",
+    "label": "Create index \"instructor_share_rate_overrides_affiliation_id_idx_0c88d6bc\" on \"instructor_share_rate_overrides\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "instructor_share_rate_overrides_affiliation_id_idx_0c88d6bc",
+        "table": "instructor_share_rate_overrides"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"instructor_share_rate_overrides_affiliation_id_idx_0c88d6bc\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"instructor_share_rate_overrides_affiliation_id_idx_0c88d6bc\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"instructor_share_rate_overrides_affiliation_id_idx_0c88d6bc\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"instructor_share_rate_overrides_affiliation_id_idx_0c88d6bc\"",
+        "sql": "CREATE INDEX \"instructor_share_rate_overrides_affiliation_id_idx_0c88d6bc\" ON \"public\".\"instructor_share_rate_overrides\" (\"affiliation_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"instructor_share_rate_overrides_affiliation_id_idx_0c88d6bc\" exists on \"instructor_share_rate_overrides\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"instructor_share_rate_overrides_affiliation_id_idx_0c88d6bc\"",
+          "i",
+          "I",
+          "\"public\".\"instructor_share_rate_overrides\"",
+          "btree",
+          "[\"affiliation_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.instructor_share_rate_overrides.instructor_share_rate_overrides_class_id_idx_0031a3d7",
+    "label": "Create index \"instructor_share_rate_overrides_class_id_idx_0031a3d7\" on \"instructor_share_rate_overrides\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "instructor_share_rate_overrides_class_id_idx_0031a3d7",
+        "table": "instructor_share_rate_overrides"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"instructor_share_rate_overrides_class_id_idx_0031a3d7\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"instructor_share_rate_overrides_class_id_idx_0031a3d7\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"instructor_share_rate_overrides_class_id_idx_0031a3d7\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"instructor_share_rate_overrides_class_id_idx_0031a3d7\"",
+        "sql": "CREATE INDEX \"instructor_share_rate_overrides_class_id_idx_0031a3d7\" ON \"public\".\"instructor_share_rate_overrides\" (\"class_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"instructor_share_rate_overrides_class_id_idx_0031a3d7\" exists on \"instructor_share_rate_overrides\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"instructor_share_rate_overrides_class_id_idx_0031a3d7\"",
+          "i",
+          "I",
+          "\"public\".\"instructor_share_rate_overrides\"",
+          "btree",
+          "[\"class_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.instructor_share_rate_overrides.instructor_share_rate_overrides_created_by_account_id__01ca7524",
+    "label": "Create index \"instructor_share_rate_overrides_created_by_account_id__01ca7524\" on \"instructor_share_rate_overrides\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "instructor_share_rate_overrides_created_by_account_id__01ca7524",
+        "table": "instructor_share_rate_overrides"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"instructor_share_rate_overrides_created_by_account_id__01ca7524\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"instructor_share_rate_overrides_created_by_account_id__01ca7524\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"instructor_share_rate_overrides_created_by_account_id__01ca7524\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"instructor_share_rate_overrides_created_by_account_id__01ca7524\"",
+        "sql": "CREATE INDEX \"instructor_share_rate_overrides_created_by_account_id__01ca7524\" ON \"public\".\"instructor_share_rate_overrides\" (\"created_by_account_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"instructor_share_rate_overrides_created_by_account_id__01ca7524\" exists on \"instructor_share_rate_overrides\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"instructor_share_rate_overrides_created_by_account_id__01ca7524\"",
+          "i",
+          "I",
+          "\"public\".\"instructor_share_rate_overrides\"",
+          "btree",
+          "[\"created_by_account_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.instructor_share_rate_overrides.uq_share_overrides_a09899e9",
+    "label": "Create index \"uq_share_overrides_a09899e9\" on \"instructor_share_rate_overrides\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "uq_share_overrides_a09899e9",
+        "table": "instructor_share_rate_overrides"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"uq_share_overrides_a09899e9\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"uq_share_overrides_a09899e9\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"uq_share_overrides_a09899e9\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"uq_share_overrides_a09899e9\"",
+        "sql": "CREATE UNIQUE INDEX \"uq_share_overrides_a09899e9\" ON \"public\".\"instructor_share_rate_overrides\" (\"affiliation_id\", \"class_id\", \"effective_from\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"uq_share_overrides_a09899e9\" exists on \"instructor_share_rate_overrides\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND \"i\".\"indisunique\" AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"uq_share_overrides_a09899e9\"",
+          "i",
+          "I",
+          "\"public\".\"instructor_share_rate_overrides\"",
+          "btree",
+          "[\"affiliation_id\",\"class_id\",\"effective_from\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.instructor_share_rates.instructor_share_rates_affiliation_id_idx_0c88d6bc",
+    "label": "Create index \"instructor_share_rates_affiliation_id_idx_0c88d6bc\" on \"instructor_share_rates\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "instructor_share_rates_affiliation_id_idx_0c88d6bc",
+        "table": "instructor_share_rates"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"instructor_share_rates_affiliation_id_idx_0c88d6bc\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"instructor_share_rates_affiliation_id_idx_0c88d6bc\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"instructor_share_rates_affiliation_id_idx_0c88d6bc\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"instructor_share_rates_affiliation_id_idx_0c88d6bc\"",
+        "sql": "CREATE INDEX \"instructor_share_rates_affiliation_id_idx_0c88d6bc\" ON \"public\".\"instructor_share_rates\" (\"affiliation_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"instructor_share_rates_affiliation_id_idx_0c88d6bc\" exists on \"instructor_share_rates\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"instructor_share_rates_affiliation_id_idx_0c88d6bc\"",
+          "i",
+          "I",
+          "\"public\".\"instructor_share_rates\"",
+          "btree",
+          "[\"affiliation_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.instructor_share_rates.instructor_share_rates_created_by_account_id_idx_01ca7524",
+    "label": "Create index \"instructor_share_rates_created_by_account_id_idx_01ca7524\" on \"instructor_share_rates\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "instructor_share_rates_created_by_account_id_idx_01ca7524",
+        "table": "instructor_share_rates"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"instructor_share_rates_created_by_account_id_idx_01ca7524\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"instructor_share_rates_created_by_account_id_idx_01ca7524\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"instructor_share_rates_created_by_account_id_idx_01ca7524\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"instructor_share_rates_created_by_account_id_idx_01ca7524\"",
+        "sql": "CREATE INDEX \"instructor_share_rates_created_by_account_id_idx_01ca7524\" ON \"public\".\"instructor_share_rates\" (\"created_by_account_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"instructor_share_rates_created_by_account_id_idx_01ca7524\" exists on \"instructor_share_rates\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"instructor_share_rates_created_by_account_id_idx_01ca7524\"",
+          "i",
+          "I",
+          "\"public\".\"instructor_share_rates\"",
+          "btree",
+          "[\"created_by_account_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.instructor_share_rates.uq_share_rates_aff_from_a0426817",
+    "label": "Create index \"uq_share_rates_aff_from_a0426817\" on \"instructor_share_rates\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "uq_share_rates_aff_from_a0426817",
+        "table": "instructor_share_rates"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"uq_share_rates_aff_from_a0426817\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"uq_share_rates_aff_from_a0426817\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"uq_share_rates_aff_from_a0426817\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"uq_share_rates_aff_from_a0426817\"",
+        "sql": "CREATE UNIQUE INDEX \"uq_share_rates_aff_from_a0426817\" ON \"public\".\"instructor_share_rates\" (\"affiliation_id\", \"effective_from\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"uq_share_rates_aff_from_a0426817\" exists on \"instructor_share_rates\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND \"i\".\"indisunique\" AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"uq_share_rates_aff_from_a0426817\"",
+          "i",
+          "I",
+          "\"public\".\"instructor_share_rates\"",
+          "btree",
+          "[\"affiliation_id\",\"effective_from\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.instructor_share_rate_overrides.instructor_share_rate_overrides_affiliation_id_fkey",
+    "label": "Add foreign key \"instructor_share_rate_overrides_affiliation_id_fkey\" on \"instructor_share_rate_overrides\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "instructor_share_rate_overrides_affiliation_id_fkey",
+        "table": "instructor_share_rate_overrides"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"instructor_share_rate_overrides_affiliation_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "instructor_share_rate_overrides_affiliation_id_fkey",
+          "public",
+          "\"public\".\"instructor_share_rate_overrides\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"instructor_share_rate_overrides_affiliation_id_fkey\" on \"instructor_share_rate_overrides\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"instructor_share_rate_overrides_affiliation_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"instructor_share_rate_overrides\"\nADD CONSTRAINT \"instructor_share_rate_overrides_affiliation_id_fkey\"\nFOREIGN KEY (\"affiliation_id\")\nREFERENCES \"public\".\"instructor_affiliations\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"instructor_share_rate_overrides_affiliation_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "instructor_share_rate_overrides_affiliation_id_fkey",
+          "public",
+          "\"public\".\"instructor_share_rate_overrides\"",
+          "f",
+          "[\"affiliation_id\"]",
+          "\"public\".\"instructor_affiliations\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.instructor_share_rate_overrides.instructor_share_rate_overrides_class_id_fkey",
+    "label": "Add foreign key \"instructor_share_rate_overrides_class_id_fkey\" on \"instructor_share_rate_overrides\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "instructor_share_rate_overrides_class_id_fkey",
+        "table": "instructor_share_rate_overrides"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"instructor_share_rate_overrides_class_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "instructor_share_rate_overrides_class_id_fkey",
+          "public",
+          "\"public\".\"instructor_share_rate_overrides\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"instructor_share_rate_overrides_class_id_fkey\" on \"instructor_share_rate_overrides\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"instructor_share_rate_overrides_class_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"instructor_share_rate_overrides\"\nADD CONSTRAINT \"instructor_share_rate_overrides_class_id_fkey\"\nFOREIGN KEY (\"class_id\")\nREFERENCES \"public\".\"classes\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"instructor_share_rate_overrides_class_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "instructor_share_rate_overrides_class_id_fkey",
+          "public",
+          "\"public\".\"instructor_share_rate_overrides\"",
+          "f",
+          "[\"class_id\"]",
+          "\"public\".\"classes\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.instructor_share_rate_overrides.instructor_share_rate_overrides_created_by_account_id_fkey",
+    "label": "Add foreign key \"instructor_share_rate_overrides_created_by_account_id_fkey\" on \"instructor_share_rate_overrides\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "instructor_share_rate_overrides_created_by_account_id_fkey",
+        "table": "instructor_share_rate_overrides"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"instructor_share_rate_overrides_created_by_account_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "instructor_share_rate_overrides_created_by_account_id_fkey",
+          "public",
+          "\"public\".\"instructor_share_rate_overrides\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"instructor_share_rate_overrides_created_by_account_id_fkey\" on \"instructor_share_rate_overrides\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"instructor_share_rate_overrides_created_by_account_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"instructor_share_rate_overrides\"\nADD CONSTRAINT \"instructor_share_rate_overrides_created_by_account_id_fkey\"\nFOREIGN KEY (\"created_by_account_id\")\nREFERENCES \"public\".\"staff_accounts\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"instructor_share_rate_overrides_created_by_account_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "instructor_share_rate_overrides_created_by_account_id_fkey",
+          "public",
+          "\"public\".\"instructor_share_rate_overrides\"",
+          "f",
+          "[\"created_by_account_id\"]",
+          "\"public\".\"staff_accounts\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.instructor_share_rates.instructor_share_rates_affiliation_id_fkey",
+    "label": "Add foreign key \"instructor_share_rates_affiliation_id_fkey\" on \"instructor_share_rates\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "instructor_share_rates_affiliation_id_fkey",
+        "table": "instructor_share_rates"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"instructor_share_rates_affiliation_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "instructor_share_rates_affiliation_id_fkey",
+          "public",
+          "\"public\".\"instructor_share_rates\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"instructor_share_rates_affiliation_id_fkey\" on \"instructor_share_rates\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"instructor_share_rates_affiliation_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"instructor_share_rates\"\nADD CONSTRAINT \"instructor_share_rates_affiliation_id_fkey\"\nFOREIGN KEY (\"affiliation_id\")\nREFERENCES \"public\".\"instructor_affiliations\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"instructor_share_rates_affiliation_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "instructor_share_rates_affiliation_id_fkey",
+          "public",
+          "\"public\".\"instructor_share_rates\"",
+          "f",
+          "[\"affiliation_id\"]",
+          "\"public\".\"instructor_affiliations\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.instructor_share_rates.instructor_share_rates_created_by_account_id_fkey",
+    "label": "Add foreign key \"instructor_share_rates_created_by_account_id_fkey\" on \"instructor_share_rates\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "instructor_share_rates_created_by_account_id_fkey",
+        "table": "instructor_share_rates"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"instructor_share_rates_created_by_account_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "instructor_share_rates_created_by_account_id_fkey",
+          "public",
+          "\"public\".\"instructor_share_rates\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"instructor_share_rates_created_by_account_id_fkey\" on \"instructor_share_rates\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"instructor_share_rates_created_by_account_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"instructor_share_rates\"\nADD CONSTRAINT \"instructor_share_rates_created_by_account_id_fkey\"\nFOREIGN KEY (\"created_by_account_id\")\nREFERENCES \"public\".\"staff_accounts\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"instructor_share_rates_created_by_account_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "instructor_share_rates_created_by_account_id_fkey",
+          "public",
+          "\"public\".\"instructor_share_rates\"",
+          "f",
+          "[\"created_by_account_id\"]",
+          "\"public\".\"staff_accounts\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  }
+]

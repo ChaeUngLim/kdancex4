@@ -37,12 +37,16 @@ function isAbort(error: unknown): boolean {
 
 /**
  * @param path 부를 경로. null 이면 부르지 않는다(주소 인자가 잘못된 경우 등).
+ * @param postBody 주면 GET 대신 이 본문으로 POST 한다. 「쓰지 않는 미리 보기」(release-preview 처럼 POST 로
+ *   읽는 경로) 전용이다 — 무언가를 만드는 POST 는 이 훅이 아니라 버튼 핸들러에서 부른다.
  */
-export function useApiResource<T>(path: string | null): ApiResource<T> {
+export function useApiResource<T>(path: string | null, postBody?: unknown): ApiResource<T> {
   const [state, setState] = useState<ResourceState<T>>({ status: 'loading' });
   const [version, setVersion] = useState(0);
   // 마지막으로 데이터를 받은 경로. 경로가 바뀌면 이전 데이터는 다른 자원이므로 로딩부터 보인다.
   const loadedPath = useRef<string | null>(null);
+  // 본문은 렌더마다 새 객체라 글자로 바꿔 비교한다 — 같은 본문이면 다시 부르지 않는다
+  const bodyKey = postBody === undefined ? null : JSON.stringify(postBody);
 
   useEffect(() => {
     if (path === null) {
@@ -52,7 +56,8 @@ export function useApiResource<T>(path: string | null): ApiResource<T> {
     if (loadedPath.current !== path) {
       setState({ status: 'loading' });
     }
-    apiFetch<T>(path, { signal: controller.signal })
+    const request = bodyKey === null ? { signal: controller.signal } : { method: 'POST' as const, body: JSON.parse(bodyKey) as unknown, signal: controller.signal };
+    apiFetch<T>(path, request)
       .then((data) => {
         loadedPath.current = path;
         setState({ status: 'ready', data });
@@ -63,7 +68,7 @@ export function useApiResource<T>(path: string | null): ApiResource<T> {
         }
       });
     return () => controller.abort();
-  }, [path, version]);
+  }, [path, version, bodyKey]);
 
   const reload = useCallback(() => setVersion((v) => v + 1), []);
   return { state, reload };

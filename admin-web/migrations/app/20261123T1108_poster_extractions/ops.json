@@ -1,0 +1,1089 @@
+[
+  {
+    "id": "table.ai_jobs",
+    "label": "Create table \"ai_jobs\"",
+    "summary": "Creates table \"ai_jobs\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "ai_jobs"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"ai_jobs\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ai_jobs\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"ai_jobs\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"ai_jobs\"",
+        "sql": "CREATE TABLE \"public\".\"ai_jobs\" (\n  \"accepted_at\" timestamptz,\n  \"created_at\" timestamptz DEFAULT (now()) NOT NULL,\n  \"deadline_at\" timestamptz NOT NULL,\n  \"error_code\" text,\n  \"finished_at\" timestamptz,\n  \"id\" uuid NOT NULL,\n  \"kind\" text NOT NULL,\n  \"status\" text DEFAULT 'queued' NOT NULL,\n  \"subject_id\" uuid NOT NULL,\n  PRIMARY KEY (\"id\"),\n  CONSTRAINT \"ai_jobs_error_code_check_5e328580\" CHECK (\"error_code\" IN ('EXTRACTION_FAILED', 'PROVIDER_QUOTA_EXHAUSTED', 'PROVIDER_ERROR', 'INVALID_RESULT', 'AGENT_UNAVAILABLE', 'TIMEOUT')),\n  CONSTRAINT \"ai_jobs_kind_check_03996559\" CHECK (\"kind\" IN ('poster_extract', 'promo_image', 'faq_draft')),\n  CONSTRAINT \"ai_jobs_status_check_d9b22d72\" CHECK (\"status\" IN ('queued', 'running', 'succeeded', 'failed', 'timed_out', 'cancelled')),\n  CONSTRAINT \"ck_ai_jobs_done_422b8078\" CHECK (status NOT IN ('succeeded', 'failed', 'timed_out', 'cancelled') OR finished_at IS NOT NULL),\n  CONSTRAINT \"ck_ai_jobs_error_48dd9700\" CHECK (status NOT IN ('failed', 'timed_out') OR error_code IS NOT NULL)\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"ai_jobs\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3))) AS \"result\"",
+        "params": [
+          "\"public\".\"ai_jobs\"",
+          "r",
+          "p"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"ai_jobs\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "table.poster_extraction_fields",
+    "label": "Create table \"poster_extraction_fields\"",
+    "summary": "Creates table \"poster_extraction_fields\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "poster_extraction_fields"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"poster_extraction_fields\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"poster_extraction_fields\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"poster_extraction_fields\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"poster_extraction_fields\"",
+        "sql": "CREATE TABLE \"public\".\"poster_extraction_fields\" (\n  \"confidence\" float8,\n  \"confirmed_at\" timestamptz,\n  \"extraction_id\" uuid NOT NULL,\n  \"field_key\" text NOT NULL,\n  \"needs_check\" bool NOT NULL,\n  \"updated_at\" timestamptz NOT NULL,\n  \"value\" json,\n  \"value_source\" text DEFAULT 'ai' NOT NULL,\n  PRIMARY KEY (\"extraction_id\", \"field_key\"),\n  CONSTRAINT \"ck_poster_field_conf_073d88d8\" CHECK (confidence IS NULL OR (confidence >= 0 AND confidence <= 1)),\n  CONSTRAINT \"ck_poster_field_null_flagged_ee969611\" CHECK (value_source <> 'ai' OR value IS NOT NULL OR needs_check),\n  CONSTRAINT \"ck_poster_field_user_checked_2c4fc58d\" CHECK (value_source NOT IN ('user', 'ai_edited') OR needs_check = false),\n  CONSTRAINT \"poster_extraction_fields_field_key_check_9214e11b\" CHECK (\"field_key\" IN ('genre', 'genre_detail', 'title', 'weekday', 'start_time', 'end_time', 'room_name', 'price_amount', 'capacity_male', 'capacity_female', 'capacity_total', 'instructor_name', 'level', 'class_kind')),\n  CONSTRAINT \"poster_extraction_fields_value_source_check_760f71c0\" CHECK (\"value_source\" IN ('ai', 'user', 'ai_edited'))\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"poster_extraction_fields\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3))) AS \"result\"",
+        "params": [
+          "\"public\".\"poster_extraction_fields\"",
+          "r",
+          "p"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"poster_extraction_fields\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "table.poster_extractions",
+    "label": "Create table \"poster_extractions\"",
+    "summary": "Creates table \"poster_extractions\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "poster_extractions"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"poster_extractions\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"poster_extractions\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"poster_extractions\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"poster_extractions\"",
+        "sql": "CREATE TABLE \"public\".\"poster_extractions\" (\n  \"academy_id\" uuid NOT NULL,\n  \"created_at\" timestamptz DEFAULT (now()) NOT NULL,\n  \"elapsed_ms\" int4,\n  \"failure_code\" text,\n  \"id\" uuid NOT NULL,\n  \"job_id\" uuid,\n  \"model\" text,\n  \"overall_confidence\" float8,\n  \"reviewed_at\" timestamptz,\n  \"reviewed_by_staff_account_id\" uuid,\n  \"revision\" int4 DEFAULT 1 NOT NULL,\n  \"source_file_id\" uuid NOT NULL,\n  \"status\" text DEFAULT 'queued' NOT NULL,\n  \"submitted_at\" timestamptz,\n  \"submitted_class_id\" uuid,\n  \"target_kind\" text NOT NULL,\n  \"updated_at\" timestamptz NOT NULL,\n  \"uploaded_by_staff_account_id\" uuid NOT NULL,\n  PRIMARY KEY (\"id\"),\n  CONSTRAINT \"ck_poster_confidence_e83de063\" CHECK (overall_confidence IS NULL OR (overall_confidence >= 0 AND overall_confidence <= 1)),\n  CONSTRAINT \"ck_poster_failed_61cc1c4e\" CHECK ((status = 'failed') = (failure_code IS NOT NULL)),\n  CONSTRAINT \"ck_poster_reviewed_d534d8d2\" CHECK ((status NOT IN ('reviewed', 'submitted') OR (reviewed_at IS NOT NULL AND reviewed_by_staff_account_id IS NOT NULL)) AND (status NOT IN ('queued', 'running', 'ready', 'failed') OR reviewed_at IS NULL)),\n  CONSTRAINT \"ck_poster_revision_43b898db\" CHECK (revision >= 1),\n  CONSTRAINT \"ck_poster_submitted_cee726af\" CHECK ((status = 'submitted') = (submitted_class_id IS NOT NULL)),\n  CONSTRAINT \"poster_extractions_failure_code_check_c88ac7b4\" CHECK (\"failure_code\" IN ('EXTRACTION_FAILED', 'AGENT_UNAVAILABLE', 'TIMEOUT', 'INVALID_RESULT')),\n  CONSTRAINT \"poster_extractions_status_check_67205ea7\" CHECK (\"status\" IN ('queued', 'running', 'ready', 'failed', 'reviewed', 'submitted', 'abandoned')),\n  CONSTRAINT \"poster_extractions_target_kind_check_be58e355\" CHECK (\"target_kind\" IN ('class', 'party', 'performance', 'competition'))\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"poster_extractions\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3))) AS \"result\"",
+        "params": [
+          "\"public\".\"poster_extractions\"",
+          "r",
+          "p"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"poster_extractions\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "index.ai_jobs.ix_ai_jobs_open_deadline_0a849db3",
+    "label": "Create index \"ix_ai_jobs_open_deadline_0a849db3\" on \"ai_jobs\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "ix_ai_jobs_open_deadline_0a849db3",
+        "table": "ai_jobs"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"ix_ai_jobs_open_deadline_0a849db3\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ix_ai_jobs_open_deadline_0a849db3\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"ix_ai_jobs_open_deadline_0a849db3\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"ix_ai_jobs_open_deadline_0a849db3\"",
+        "sql": "CREATE INDEX \"ix_ai_jobs_open_deadline_0a849db3\" ON \"public\".\"ai_jobs\" (\"deadline_at\") WHERE ((status IN ('queued', 'running')))",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"ix_ai_jobs_open_deadline_0a849db3\" exists on \"ai_jobs\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NOT NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"ix_ai_jobs_open_deadline_0a849db3\"",
+          "i",
+          "I",
+          "\"public\".\"ai_jobs\"",
+          "btree",
+          "[\"deadline_at\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.ai_jobs.uq_ai_jobs_subject_a33c6e98",
+    "label": "Create index \"uq_ai_jobs_subject_a33c6e98\" on \"ai_jobs\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "uq_ai_jobs_subject_a33c6e98",
+        "table": "ai_jobs"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"uq_ai_jobs_subject_a33c6e98\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"uq_ai_jobs_subject_a33c6e98\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"uq_ai_jobs_subject_a33c6e98\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"uq_ai_jobs_subject_a33c6e98\"",
+        "sql": "CREATE UNIQUE INDEX \"uq_ai_jobs_subject_a33c6e98\" ON \"public\".\"ai_jobs\" (\"kind\", \"subject_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"uq_ai_jobs_subject_a33c6e98\" exists on \"ai_jobs\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND \"i\".\"indisunique\" AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"uq_ai_jobs_subject_a33c6e98\"",
+          "i",
+          "I",
+          "\"public\".\"ai_jobs\"",
+          "btree",
+          "[\"kind\",\"subject_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.poster_extraction_fields.poster_extraction_fields_extraction_id_idx_7ddfb8c2",
+    "label": "Create index \"poster_extraction_fields_extraction_id_idx_7ddfb8c2\" on \"poster_extraction_fields\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "poster_extraction_fields_extraction_id_idx_7ddfb8c2",
+        "table": "poster_extraction_fields"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"poster_extraction_fields_extraction_id_idx_7ddfb8c2\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"poster_extraction_fields_extraction_id_idx_7ddfb8c2\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"poster_extraction_fields_extraction_id_idx_7ddfb8c2\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"poster_extraction_fields_extraction_id_idx_7ddfb8c2\"",
+        "sql": "CREATE INDEX \"poster_extraction_fields_extraction_id_idx_7ddfb8c2\" ON \"public\".\"poster_extraction_fields\" (\"extraction_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"poster_extraction_fields_extraction_id_idx_7ddfb8c2\" exists on \"poster_extraction_fields\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"poster_extraction_fields_extraction_id_idx_7ddfb8c2\"",
+          "i",
+          "I",
+          "\"public\".\"poster_extraction_fields\"",
+          "btree",
+          "[\"extraction_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.poster_extractions.ix_poster_academy_status_0116cde7",
+    "label": "Create index \"ix_poster_academy_status_0116cde7\" on \"poster_extractions\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "ix_poster_academy_status_0116cde7",
+        "table": "poster_extractions"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"ix_poster_academy_status_0116cde7\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ix_poster_academy_status_0116cde7\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"ix_poster_academy_status_0116cde7\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"ix_poster_academy_status_0116cde7\"",
+        "sql": "CREATE INDEX \"ix_poster_academy_status_0116cde7\" ON \"public\".\"poster_extractions\" (\"academy_id\", \"status\", \"created_at\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"ix_poster_academy_status_0116cde7\" exists on \"poster_extractions\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"ix_poster_academy_status_0116cde7\"",
+          "i",
+          "I",
+          "\"public\".\"poster_extractions\"",
+          "btree",
+          "[\"academy_id\",\"status\",\"created_at\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.poster_extractions.ix_poster_uploader_ef8c3b65",
+    "label": "Create index \"ix_poster_uploader_ef8c3b65\" on \"poster_extractions\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "ix_poster_uploader_ef8c3b65",
+        "table": "poster_extractions"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"ix_poster_uploader_ef8c3b65\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ix_poster_uploader_ef8c3b65\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"ix_poster_uploader_ef8c3b65\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"ix_poster_uploader_ef8c3b65\"",
+        "sql": "CREATE INDEX \"ix_poster_uploader_ef8c3b65\" ON \"public\".\"poster_extractions\" (\"uploaded_by_staff_account_id\", \"created_at\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"ix_poster_uploader_ef8c3b65\" exists on \"poster_extractions\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"ix_poster_uploader_ef8c3b65\"",
+          "i",
+          "I",
+          "\"public\".\"poster_extractions\"",
+          "btree",
+          "[\"uploaded_by_staff_account_id\",\"created_at\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.poster_extractions.poster_extractions_academy_id_idx_f46ade77",
+    "label": "Create index \"poster_extractions_academy_id_idx_f46ade77\" on \"poster_extractions\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "poster_extractions_academy_id_idx_f46ade77",
+        "table": "poster_extractions"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"poster_extractions_academy_id_idx_f46ade77\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"poster_extractions_academy_id_idx_f46ade77\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"poster_extractions_academy_id_idx_f46ade77\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"poster_extractions_academy_id_idx_f46ade77\"",
+        "sql": "CREATE INDEX \"poster_extractions_academy_id_idx_f46ade77\" ON \"public\".\"poster_extractions\" (\"academy_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"poster_extractions_academy_id_idx_f46ade77\" exists on \"poster_extractions\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"poster_extractions_academy_id_idx_f46ade77\"",
+          "i",
+          "I",
+          "\"public\".\"poster_extractions\"",
+          "btree",
+          "[\"academy_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.poster_extractions.poster_extractions_job_id_idx_58a5bbdd",
+    "label": "Create index \"poster_extractions_job_id_idx_58a5bbdd\" on \"poster_extractions\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "poster_extractions_job_id_idx_58a5bbdd",
+        "table": "poster_extractions"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"poster_extractions_job_id_idx_58a5bbdd\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"poster_extractions_job_id_idx_58a5bbdd\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"poster_extractions_job_id_idx_58a5bbdd\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"poster_extractions_job_id_idx_58a5bbdd\"",
+        "sql": "CREATE INDEX \"poster_extractions_job_id_idx_58a5bbdd\" ON \"public\".\"poster_extractions\" (\"job_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"poster_extractions_job_id_idx_58a5bbdd\" exists on \"poster_extractions\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"poster_extractions_job_id_idx_58a5bbdd\"",
+          "i",
+          "I",
+          "\"public\".\"poster_extractions\"",
+          "btree",
+          "[\"job_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.poster_extractions.poster_extractions_reviewed_by_staff_account_id_idx_149ea153",
+    "label": "Create index \"poster_extractions_reviewed_by_staff_account_id_idx_149ea153\" on \"poster_extractions\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "poster_extractions_reviewed_by_staff_account_id_idx_149ea153",
+        "table": "poster_extractions"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"poster_extractions_reviewed_by_staff_account_id_idx_149ea153\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"poster_extractions_reviewed_by_staff_account_id_idx_149ea153\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"poster_extractions_reviewed_by_staff_account_id_idx_149ea153\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"poster_extractions_reviewed_by_staff_account_id_idx_149ea153\"",
+        "sql": "CREATE INDEX \"poster_extractions_reviewed_by_staff_account_id_idx_149ea153\" ON \"public\".\"poster_extractions\" (\"reviewed_by_staff_account_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"poster_extractions_reviewed_by_staff_account_id_idx_149ea153\" exists on \"poster_extractions\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"poster_extractions_reviewed_by_staff_account_id_idx_149ea153\"",
+          "i",
+          "I",
+          "\"public\".\"poster_extractions\"",
+          "btree",
+          "[\"reviewed_by_staff_account_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.poster_extractions.poster_extractions_submitted_class_id_idx_7ee124da",
+    "label": "Create index \"poster_extractions_submitted_class_id_idx_7ee124da\" on \"poster_extractions\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "poster_extractions_submitted_class_id_idx_7ee124da",
+        "table": "poster_extractions"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"poster_extractions_submitted_class_id_idx_7ee124da\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"poster_extractions_submitted_class_id_idx_7ee124da\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"poster_extractions_submitted_class_id_idx_7ee124da\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"poster_extractions_submitted_class_id_idx_7ee124da\"",
+        "sql": "CREATE INDEX \"poster_extractions_submitted_class_id_idx_7ee124da\" ON \"public\".\"poster_extractions\" (\"submitted_class_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"poster_extractions_submitted_class_id_idx_7ee124da\" exists on \"poster_extractions\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"poster_extractions_submitted_class_id_idx_7ee124da\"",
+          "i",
+          "I",
+          "\"public\".\"poster_extractions\"",
+          "btree",
+          "[\"submitted_class_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.poster_extractions.poster_extractions_uploaded_by_staff_account_id_idx_a0d492ea",
+    "label": "Create index \"poster_extractions_uploaded_by_staff_account_id_idx_a0d492ea\" on \"poster_extractions\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "poster_extractions_uploaded_by_staff_account_id_idx_a0d492ea",
+        "table": "poster_extractions"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"poster_extractions_uploaded_by_staff_account_id_idx_a0d492ea\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"poster_extractions_uploaded_by_staff_account_id_idx_a0d492ea\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"poster_extractions_uploaded_by_staff_account_id_idx_a0d492ea\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"poster_extractions_uploaded_by_staff_account_id_idx_a0d492ea\"",
+        "sql": "CREATE INDEX \"poster_extractions_uploaded_by_staff_account_id_idx_a0d492ea\" ON \"public\".\"poster_extractions\" (\"uploaded_by_staff_account_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"poster_extractions_uploaded_by_staff_account_id_idx_a0d492ea\" exists on \"poster_extractions\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"poster_extractions_uploaded_by_staff_account_id_idx_a0d492ea\"",
+          "i",
+          "I",
+          "\"public\".\"poster_extractions\"",
+          "btree",
+          "[\"uploaded_by_staff_account_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.poster_extractions.uq_poster_source_file_7f49e5e1",
+    "label": "Create index \"uq_poster_source_file_7f49e5e1\" on \"poster_extractions\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "uq_poster_source_file_7f49e5e1",
+        "table": "poster_extractions"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"uq_poster_source_file_7f49e5e1\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"uq_poster_source_file_7f49e5e1\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"uq_poster_source_file_7f49e5e1\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"uq_poster_source_file_7f49e5e1\"",
+        "sql": "CREATE UNIQUE INDEX \"uq_poster_source_file_7f49e5e1\" ON \"public\".\"poster_extractions\" (\"source_file_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"uq_poster_source_file_7f49e5e1\" exists on \"poster_extractions\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND \"i\".\"indisunique\" AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"uq_poster_source_file_7f49e5e1\"",
+          "i",
+          "I",
+          "\"public\".\"poster_extractions\"",
+          "btree",
+          "[\"source_file_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.poster_extractions.uq_poster_submitted_class_7c5d1b14",
+    "label": "Create index \"uq_poster_submitted_class_7c5d1b14\" on \"poster_extractions\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "uq_poster_submitted_class_7c5d1b14",
+        "table": "poster_extractions"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"uq_poster_submitted_class_7c5d1b14\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"uq_poster_submitted_class_7c5d1b14\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"uq_poster_submitted_class_7c5d1b14\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"uq_poster_submitted_class_7c5d1b14\"",
+        "sql": "CREATE UNIQUE INDEX \"uq_poster_submitted_class_7c5d1b14\" ON \"public\".\"poster_extractions\" (\"submitted_class_id\") WHERE ((submitted_class_id IS NOT NULL))",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"uq_poster_submitted_class_7c5d1b14\" exists on \"poster_extractions\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND \"i\".\"indisunique\" AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NOT NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"uq_poster_submitted_class_7c5d1b14\"",
+          "i",
+          "I",
+          "\"public\".\"poster_extractions\"",
+          "btree",
+          "[\"submitted_class_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.poster_extraction_fields.poster_extraction_fields_extraction_id_fkey",
+    "label": "Add foreign key \"poster_extraction_fields_extraction_id_fkey\" on \"poster_extraction_fields\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "poster_extraction_fields_extraction_id_fkey",
+        "table": "poster_extraction_fields"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"poster_extraction_fields_extraction_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "poster_extraction_fields_extraction_id_fkey",
+          "public",
+          "\"public\".\"poster_extraction_fields\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"poster_extraction_fields_extraction_id_fkey\" on \"poster_extraction_fields\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"poster_extraction_fields_extraction_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"poster_extraction_fields\"\nADD CONSTRAINT \"poster_extraction_fields_extraction_id_fkey\"\nFOREIGN KEY (\"extraction_id\")\nREFERENCES \"public\".\"poster_extractions\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"poster_extraction_fields_extraction_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "poster_extraction_fields_extraction_id_fkey",
+          "public",
+          "\"public\".\"poster_extraction_fields\"",
+          "f",
+          "[\"extraction_id\"]",
+          "\"public\".\"poster_extractions\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.poster_extractions.poster_extractions_academy_id_fkey",
+    "label": "Add foreign key \"poster_extractions_academy_id_fkey\" on \"poster_extractions\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "poster_extractions_academy_id_fkey",
+        "table": "poster_extractions"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"poster_extractions_academy_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "poster_extractions_academy_id_fkey",
+          "public",
+          "\"public\".\"poster_extractions\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"poster_extractions_academy_id_fkey\" on \"poster_extractions\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"poster_extractions_academy_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"poster_extractions\"\nADD CONSTRAINT \"poster_extractions_academy_id_fkey\"\nFOREIGN KEY (\"academy_id\")\nREFERENCES \"public\".\"academies\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"poster_extractions_academy_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "poster_extractions_academy_id_fkey",
+          "public",
+          "\"public\".\"poster_extractions\"",
+          "f",
+          "[\"academy_id\"]",
+          "\"public\".\"academies\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.poster_extractions.poster_extractions_uploaded_by_staff_account_id_fkey",
+    "label": "Add foreign key \"poster_extractions_uploaded_by_staff_account_id_fkey\" on \"poster_extractions\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "poster_extractions_uploaded_by_staff_account_id_fkey",
+        "table": "poster_extractions"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"poster_extractions_uploaded_by_staff_account_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "poster_extractions_uploaded_by_staff_account_id_fkey",
+          "public",
+          "\"public\".\"poster_extractions\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"poster_extractions_uploaded_by_staff_account_id_fkey\" on \"poster_extractions\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"poster_extractions_uploaded_by_staff_account_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"poster_extractions\"\nADD CONSTRAINT \"poster_extractions_uploaded_by_staff_account_id_fkey\"\nFOREIGN KEY (\"uploaded_by_staff_account_id\")\nREFERENCES \"public\".\"staff_accounts\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"poster_extractions_uploaded_by_staff_account_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "poster_extractions_uploaded_by_staff_account_id_fkey",
+          "public",
+          "\"public\".\"poster_extractions\"",
+          "f",
+          "[\"uploaded_by_staff_account_id\"]",
+          "\"public\".\"staff_accounts\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.poster_extractions.poster_extractions_source_file_id_fkey",
+    "label": "Add foreign key \"poster_extractions_source_file_id_fkey\" on \"poster_extractions\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "poster_extractions_source_file_id_fkey",
+        "table": "poster_extractions"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"poster_extractions_source_file_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "poster_extractions_source_file_id_fkey",
+          "public",
+          "\"public\".\"poster_extractions\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"poster_extractions_source_file_id_fkey\" on \"poster_extractions\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"poster_extractions_source_file_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"poster_extractions\"\nADD CONSTRAINT \"poster_extractions_source_file_id_fkey\"\nFOREIGN KEY (\"source_file_id\")\nREFERENCES \"public\".\"uploaded_files\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"poster_extractions_source_file_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "poster_extractions_source_file_id_fkey",
+          "public",
+          "\"public\".\"poster_extractions\"",
+          "f",
+          "[\"source_file_id\"]",
+          "\"public\".\"uploaded_files\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.poster_extractions.poster_extractions_job_id_fkey",
+    "label": "Add foreign key \"poster_extractions_job_id_fkey\" on \"poster_extractions\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "poster_extractions_job_id_fkey",
+        "table": "poster_extractions"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"poster_extractions_job_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "poster_extractions_job_id_fkey",
+          "public",
+          "\"public\".\"poster_extractions\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"poster_extractions_job_id_fkey\" on \"poster_extractions\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"poster_extractions_job_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"poster_extractions\"\nADD CONSTRAINT \"poster_extractions_job_id_fkey\"\nFOREIGN KEY (\"job_id\")\nREFERENCES \"public\".\"ai_jobs\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"poster_extractions_job_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "poster_extractions_job_id_fkey",
+          "public",
+          "\"public\".\"poster_extractions\"",
+          "f",
+          "[\"job_id\"]",
+          "\"public\".\"ai_jobs\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.poster_extractions.poster_extractions_reviewed_by_staff_account_id_fkey",
+    "label": "Add foreign key \"poster_extractions_reviewed_by_staff_account_id_fkey\" on \"poster_extractions\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "poster_extractions_reviewed_by_staff_account_id_fkey",
+        "table": "poster_extractions"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"poster_extractions_reviewed_by_staff_account_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "poster_extractions_reviewed_by_staff_account_id_fkey",
+          "public",
+          "\"public\".\"poster_extractions\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"poster_extractions_reviewed_by_staff_account_id_fkey\" on \"poster_extractions\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"poster_extractions_reviewed_by_staff_account_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"poster_extractions\"\nADD CONSTRAINT \"poster_extractions_reviewed_by_staff_account_id_fkey\"\nFOREIGN KEY (\"reviewed_by_staff_account_id\")\nREFERENCES \"public\".\"staff_accounts\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"poster_extractions_reviewed_by_staff_account_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "poster_extractions_reviewed_by_staff_account_id_fkey",
+          "public",
+          "\"public\".\"poster_extractions\"",
+          "f",
+          "[\"reviewed_by_staff_account_id\"]",
+          "\"public\".\"staff_accounts\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.poster_extractions.poster_extractions_submitted_class_id_fkey",
+    "label": "Add foreign key \"poster_extractions_submitted_class_id_fkey\" on \"poster_extractions\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "poster_extractions_submitted_class_id_fkey",
+        "table": "poster_extractions"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"poster_extractions_submitted_class_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "poster_extractions_submitted_class_id_fkey",
+          "public",
+          "\"public\".\"poster_extractions\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"poster_extractions_submitted_class_id_fkey\" on \"poster_extractions\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"poster_extractions_submitted_class_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"poster_extractions\"\nADD CONSTRAINT \"poster_extractions_submitted_class_id_fkey\"\nFOREIGN KEY (\"submitted_class_id\")\nREFERENCES \"public\".\"classes\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"poster_extractions_submitted_class_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "poster_extractions_submitted_class_id_fkey",
+          "public",
+          "\"public\".\"poster_extractions\"",
+          "f",
+          "[\"submitted_class_id\"]",
+          "\"public\".\"classes\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  }
+]

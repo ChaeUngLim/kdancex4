@@ -1,0 +1,42 @@
+{
+  "conditions": [
+    {
+      "id": "genre_pose",
+      "removable": true,
+      "perGenre": {
+        "salsa_bachata": {
+          "label": "마주 선 커플 소셜댄스 자세",
+          "textEn": "a man and a woman facing each other in a social partner dance hold, salsa or bachata"
+        },
+        "argentine_tango": {
+          "label": "가까이 안은 자세",
+          "textEn": "a couple dancing Argentine tango in a close embrace"
+        },
+        "swing": {
+          "label": "경쾌한 커플 스텝",
+          "textEn": "a couple doing lively swing partner dance steps, lindy hop"
+        },
+        "dance_sport": {
+          "label": "볼룸 자세",
+          "textEn": "a couple in a ballroom dance frame, dancesport"
+        }
+      }
+    },
+    {
+      "id": "full_body",
+      "removable": true,
+      "all": {
+        "label": "온몸이 보이는 구도 · 다른 종류의 춤 아님",
+        "textEn": "full body shot with the dancers visible from head to toe, not ballet, not hip-hop, not any other dance style"
+      }
+    },
+    {
+      "id": "no_text",
+      "removable": false,
+      "all": {
+        "label": "이미지 안에 글자 없음",
+        "textEn": "no text, no letters, no words, no captions, no logos, no watermark"
+      }
+    }
+  ]
+}

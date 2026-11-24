@@ -1,0 +1,2637 @@
+[
+  {
+    "id": "table.candidate_contact_consents",
+    "label": "Create table \"candidate_contact_consents\"",
+    "summary": "Creates table \"candidate_contact_consents\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "candidate_contact_consents"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"candidate_contact_consents\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"candidate_contact_consents\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"candidate_contact_consents\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"candidate_contact_consents\"",
+        "sql": "CREATE TABLE \"public\".\"candidate_contact_consents\" (\n  \"consented\" bool NOT NULL,\n  \"consented_at\" timestamptz,\n  \"member_id\" uuid NOT NULL,\n  \"updated_at\" timestamptz DEFAULT (now()) NOT NULL,\n  \"withdrawn_at\" timestamptz,\n  PRIMARY KEY (\"member_id\"),\n  CONSTRAINT \"ck_candidate_consents_state_7ff7c931\" CHECK (NOT consented OR (consented_at IS NOT NULL AND withdrawn_at IS NULL))\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"candidate_contact_consents\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3))) AS \"result\"",
+        "params": [
+          "\"public\".\"candidate_contact_consents\"",
+          "r",
+          "p"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"candidate_contact_consents\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "table.course_completions",
+    "label": "Create table \"course_completions\"",
+    "summary": "Creates table \"course_completions\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "course_completions"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"course_completions\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"course_completions\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"course_completions\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"course_completions\"",
+        "sql": "CREATE TABLE \"public\".\"course_completions\" (\n  \"attended_sessions\" int4 NOT NULL,\n  \"completed\" bool NOT NULL,\n  \"evaluated_at\" timestamptz DEFAULT (now()) NOT NULL,\n  \"id\" uuid NOT NULL,\n  \"level_awarded\" bool NOT NULL,\n  \"member_id\" uuid NOT NULL,\n  \"offering_id\" uuid NOT NULL,\n  \"order_id\" uuid NOT NULL,\n  \"promotion_id\" uuid,\n  \"reservation_id\" uuid NOT NULL,\n  \"total_sessions\" int4 NOT NULL,\n  PRIMARY KEY (\"id\"),\n  CONSTRAINT \"ck_completions_award_3f40fb43\" CHECK (level_awarded = (promotion_id IS NOT NULL)),\n  CONSTRAINT \"ck_completions_award_requires_completed_b0804dae\" CHECK (completed OR NOT level_awarded),\n  CONSTRAINT \"ck_completions_sessions_336cecd1\" CHECK (total_sessions >= 0 AND attended_sessions BETWEEN 0 AND total_sessions)\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"course_completions\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3))) AS \"result\"",
+        "params": [
+          "\"public\".\"course_completions\"",
+          "r",
+          "p"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"course_completions\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "table.instructor_level_evaluations",
+    "label": "Create table \"instructor_level_evaluations\"",
+    "summary": "Creates table \"instructor_level_evaluations\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "instructor_level_evaluations"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"instructor_level_evaluations\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"instructor_level_evaluations\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"instructor_level_evaluations\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"instructor_level_evaluations\"",
+        "sql": "CREATE TABLE \"public\".\"instructor_level_evaluations\" (\n  \"detail_genre\" text NOT NULL,\n  \"eval_level\" int4 NOT NULL,\n  \"evaluated_at\" timestamptz DEFAULT (now()) NOT NULL,\n  \"instructor_account_id\" uuid NOT NULL,\n  \"member_id\" uuid NOT NULL,\n  PRIMARY KEY (\"instructor_account_id\", \"member_id\", \"detail_genre\"),\n  CONSTRAINT \"ck_evaluations_range_8d3159fd\" CHECK (eval_level BETWEEN 0 AND 10),\n  CONSTRAINT \"instructor_level_evaluations_detail_genre_check_b2aeeee8\" CHECK (\"detail_genre\" IN ('cha_cha_cha', 'samba', 'rumba', 'paso_doble', 'jive', 'waltz', 'tango', 'viennese_waltz', 'slow_foxtrot', 'quickstep', 'argentine_tango', 'swing', 'salsa', 'bachata'))\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"instructor_level_evaluations\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3))) AS \"result\"",
+        "params": [
+          "\"public\".\"instructor_level_evaluations\"",
+          "r",
+          "p"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"instructor_level_evaluations\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "table.level_cards",
+    "label": "Create table \"level_cards\"",
+    "summary": "Creates table \"level_cards\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "level_cards"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"level_cards\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"level_cards\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"level_cards\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"level_cards\"",
+        "sql": "CREATE TABLE \"public\".\"level_cards\" (\n  \"created_at\" timestamptz DEFAULT (now()) NOT NULL,\n  \"detail_genre\" text NOT NULL,\n  \"id\" uuid NOT NULL,\n  \"level\" int4 NOT NULL,\n  \"member_id\" uuid NOT NULL,\n  \"promotion_id\" uuid NOT NULL,\n  \"revealed_at\" timestamptz,\n  PRIMARY KEY (\"id\"),\n  CONSTRAINT \"ck_level_cards_range_f2c53a76\" CHECK (level BETWEEN 0 AND 10),\n  CONSTRAINT \"level_cards_detail_genre_check_b2aeeee8\" CHECK (\"detail_genre\" IN ('cha_cha_cha', 'samba', 'rumba', 'paso_doble', 'jive', 'waltz', 'tango', 'viennese_waltz', 'slow_foxtrot', 'quickstep', 'argentine_tango', 'swing', 'salsa', 'bachata'))\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"level_cards\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3))) AS \"result\"",
+        "params": [
+          "\"public\".\"level_cards\"",
+          "r",
+          "p"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"level_cards\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "table.level_offers",
+    "label": "Create table \"level_offers\"",
+    "summary": "Creates table \"level_offers\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "level_offers"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"level_offers\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"level_offers\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"level_offers\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"level_offers\"",
+        "sql": "CREATE TABLE \"public\".\"level_offers\" (\n  \"created_at\" timestamptz DEFAULT (now()) NOT NULL,\n  \"detail_genre\" text NOT NULL,\n  \"from_level\" int4 NOT NULL,\n  \"id\" uuid NOT NULL,\n  \"instructor_account_id\" uuid NOT NULL,\n  \"member_id\" uuid NOT NULL,\n  \"offered_at\" timestamptz DEFAULT (now()) NOT NULL,\n  \"offering_id\" uuid,\n  \"responded_at\" timestamptz,\n  \"status\" text DEFAULT 'offered' NOT NULL,\n  \"to_level\" int4 NOT NULL,\n  \"updated_at\" timestamptz DEFAULT (now()) NOT NULL,\n  PRIMARY KEY (\"id\"),\n  CONSTRAINT \"ck_level_offers_range_a28913e2\" CHECK (from_level BETWEEN 0 AND 10 AND to_level BETWEEN 0 AND 10),\n  CONSTRAINT \"ck_level_offers_responded_980c9e37\" CHECK ((status IN ('accepted', 'declined')) = (responded_at IS NOT NULL)),\n  CONSTRAINT \"ck_level_offers_up_8b94252f\" CHECK (to_level > from_level),\n  CONSTRAINT \"level_offers_detail_genre_check_b2aeeee8\" CHECK (\"detail_genre\" IN ('cha_cha_cha', 'samba', 'rumba', 'paso_doble', 'jive', 'waltz', 'tango', 'viennese_waltz', 'slow_foxtrot', 'quickstep', 'argentine_tango', 'swing', 'salsa', 'bachata')),\n  CONSTRAINT \"level_offers_status_check_29a60473\" CHECK (\"status\" IN ('offered', 'accepted', 'declined', 'superseded'))\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"level_offers\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3))) AS \"result\"",
+        "params": [
+          "\"public\".\"level_offers\"",
+          "r",
+          "p"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"level_offers\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "table.level_promotions",
+    "label": "Create table \"level_promotions\"",
+    "summary": "Creates table \"level_promotions\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "level_promotions"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"level_promotions\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"level_promotions\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"level_promotions\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"level_promotions\"",
+        "sql": "CREATE TABLE \"public\".\"level_promotions\" (\n  \"created_at\" timestamptz DEFAULT (now()) NOT NULL,\n  \"detail_genre\" text NOT NULL,\n  \"from_level\" int4 NOT NULL,\n  \"id\" uuid NOT NULL,\n  \"member_id\" uuid NOT NULL,\n  \"offer_id\" uuid,\n  \"offering_id\" uuid,\n  \"source\" text NOT NULL,\n  \"to_level\" int4 NOT NULL,\n  PRIMARY KEY (\"id\"),\n  CONSTRAINT \"ck_promotions_completion_step_0f458c84\" CHECK (source <> 'course_completion' OR to_level = from_level + 1),\n  CONSTRAINT \"ck_promotions_range_a28913e2\" CHECK (from_level BETWEEN 0 AND 10 AND to_level BETWEEN 0 AND 10),\n  CONSTRAINT \"ck_promotions_source_e834a733\" CHECK ((source = 'course_completion' AND offering_id IS NOT NULL AND offer_id IS NULL) OR (source = 'instructor_offer' AND offer_id IS NOT NULL)),\n  CONSTRAINT \"ck_promotions_up_8b94252f\" CHECK (to_level > from_level),\n  CONSTRAINT \"level_promotions_detail_genre_check_b2aeeee8\" CHECK (\"detail_genre\" IN ('cha_cha_cha', 'samba', 'rumba', 'paso_doble', 'jive', 'waltz', 'tango', 'viennese_waltz', 'slow_foxtrot', 'quickstep', 'argentine_tango', 'swing', 'salsa', 'bachata')),\n  CONSTRAINT \"level_promotions_source_check_9efd224a\" CHECK (\"source\" IN ('course_completion', 'instructor_offer'))\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"level_promotions\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3))) AS \"result\"",
+        "params": [
+          "\"public\".\"level_promotions\"",
+          "r",
+          "p"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"level_promotions\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "table.member_genre_levels",
+    "label": "Create table \"member_genre_levels\"",
+    "summary": "Creates table \"member_genre_levels\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "member_genre_levels"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"member_genre_levels\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"member_genre_levels\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"member_genre_levels\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"member_genre_levels\"",
+        "sql": "CREATE TABLE \"public\".\"member_genre_levels\" (\n  \"detail_genre\" text NOT NULL,\n  \"level\" int4 NOT NULL,\n  \"member_id\" uuid NOT NULL,\n  \"updated_at\" timestamptz DEFAULT (now()) NOT NULL,\n  PRIMARY KEY (\"member_id\", \"detail_genre\"),\n  CONSTRAINT \"ck_levels_range_f2c53a76\" CHECK (level BETWEEN 0 AND 10),\n  CONSTRAINT \"member_genre_levels_detail_genre_check_b2aeeee8\" CHECK (\"detail_genre\" IN ('cha_cha_cha', 'samba', 'rumba', 'paso_doble', 'jive', 'waltz', 'tango', 'viennese_waltz', 'slow_foxtrot', 'quickstep', 'argentine_tango', 'swing', 'salsa', 'bachata'))\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"member_genre_levels\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3))) AS \"result\"",
+        "params": [
+          "\"public\".\"member_genre_levels\"",
+          "r",
+          "p"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"member_genre_levels\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "column.public.members.featured_level_card_id",
+    "label": "Add column \"featured_level_card_id\" to \"members\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "featured_level_card_id",
+        "table": "members"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"featured_level_card_id\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "members",
+          "featured_level_card_id"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "column \"featured_level_card_id\" on \"members\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"featured_level_card_id\"",
+        "sql": "ALTER TABLE \"public\".\"members\" ADD COLUMN \"featured_level_card_id\" uuid"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"featured_level_card_id\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "members",
+          "featured_level_card_id"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "column \"featured_level_card_id\" on \"members\""
+        }
+      },
+      {
+        "description": "verify column \"featured_level_card_id\" has type \"uuid\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_attribute\" AS \"a\" INNER JOIN \"pg_class\" AS \"c\" ON \"c\".\"oid\" = \"a\".\"attrelid\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"a\".\"attname\" = $3 AND (format_type(\"a\".\"atttypid\", \"a\".\"atttypmod\")) = $4 AND NOT (\"a\".\"attisdropped\"))) AS \"result\"",
+        "params": [
+          "public",
+          "members",
+          "featured_level_card_id",
+          "uuid"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.course_completions.course_completions_member_id_idx_10d5a0e2",
+    "label": "Create index \"course_completions_member_id_idx_10d5a0e2\" on \"course_completions\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "course_completions_member_id_idx_10d5a0e2",
+        "table": "course_completions"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"course_completions_member_id_idx_10d5a0e2\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"course_completions_member_id_idx_10d5a0e2\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"course_completions_member_id_idx_10d5a0e2\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"course_completions_member_id_idx_10d5a0e2\"",
+        "sql": "CREATE INDEX \"course_completions_member_id_idx_10d5a0e2\" ON \"public\".\"course_completions\" (\"member_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"course_completions_member_id_idx_10d5a0e2\" exists on \"course_completions\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"course_completions_member_id_idx_10d5a0e2\"",
+          "i",
+          "I",
+          "\"public\".\"course_completions\"",
+          "btree",
+          "[\"member_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.course_completions.course_completions_offering_id_idx_47c4ad39",
+    "label": "Create index \"course_completions_offering_id_idx_47c4ad39\" on \"course_completions\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "course_completions_offering_id_idx_47c4ad39",
+        "table": "course_completions"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"course_completions_offering_id_idx_47c4ad39\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"course_completions_offering_id_idx_47c4ad39\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"course_completions_offering_id_idx_47c4ad39\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"course_completions_offering_id_idx_47c4ad39\"",
+        "sql": "CREATE INDEX \"course_completions_offering_id_idx_47c4ad39\" ON \"public\".\"course_completions\" (\"offering_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"course_completions_offering_id_idx_47c4ad39\" exists on \"course_completions\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"course_completions_offering_id_idx_47c4ad39\"",
+          "i",
+          "I",
+          "\"public\".\"course_completions\"",
+          "btree",
+          "[\"offering_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.course_completions.course_completions_order_id_idx_39ad19ad",
+    "label": "Create index \"course_completions_order_id_idx_39ad19ad\" on \"course_completions\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "course_completions_order_id_idx_39ad19ad",
+        "table": "course_completions"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"course_completions_order_id_idx_39ad19ad\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"course_completions_order_id_idx_39ad19ad\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"course_completions_order_id_idx_39ad19ad\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"course_completions_order_id_idx_39ad19ad\"",
+        "sql": "CREATE INDEX \"course_completions_order_id_idx_39ad19ad\" ON \"public\".\"course_completions\" (\"order_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"course_completions_order_id_idx_39ad19ad\" exists on \"course_completions\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"course_completions_order_id_idx_39ad19ad\"",
+          "i",
+          "I",
+          "\"public\".\"course_completions\"",
+          "btree",
+          "[\"order_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.course_completions.course_completions_promotion_id_idx_bafc229f",
+    "label": "Create index \"course_completions_promotion_id_idx_bafc229f\" on \"course_completions\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "course_completions_promotion_id_idx_bafc229f",
+        "table": "course_completions"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"course_completions_promotion_id_idx_bafc229f\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"course_completions_promotion_id_idx_bafc229f\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"course_completions_promotion_id_idx_bafc229f\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"course_completions_promotion_id_idx_bafc229f\"",
+        "sql": "CREATE INDEX \"course_completions_promotion_id_idx_bafc229f\" ON \"public\".\"course_completions\" (\"promotion_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"course_completions_promotion_id_idx_bafc229f\" exists on \"course_completions\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"course_completions_promotion_id_idx_bafc229f\"",
+          "i",
+          "I",
+          "\"public\".\"course_completions\"",
+          "btree",
+          "[\"promotion_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.course_completions.course_completions_reservation_id_idx_919eec76",
+    "label": "Create index \"course_completions_reservation_id_idx_919eec76\" on \"course_completions\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "course_completions_reservation_id_idx_919eec76",
+        "table": "course_completions"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"course_completions_reservation_id_idx_919eec76\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"course_completions_reservation_id_idx_919eec76\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"course_completions_reservation_id_idx_919eec76\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"course_completions_reservation_id_idx_919eec76\"",
+        "sql": "CREATE INDEX \"course_completions_reservation_id_idx_919eec76\" ON \"public\".\"course_completions\" (\"reservation_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"course_completions_reservation_id_idx_919eec76\" exists on \"course_completions\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"course_completions_reservation_id_idx_919eec76\"",
+          "i",
+          "I",
+          "\"public\".\"course_completions\"",
+          "btree",
+          "[\"reservation_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.course_completions.ix_completions_member_eacd86f1",
+    "label": "Create index \"ix_completions_member_eacd86f1\" on \"course_completions\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "ix_completions_member_eacd86f1",
+        "table": "course_completions"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"ix_completions_member_eacd86f1\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ix_completions_member_eacd86f1\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"ix_completions_member_eacd86f1\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"ix_completions_member_eacd86f1\"",
+        "sql": "CREATE INDEX \"ix_completions_member_eacd86f1\" ON \"public\".\"course_completions\" (\"member_id\", \"evaluated_at\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"ix_completions_member_eacd86f1\" exists on \"course_completions\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"ix_completions_member_eacd86f1\"",
+          "i",
+          "I",
+          "\"public\".\"course_completions\"",
+          "btree",
+          "[\"member_id\",\"evaluated_at\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.course_completions.uq_completions_offering_member_5bb6376b",
+    "label": "Create index \"uq_completions_offering_member_5bb6376b\" on \"course_completions\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "uq_completions_offering_member_5bb6376b",
+        "table": "course_completions"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"uq_completions_offering_member_5bb6376b\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"uq_completions_offering_member_5bb6376b\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"uq_completions_offering_member_5bb6376b\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"uq_completions_offering_member_5bb6376b\"",
+        "sql": "CREATE UNIQUE INDEX \"uq_completions_offering_member_5bb6376b\" ON \"public\".\"course_completions\" (\"offering_id\", \"member_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"uq_completions_offering_member_5bb6376b\" exists on \"course_completions\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND \"i\".\"indisunique\" AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"uq_completions_offering_member_5bb6376b\"",
+          "i",
+          "I",
+          "\"public\".\"course_completions\"",
+          "btree",
+          "[\"offering_id\",\"member_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.instructor_level_evaluations.instructor_level_evaluations_instructor_account_id_idx_d1ef9c5f",
+    "label": "Create index \"instructor_level_evaluations_instructor_account_id_idx_d1ef9c5f\" on \"instructor_level_evaluations\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "instructor_level_evaluations_instructor_account_id_idx_d1ef9c5f",
+        "table": "instructor_level_evaluations"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"instructor_level_evaluations_instructor_account_id_idx_d1ef9c5f\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"instructor_level_evaluations_instructor_account_id_idx_d1ef9c5f\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"instructor_level_evaluations_instructor_account_id_idx_d1ef9c5f\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"instructor_level_evaluations_instructor_account_id_idx_d1ef9c5f\"",
+        "sql": "CREATE INDEX \"instructor_level_evaluations_instructor_account_id_idx_d1ef9c5f\" ON \"public\".\"instructor_level_evaluations\" (\"instructor_account_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"instructor_level_evaluations_instructor_account_id_idx_d1ef9c5f\" exists on \"instructor_level_evaluations\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"instructor_level_evaluations_instructor_account_id_idx_d1ef9c5f\"",
+          "i",
+          "I",
+          "\"public\".\"instructor_level_evaluations\"",
+          "btree",
+          "[\"instructor_account_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.instructor_level_evaluations.instructor_level_evaluations_member_id_idx_10d5a0e2",
+    "label": "Create index \"instructor_level_evaluations_member_id_idx_10d5a0e2\" on \"instructor_level_evaluations\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "instructor_level_evaluations_member_id_idx_10d5a0e2",
+        "table": "instructor_level_evaluations"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"instructor_level_evaluations_member_id_idx_10d5a0e2\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"instructor_level_evaluations_member_id_idx_10d5a0e2\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"instructor_level_evaluations_member_id_idx_10d5a0e2\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"instructor_level_evaluations_member_id_idx_10d5a0e2\"",
+        "sql": "CREATE INDEX \"instructor_level_evaluations_member_id_idx_10d5a0e2\" ON \"public\".\"instructor_level_evaluations\" (\"member_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"instructor_level_evaluations_member_id_idx_10d5a0e2\" exists on \"instructor_level_evaluations\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"instructor_level_evaluations_member_id_idx_10d5a0e2\"",
+          "i",
+          "I",
+          "\"public\".\"instructor_level_evaluations\"",
+          "btree",
+          "[\"member_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.instructor_level_evaluations.ix_evaluations_candidates_4f735af7",
+    "label": "Create index \"ix_evaluations_candidates_4f735af7\" on \"instructor_level_evaluations\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "ix_evaluations_candidates_4f735af7",
+        "table": "instructor_level_evaluations"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"ix_evaluations_candidates_4f735af7\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ix_evaluations_candidates_4f735af7\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"ix_evaluations_candidates_4f735af7\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"ix_evaluations_candidates_4f735af7\"",
+        "sql": "CREATE INDEX \"ix_evaluations_candidates_4f735af7\" ON \"public\".\"instructor_level_evaluations\" (\"instructor_account_id\", \"detail_genre\", \"eval_level\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"ix_evaluations_candidates_4f735af7\" exists on \"instructor_level_evaluations\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"ix_evaluations_candidates_4f735af7\"",
+          "i",
+          "I",
+          "\"public\".\"instructor_level_evaluations\"",
+          "btree",
+          "[\"instructor_account_id\",\"detail_genre\",\"eval_level\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.level_cards.ix_level_cards_unrevealed_587a17a9",
+    "label": "Create index \"ix_level_cards_unrevealed_587a17a9\" on \"level_cards\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "ix_level_cards_unrevealed_587a17a9",
+        "table": "level_cards"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"ix_level_cards_unrevealed_587a17a9\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ix_level_cards_unrevealed_587a17a9\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"ix_level_cards_unrevealed_587a17a9\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"ix_level_cards_unrevealed_587a17a9\"",
+        "sql": "CREATE INDEX \"ix_level_cards_unrevealed_587a17a9\" ON \"public\".\"level_cards\" (\"member_id\") WHERE ((revealed_at IS NULL))",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"ix_level_cards_unrevealed_587a17a9\" exists on \"level_cards\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NOT NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"ix_level_cards_unrevealed_587a17a9\"",
+          "i",
+          "I",
+          "\"public\".\"level_cards\"",
+          "btree",
+          "[\"member_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.level_cards.level_cards_member_id_idx_10d5a0e2",
+    "label": "Create index \"level_cards_member_id_idx_10d5a0e2\" on \"level_cards\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "level_cards_member_id_idx_10d5a0e2",
+        "table": "level_cards"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"level_cards_member_id_idx_10d5a0e2\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"level_cards_member_id_idx_10d5a0e2\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"level_cards_member_id_idx_10d5a0e2\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"level_cards_member_id_idx_10d5a0e2\"",
+        "sql": "CREATE INDEX \"level_cards_member_id_idx_10d5a0e2\" ON \"public\".\"level_cards\" (\"member_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"level_cards_member_id_idx_10d5a0e2\" exists on \"level_cards\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"level_cards_member_id_idx_10d5a0e2\"",
+          "i",
+          "I",
+          "\"public\".\"level_cards\"",
+          "btree",
+          "[\"member_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.level_cards.uq_level_cards_member_genre_level_9cbb45d3",
+    "label": "Create index \"uq_level_cards_member_genre_level_9cbb45d3\" on \"level_cards\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "uq_level_cards_member_genre_level_9cbb45d3",
+        "table": "level_cards"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"uq_level_cards_member_genre_level_9cbb45d3\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"uq_level_cards_member_genre_level_9cbb45d3\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"uq_level_cards_member_genre_level_9cbb45d3\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"uq_level_cards_member_genre_level_9cbb45d3\"",
+        "sql": "CREATE UNIQUE INDEX \"uq_level_cards_member_genre_level_9cbb45d3\" ON \"public\".\"level_cards\" (\"member_id\", \"detail_genre\", \"level\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"uq_level_cards_member_genre_level_9cbb45d3\" exists on \"level_cards\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND \"i\".\"indisunique\" AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"uq_level_cards_member_genre_level_9cbb45d3\"",
+          "i",
+          "I",
+          "\"public\".\"level_cards\"",
+          "btree",
+          "[\"member_id\",\"detail_genre\",\"level\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.level_cards.uq_level_cards_promotion_308942ee",
+    "label": "Create index \"uq_level_cards_promotion_308942ee\" on \"level_cards\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "uq_level_cards_promotion_308942ee",
+        "table": "level_cards"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"uq_level_cards_promotion_308942ee\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"uq_level_cards_promotion_308942ee\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"uq_level_cards_promotion_308942ee\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"uq_level_cards_promotion_308942ee\"",
+        "sql": "CREATE UNIQUE INDEX \"uq_level_cards_promotion_308942ee\" ON \"public\".\"level_cards\" (\"promotion_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"uq_level_cards_promotion_308942ee\" exists on \"level_cards\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND \"i\".\"indisunique\" AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"uq_level_cards_promotion_308942ee\"",
+          "i",
+          "I",
+          "\"public\".\"level_cards\"",
+          "btree",
+          "[\"promotion_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.level_offers.ix_level_offers_instructor_098b698f",
+    "label": "Create index \"ix_level_offers_instructor_098b698f\" on \"level_offers\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "ix_level_offers_instructor_098b698f",
+        "table": "level_offers"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"ix_level_offers_instructor_098b698f\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ix_level_offers_instructor_098b698f\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"ix_level_offers_instructor_098b698f\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"ix_level_offers_instructor_098b698f\"",
+        "sql": "CREATE INDEX \"ix_level_offers_instructor_098b698f\" ON \"public\".\"level_offers\" (\"instructor_account_id\", \"offered_at\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"ix_level_offers_instructor_098b698f\" exists on \"level_offers\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"ix_level_offers_instructor_098b698f\"",
+          "i",
+          "I",
+          "\"public\".\"level_offers\"",
+          "btree",
+          "[\"instructor_account_id\",\"offered_at\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.level_offers.level_offers_instructor_account_id_idx_d1ef9c5f",
+    "label": "Create index \"level_offers_instructor_account_id_idx_d1ef9c5f\" on \"level_offers\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "level_offers_instructor_account_id_idx_d1ef9c5f",
+        "table": "level_offers"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"level_offers_instructor_account_id_idx_d1ef9c5f\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"level_offers_instructor_account_id_idx_d1ef9c5f\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"level_offers_instructor_account_id_idx_d1ef9c5f\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"level_offers_instructor_account_id_idx_d1ef9c5f\"",
+        "sql": "CREATE INDEX \"level_offers_instructor_account_id_idx_d1ef9c5f\" ON \"public\".\"level_offers\" (\"instructor_account_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"level_offers_instructor_account_id_idx_d1ef9c5f\" exists on \"level_offers\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"level_offers_instructor_account_id_idx_d1ef9c5f\"",
+          "i",
+          "I",
+          "\"public\".\"level_offers\"",
+          "btree",
+          "[\"instructor_account_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.level_offers.level_offers_member_id_idx_10d5a0e2",
+    "label": "Create index \"level_offers_member_id_idx_10d5a0e2\" on \"level_offers\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "level_offers_member_id_idx_10d5a0e2",
+        "table": "level_offers"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"level_offers_member_id_idx_10d5a0e2\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"level_offers_member_id_idx_10d5a0e2\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"level_offers_member_id_idx_10d5a0e2\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"level_offers_member_id_idx_10d5a0e2\"",
+        "sql": "CREATE INDEX \"level_offers_member_id_idx_10d5a0e2\" ON \"public\".\"level_offers\" (\"member_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"level_offers_member_id_idx_10d5a0e2\" exists on \"level_offers\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"level_offers_member_id_idx_10d5a0e2\"",
+          "i",
+          "I",
+          "\"public\".\"level_offers\"",
+          "btree",
+          "[\"member_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.level_offers.level_offers_offering_id_idx_47c4ad39",
+    "label": "Create index \"level_offers_offering_id_idx_47c4ad39\" on \"level_offers\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "level_offers_offering_id_idx_47c4ad39",
+        "table": "level_offers"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"level_offers_offering_id_idx_47c4ad39\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"level_offers_offering_id_idx_47c4ad39\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"level_offers_offering_id_idx_47c4ad39\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"level_offers_offering_id_idx_47c4ad39\"",
+        "sql": "CREATE INDEX \"level_offers_offering_id_idx_47c4ad39\" ON \"public\".\"level_offers\" (\"offering_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"level_offers_offering_id_idx_47c4ad39\" exists on \"level_offers\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"level_offers_offering_id_idx_47c4ad39\"",
+          "i",
+          "I",
+          "\"public\".\"level_offers\"",
+          "btree",
+          "[\"offering_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.level_offers.uq_level_offers_open_f5ba3834",
+    "label": "Create index \"uq_level_offers_open_f5ba3834\" on \"level_offers\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "uq_level_offers_open_f5ba3834",
+        "table": "level_offers"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"uq_level_offers_open_f5ba3834\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"uq_level_offers_open_f5ba3834\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"uq_level_offers_open_f5ba3834\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"uq_level_offers_open_f5ba3834\"",
+        "sql": "CREATE UNIQUE INDEX \"uq_level_offers_open_f5ba3834\" ON \"public\".\"level_offers\" (\"member_id\", \"detail_genre\") WHERE ((status = 'offered'))",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"uq_level_offers_open_f5ba3834\" exists on \"level_offers\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND \"i\".\"indisunique\" AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NOT NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"uq_level_offers_open_f5ba3834\"",
+          "i",
+          "I",
+          "\"public\".\"level_offers\"",
+          "btree",
+          "[\"member_id\",\"detail_genre\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.level_promotions.ix_promotions_member_genre_d18c700b",
+    "label": "Create index \"ix_promotions_member_genre_d18c700b\" on \"level_promotions\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "ix_promotions_member_genre_d18c700b",
+        "table": "level_promotions"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"ix_promotions_member_genre_d18c700b\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ix_promotions_member_genre_d18c700b\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"ix_promotions_member_genre_d18c700b\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"ix_promotions_member_genre_d18c700b\"",
+        "sql": "CREATE INDEX \"ix_promotions_member_genre_d18c700b\" ON \"public\".\"level_promotions\" (\"member_id\", \"detail_genre\", \"created_at\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"ix_promotions_member_genre_d18c700b\" exists on \"level_promotions\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"ix_promotions_member_genre_d18c700b\"",
+          "i",
+          "I",
+          "\"public\".\"level_promotions\"",
+          "btree",
+          "[\"member_id\",\"detail_genre\",\"created_at\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.level_promotions.level_promotions_member_id_idx_10d5a0e2",
+    "label": "Create index \"level_promotions_member_id_idx_10d5a0e2\" on \"level_promotions\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "level_promotions_member_id_idx_10d5a0e2",
+        "table": "level_promotions"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"level_promotions_member_id_idx_10d5a0e2\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"level_promotions_member_id_idx_10d5a0e2\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"level_promotions_member_id_idx_10d5a0e2\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"level_promotions_member_id_idx_10d5a0e2\"",
+        "sql": "CREATE INDEX \"level_promotions_member_id_idx_10d5a0e2\" ON \"public\".\"level_promotions\" (\"member_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"level_promotions_member_id_idx_10d5a0e2\" exists on \"level_promotions\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"level_promotions_member_id_idx_10d5a0e2\"",
+          "i",
+          "I",
+          "\"public\".\"level_promotions\"",
+          "btree",
+          "[\"member_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.level_promotions.level_promotions_offer_id_idx_f8c71ed4",
+    "label": "Create index \"level_promotions_offer_id_idx_f8c71ed4\" on \"level_promotions\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "level_promotions_offer_id_idx_f8c71ed4",
+        "table": "level_promotions"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"level_promotions_offer_id_idx_f8c71ed4\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"level_promotions_offer_id_idx_f8c71ed4\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"level_promotions_offer_id_idx_f8c71ed4\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"level_promotions_offer_id_idx_f8c71ed4\"",
+        "sql": "CREATE INDEX \"level_promotions_offer_id_idx_f8c71ed4\" ON \"public\".\"level_promotions\" (\"offer_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"level_promotions_offer_id_idx_f8c71ed4\" exists on \"level_promotions\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"level_promotions_offer_id_idx_f8c71ed4\"",
+          "i",
+          "I",
+          "\"public\".\"level_promotions\"",
+          "btree",
+          "[\"offer_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.level_promotions.level_promotions_offering_id_idx_47c4ad39",
+    "label": "Create index \"level_promotions_offering_id_idx_47c4ad39\" on \"level_promotions\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "level_promotions_offering_id_idx_47c4ad39",
+        "table": "level_promotions"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"level_promotions_offering_id_idx_47c4ad39\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"level_promotions_offering_id_idx_47c4ad39\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"level_promotions_offering_id_idx_47c4ad39\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"level_promotions_offering_id_idx_47c4ad39\"",
+        "sql": "CREATE INDEX \"level_promotions_offering_id_idx_47c4ad39\" ON \"public\".\"level_promotions\" (\"offering_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"level_promotions_offering_id_idx_47c4ad39\" exists on \"level_promotions\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"level_promotions_offering_id_idx_47c4ad39\"",
+          "i",
+          "I",
+          "\"public\".\"level_promotions\"",
+          "btree",
+          "[\"offering_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.level_promotions.uq_promotions_completion_284a4aec",
+    "label": "Create index \"uq_promotions_completion_284a4aec\" on \"level_promotions\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "uq_promotions_completion_284a4aec",
+        "table": "level_promotions"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"uq_promotions_completion_284a4aec\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"uq_promotions_completion_284a4aec\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"uq_promotions_completion_284a4aec\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"uq_promotions_completion_284a4aec\"",
+        "sql": "CREATE UNIQUE INDEX \"uq_promotions_completion_284a4aec\" ON \"public\".\"level_promotions\" (\"member_id\", \"offering_id\") WHERE ((source = 'course_completion'))",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"uq_promotions_completion_284a4aec\" exists on \"level_promotions\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND \"i\".\"indisunique\" AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NOT NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"uq_promotions_completion_284a4aec\"",
+          "i",
+          "I",
+          "\"public\".\"level_promotions\"",
+          "btree",
+          "[\"member_id\",\"offering_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.level_promotions.uq_promotions_offer_ba95e250",
+    "label": "Create index \"uq_promotions_offer_ba95e250\" on \"level_promotions\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "uq_promotions_offer_ba95e250",
+        "table": "level_promotions"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"uq_promotions_offer_ba95e250\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"uq_promotions_offer_ba95e250\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"uq_promotions_offer_ba95e250\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"uq_promotions_offer_ba95e250\"",
+        "sql": "CREATE UNIQUE INDEX \"uq_promotions_offer_ba95e250\" ON \"public\".\"level_promotions\" (\"offer_id\") WHERE ((offer_id IS NOT NULL))",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"uq_promotions_offer_ba95e250\" exists on \"level_promotions\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND \"i\".\"indisunique\" AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NOT NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"uq_promotions_offer_ba95e250\"",
+          "i",
+          "I",
+          "\"public\".\"level_promotions\"",
+          "btree",
+          "[\"offer_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.member_genre_levels.member_genre_levels_member_id_idx_10d5a0e2",
+    "label": "Create index \"member_genre_levels_member_id_idx_10d5a0e2\" on \"member_genre_levels\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "member_genre_levels_member_id_idx_10d5a0e2",
+        "table": "member_genre_levels"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"member_genre_levels_member_id_idx_10d5a0e2\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"member_genre_levels_member_id_idx_10d5a0e2\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"member_genre_levels_member_id_idx_10d5a0e2\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"member_genre_levels_member_id_idx_10d5a0e2\"",
+        "sql": "CREATE INDEX \"member_genre_levels_member_id_idx_10d5a0e2\" ON \"public\".\"member_genre_levels\" (\"member_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"member_genre_levels_member_id_idx_10d5a0e2\" exists on \"member_genre_levels\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"member_genre_levels_member_id_idx_10d5a0e2\"",
+          "i",
+          "I",
+          "\"public\".\"member_genre_levels\"",
+          "btree",
+          "[\"member_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.members.members_featured_level_card_id_idx_980d47b2",
+    "label": "Create index \"members_featured_level_card_id_idx_980d47b2\" on \"members\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "members_featured_level_card_id_idx_980d47b2",
+        "table": "members"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"members_featured_level_card_id_idx_980d47b2\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"members_featured_level_card_id_idx_980d47b2\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"members_featured_level_card_id_idx_980d47b2\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"members_featured_level_card_id_idx_980d47b2\"",
+        "sql": "CREATE INDEX \"members_featured_level_card_id_idx_980d47b2\" ON \"public\".\"members\" (\"featured_level_card_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"members_featured_level_card_id_idx_980d47b2\" exists on \"members\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"members_featured_level_card_id_idx_980d47b2\"",
+          "i",
+          "I",
+          "\"public\".\"members\"",
+          "btree",
+          "[\"featured_level_card_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.candidate_contact_consents.candidate_contact_consents_member_id_fkey",
+    "label": "Add foreign key \"candidate_contact_consents_member_id_fkey\" on \"candidate_contact_consents\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "candidate_contact_consents_member_id_fkey",
+        "table": "candidate_contact_consents"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"candidate_contact_consents_member_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "candidate_contact_consents_member_id_fkey",
+          "public",
+          "\"public\".\"candidate_contact_consents\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"candidate_contact_consents_member_id_fkey\" on \"candidate_contact_consents\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"candidate_contact_consents_member_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"candidate_contact_consents\"\nADD CONSTRAINT \"candidate_contact_consents_member_id_fkey\"\nFOREIGN KEY (\"member_id\")\nREFERENCES \"public\".\"members\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"candidate_contact_consents_member_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "candidate_contact_consents_member_id_fkey",
+          "public",
+          "\"public\".\"candidate_contact_consents\"",
+          "f",
+          "[\"member_id\"]",
+          "\"public\".\"members\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.course_completions.course_completions_offering_id_fkey",
+    "label": "Add foreign key \"course_completions_offering_id_fkey\" on \"course_completions\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "course_completions_offering_id_fkey",
+        "table": "course_completions"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"course_completions_offering_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "course_completions_offering_id_fkey",
+          "public",
+          "\"public\".\"course_completions\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"course_completions_offering_id_fkey\" on \"course_completions\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"course_completions_offering_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"course_completions\"\nADD CONSTRAINT \"course_completions_offering_id_fkey\"\nFOREIGN KEY (\"offering_id\")\nREFERENCES \"public\".\"class_offerings\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"course_completions_offering_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "course_completions_offering_id_fkey",
+          "public",
+          "\"public\".\"course_completions\"",
+          "f",
+          "[\"offering_id\"]",
+          "\"public\".\"class_offerings\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.course_completions.course_completions_member_id_fkey",
+    "label": "Add foreign key \"course_completions_member_id_fkey\" on \"course_completions\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "course_completions_member_id_fkey",
+        "table": "course_completions"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"course_completions_member_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "course_completions_member_id_fkey",
+          "public",
+          "\"public\".\"course_completions\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"course_completions_member_id_fkey\" on \"course_completions\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"course_completions_member_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"course_completions\"\nADD CONSTRAINT \"course_completions_member_id_fkey\"\nFOREIGN KEY (\"member_id\")\nREFERENCES \"public\".\"members\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"course_completions_member_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "course_completions_member_id_fkey",
+          "public",
+          "\"public\".\"course_completions\"",
+          "f",
+          "[\"member_id\"]",
+          "\"public\".\"members\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.course_completions.course_completions_reservation_id_fkey",
+    "label": "Add foreign key \"course_completions_reservation_id_fkey\" on \"course_completions\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "course_completions_reservation_id_fkey",
+        "table": "course_completions"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"course_completions_reservation_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "course_completions_reservation_id_fkey",
+          "public",
+          "\"public\".\"course_completions\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"course_completions_reservation_id_fkey\" on \"course_completions\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"course_completions_reservation_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"course_completions\"\nADD CONSTRAINT \"course_completions_reservation_id_fkey\"\nFOREIGN KEY (\"reservation_id\")\nREFERENCES \"public\".\"reservations\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"course_completions_reservation_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "course_completions_reservation_id_fkey",
+          "public",
+          "\"public\".\"course_completions\"",
+          "f",
+          "[\"reservation_id\"]",
+          "\"public\".\"reservations\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.course_completions.course_completions_order_id_fkey",
+    "label": "Add foreign key \"course_completions_order_id_fkey\" on \"course_completions\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "course_completions_order_id_fkey",
+        "table": "course_completions"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"course_completions_order_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "course_completions_order_id_fkey",
+          "public",
+          "\"public\".\"course_completions\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"course_completions_order_id_fkey\" on \"course_completions\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"course_completions_order_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"course_completions\"\nADD CONSTRAINT \"course_completions_order_id_fkey\"\nFOREIGN KEY (\"order_id\")\nREFERENCES \"public\".\"orders\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"course_completions_order_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "course_completions_order_id_fkey",
+          "public",
+          "\"public\".\"course_completions\"",
+          "f",
+          "[\"order_id\"]",
+          "\"public\".\"orders\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.course_completions.course_completions_promotion_id_fkey",
+    "label": "Add foreign key \"course_completions_promotion_id_fkey\" on \"course_completions\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "course_completions_promotion_id_fkey",
+        "table": "course_completions"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"course_completions_promotion_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "course_completions_promotion_id_fkey",
+          "public",
+          "\"public\".\"course_completions\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"course_completions_promotion_id_fkey\" on \"course_completions\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"course_completions_promotion_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"course_completions\"\nADD CONSTRAINT \"course_completions_promotion_id_fkey\"\nFOREIGN KEY (\"promotion_id\")\nREFERENCES \"public\".\"level_promotions\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"course_completions_promotion_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "course_completions_promotion_id_fkey",
+          "public",
+          "\"public\".\"course_completions\"",
+          "f",
+          "[\"promotion_id\"]",
+          "\"public\".\"level_promotions\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.instructor_level_evaluations.instructor_level_evaluations_instructor_account_id_fkey",
+    "label": "Add foreign key \"instructor_level_evaluations_instructor_account_id_fkey\" on \"instructor_level_evaluations\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "instructor_level_evaluations_instructor_account_id_fkey",
+        "table": "instructor_level_evaluations"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"instructor_level_evaluations_instructor_account_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "instructor_level_evaluations_instructor_account_id_fkey",
+          "public",
+          "\"public\".\"instructor_level_evaluations\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"instructor_level_evaluations_instructor_account_id_fkey\" on \"instructor_level_evaluations\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"instructor_level_evaluations_instructor_account_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"instructor_level_evaluations\"\nADD CONSTRAINT \"instructor_level_evaluations_instructor_account_id_fkey\"\nFOREIGN KEY (\"instructor_account_id\")\nREFERENCES \"public\".\"staff_accounts\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"instructor_level_evaluations_instructor_account_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "instructor_level_evaluations_instructor_account_id_fkey",
+          "public",
+          "\"public\".\"instructor_level_evaluations\"",
+          "f",
+          "[\"instructor_account_id\"]",
+          "\"public\".\"staff_accounts\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.instructor_level_evaluations.instructor_level_evaluations_member_id_fkey",
+    "label": "Add foreign key \"instructor_level_evaluations_member_id_fkey\" on \"instructor_level_evaluations\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "instructor_level_evaluations_member_id_fkey",
+        "table": "instructor_level_evaluations"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"instructor_level_evaluations_member_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "instructor_level_evaluations_member_id_fkey",
+          "public",
+          "\"public\".\"instructor_level_evaluations\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"instructor_level_evaluations_member_id_fkey\" on \"instructor_level_evaluations\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"instructor_level_evaluations_member_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"instructor_level_evaluations\"\nADD CONSTRAINT \"instructor_level_evaluations_member_id_fkey\"\nFOREIGN KEY (\"member_id\")\nREFERENCES \"public\".\"members\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"instructor_level_evaluations_member_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "instructor_level_evaluations_member_id_fkey",
+          "public",
+          "\"public\".\"instructor_level_evaluations\"",
+          "f",
+          "[\"member_id\"]",
+          "\"public\".\"members\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.level_cards.level_cards_member_id_fkey",
+    "label": "Add foreign key \"level_cards_member_id_fkey\" on \"level_cards\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "level_cards_member_id_fkey",
+        "table": "level_cards"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"level_cards_member_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "level_cards_member_id_fkey",
+          "public",
+          "\"public\".\"level_cards\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"level_cards_member_id_fkey\" on \"level_cards\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"level_cards_member_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"level_cards\"\nADD CONSTRAINT \"level_cards_member_id_fkey\"\nFOREIGN KEY (\"member_id\")\nREFERENCES \"public\".\"members\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"level_cards_member_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "level_cards_member_id_fkey",
+          "public",
+          "\"public\".\"level_cards\"",
+          "f",
+          "[\"member_id\"]",
+          "\"public\".\"members\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.level_cards.level_cards_promotion_id_fkey",
+    "label": "Add foreign key \"level_cards_promotion_id_fkey\" on \"level_cards\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "level_cards_promotion_id_fkey",
+        "table": "level_cards"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"level_cards_promotion_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "level_cards_promotion_id_fkey",
+          "public",
+          "\"public\".\"level_cards\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"level_cards_promotion_id_fkey\" on \"level_cards\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"level_cards_promotion_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"level_cards\"\nADD CONSTRAINT \"level_cards_promotion_id_fkey\"\nFOREIGN KEY (\"promotion_id\")\nREFERENCES \"public\".\"level_promotions\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"level_cards_promotion_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "level_cards_promotion_id_fkey",
+          "public",
+          "\"public\".\"level_cards\"",
+          "f",
+          "[\"promotion_id\"]",
+          "\"public\".\"level_promotions\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.level_offers.level_offers_member_id_fkey",
+    "label": "Add foreign key \"level_offers_member_id_fkey\" on \"level_offers\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "level_offers_member_id_fkey",
+        "table": "level_offers"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"level_offers_member_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "level_offers_member_id_fkey",
+          "public",
+          "\"public\".\"level_offers\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"level_offers_member_id_fkey\" on \"level_offers\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"level_offers_member_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"level_offers\"\nADD CONSTRAINT \"level_offers_member_id_fkey\"\nFOREIGN KEY (\"member_id\")\nREFERENCES \"public\".\"members\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"level_offers_member_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "level_offers_member_id_fkey",
+          "public",
+          "\"public\".\"level_offers\"",
+          "f",
+          "[\"member_id\"]",
+          "\"public\".\"members\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.level_offers.level_offers_instructor_account_id_fkey",
+    "label": "Add foreign key \"level_offers_instructor_account_id_fkey\" on \"level_offers\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "level_offers_instructor_account_id_fkey",
+        "table": "level_offers"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"level_offers_instructor_account_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "level_offers_instructor_account_id_fkey",
+          "public",
+          "\"public\".\"level_offers\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"level_offers_instructor_account_id_fkey\" on \"level_offers\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"level_offers_instructor_account_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"level_offers\"\nADD CONSTRAINT \"level_offers_instructor_account_id_fkey\"\nFOREIGN KEY (\"instructor_account_id\")\nREFERENCES \"public\".\"staff_accounts\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"level_offers_instructor_account_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "level_offers_instructor_account_id_fkey",
+          "public",
+          "\"public\".\"level_offers\"",
+          "f",
+          "[\"instructor_account_id\"]",
+          "\"public\".\"staff_accounts\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.level_offers.level_offers_offering_id_fkey",
+    "label": "Add foreign key \"level_offers_offering_id_fkey\" on \"level_offers\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "level_offers_offering_id_fkey",
+        "table": "level_offers"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"level_offers_offering_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "level_offers_offering_id_fkey",
+          "public",
+          "\"public\".\"level_offers\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"level_offers_offering_id_fkey\" on \"level_offers\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"level_offers_offering_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"level_offers\"\nADD CONSTRAINT \"level_offers_offering_id_fkey\"\nFOREIGN KEY (\"offering_id\")\nREFERENCES \"public\".\"class_offerings\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"level_offers_offering_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "level_offers_offering_id_fkey",
+          "public",
+          "\"public\".\"level_offers\"",
+          "f",
+          "[\"offering_id\"]",
+          "\"public\".\"class_offerings\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.level_promotions.level_promotions_member_id_fkey",
+    "label": "Add foreign key \"level_promotions_member_id_fkey\" on \"level_promotions\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "level_promotions_member_id_fkey",
+        "table": "level_promotions"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"level_promotions_member_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "level_promotions_member_id_fkey",
+          "public",
+          "\"public\".\"level_promotions\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"level_promotions_member_id_fkey\" on \"level_promotions\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"level_promotions_member_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"level_promotions\"\nADD CONSTRAINT \"level_promotions_member_id_fkey\"\nFOREIGN KEY (\"member_id\")\nREFERENCES \"public\".\"members\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"level_promotions_member_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "level_promotions_member_id_fkey",
+          "public",
+          "\"public\".\"level_promotions\"",
+          "f",
+          "[\"member_id\"]",
+          "\"public\".\"members\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.level_promotions.level_promotions_offering_id_fkey",
+    "label": "Add foreign key \"level_promotions_offering_id_fkey\" on \"level_promotions\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "level_promotions_offering_id_fkey",
+        "table": "level_promotions"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"level_promotions_offering_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "level_promotions_offering_id_fkey",
+          "public",
+          "\"public\".\"level_promotions\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"level_promotions_offering_id_fkey\" on \"level_promotions\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"level_promotions_offering_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"level_promotions\"\nADD CONSTRAINT \"level_promotions_offering_id_fkey\"\nFOREIGN KEY (\"offering_id\")\nREFERENCES \"public\".\"class_offerings\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"level_promotions_offering_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "level_promotions_offering_id_fkey",
+          "public",
+          "\"public\".\"level_promotions\"",
+          "f",
+          "[\"offering_id\"]",
+          "\"public\".\"class_offerings\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.level_promotions.level_promotions_offer_id_fkey",
+    "label": "Add foreign key \"level_promotions_offer_id_fkey\" on \"level_promotions\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "level_promotions_offer_id_fkey",
+        "table": "level_promotions"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"level_promotions_offer_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "level_promotions_offer_id_fkey",
+          "public",
+          "\"public\".\"level_promotions\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"level_promotions_offer_id_fkey\" on \"level_promotions\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"level_promotions_offer_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"level_promotions\"\nADD CONSTRAINT \"level_promotions_offer_id_fkey\"\nFOREIGN KEY (\"offer_id\")\nREFERENCES \"public\".\"level_offers\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"level_promotions_offer_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "level_promotions_offer_id_fkey",
+          "public",
+          "\"public\".\"level_promotions\"",
+          "f",
+          "[\"offer_id\"]",
+          "\"public\".\"level_offers\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.member_genre_levels.member_genre_levels_member_id_fkey",
+    "label": "Add foreign key \"member_genre_levels_member_id_fkey\" on \"member_genre_levels\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "member_genre_levels_member_id_fkey",
+        "table": "member_genre_levels"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"member_genre_levels_member_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "member_genre_levels_member_id_fkey",
+          "public",
+          "\"public\".\"member_genre_levels\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"member_genre_levels_member_id_fkey\" on \"member_genre_levels\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"member_genre_levels_member_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"member_genre_levels\"\nADD CONSTRAINT \"member_genre_levels_member_id_fkey\"\nFOREIGN KEY (\"member_id\")\nREFERENCES \"public\".\"members\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"member_genre_levels_member_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "member_genre_levels_member_id_fkey",
+          "public",
+          "\"public\".\"member_genre_levels\"",
+          "f",
+          "[\"member_id\"]",
+          "\"public\".\"members\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.members.members_featured_level_card_id_fkey",
+    "label": "Add foreign key \"members_featured_level_card_id_fkey\" on \"members\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "members_featured_level_card_id_fkey",
+        "table": "members"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"members_featured_level_card_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "members_featured_level_card_id_fkey",
+          "public",
+          "\"public\".\"members\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"members_featured_level_card_id_fkey\" on \"members\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"members_featured_level_card_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"members\"\nADD CONSTRAINT \"members_featured_level_card_id_fkey\"\nFOREIGN KEY (\"featured_level_card_id\")\nREFERENCES \"public\".\"level_cards\" (\"id\")\nON DELETE SET NULL"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"members_featured_level_card_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "members_featured_level_card_id_fkey",
+          "public",
+          "\"public\".\"members\"",
+          "f",
+          "[\"featured_level_card_id\"]",
+          "\"public\".\"level_cards\"",
+          "[\"id\"]",
+          "n",
+          "a"
+        ]
+      }
+    ]
+  }
+]

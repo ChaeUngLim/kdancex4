@@ -1,0 +1,196 @@
+[
+  {
+    "id": "dropCheckConstraint.payment_webhook_events.payment_webhook_events_result_check_409bc0e1",
+    "label": "Drop check constraint \"payment_webhook_events_result_check_409bc0e1\" on \"payment_webhook_events\"",
+    "operationClass": "widening",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "checkConstraint",
+        "name": "payment_webhook_events_result_check_409bc0e1",
+        "table": "payment_webhook_events"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"payment_webhook_events_result_check_409bc0e1\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "payment_webhook_events_result_check_409bc0e1",
+          "public",
+          "\"public\".\"payment_webhook_events\""
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "constraint \"payment_webhook_events_result_check_409bc0e1\" on \"payment_webhook_events\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "drop check constraint \"payment_webhook_events_result_check_409bc0e1\"",
+        "sql": "ALTER TABLE \"public\".\"payment_webhook_events\" DROP CONSTRAINT \"payment_webhook_events_result_check_409bc0e1\""
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"payment_webhook_events_result_check_409bc0e1\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "payment_webhook_events_result_check_409bc0e1",
+          "public",
+          "\"public\".\"payment_webhook_events\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "constraint \"payment_webhook_events_result_check_409bc0e1\" on \"payment_webhook_events\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "dropCheckConstraint.reservations.reservations_cancel_reason_check_6a45d718",
+    "label": "Drop check constraint \"reservations_cancel_reason_check_6a45d718\" on \"reservations\"",
+    "operationClass": "widening",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "checkConstraint",
+        "name": "reservations_cancel_reason_check_6a45d718",
+        "table": "reservations"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"reservations_cancel_reason_check_6a45d718\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "reservations_cancel_reason_check_6a45d718",
+          "public",
+          "\"public\".\"reservations\""
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "constraint \"reservations_cancel_reason_check_6a45d718\" on \"reservations\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "drop check constraint \"reservations_cancel_reason_check_6a45d718\"",
+        "sql": "ALTER TABLE \"public\".\"reservations\" DROP CONSTRAINT \"reservations_cancel_reason_check_6a45d718\""
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"reservations_cancel_reason_check_6a45d718\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "reservations_cancel_reason_check_6a45d718",
+          "public",
+          "\"public\".\"reservations\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "constraint \"reservations_cancel_reason_check_6a45d718\" on \"reservations\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "checkConstraint.payment_webhook_events.payment_webhook_events_result_check_8f0664e1",
+    "label": "Add check constraint \"payment_webhook_events_result_check_8f0664e1\" on \"payment_webhook_events\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "checkConstraint",
+        "name": "payment_webhook_events_result_check_8f0664e1",
+        "table": "payment_webhook_events"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"payment_webhook_events_result_check_8f0664e1\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "payment_webhook_events_result_check_8f0664e1",
+          "public",
+          "\"public\".\"payment_webhook_events\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "constraint \"payment_webhook_events_result_check_8f0664e1\" on \"payment_webhook_events\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add check constraint \"payment_webhook_events_result_check_8f0664e1\"",
+        "sql": "ALTER TABLE \"public\".\"payment_webhook_events\" ADD CONSTRAINT \"payment_webhook_events_result_check_8f0664e1\" CHECK (\"result\" IN ('confirmed', 'duplicate', 'rejected_signature', 'amount_mismatch', 'deposit_on_closed_order', 'ignored', 'payment_failed'))"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify check constraint \"payment_webhook_events_result_check_8f0664e1\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4)) AS \"result\"",
+        "params": [
+          "payment_webhook_events_result_check_8f0664e1",
+          "public",
+          "\"public\".\"payment_webhook_events\"",
+          "c"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "checkConstraint.reservations.reservations_cancel_reason_check_7fa589e8",
+    "label": "Add check constraint \"reservations_cancel_reason_check_7fa589e8\" on \"reservations\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "checkConstraint",
+        "name": "reservations_cancel_reason_check_7fa589e8",
+        "table": "reservations"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"reservations_cancel_reason_check_7fa589e8\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "reservations_cancel_reason_check_7fa589e8",
+          "public",
+          "\"public\".\"reservations\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "constraint \"reservations_cancel_reason_check_7fa589e8\" on \"reservations\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add check constraint \"reservations_cancel_reason_check_7fa589e8\"",
+        "sql": "ALTER TABLE \"public\".\"reservations\" ADD CONSTRAINT \"reservations_cancel_reason_check_7fa589e8\" CHECK (\"cancel_reason\" IN ('member_request', 'self_cancel_unpaid', 'payment_failed'))"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify check constraint \"reservations_cancel_reason_check_7fa589e8\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4)) AS \"result\"",
+        "params": [
+          "reservations_cancel_reason_check_7fa589e8",
+          "public",
+          "\"public\".\"reservations\"",
+          "c"
+        ]
+      }
+    ]
+  }
+]

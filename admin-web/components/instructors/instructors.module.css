@@ -1,0 +1,347 @@
+/* 강사 관리 화면(보드 W3a) — 아이보리 바탕 + 흰 카드 + 딥 플럼 강조. 색은 콘솔 틀·학원 설정 화면과 같다 */
+.head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 24px;
+}
+.title {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 800;
+}
+.subtitle {
+  margin: 10px 0 0;
+  font-size: 13px;
+  color: #6d6573;
+}
+.card {
+  margin-top: 20px;
+  background: #fff;
+  border: 1px solid #e8e2da;
+  border-radius: 20px;
+  padding: 24px;
+}
+.cardHead {
+  display: flex;
+  align-items: baseline;
+  gap: 20px;
+}
+.cardTitle {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 800;
+}
+.hint {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 700;
+  color: #5c3a64;
+}
+.muted {
+  margin: 14px 0 0;
+  font-size: 13px;
+  color: #8a8190;
+}
+.note {
+  margin: 14px 0 0;
+  font-size: 12px;
+  color: #7d7483;
+}
+
+/* 사람 한 줄(아바타 + 이름 + 부가 줄) */
+.person {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: #e9e1d6;
+  flex: none;
+}
+.name {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 800;
+}
+.sub {
+  margin: 4px 0 0;
+  font-size: 12px;
+  color: #7d7483;
+}
+.quote {
+  margin: 4px 0 0;
+  font-size: 12px;
+  color: #5c5562;
+}
+
+/* 소속 신청 */
+.pending {
+  margin-top: 14px;
+  padding: 14px 0;
+  border-bottom: 1px solid #efe7da;
+}
+.pending .person > div {
+  flex: 1;
+}
+.approveForm {
+  margin: 14px 0 0 54px;
+  padding: 18px 20px;
+  border-radius: 14px;
+  background: #faf6f0;
+  border: 1px solid #ece2d3;
+  display: grid;
+  gap: 14px;
+}
+.label {
+  font-size: 12px;
+  font-weight: 700;
+  color: #5c5562;
+}
+.segment {
+  border: 0;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.segment legend {
+  float: left;
+  margin-right: 12px;
+}
+.segmentItem,
+.segmentOn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: 999px;
+  border: 1px solid #d9d0c6;
+  background: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.segmentOn {
+  border-color: #5c3a64;
+  background: #efe3f1;
+  color: #5c3a64;
+}
+.segmentItem input,
+.segmentOn input {
+  margin: 0;
+  accent-color: #5c3a64;
+}
+.rateField {
+  display: grid;
+  gap: 6px;
+}
+.rateInput {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
+  font-weight: 800;
+}
+.rateInput input {
+  width: 88px;
+  padding: 9px 12px;
+  border-radius: 10px;
+  border: 1px solid #d9d0c6;
+  background: #fff;
+  font: inherit;
+  font-size: 16px;
+  font-weight: 800;
+  text-align: right;
+}
+.rateInput input:focus,
+.inviteUrl:focus {
+  outline: 2px solid #5c3a64;
+  outline-offset: 1px;
+}
+.help {
+  margin: 0;
+  font-size: 12px;
+  color: #7d7483;
+}
+
+/* 버튼 */
+.button,
+.primary {
+  padding: 8px 16px;
+  border-radius: 10px;
+  border: 1px solid #d9d0c6;
+  background: #fff;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  color: #1d1a1f;
+  cursor: pointer;
+}
+.primary {
+  background: #5c3a64;
+  border-color: #5c3a64;
+  color: #fff;
+}
+.button:hover {
+  border-color: #5c3a64;
+}
+.primary:hover {
+  background: #4b2e52;
+}
+.button:disabled,
+.primary:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+.error {
+  margin: 10px 0 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: #b3261e;
+}
+.ok {
+  margin: 10px 0 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: #5c3a64;
+}
+
+/* 소속 강사 표 */
+.table {
+  width: 100%;
+  margin-top: 12px;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+.table th {
+  text-align: left;
+  padding: 8px 0;
+  font-size: 12px;
+  font-weight: 700;
+  color: #7d7483;
+  border-bottom: 1px solid #efe7da;
+}
+.table td {
+  padding: 16px 0;
+  border-bottom: 1px solid #efe7da;
+}
+.table tr:last-child td {
+  border-bottom: 0;
+}
+.toggleCol {
+  width: 160px;
+  text-align: center !important;
+}
+
+/* 위임 토글(보드 W3a 의 둥근 스위치) */
+.switch,
+.switchOn {
+  position: relative;
+  width: 40px;
+  height: 22px;
+  padding: 0;
+  border-radius: 999px;
+  border: 0;
+  background: #e4ddd3;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.switchOn {
+  background: #5c3a64;
+}
+.switch:focus-visible,
+.switchOn:focus-visible {
+  outline: 2px solid #c9a96a;
+  outline-offset: 2px;
+}
+.switch:disabled,
+.switchOn:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+.knob {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #fff;
+  transition: transform 0.15s;
+}
+.switchOn .knob {
+  transform: translateX(18px);
+}
+
+/* 위임할 수 없는 것 */
+.limits {
+  margin-top: 20px;
+  padding: 18px 22px;
+  border-radius: 16px;
+  background: #f6ecdf;
+  border: 1px solid #e6cfa6;
+  font-size: 12px;
+  color: #5c5562;
+}
+.limitsTitle {
+  margin: 0 0 6px;
+  font-size: 13px;
+  font-weight: 800;
+  color: #1d1a1f;
+}
+.limits p {
+  margin: 4px 0 0;
+}
+
+/* 초대 링크 */
+.invite {
+  display: grid;
+  justify-items: end;
+  gap: 8px;
+  max-width: 460px;
+}
+.inviteBox {
+  width: 420px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  background: #fff;
+  border: 1px solid #e8e2da;
+  display: grid;
+  gap: 8px;
+}
+.inviteRow {
+  display: flex;
+  gap: 8px;
+}
+.inviteUrl {
+  flex: 1;
+  min-width: 0;
+  padding: 8px 10px;
+  border-radius: 10px;
+  border: 1px solid #d9d0c6;
+  background: #faf7f3;
+  font: inherit;
+  font-size: 12px;
+  color: #3d3742;
+}
+
+/* 소속 강사 줄 끝 「소속 해제 ›」(보드 W3b 로 가는 입구, S2-3.10) */
+.releaseLink {
+  font-size: 13px;
+  font-weight: 800;
+  color: #5c3a64;
+  text-decoration: none;
+}
+.releaseLink:hover {
+  text-decoration: underline;
+}

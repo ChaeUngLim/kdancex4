@@ -1,0 +1,259 @@
+[
+  {
+    "id": "dropCheckConstraint.uploaded_files.uploaded_files_purpose_check_af31640c",
+    "label": "Drop check constraint \"uploaded_files_purpose_check_af31640c\" on \"uploaded_files\"",
+    "operationClass": "widening",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "checkConstraint",
+        "name": "uploaded_files_purpose_check_af31640c",
+        "table": "uploaded_files"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"uploaded_files_purpose_check_af31640c\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "uploaded_files_purpose_check_af31640c",
+          "public",
+          "\"public\".\"uploaded_files\""
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "constraint \"uploaded_files_purpose_check_af31640c\" on \"uploaded_files\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "drop check constraint \"uploaded_files_purpose_check_af31640c\"",
+        "sql": "ALTER TABLE \"public\".\"uploaded_files\" DROP CONSTRAINT \"uploaded_files_purpose_check_af31640c\""
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"uploaded_files_purpose_check_af31640c\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "uploaded_files_purpose_check_af31640c",
+          "public",
+          "\"public\".\"uploaded_files\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "constraint \"uploaded_files_purpose_check_af31640c\" on \"uploaded_files\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "column.public.classes.poster_file_id",
+    "label": "Add column \"poster_file_id\" to \"classes\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "poster_file_id",
+        "table": "classes"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"poster_file_id\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "classes",
+          "poster_file_id"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "column \"poster_file_id\" on \"classes\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"poster_file_id\"",
+        "sql": "ALTER TABLE \"public\".\"classes\" ADD COLUMN \"poster_file_id\" uuid"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"poster_file_id\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "classes",
+          "poster_file_id"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "column \"poster_file_id\" on \"classes\""
+        }
+      },
+      {
+        "description": "verify column \"poster_file_id\" has type \"uuid\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_attribute\" AS \"a\" INNER JOIN \"pg_class\" AS \"c\" ON \"c\".\"oid\" = \"a\".\"attrelid\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"a\".\"attname\" = $3 AND (format_type(\"a\".\"atttypid\", \"a\".\"atttypmod\")) = $4 AND NOT (\"a\".\"attisdropped\"))) AS \"result\"",
+        "params": [
+          "public",
+          "classes",
+          "poster_file_id",
+          "uuid"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "checkConstraint.uploaded_files.uploaded_files_purpose_check_2f10ad73",
+    "label": "Add check constraint \"uploaded_files_purpose_check_2f10ad73\" on \"uploaded_files\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "checkConstraint",
+        "name": "uploaded_files_purpose_check_2f10ad73",
+        "table": "uploaded_files"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"uploaded_files_purpose_check_2f10ad73\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "uploaded_files_purpose_check_2f10ad73",
+          "public",
+          "\"public\".\"uploaded_files\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "constraint \"uploaded_files_purpose_check_2f10ad73\" on \"uploaded_files\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add check constraint \"uploaded_files_purpose_check_2f10ad73\"",
+        "sql": "ALTER TABLE \"public\".\"uploaded_files\" ADD CONSTRAINT \"uploaded_files_purpose_check_2f10ad73\" CHECK (\"purpose\" IN ('merchant_evidence', 'academy_photo', 'business_registration_evidence', 'instructor_photo', 'poster'))"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify check constraint \"uploaded_files_purpose_check_2f10ad73\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4)) AS \"result\"",
+        "params": [
+          "uploaded_files_purpose_check_2f10ad73",
+          "public",
+          "\"public\".\"uploaded_files\"",
+          "c"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.classes.classes_poster_file_id_idx_9d6e5ae4",
+    "label": "Create index \"classes_poster_file_id_idx_9d6e5ae4\" on \"classes\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "classes_poster_file_id_idx_9d6e5ae4",
+        "table": "classes"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"classes_poster_file_id_idx_9d6e5ae4\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"classes_poster_file_id_idx_9d6e5ae4\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"classes_poster_file_id_idx_9d6e5ae4\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"classes_poster_file_id_idx_9d6e5ae4\"",
+        "sql": "CREATE INDEX \"classes_poster_file_id_idx_9d6e5ae4\" ON \"public\".\"classes\" (\"poster_file_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"classes_poster_file_id_idx_9d6e5ae4\" exists on \"classes\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"classes_poster_file_id_idx_9d6e5ae4\"",
+          "i",
+          "I",
+          "\"public\".\"classes\"",
+          "btree",
+          "[\"poster_file_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.classes.classes_poster_file_id_fkey",
+    "label": "Add foreign key \"classes_poster_file_id_fkey\" on \"classes\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "classes_poster_file_id_fkey",
+        "table": "classes"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"classes_poster_file_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "classes_poster_file_id_fkey",
+          "public",
+          "\"public\".\"classes\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"classes_poster_file_id_fkey\" on \"classes\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"classes_poster_file_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"classes\"\nADD CONSTRAINT \"classes_poster_file_id_fkey\"\nFOREIGN KEY (\"poster_file_id\")\nREFERENCES \"public\".\"uploaded_files\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"classes_poster_file_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "classes_poster_file_id_fkey",
+          "public",
+          "\"public\".\"classes\"",
+          "f",
+          "[\"poster_file_id\"]",
+          "\"public\".\"uploaded_files\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  }
+]

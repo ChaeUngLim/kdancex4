@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
-import { AdminNav } from "../components/AdminNav";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -8,18 +7,11 @@ export const metadata: Metadata = {
   icons: { icon: "/favicon.svg" },
 };
 
+// 가장 바깥 틀은 html·body 만 둔다. 콘솔 틀은 app/(console)/layout.tsx, 로그인 화면은 app/login 이 따로 그린다.
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="ko">
-      <body>
-        <div id="root">
-          <main style={{ padding: "32px 24px", maxWidth: 960, margin: "0 auto" }}>
-            <h1>kdance 관리자 콘솔</h1>
-            <AdminNav />
-            {children}
-          </main>
-        </div>
-      </body>
+      <body>{children}</body>
     </html>
   );
 }

@@ -1,0 +1,226 @@
+/* 학원 공지 화면(보드 W5) — 아이보리 바탕 + 흰 카드 + 딥 플럼 강조. 색은 강사 관리 화면(W3a)과 같다 */
+.head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 24px;
+}
+.title {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 800;
+}
+.subtitle {
+  margin: 10px 0 0;
+  font-size: 13px;
+  color: #6d6573;
+}
+
+/* 왼쪽 지난 공지(좁게) · 오른쪽 공지 쓰기(넓게) — 보드의 두 칸 배치 */
+.columns {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr);
+  gap: 20px;
+  margin-top: 20px;
+  align-items: start;
+}
+.card {
+  background: #fff;
+  border: 1px solid #e8e2da;
+  border-radius: 20px;
+  padding: 24px;
+}
+.cardTitle {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 800;
+}
+.muted {
+  margin: 14px 0 0;
+  font-size: 13px;
+  color: #8a8190;
+}
+
+/* 지난 공지 목록 */
+.list {
+  list-style: none;
+  margin: 14px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.item {
+  padding: 12px;
+  border: 1px solid transparent;
+  border-radius: 12px;
+}
+.itemSelected {
+  background: #f6efe3;
+  border-color: #e3cf9f;
+}
+.badge {
+  display: inline-block;
+  padding: 3px 12px;
+  border-radius: 999px;
+  background: #efe3ef;
+  color: #5c3a64;
+  font-size: 12px;
+  font-weight: 700;
+}
+.itemTitle {
+  margin: 8px 0 0;
+  font-size: 14px;
+  font-weight: 800;
+}
+.itemMeta {
+  margin: 4px 0 0;
+  font-size: 12px;
+  color: #7d7483;
+}
+
+/* 공지 쓰기 */
+.label {
+  display: block;
+  margin: 18px 0 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #5c5562;
+}
+.recipients {
+  margin: 0;
+  padding: 11px 14px;
+  border-radius: 10px;
+  background: #efe3ef;
+  color: #5c3a64;
+  font-size: 14px;
+  font-weight: 700;
+}
+.hint {
+  margin: 8px 0 0;
+  font-size: 12px;
+  color: #7d7483;
+}
+.chips {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.chip {
+  padding: 5px 14px;
+  border-radius: 999px;
+  border: none;
+  background: #efebe5;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  color: #3d3742;
+  cursor: pointer;
+}
+.chipOn {
+  background: #5c3a64;
+  color: #fff;
+}
+.chip:disabled {
+  cursor: default;
+}
+.chip:focus-visible,
+.input:focus-visible,
+.textarea:focus-visible {
+  outline: 2px solid #5c3a64;
+  outline-offset: 2px;
+}
+.input,
+.textarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 9px 12px;
+  border: 1px solid #e3ddd5;
+  border-radius: 10px;
+  background: #faf8f5;
+  font: inherit;
+  font-size: 14px;
+  color: #1d1a1f;
+}
+.textarea {
+  min-height: 150px;
+  resize: vertical;
+  line-height: 1.6;
+}
+.input:read-only,
+.textarea:read-only {
+  background: #f3f0ec;
+  color: #4a4450;
+}
+.notice {
+  margin: 14px 0 0;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: #f3efe9;
+  font-size: 12px;
+  color: #4a4450;
+  line-height: 1.6;
+}
+.locked {
+  margin: 14px 0 0;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: #f6efe3;
+  border: 1px solid #e3cf9f;
+  font-size: 13px;
+  font-weight: 600;
+  color: #5c3a64;
+}
+.note {
+  margin: 10px 0 0;
+  font-size: 12px;
+  color: #7d7483;
+}
+
+/* 버튼 */
+.button,
+.primary {
+  padding: 10px 22px;
+  border-radius: 10px;
+  border: 1px solid #d9d0c6;
+  background: #fff;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  color: #1d1a1f;
+  cursor: pointer;
+}
+.primary {
+  background: #5c3a64;
+  border-color: #5c3a64;
+  color: #fff;
+}
+.button:hover {
+  border-color: #5c3a64;
+}
+.primary:hover {
+  background: #4b2e52;
+}
+.button:disabled,
+.primary:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 16px;
+}
+.error {
+  margin: 8px 0 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: #b3261e;
+}
+.ok {
+  margin: 12px 0 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: #5c3a64;
+}

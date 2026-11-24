@@ -1,0 +1,215 @@
+[
+  {
+    "id": "column.public.class_sessions.status",
+    "label": "Add column \"status\" to \"class_sessions\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "status",
+        "table": "class_sessions"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"status\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "class_sessions",
+          "status"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "column \"status\" on \"class_sessions\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"status\"",
+        "sql": "ALTER TABLE \"public\".\"class_sessions\" ADD COLUMN \"status\" text DEFAULT 'scheduled' NOT NULL"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"status\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "class_sessions",
+          "status"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "column \"status\" on \"class_sessions\""
+        }
+      },
+      {
+        "description": "verify column \"status\" has type \"text\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_attribute\" AS \"a\" INNER JOIN \"pg_class\" AS \"c\" ON \"c\".\"oid\" = \"a\".\"attrelid\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"a\".\"attname\" = $3 AND (format_type(\"a\".\"atttypid\", \"a\".\"atttypmod\")) = $4 AND NOT (\"a\".\"attisdropped\"))) AS \"result\"",
+        "params": [
+          "public",
+          "class_sessions",
+          "status",
+          "text"
+        ]
+      },
+      {
+        "description": "verify column \"status\" is NOT NULL",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3 AND \"is_nullable\" = $4)) AS \"result\"",
+        "params": [
+          "public",
+          "class_sessions",
+          "status",
+          "NO"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "checkConstraint.class_sessions.class_sessions_status_check_81ea7323",
+    "label": "Add check constraint \"class_sessions_status_check_81ea7323\" on \"class_sessions\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "checkConstraint",
+        "name": "class_sessions_status_check_81ea7323",
+        "table": "class_sessions"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"class_sessions_status_check_81ea7323\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "class_sessions_status_check_81ea7323",
+          "public",
+          "\"public\".\"class_sessions\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "constraint \"class_sessions_status_check_81ea7323\" on \"class_sessions\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add check constraint \"class_sessions_status_check_81ea7323\"",
+        "sql": "ALTER TABLE \"public\".\"class_sessions\" ADD CONSTRAINT \"class_sessions_status_check_81ea7323\" CHECK (\"status\" IN ('scheduled', 'cancelled', 'closed'))"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify check constraint \"class_sessions_status_check_81ea7323\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4)) AS \"result\"",
+        "params": [
+          "class_sessions_status_check_81ea7323",
+          "public",
+          "\"public\".\"class_sessions\"",
+          "c"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.class_sessions.ix_sessions_instructor_time_699a23af",
+    "label": "Create index \"ix_sessions_instructor_time_699a23af\" on \"class_sessions\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "ix_sessions_instructor_time_699a23af",
+        "table": "class_sessions"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"ix_sessions_instructor_time_699a23af\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ix_sessions_instructor_time_699a23af\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"ix_sessions_instructor_time_699a23af\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"ix_sessions_instructor_time_699a23af\"",
+        "sql": "CREATE INDEX \"ix_sessions_instructor_time_699a23af\" ON \"public\".\"class_sessions\" (\"instructor_account_id\", \"starts_at\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"ix_sessions_instructor_time_699a23af\" exists on \"class_sessions\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"ix_sessions_instructor_time_699a23af\"",
+          "i",
+          "I",
+          "\"public\".\"class_sessions\"",
+          "btree",
+          "[\"instructor_account_id\",\"starts_at\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "exclude.class_sessions_overlap",
+    "label": "Reject overlapping scheduled sessions per instructor and per room",
+    "summary": "Creates btree_gist and EXCLUDE constraints ex_sessions_instructor and ex_sessions_room on class_sessions",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "class_sessions"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"ex_sessions_instructor\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname IN ('ex_sessions_instructor', 'ex_sessions_room'))",
+        "expectation": {
+          "expects": "absent",
+          "object": "constraint \"ex_sessions_instructor\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create extension btree_gist",
+        "sql": "CREATE EXTENSION IF NOT EXISTS btree_gist"
+      },
+      {
+        "description": "add exclusion constraint ex_sessions_instructor",
+        "sql": "ALTER TABLE public.class_sessions ADD CONSTRAINT ex_sessions_instructor\n  EXCLUDE USING gist (instructor_account_id WITH =, tstzrange(starts_at, ends_at) WITH &&)\n  WHERE (status = 'scheduled')"
+      },
+      {
+        "description": "add exclusion constraint ex_sessions_room",
+        "sql": "ALTER TABLE public.class_sessions ADD CONSTRAINT ex_sessions_room\n  EXCLUDE USING gist (room_id WITH =, tstzrange(starts_at, ends_at) WITH &&)\n  WHERE (status = 'scheduled' AND room_id IS NOT NULL)"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraints \"ex_sessions_instructor\" and \"ex_sessions_room\" exist",
+        "sql": "SELECT (SELECT count(*) FROM pg_constraint WHERE conname IN ('ex_sessions_instructor', 'ex_sessions_room') AND contype = 'x') = 2",
+        "expectation": {
+          "expects": "present",
+          "object": "constraint \"ex_sessions_instructor\""
+        }
+      }
+    ]
+  }
+]

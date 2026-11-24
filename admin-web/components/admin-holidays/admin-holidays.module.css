@@ -1,0 +1,160 @@
+/* 운영자 콘솔 P9 공휴일 관리(S7-4.9e) — 아이보리 바탕 + 흰 카드 + 딥 플럼 강조(보드 P9). 버튼·입력칸은 학원 설정 화면 모듈을 같이 쓴다 */
+.headButton {
+  padding: 12px 28px;
+  border-radius: 12px;
+  border: 0;
+  background: #5c3a64;
+  color: #fff;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.syncBar {
+  margin-top: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 20px;
+  border-radius: 14px;
+  background: #efe3f1;
+  color: #4a2f52;
+  font-size: 14px;
+  font-weight: 700;
+}
+.yearSelect {
+  padding: 7px 14px;
+  border-radius: 10px;
+  border: 1px solid #e3d6e6;
+  background: #faf7f3;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 800;
+  color: #1d1a1f;
+}
+.single {
+  margin-top: 16px;
+  max-width: 760px;
+}
+.grid {
+  margin-top: 16px;
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+  gap: 20px;
+  align-items: start;
+}
+.tableCard {
+  background: #fff;
+  border: 1px solid #e8e2da;
+  border-radius: 20px;
+  padding: 10px 20px;
+}
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+.table th {
+  text-align: left;
+  padding: 12px 8px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #7d7483;
+  border-bottom: 1px solid #e8e2da;
+}
+.table td {
+  padding: 12px 8px;
+  border-bottom: 1px solid #efe7da;
+  font-weight: 600;
+}
+.table tr:last-child td {
+  border-bottom: 0;
+}
+/* 운영자가 넣은 줄은 보드처럼 옅은 샴페인 바탕으로 눈에 띄게 한다 */
+.operatorRow td {
+  background: #f6ecdf;
+}
+.emptyRow {
+  text-align: center;
+  color: #a59cab;
+  font-weight: 400 !important;
+}
+.actionCell {
+  text-align: right;
+  white-space: nowrap;
+}
+.confirm {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+  font-size: 12px;
+  color: #5c5562;
+}
+.dangerText {
+  border: 0;
+  background: none;
+  padding: 0;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  color: #b3261e;
+  cursor: pointer;
+}
+.addCard {
+  background: #fff;
+  border: 1px solid #e6cfa6;
+  border-radius: 20px;
+  padding: 20px;
+  display: grid;
+  gap: 8px;
+}
+.label {
+  margin: 8px 0 0;
+  font-size: 12px;
+  color: #7d7483;
+}
+.radios {
+  display: flex;
+  gap: 18px;
+  flex-wrap: wrap;
+}
+.radio {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+  font-size: 13px;
+  font-weight: 600;
+  color: #5c5562;
+  accent-color: #5c3a64;
+}
+.cardActions {
+  margin-top: 16px;
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 10px;
+}
+.addButton {
+  padding: 10px 16px;
+  border-radius: 10px;
+  border: 0;
+  background: #5c3a64;
+  color: #fff;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.addButton:disabled {
+  opacity: 0.5;
+}
+.footNote {
+  margin: 20px 0 0;
+  font-size: 13px;
+  font-weight: 700;
+  color: #4a4350;
+}
+.footSub {
+  margin: 6px 0 0;
+  font-size: 12px;
+  color: #7d7483;
+}

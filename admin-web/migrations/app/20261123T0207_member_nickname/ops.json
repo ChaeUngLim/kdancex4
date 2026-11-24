@@ -1,0 +1,223 @@
+[
+  {
+    "id": "column.public.members.nickname_changed_at",
+    "label": "Add column \"nickname_changed_at\" to \"members\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "nickname_changed_at",
+        "table": "members"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"nickname_changed_at\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "members",
+          "nickname_changed_at"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "column \"nickname_changed_at\" on \"members\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"nickname_changed_at\"",
+        "sql": "ALTER TABLE \"public\".\"members\" ADD COLUMN \"nickname_changed_at\" timestamptz"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"nickname_changed_at\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "members",
+          "nickname_changed_at"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "column \"nickname_changed_at\" on \"members\""
+        }
+      },
+      {
+        "description": "verify column \"nickname_changed_at\" has type \"timestamp with time zone\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_attribute\" AS \"a\" INNER JOIN \"pg_class\" AS \"c\" ON \"c\".\"oid\" = \"a\".\"attrelid\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"a\".\"attname\" = $3 AND (format_type(\"a\".\"atttypid\", \"a\".\"atttypmod\")) = $4 AND NOT (\"a\".\"attisdropped\"))) AS \"result\"",
+        "params": [
+          "public",
+          "members",
+          "nickname_changed_at",
+          "timestamp with time zone"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "column.members.nickname",
+    "label": "Add column nickname to members",
+    "summary": "Adds column nickname to table members",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "members"
+      }
+    },
+    "operationClass": "additive",
+    "precheck": [
+      {
+        "description": "ensure column \"nickname\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "members",
+          "nickname"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "column \"nickname\" on \"members\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"nickname\"",
+        "sql": "ALTER TABLE \"public\".\"members\" ADD COLUMN \"nickname\" text DEFAULT ('') NOT NULL"
+      },
+      {
+        "description": "drop temporary default from column \"nickname\"",
+        "sql": "ALTER TABLE \"public\".\"members\" ALTER COLUMN \"nickname\" DROP DEFAULT"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"nickname\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "members",
+          "nickname"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "column \"nickname\" on \"members\""
+        }
+      },
+      {
+        "description": "verify column \"nickname\" is NOT NULL",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3 AND \"is_nullable\" = $4)) AS \"result\"",
+        "params": [
+          "public",
+          "members",
+          "nickname",
+          "NO"
+        ]
+      },
+      {
+        "description": "verify column \"nickname\" has no default after temporary default removal",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3 AND \"column_default\" IS NOT NULL)) AS \"result\"",
+        "params": [
+          "public",
+          "members",
+          "nickname"
+        ]
+      },
+      {
+        "description": "verify column \"nickname\" has type \"text\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_attribute\" AS \"a\" INNER JOIN \"pg_class\" AS \"c\" ON \"c\".\"oid\" = \"a\".\"attrelid\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"a\".\"attname\" = $3 AND (format_type(\"a\".\"atttypid\", \"a\".\"atttypmod\")) = $4 AND NOT (\"a\".\"attisdropped\"))) AS \"result\"",
+        "params": [
+          "public",
+          "members",
+          "nickname",
+          "text"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "backfill.members_nickname_from_name",
+    "label": "Fill nickname of pre-existing members from name",
+    "summary": "Rows that existed before nickname get left(btrim(name), 12), padded to 2 chars",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "members"
+      }
+    },
+    "precheck": [],
+    "execute": [
+      {
+        "description": "set nickname from name on rows that existed before this migration",
+        "sql": "UPDATE public.members SET nickname = CASE WHEN char_length(btrim(left(btrim(name), 12))) >= 2 THEN btrim(left(btrim(name), 12)) ELSE left(btrim(name) || '회원', 12) END WHERE nickname = ''"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify no member is left with an empty nickname",
+        "sql": "SELECT NOT EXISTS (SELECT 1 FROM public.members WHERE nickname = '')",
+        "expectation": {
+          "expects": "absent",
+          "object": "members rows with empty nickname"
+        }
+      }
+    ]
+  },
+  {
+    "id": "checkConstraint.members.ck_members_nickname_99460e30",
+    "label": "Add check constraint \"ck_members_nickname_99460e30\" on \"members\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "checkConstraint",
+        "name": "ck_members_nickname_99460e30",
+        "table": "members"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"ck_members_nickname_99460e30\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "ck_members_nickname_99460e30",
+          "public",
+          "\"public\".\"members\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "constraint \"ck_members_nickname_99460e30\" on \"members\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add check constraint \"ck_members_nickname_99460e30\"",
+        "sql": "ALTER TABLE \"public\".\"members\" ADD CONSTRAINT \"ck_members_nickname_99460e30\" CHECK (nickname = btrim(nickname) AND char_length(nickname) BETWEEN 2 AND 12)"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify check constraint \"ck_members_nickname_99460e30\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4)) AS \"result\"",
+        "params": [
+          "ck_members_nickname_99460e30",
+          "public",
+          "\"public\".\"members\"",
+          "c"
+        ]
+      }
+    ]
+  }
+]

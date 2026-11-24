@@ -1,0 +1,440 @@
+/* 학원 설정 화면(보드 W2b 입점·설정 · W22 학원 앱 페이지) — 아이보리 바탕 + 흰 카드 + 딥 플럼 강조. 색은 콘솔 틀과 같다 */
+.head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 24px;
+}
+.headLinks {
+  display: flex;
+  gap: 8px;
+}
+.title {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 800;
+}
+.subtitle {
+  margin: 10px 0 0;
+  font-size: 13px;
+  color: #6d6573;
+}
+.banner {
+  margin-top: 24px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 20px;
+  border-radius: 14px;
+  background: #f6ecdf;
+  border: 1px solid #e6cfa6;
+}
+.bannerIcon {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #5c3a64;
+  color: #fff;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+}
+.bannerTitle {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 700;
+}
+.bannerText {
+  margin: 4px 0 0;
+  font-size: 12px;
+  color: #5c5562;
+}
+.grid {
+  margin-top: 20px;
+  display: grid;
+  grid-template-columns: minmax(0, 1.65fr) minmax(0, 1fr);
+  gap: 20px;
+  align-items: start;
+}
+.column {
+  display: grid;
+  gap: 16px;
+}
+.card {
+  background: #fff;
+  border: 1px solid #e8e2da;
+  border-radius: 20px;
+  padding: 24px;
+}
+.cardHead {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+.cardTitle {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 800;
+}
+.rows {
+  margin: 12px 0 0;
+}
+.row {
+  display: grid;
+  grid-template-columns: 128px 1fr;
+  gap: 12px;
+  align-items: center;
+  padding: 16px 0;
+  border-bottom: 1px solid #efe7da;
+  font-size: 14px;
+}
+.row:last-child {
+  border-bottom: 0;
+}
+.rowLabel {
+  color: #7d7483;
+}
+.rowValue {
+  margin: 0;
+  font-weight: 600;
+}
+.empty {
+  color: #a59cab;
+  font-weight: 400;
+}
+.subHead {
+  margin: 20px 0 0;
+  font-size: 13px;
+  font-weight: 700;
+  color: #5c3a64;
+}
+.input,
+.select,
+.textarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 9px 12px;
+  border-radius: 10px;
+  border: 1px solid #d9d0c6;
+  background: #faf7f3;
+  font: inherit;
+  font-size: 14px;
+  color: #1d1a1f;
+}
+.textarea {
+  min-height: 84px;
+  resize: vertical;
+}
+.button {
+  padding: 8px 16px;
+  border-radius: 10px;
+  border: 1px solid #d9d0c6;
+  background: #fff;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  color: #1d1a1f;
+  cursor: pointer;
+}
+.primary {
+  composes: button;
+  background: #5c3a64;
+  border-color: #5c3a64;
+  color: #fff;
+}
+.button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 16px;
+}
+.error {
+  margin: 10px 0 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: #b3261e;
+}
+.ok {
+  margin: 10px 0 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: #5c3a64;
+}
+.badge {
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: #efe3f1;
+  color: #5c3a64;
+  font-size: 12px;
+  font-weight: 700;
+}
+.badgeWait {
+  composes: badge;
+  background: #f6ecdf;
+  color: #8a5a12;
+}
+.big {
+  margin: 12px 0 0;
+  font-size: 15px;
+  font-weight: 800;
+}
+.bigger {
+  margin: 12px 0 0;
+  font-size: 18px;
+  font-weight: 800;
+}
+.muted {
+  margin: 6px 0 0;
+  font-size: 12px;
+  color: #7d7483;
+}
+.payoutActions {
+  margin-top: 18px;
+  display: flex;
+  gap: 14px;
+  align-items: center;
+}
+.hint {
+  font-size: 12px;
+  color: #5c5562;
+  line-height: 1.5;
+}
+.dialog {
+  margin-top: 16px;
+  padding: 16px;
+  border-radius: 14px;
+  background: #faf7f3;
+  border: 1px solid #e8e2da;
+  display: grid;
+  gap: 10px;
+}
+.stepChip {
+  font-size: 12px;
+  font-weight: 700;
+  color: #5c3a64;
+}
+.totp {
+  composes: input;
+  font-size: 22px;
+  letter-spacing: 8px;
+  text-align: center;
+}
+.consentRow {
+  padding: 9px 0;
+  border-bottom: 1px solid #efe7da;
+}
+.consentRow:last-child {
+  border-bottom: 0;
+}
+.consentName {
+  margin: 0;
+  font-size: 12px;
+  color: #7d7483;
+}
+.consentValue {
+  margin: 3px 0 0;
+  font-size: 13px;
+  font-weight: 600;
+}
+.link {
+  color: #5c3a64;
+  font-weight: 700;
+  text-decoration: none;
+  font-size: 13px;
+}
+
+/* ---- 학원 앱 페이지(W22) ---- */
+.field {
+  margin-top: 18px;
+  display: grid;
+  gap: 6px;
+  font-size: 12px;
+  color: #7d7483;
+}
+.fieldPair {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 16px;
+}
+.photos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.photo {
+  position: relative;
+  width: 100px;
+  height: 76px;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #e5dcd2;
+}
+.photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.photoRemove {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 0;
+  background: rgba(29, 26, 31, 0.7);
+  color: #fff;
+  font-size: 13px;
+  cursor: pointer;
+}
+.photoAdd {
+  width: 100px;
+  height: 76px;
+  border-radius: 10px;
+  border: 1px dashed #b9a4bf;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 700;
+  color: #5c3a64;
+  cursor: pointer;
+}
+.photoAdd input {
+  display: none;
+}
+.preview {
+  border: 1px solid #e8e2da;
+  border-radius: 28px;
+  overflow: hidden;
+  margin: 14px auto 0;
+  width: 260px;
+  min-height: 560px;
+  background: #fff;
+}
+.previewHero {
+  height: 150px;
+  background: #e5dcd2;
+}
+.previewHero img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.previewBody {
+  padding: 16px;
+}
+.previewName {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 800;
+}
+.previewTagline {
+  margin: 6px 0 0;
+  font-size: 11px;
+  color: #5c5562;
+}
+.previewChip {
+  display: inline-block;
+  margin-top: 14px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  background: #efe3f1;
+  font-size: 10px;
+  font-weight: 700;
+  color: #5c3a64;
+}
+.previewIntro {
+  margin: 14px 0 0;
+  font-size: 11px;
+  line-height: 1.6;
+  color: #3a3340;
+  white-space: pre-wrap;
+}
+.previewSection {
+  margin: 16px 0 0;
+  font-size: 12px;
+  font-weight: 800;
+}
+.previewInfo {
+  margin: 6px 0 0;
+  font-size: 11px;
+  color: #5c5562;
+}
+
+/* ---- 강의실 · 홀(W22 아래쪽, S1-2.15) ---- */
+.leftColumn {
+  display: grid;
+  gap: 20px;
+}
+.roomTable {
+  width: 100%;
+  margin-top: 14px;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+.roomTable th {
+  text-align: left;
+  font-size: 12px;
+  font-weight: 400;
+  color: #7d7483;
+  padding: 0 8px 10px 0;
+  border-bottom: 1px solid #e8e2da;
+}
+.roomTable td {
+  padding: 16px 8px 16px 0;
+  border-bottom: 1px solid #efe7da;
+  color: #3a3340;
+}
+.roomTable tr:last-child td {
+  border-bottom: 0;
+}
+.roomName {
+  font-weight: 800;
+  color: #1d1a1f;
+}
+.roomEmpty {
+  color: #a59cab;
+  text-align: center;
+}
+.roomActions {
+  text-align: right;
+  white-space: nowrap;
+}
+.roomConfirm {
+  display: inline-flex;
+  gap: 6px;
+}
+.textButton {
+  border: 0;
+  background: none;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  color: #7d7483;
+  cursor: pointer;
+  padding: 4px 6px;
+}
+.textButton:hover {
+  color: #5c3a64;
+}
+.textButton:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+.roomFormGrid {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: 12px;
+}
+.roomFormGrid .field,
+.dialog .field {
+  margin-top: 0;
+}

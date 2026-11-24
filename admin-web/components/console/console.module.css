@@ -1,0 +1,166 @@
+/* 관리자 웹 콘솔 틀(보드 W1c) — 왼쪽 딥 플럼 사이드 메뉴 + 오른쪽 아이보리 본문. 색은 로그인 화면(login.module.css)과 같다 */
+.shell {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  min-height: 100svh;
+  font-family: "Pretendard", system-ui, "Segoe UI", sans-serif;
+  letter-spacing: 0;
+  background: #f3efe9;
+}
+.sidebar {
+  background: #2b1f2e;
+  color: #f3efe9;
+  padding: 28px 12px 12px;
+  display: flex;
+  flex-direction: column;
+}
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 12px;
+  font-size: 16px;
+  font-weight: 700;
+  color: #f3efe9;
+  text-decoration: none;
+}
+.logo {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: #d9b86a;
+}
+.menu {
+  list-style: none;
+  margin: 24px 0 0;
+  padding: 0;
+}
+.groupTitle {
+  margin: 20px 12px 6px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #9d90a3;
+}
+.item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 7px 12px;
+  border-radius: 10px;
+  font-size: 14px;
+  color: #d8cfdc;
+}
+.itemLink {
+  composes: item;
+  text-decoration: none;
+}
+.itemLink:hover {
+  background: #3b2d40;
+  color: #fff;
+}
+.itemActive {
+  background: #3b2d40;
+  color: #fff;
+  font-weight: 700;
+}
+.itemActive .dot {
+  background: #f3efe9;
+}
+.dot {
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+  background: #a99db0;
+}
+.divider {
+  border: 0;
+  border-top: 1px solid #4a3c4e;
+  margin: 20px 8px 8px;
+}
+.platformItem {
+  composes: item;
+  background: #3b2d40;
+  color: #fff;
+  font-weight: 700;
+}
+.platformItem .dot {
+  background: #d9b86a;
+}
+.account {
+  margin-top: auto;
+  background: #3b2d40;
+  border-radius: 12px;
+  padding: 14px;
+}
+.accountTitle {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 700;
+  color: #fff;
+}
+.accountSub {
+  margin: 4px 0 0;
+  font-size: 12px;
+  color: #bfb4c4;
+}
+.content {
+  padding: 40px 48px;
+  color: #1d1a1f;
+}
+
+/* 메뉴 없음 화면 — 사이드 메뉴 없이 가운데 카드 하나 */
+.emptyPage {
+  min-height: 100svh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f3efe9;
+  font-family: "Pretendard", system-ui, "Segoe UI", sans-serif;
+  letter-spacing: 0;
+}
+.emptyCard {
+  width: 460px;
+  box-sizing: border-box;
+  background: #fff;
+  border: 1px solid #e8e2da;
+  border-radius: 20px;
+  padding: 40px;
+  color: #1d1a1f;
+}
+.emptyTitle {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 800;
+}
+.emptyText {
+  margin: 12px 0 0;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #5c5562;
+}
+.chip {
+  display: inline-block;
+  margin-top: 20px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: #f3efe9;
+  font-size: 13px;
+  color: #3a3340;
+}
+.secondary {
+  display: block;
+  width: 100%;
+  margin-top: 28px;
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid #5c3a64;
+  background: #fff;
+  color: #5c3a64;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.secondary:disabled {
+  opacity: 0.6;
+}

@@ -42,6 +42,19 @@ describe("computeDueAt — 카드", () => {
   });
 });
 
+// S3-3.4(주문 생성 API) — 간편결제·간편 계좌이체도 결제창 수단이라 카드와 같은 창 기한(FR-285 표의 간편 계좌이체 행)
+describe("computeDueAt — 간편결제·간편 계좌이체: 카드와 같은 결제창 기한", () => {
+  test.each(["easy_pay", "easy_transfer"] as const)("%s 는 발급 + 15분(가상계좌의 24시간이 아님)", (method) => {
+    const dueAt = computeDueAt({
+      method,
+      issuedAt: ISSUED_AT,
+      firstSessionStartsAt: instant("2026-11-20T10:00:00Z"),
+      config,
+    });
+    expect(dueAt.toString()).toBe("2026-11-10T01:15:00Z");
+  });
+});
+
 describe("computeDueAt — 가상계좌: 발급 + 24시간과 첫 회차 − 60분 중 이른 쪽", () => {
   test("첫 회차가 멀면 발급 + 24시간", () => {
     const dueAt = computeDueAt({

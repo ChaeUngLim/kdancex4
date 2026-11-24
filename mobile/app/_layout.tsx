@@ -11,5 +11,10 @@
 import { Stack } from 'expo-router';
 
 export default function RootLayout() {
-  return <Stack />;
+  return (
+    <Stack>
+      {/* 회원 탭 묶음(홈·캘린더)은 화면마다 자기 머리말을 그린다 — 라우터 기본 머리말 「(tabs)」 글자를 숨긴다(보드 M7, S3-2.5) */}
+      <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+    </Stack>
+  );
 }

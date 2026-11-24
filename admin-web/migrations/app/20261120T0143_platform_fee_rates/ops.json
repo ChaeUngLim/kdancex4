@@ -1,0 +1,239 @@
+[
+  {
+    "id": "table.platform_fee_rates",
+    "label": "Create table \"platform_fee_rates\"",
+    "summary": "Creates table \"platform_fee_rates\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "platform_fee_rates"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"platform_fee_rates\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"platform_fee_rates\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"platform_fee_rates\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"platform_fee_rates\"",
+        "sql": "CREATE TABLE \"public\".\"platform_fee_rates\" (\n  \"created_at\" timestamptz DEFAULT (now()) NOT NULL,\n  \"created_by_account_id\" uuid,\n  \"effective_from\" timestamptz NOT NULL,\n  \"fee_category\" text NOT NULL,\n  \"id\" uuid NOT NULL,\n  \"onboarding_exemption_applies\" bool NOT NULL,\n  \"rate_bp\" int4 NOT NULL,\n  PRIMARY KEY (\"id\"),\n  CONSTRAINT \"ck_platform_fee_bp_3539371c\" CHECK (rate_bp BETWEEN 0 AND 10000),\n  CONSTRAINT \"platform_fee_rates_fee_category_check_6dbf5694\" CHECK (\"fee_category\" IN ('general', 'private_lesson'))\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"platform_fee_rates\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3))) AS \"result\"",
+        "params": [
+          "\"public\".\"platform_fee_rates\"",
+          "r",
+          "p"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"platform_fee_rates\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "index.platform_fee_rates.platform_fee_rates_created_by_account_id_idx_01ca7524",
+    "label": "Create index \"platform_fee_rates_created_by_account_id_idx_01ca7524\" on \"platform_fee_rates\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "platform_fee_rates_created_by_account_id_idx_01ca7524",
+        "table": "platform_fee_rates"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"platform_fee_rates_created_by_account_id_idx_01ca7524\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"platform_fee_rates_created_by_account_id_idx_01ca7524\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"platform_fee_rates_created_by_account_id_idx_01ca7524\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"platform_fee_rates_created_by_account_id_idx_01ca7524\"",
+        "sql": "CREATE INDEX \"platform_fee_rates_created_by_account_id_idx_01ca7524\" ON \"public\".\"platform_fee_rates\" (\"created_by_account_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"platform_fee_rates_created_by_account_id_idx_01ca7524\" exists on \"platform_fee_rates\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"platform_fee_rates_created_by_account_id_idx_01ca7524\"",
+          "i",
+          "I",
+          "\"public\".\"platform_fee_rates\"",
+          "btree",
+          "[\"created_by_account_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.platform_fee_rates.uq_platform_fee_68e299b1",
+    "label": "Create index \"uq_platform_fee_68e299b1\" on \"platform_fee_rates\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "uq_platform_fee_68e299b1",
+        "table": "platform_fee_rates"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"uq_platform_fee_68e299b1\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"uq_platform_fee_68e299b1\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"uq_platform_fee_68e299b1\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"uq_platform_fee_68e299b1\"",
+        "sql": "CREATE UNIQUE INDEX \"uq_platform_fee_68e299b1\" ON \"public\".\"platform_fee_rates\" (\"fee_category\", \"effective_from\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"uq_platform_fee_68e299b1\" exists on \"platform_fee_rates\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND \"i\".\"indisunique\" AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"uq_platform_fee_68e299b1\"",
+          "i",
+          "I",
+          "\"public\".\"platform_fee_rates\"",
+          "btree",
+          "[\"fee_category\",\"effective_from\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.platform_fee_rates.platform_fee_rates_created_by_account_id_fkey",
+    "label": "Add foreign key \"platform_fee_rates_created_by_account_id_fkey\" on \"platform_fee_rates\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "platform_fee_rates_created_by_account_id_fkey",
+        "table": "platform_fee_rates"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"platform_fee_rates_created_by_account_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "platform_fee_rates_created_by_account_id_fkey",
+          "public",
+          "\"public\".\"platform_fee_rates\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"platform_fee_rates_created_by_account_id_fkey\" on \"platform_fee_rates\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"platform_fee_rates_created_by_account_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"platform_fee_rates\"\nADD CONSTRAINT \"platform_fee_rates_created_by_account_id_fkey\"\nFOREIGN KEY (\"created_by_account_id\")\nREFERENCES \"public\".\"staff_accounts\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"platform_fee_rates_created_by_account_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "platform_fee_rates_created_by_account_id_fkey",
+          "public",
+          "\"public\".\"platform_fee_rates\"",
+          "f",
+          "[\"created_by_account_id\"]",
+          "\"public\".\"staff_accounts\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "seed.platform_fee_rates",
+    "label": "Seed platform_fee_rates (general 500bp, private_lesson 100bp)",
+    "summary": "Inserts the two initial fee-rate rows",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "platform_fee_rates"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure platform_fee_rates is empty",
+        "sql": "SELECT NOT EXISTS (SELECT 1 FROM public.platform_fee_rates)",
+        "expectation": {
+          "expects": "absent",
+          "object": "rows of platform_fee_rates"
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "insert general 500bp (exemption applies) and private_lesson 100bp (no exemption)",
+        "sql": "INSERT INTO public.platform_fee_rates (id, fee_category, rate_bp, onboarding_exemption_applies, effective_from) VALUES\n  (uuidv7(), 'general', 500, true, '2026-01-01T00:00:00Z'),\n  (uuidv7(), 'private_lesson', 100, false, '2026-01-01T00:00:00Z')"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify both seed rows exist",
+        "sql": "SELECT (SELECT count(*) FROM public.platform_fee_rates) = 2",
+        "expectation": {
+          "expects": "present",
+          "object": "two seed rows"
+        }
+      }
+    ]
+  }
+]

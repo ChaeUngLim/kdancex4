@@ -1,0 +1,2083 @@
+[
+  {
+    "id": "table.private_lesson_bookings",
+    "label": "Create table \"private_lesson_bookings\"",
+    "summary": "Creates table \"private_lesson_bookings\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "private_lesson_bookings"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"private_lesson_bookings\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"private_lesson_bookings\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"private_lesson_bookings\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"private_lesson_bookings\"",
+        "sql": "CREATE TABLE \"public\".\"private_lesson_bookings\" (\n  \"booked_by\" text NOT NULL,\n  \"cancel_reason\" text,\n  \"cancelled_at\" timestamptz,\n  \"created_at\" timestamptz DEFAULT (now()) NOT NULL,\n  \"deducted\" bool DEFAULT false NOT NULL,\n  \"id\" uuid NOT NULL,\n  \"pass_id\" uuid NOT NULL,\n  \"slot_id\" uuid NOT NULL,\n  \"status\" text DEFAULT 'booked' NOT NULL,\n  \"updated_at\" timestamptz NOT NULL,\n  PRIMARY KEY (\"id\"),\n  CONSTRAINT \"ck_pl_booking_cancel_91095971\" CHECK ((status LIKE 'cancelled\\_%') = (cancelled_at IS NOT NULL)),\n  CONSTRAINT \"ck_pl_booking_deduct_be43e02f\" CHECK ((status NOT IN ('cancelled_instructor', 'cancelled_member_free') OR deducted = false) AND (status NOT IN ('cancelled_member_late', 'no_show', 'done') OR deducted = true)),\n  CONSTRAINT \"private_lesson_bookings_booked_by_check_6bde91c0\" CHECK (\"booked_by\" IN ('instructor', 'member')),\n  CONSTRAINT \"private_lesson_bookings_status_check_6a132a04\" CHECK (\"status\" IN ('booked', 'done', 'cancelled_instructor', 'cancelled_member_free', 'cancelled_member_late', 'no_show'))\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"private_lesson_bookings\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3))) AS \"result\"",
+        "params": [
+          "\"public\".\"private_lesson_bookings\"",
+          "r",
+          "p"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"private_lesson_bookings\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "table.private_lesson_passes",
+    "label": "Create table \"private_lesson_passes\"",
+    "summary": "Creates table \"private_lesson_passes\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "private_lesson_passes"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"private_lesson_passes\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"private_lesson_passes\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"private_lesson_passes\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"private_lesson_passes\"",
+        "sql": "CREATE TABLE \"public\".\"private_lesson_passes\" (\n  \"created_at\" timestamptz DEFAULT (now()) NOT NULL,\n  \"discipline\" text,\n  \"id\" uuid NOT NULL,\n  \"member_id\" uuid NOT NULL,\n  \"order_id\" uuid,\n  \"paid_at\" timestamptz,\n  \"product_class_id\" uuid NOT NULL,\n  \"rule_version_id\" uuid NOT NULL,\n  \"sessions_total\" int4 NOT NULL,\n  \"sessions_used\" int4 DEFAULT 0 NOT NULL,\n  \"status\" text DEFAULT 'pending_payment' NOT NULL,\n  \"updated_at\" timestamptz NOT NULL,\n  \"valid_until\" timestamptz,\n  PRIMARY KEY (\"id\"),\n  CONSTRAINT \"ck_pl_pass_active_fffa9da6\" CHECK (status NOT IN ('active', 'completed', 'expired') OR (valid_until IS NOT NULL AND paid_at IS NOT NULL)),\n  CONSTRAINT \"ck_pl_pass_total_4e1b342e\" CHECK (sessions_total >= 1),\n  CONSTRAINT \"ck_pl_pass_used_165d2956\" CHECK (sessions_used BETWEEN 0 AND sessions_total),\n  CONSTRAINT \"private_lesson_passes_discipline_check_e4f25d92\" CHECK (\"discipline\" IN ('rumba', 'cha_cha_cha', 'samba', 'paso_doble', 'jive', 'waltz', 'tango', 'viennese_waltz', 'slow_foxtrot', 'quickstep')),\n  CONSTRAINT \"private_lesson_passes_status_check_c6a77f69\" CHECK (\"status\" IN ('pending_payment', 'active', 'completed', 'expired', 'refunded'))\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"private_lesson_passes\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3))) AS \"result\"",
+        "params": [
+          "\"public\".\"private_lesson_passes\"",
+          "r",
+          "p"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"private_lesson_passes\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "table.private_lesson_products",
+    "label": "Create table \"private_lesson_products\"",
+    "summary": "Creates table \"private_lesson_products\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "private_lesson_products"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"private_lesson_products\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"private_lesson_products\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"private_lesson_products\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"private_lesson_products\"",
+        "sql": "CREATE TABLE \"public\".\"private_lesson_products\" (\n  \"class_id\" uuid NOT NULL,\n  \"created_at\" timestamptz DEFAULT (now()) NOT NULL,\n  \"idempotency_key\" character varying(200) NOT NULL,\n  \"lesson_minutes\" int4 NOT NULL,\n  \"price_amount\" int4 NOT NULL,\n  \"refund_notice_version_id\" uuid,\n  \"rule_version_id\" uuid NOT NULL,\n  \"session_count\" int4 DEFAULT 10 NOT NULL,\n  \"status\" text DEFAULT 'open' NOT NULL,\n  \"sub_genre\" text,\n  \"updated_at\" timestamptz NOT NULL,\n  PRIMARY KEY (\"class_id\"),\n  CONSTRAINT \"ck_pl_product_count_102d2564\" CHECK (session_count >= 1),\n  CONSTRAINT \"ck_pl_product_minutes_91f037ff\" CHECK (lesson_minutes IN (50, 80)),\n  CONSTRAINT \"ck_pl_product_price_dd3d974f\" CHECK (price_amount >= 0),\n  CONSTRAINT \"private_lesson_products_status_check_6f620795\" CHECK (\"status\" IN ('open', 'closed')),\n  CONSTRAINT \"private_lesson_products_sub_genre_check_af745840\" CHECK (\"sub_genre\" IN ('latin', 'standard', 'salsa', 'bachata'))\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"private_lesson_products\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3))) AS \"result\"",
+        "params": [
+          "\"public\".\"private_lesson_products\"",
+          "r",
+          "p"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"private_lesson_products\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "table.private_lesson_rule_versions",
+    "label": "Create table \"private_lesson_rule_versions\"",
+    "summary": "Creates table \"private_lesson_rule_versions\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "private_lesson_rule_versions"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"private_lesson_rule_versions\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"private_lesson_rule_versions\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"private_lesson_rule_versions\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"private_lesson_rule_versions\"",
+        "sql": "CREATE TABLE \"public\".\"private_lesson_rule_versions\" (\n  \"academy_id\" uuid NOT NULL,\n  \"change_deadline_hours\" int4 DEFAULT 24 NOT NULL,\n  \"created_at\" timestamptz DEFAULT (now()) NOT NULL,\n  \"id\" uuid NOT NULL,\n  \"instructor_account_id\" uuid NOT NULL,\n  \"validity_months\" int4 DEFAULT 3 NOT NULL,\n  \"version\" int4 NOT NULL,\n  PRIMARY KEY (\"id\"),\n  CONSTRAINT \"ck_pl_rule_deadline_984af6db\" CHECK (change_deadline_hours IN (12, 24, 48)),\n  CONSTRAINT \"ck_pl_rule_validity_d07bccbf\" CHECK (validity_months IN (2, 3, 6)),\n  CONSTRAINT \"ck_pl_rule_version_c2490804\" CHECK (version >= 1)\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"private_lesson_rule_versions\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3))) AS \"result\"",
+        "params": [
+          "\"public\".\"private_lesson_rule_versions\"",
+          "r",
+          "p"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"private_lesson_rule_versions\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "table.private_lesson_slots",
+    "label": "Create table \"private_lesson_slots\"",
+    "summary": "Creates table \"private_lesson_slots\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "private_lesson_slots"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"private_lesson_slots\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"private_lesson_slots\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"private_lesson_slots\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"private_lesson_slots\"",
+        "sql": "CREATE TABLE \"public\".\"private_lesson_slots\" (\n  \"academy_id\" uuid NOT NULL,\n  \"created_at\" timestamptz DEFAULT (now()) NOT NULL,\n  \"ends_at\" timestamptz NOT NULL,\n  \"held_until\" timestamptz,\n  \"id\" uuid NOT NULL,\n  \"instructor_account_id\" uuid NOT NULL,\n  \"product_class_id\" uuid NOT NULL,\n  \"repeat_group_id\" uuid,\n  \"room_id\" uuid,\n  \"starts_at\" timestamptz NOT NULL,\n  \"status\" text DEFAULT 'open' NOT NULL,\n  PRIMARY KEY (\"id\"),\n  CONSTRAINT \"ck_pl_slot_held_464bba65\" CHECK ((status = 'held') = (held_until IS NOT NULL)),\n  CONSTRAINT \"ck_pl_slot_time_30314b5b\" CHECK (ends_at > starts_at),\n  CONSTRAINT \"private_lesson_slots_status_check_5b554e3c\" CHECK (\"status\" IN ('open', 'held', 'booked', 'closed'))\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"private_lesson_slots\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3))) AS \"result\"",
+        "params": [
+          "\"public\".\"private_lesson_slots\"",
+          "r",
+          "p"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"private_lesson_slots\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "index.private_lesson_bookings.ix_pl_booking_pass_98331316",
+    "label": "Create index \"ix_pl_booking_pass_98331316\" on \"private_lesson_bookings\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "ix_pl_booking_pass_98331316",
+        "table": "private_lesson_bookings"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"ix_pl_booking_pass_98331316\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ix_pl_booking_pass_98331316\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"ix_pl_booking_pass_98331316\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"ix_pl_booking_pass_98331316\"",
+        "sql": "CREATE INDEX \"ix_pl_booking_pass_98331316\" ON \"public\".\"private_lesson_bookings\" (\"pass_id\", \"status\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"ix_pl_booking_pass_98331316\" exists on \"private_lesson_bookings\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"ix_pl_booking_pass_98331316\"",
+          "i",
+          "I",
+          "\"public\".\"private_lesson_bookings\"",
+          "btree",
+          "[\"pass_id\",\"status\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.private_lesson_bookings.private_lesson_bookings_pass_id_idx_cb4d24a1",
+    "label": "Create index \"private_lesson_bookings_pass_id_idx_cb4d24a1\" on \"private_lesson_bookings\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "private_lesson_bookings_pass_id_idx_cb4d24a1",
+        "table": "private_lesson_bookings"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"private_lesson_bookings_pass_id_idx_cb4d24a1\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"private_lesson_bookings_pass_id_idx_cb4d24a1\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"private_lesson_bookings_pass_id_idx_cb4d24a1\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"private_lesson_bookings_pass_id_idx_cb4d24a1\"",
+        "sql": "CREATE INDEX \"private_lesson_bookings_pass_id_idx_cb4d24a1\" ON \"public\".\"private_lesson_bookings\" (\"pass_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"private_lesson_bookings_pass_id_idx_cb4d24a1\" exists on \"private_lesson_bookings\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"private_lesson_bookings_pass_id_idx_cb4d24a1\"",
+          "i",
+          "I",
+          "\"public\".\"private_lesson_bookings\"",
+          "btree",
+          "[\"pass_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.private_lesson_bookings.private_lesson_bookings_slot_id_idx_9e85fe89",
+    "label": "Create index \"private_lesson_bookings_slot_id_idx_9e85fe89\" on \"private_lesson_bookings\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "private_lesson_bookings_slot_id_idx_9e85fe89",
+        "table": "private_lesson_bookings"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"private_lesson_bookings_slot_id_idx_9e85fe89\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"private_lesson_bookings_slot_id_idx_9e85fe89\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"private_lesson_bookings_slot_id_idx_9e85fe89\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"private_lesson_bookings_slot_id_idx_9e85fe89\"",
+        "sql": "CREATE INDEX \"private_lesson_bookings_slot_id_idx_9e85fe89\" ON \"public\".\"private_lesson_bookings\" (\"slot_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"private_lesson_bookings_slot_id_idx_9e85fe89\" exists on \"private_lesson_bookings\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"private_lesson_bookings_slot_id_idx_9e85fe89\"",
+          "i",
+          "I",
+          "\"public\".\"private_lesson_bookings\"",
+          "btree",
+          "[\"slot_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.private_lesson_bookings.uq_pl_booking_slot_live_033becaf",
+    "label": "Create index \"uq_pl_booking_slot_live_033becaf\" on \"private_lesson_bookings\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "uq_pl_booking_slot_live_033becaf",
+        "table": "private_lesson_bookings"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"uq_pl_booking_slot_live_033becaf\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"uq_pl_booking_slot_live_033becaf\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"uq_pl_booking_slot_live_033becaf\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"uq_pl_booking_slot_live_033becaf\"",
+        "sql": "CREATE UNIQUE INDEX \"uq_pl_booking_slot_live_033becaf\" ON \"public\".\"private_lesson_bookings\" (\"slot_id\") WHERE ((status = 'booked'))",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"uq_pl_booking_slot_live_033becaf\" exists on \"private_lesson_bookings\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND \"i\".\"indisunique\" AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NOT NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"uq_pl_booking_slot_live_033becaf\"",
+          "i",
+          "I",
+          "\"public\".\"private_lesson_bookings\"",
+          "btree",
+          "[\"slot_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.private_lesson_passes.ix_pl_pass_member_51178390",
+    "label": "Create index \"ix_pl_pass_member_51178390\" on \"private_lesson_passes\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "ix_pl_pass_member_51178390",
+        "table": "private_lesson_passes"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"ix_pl_pass_member_51178390\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ix_pl_pass_member_51178390\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"ix_pl_pass_member_51178390\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"ix_pl_pass_member_51178390\"",
+        "sql": "CREATE INDEX \"ix_pl_pass_member_51178390\" ON \"public\".\"private_lesson_passes\" (\"member_id\", \"status\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"ix_pl_pass_member_51178390\" exists on \"private_lesson_passes\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"ix_pl_pass_member_51178390\"",
+          "i",
+          "I",
+          "\"public\".\"private_lesson_passes\"",
+          "btree",
+          "[\"member_id\",\"status\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.private_lesson_passes.ix_pl_pass_product_45a09229",
+    "label": "Create index \"ix_pl_pass_product_45a09229\" on \"private_lesson_passes\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "ix_pl_pass_product_45a09229",
+        "table": "private_lesson_passes"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"ix_pl_pass_product_45a09229\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ix_pl_pass_product_45a09229\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"ix_pl_pass_product_45a09229\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"ix_pl_pass_product_45a09229\"",
+        "sql": "CREATE INDEX \"ix_pl_pass_product_45a09229\" ON \"public\".\"private_lesson_passes\" (\"product_class_id\", \"status\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"ix_pl_pass_product_45a09229\" exists on \"private_lesson_passes\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"ix_pl_pass_product_45a09229\"",
+          "i",
+          "I",
+          "\"public\".\"private_lesson_passes\"",
+          "btree",
+          "[\"product_class_id\",\"status\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.private_lesson_passes.private_lesson_passes_member_id_idx_10d5a0e2",
+    "label": "Create index \"private_lesson_passes_member_id_idx_10d5a0e2\" on \"private_lesson_passes\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "private_lesson_passes_member_id_idx_10d5a0e2",
+        "table": "private_lesson_passes"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"private_lesson_passes_member_id_idx_10d5a0e2\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"private_lesson_passes_member_id_idx_10d5a0e2\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"private_lesson_passes_member_id_idx_10d5a0e2\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"private_lesson_passes_member_id_idx_10d5a0e2\"",
+        "sql": "CREATE INDEX \"private_lesson_passes_member_id_idx_10d5a0e2\" ON \"public\".\"private_lesson_passes\" (\"member_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"private_lesson_passes_member_id_idx_10d5a0e2\" exists on \"private_lesson_passes\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"private_lesson_passes_member_id_idx_10d5a0e2\"",
+          "i",
+          "I",
+          "\"public\".\"private_lesson_passes\"",
+          "btree",
+          "[\"member_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.private_lesson_passes.private_lesson_passes_order_id_idx_39ad19ad",
+    "label": "Create index \"private_lesson_passes_order_id_idx_39ad19ad\" on \"private_lesson_passes\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "private_lesson_passes_order_id_idx_39ad19ad",
+        "table": "private_lesson_passes"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"private_lesson_passes_order_id_idx_39ad19ad\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"private_lesson_passes_order_id_idx_39ad19ad\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"private_lesson_passes_order_id_idx_39ad19ad\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"private_lesson_passes_order_id_idx_39ad19ad\"",
+        "sql": "CREATE INDEX \"private_lesson_passes_order_id_idx_39ad19ad\" ON \"public\".\"private_lesson_passes\" (\"order_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"private_lesson_passes_order_id_idx_39ad19ad\" exists on \"private_lesson_passes\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"private_lesson_passes_order_id_idx_39ad19ad\"",
+          "i",
+          "I",
+          "\"public\".\"private_lesson_passes\"",
+          "btree",
+          "[\"order_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.private_lesson_passes.private_lesson_passes_product_class_id_idx_2c9b8edf",
+    "label": "Create index \"private_lesson_passes_product_class_id_idx_2c9b8edf\" on \"private_lesson_passes\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "private_lesson_passes_product_class_id_idx_2c9b8edf",
+        "table": "private_lesson_passes"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"private_lesson_passes_product_class_id_idx_2c9b8edf\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"private_lesson_passes_product_class_id_idx_2c9b8edf\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"private_lesson_passes_product_class_id_idx_2c9b8edf\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"private_lesson_passes_product_class_id_idx_2c9b8edf\"",
+        "sql": "CREATE INDEX \"private_lesson_passes_product_class_id_idx_2c9b8edf\" ON \"public\".\"private_lesson_passes\" (\"product_class_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"private_lesson_passes_product_class_id_idx_2c9b8edf\" exists on \"private_lesson_passes\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"private_lesson_passes_product_class_id_idx_2c9b8edf\"",
+          "i",
+          "I",
+          "\"public\".\"private_lesson_passes\"",
+          "btree",
+          "[\"product_class_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.private_lesson_passes.private_lesson_passes_rule_version_id_idx_c5541af8",
+    "label": "Create index \"private_lesson_passes_rule_version_id_idx_c5541af8\" on \"private_lesson_passes\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "private_lesson_passes_rule_version_id_idx_c5541af8",
+        "table": "private_lesson_passes"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"private_lesson_passes_rule_version_id_idx_c5541af8\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"private_lesson_passes_rule_version_id_idx_c5541af8\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"private_lesson_passes_rule_version_id_idx_c5541af8\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"private_lesson_passes_rule_version_id_idx_c5541af8\"",
+        "sql": "CREATE INDEX \"private_lesson_passes_rule_version_id_idx_c5541af8\" ON \"public\".\"private_lesson_passes\" (\"rule_version_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"private_lesson_passes_rule_version_id_idx_c5541af8\" exists on \"private_lesson_passes\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"private_lesson_passes_rule_version_id_idx_c5541af8\"",
+          "i",
+          "I",
+          "\"public\".\"private_lesson_passes\"",
+          "btree",
+          "[\"rule_version_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.private_lesson_passes.uq_pl_pass_order_96fba8b3",
+    "label": "Create index \"uq_pl_pass_order_96fba8b3\" on \"private_lesson_passes\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "uq_pl_pass_order_96fba8b3",
+        "table": "private_lesson_passes"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"uq_pl_pass_order_96fba8b3\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"uq_pl_pass_order_96fba8b3\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"uq_pl_pass_order_96fba8b3\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"uq_pl_pass_order_96fba8b3\"",
+        "sql": "CREATE UNIQUE INDEX \"uq_pl_pass_order_96fba8b3\" ON \"public\".\"private_lesson_passes\" (\"order_id\") WHERE ((order_id IS NOT NULL))",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"uq_pl_pass_order_96fba8b3\" exists on \"private_lesson_passes\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND \"i\".\"indisunique\" AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NOT NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"uq_pl_pass_order_96fba8b3\"",
+          "i",
+          "I",
+          "\"public\".\"private_lesson_passes\"",
+          "btree",
+          "[\"order_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.private_lesson_products.private_lesson_products_refund_notice_version_id_idx_33f0477c",
+    "label": "Create index \"private_lesson_products_refund_notice_version_id_idx_33f0477c\" on \"private_lesson_products\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "private_lesson_products_refund_notice_version_id_idx_33f0477c",
+        "table": "private_lesson_products"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"private_lesson_products_refund_notice_version_id_idx_33f0477c\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"private_lesson_products_refund_notice_version_id_idx_33f0477c\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"private_lesson_products_refund_notice_version_id_idx_33f0477c\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"private_lesson_products_refund_notice_version_id_idx_33f0477c\"",
+        "sql": "CREATE INDEX \"private_lesson_products_refund_notice_version_id_idx_33f0477c\" ON \"public\".\"private_lesson_products\" (\"refund_notice_version_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"private_lesson_products_refund_notice_version_id_idx_33f0477c\" exists on \"private_lesson_products\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"private_lesson_products_refund_notice_version_id_idx_33f0477c\"",
+          "i",
+          "I",
+          "\"public\".\"private_lesson_products\"",
+          "btree",
+          "[\"refund_notice_version_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.private_lesson_products.private_lesson_products_rule_version_id_idx_c5541af8",
+    "label": "Create index \"private_lesson_products_rule_version_id_idx_c5541af8\" on \"private_lesson_products\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "private_lesson_products_rule_version_id_idx_c5541af8",
+        "table": "private_lesson_products"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"private_lesson_products_rule_version_id_idx_c5541af8\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"private_lesson_products_rule_version_id_idx_c5541af8\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"private_lesson_products_rule_version_id_idx_c5541af8\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"private_lesson_products_rule_version_id_idx_c5541af8\"",
+        "sql": "CREATE INDEX \"private_lesson_products_rule_version_id_idx_c5541af8\" ON \"public\".\"private_lesson_products\" (\"rule_version_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"private_lesson_products_rule_version_id_idx_c5541af8\" exists on \"private_lesson_products\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"private_lesson_products_rule_version_id_idx_c5541af8\"",
+          "i",
+          "I",
+          "\"public\".\"private_lesson_products\"",
+          "btree",
+          "[\"rule_version_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.private_lesson_rule_versions.private_lesson_rule_versions_academy_id_idx_f46ade77",
+    "label": "Create index \"private_lesson_rule_versions_academy_id_idx_f46ade77\" on \"private_lesson_rule_versions\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "private_lesson_rule_versions_academy_id_idx_f46ade77",
+        "table": "private_lesson_rule_versions"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"private_lesson_rule_versions_academy_id_idx_f46ade77\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"private_lesson_rule_versions_academy_id_idx_f46ade77\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"private_lesson_rule_versions_academy_id_idx_f46ade77\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"private_lesson_rule_versions_academy_id_idx_f46ade77\"",
+        "sql": "CREATE INDEX \"private_lesson_rule_versions_academy_id_idx_f46ade77\" ON \"public\".\"private_lesson_rule_versions\" (\"academy_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"private_lesson_rule_versions_academy_id_idx_f46ade77\" exists on \"private_lesson_rule_versions\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"private_lesson_rule_versions_academy_id_idx_f46ade77\"",
+          "i",
+          "I",
+          "\"public\".\"private_lesson_rule_versions\"",
+          "btree",
+          "[\"academy_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.private_lesson_rule_versions.private_lesson_rule_versions_instructor_account_id_idx_d1ef9c5f",
+    "label": "Create index \"private_lesson_rule_versions_instructor_account_id_idx_d1ef9c5f\" on \"private_lesson_rule_versions\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "private_lesson_rule_versions_instructor_account_id_idx_d1ef9c5f",
+        "table": "private_lesson_rule_versions"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"private_lesson_rule_versions_instructor_account_id_idx_d1ef9c5f\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"private_lesson_rule_versions_instructor_account_id_idx_d1ef9c5f\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"private_lesson_rule_versions_instructor_account_id_idx_d1ef9c5f\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"private_lesson_rule_versions_instructor_account_id_idx_d1ef9c5f\"",
+        "sql": "CREATE INDEX \"private_lesson_rule_versions_instructor_account_id_idx_d1ef9c5f\" ON \"public\".\"private_lesson_rule_versions\" (\"instructor_account_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"private_lesson_rule_versions_instructor_account_id_idx_d1ef9c5f\" exists on \"private_lesson_rule_versions\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"private_lesson_rule_versions_instructor_account_id_idx_d1ef9c5f\"",
+          "i",
+          "I",
+          "\"public\".\"private_lesson_rule_versions\"",
+          "btree",
+          "[\"instructor_account_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.private_lesson_rule_versions.uq_pl_rule_09099f48",
+    "label": "Create index \"uq_pl_rule_09099f48\" on \"private_lesson_rule_versions\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "uq_pl_rule_09099f48",
+        "table": "private_lesson_rule_versions"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"uq_pl_rule_09099f48\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"uq_pl_rule_09099f48\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"uq_pl_rule_09099f48\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"uq_pl_rule_09099f48\"",
+        "sql": "CREATE UNIQUE INDEX \"uq_pl_rule_09099f48\" ON \"public\".\"private_lesson_rule_versions\" (\"academy_id\", \"instructor_account_id\", \"version\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"uq_pl_rule_09099f48\" exists on \"private_lesson_rule_versions\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND \"i\".\"indisunique\" AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"uq_pl_rule_09099f48\"",
+          "i",
+          "I",
+          "\"public\".\"private_lesson_rule_versions\"",
+          "btree",
+          "[\"academy_id\",\"instructor_account_id\",\"version\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.private_lesson_slots.ix_pl_slots_product_time_697e66cc",
+    "label": "Create index \"ix_pl_slots_product_time_697e66cc\" on \"private_lesson_slots\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "ix_pl_slots_product_time_697e66cc",
+        "table": "private_lesson_slots"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"ix_pl_slots_product_time_697e66cc\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ix_pl_slots_product_time_697e66cc\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"ix_pl_slots_product_time_697e66cc\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"ix_pl_slots_product_time_697e66cc\"",
+        "sql": "CREATE INDEX \"ix_pl_slots_product_time_697e66cc\" ON \"public\".\"private_lesson_slots\" (\"product_class_id\", \"starts_at\") WHERE ((status = 'open'))",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"ix_pl_slots_product_time_697e66cc\" exists on \"private_lesson_slots\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NOT NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"ix_pl_slots_product_time_697e66cc\"",
+          "i",
+          "I",
+          "\"public\".\"private_lesson_slots\"",
+          "btree",
+          "[\"product_class_id\",\"starts_at\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.private_lesson_slots.private_lesson_slots_academy_id_idx_f46ade77",
+    "label": "Create index \"private_lesson_slots_academy_id_idx_f46ade77\" on \"private_lesson_slots\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "private_lesson_slots_academy_id_idx_f46ade77",
+        "table": "private_lesson_slots"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"private_lesson_slots_academy_id_idx_f46ade77\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"private_lesson_slots_academy_id_idx_f46ade77\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"private_lesson_slots_academy_id_idx_f46ade77\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"private_lesson_slots_academy_id_idx_f46ade77\"",
+        "sql": "CREATE INDEX \"private_lesson_slots_academy_id_idx_f46ade77\" ON \"public\".\"private_lesson_slots\" (\"academy_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"private_lesson_slots_academy_id_idx_f46ade77\" exists on \"private_lesson_slots\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"private_lesson_slots_academy_id_idx_f46ade77\"",
+          "i",
+          "I",
+          "\"public\".\"private_lesson_slots\"",
+          "btree",
+          "[\"academy_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.private_lesson_slots.private_lesson_slots_instructor_account_id_idx_d1ef9c5f",
+    "label": "Create index \"private_lesson_slots_instructor_account_id_idx_d1ef9c5f\" on \"private_lesson_slots\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "private_lesson_slots_instructor_account_id_idx_d1ef9c5f",
+        "table": "private_lesson_slots"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"private_lesson_slots_instructor_account_id_idx_d1ef9c5f\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"private_lesson_slots_instructor_account_id_idx_d1ef9c5f\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"private_lesson_slots_instructor_account_id_idx_d1ef9c5f\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"private_lesson_slots_instructor_account_id_idx_d1ef9c5f\"",
+        "sql": "CREATE INDEX \"private_lesson_slots_instructor_account_id_idx_d1ef9c5f\" ON \"public\".\"private_lesson_slots\" (\"instructor_account_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"private_lesson_slots_instructor_account_id_idx_d1ef9c5f\" exists on \"private_lesson_slots\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"private_lesson_slots_instructor_account_id_idx_d1ef9c5f\"",
+          "i",
+          "I",
+          "\"public\".\"private_lesson_slots\"",
+          "btree",
+          "[\"instructor_account_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.private_lesson_slots.private_lesson_slots_product_class_id_idx_2c9b8edf",
+    "label": "Create index \"private_lesson_slots_product_class_id_idx_2c9b8edf\" on \"private_lesson_slots\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "private_lesson_slots_product_class_id_idx_2c9b8edf",
+        "table": "private_lesson_slots"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"private_lesson_slots_product_class_id_idx_2c9b8edf\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"private_lesson_slots_product_class_id_idx_2c9b8edf\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"private_lesson_slots_product_class_id_idx_2c9b8edf\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"private_lesson_slots_product_class_id_idx_2c9b8edf\"",
+        "sql": "CREATE INDEX \"private_lesson_slots_product_class_id_idx_2c9b8edf\" ON \"public\".\"private_lesson_slots\" (\"product_class_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"private_lesson_slots_product_class_id_idx_2c9b8edf\" exists on \"private_lesson_slots\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"private_lesson_slots_product_class_id_idx_2c9b8edf\"",
+          "i",
+          "I",
+          "\"public\".\"private_lesson_slots\"",
+          "btree",
+          "[\"product_class_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.private_lesson_slots.private_lesson_slots_room_id_idx_c32a1e8c",
+    "label": "Create index \"private_lesson_slots_room_id_idx_c32a1e8c\" on \"private_lesson_slots\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "private_lesson_slots_room_id_idx_c32a1e8c",
+        "table": "private_lesson_slots"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"private_lesson_slots_room_id_idx_c32a1e8c\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"private_lesson_slots_room_id_idx_c32a1e8c\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"private_lesson_slots_room_id_idx_c32a1e8c\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"private_lesson_slots_room_id_idx_c32a1e8c\"",
+        "sql": "CREATE INDEX \"private_lesson_slots_room_id_idx_c32a1e8c\" ON \"public\".\"private_lesson_slots\" (\"room_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"private_lesson_slots_room_id_idx_c32a1e8c\" exists on \"private_lesson_slots\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"private_lesson_slots_room_id_idx_c32a1e8c\"",
+          "i",
+          "I",
+          "\"public\".\"private_lesson_slots\"",
+          "btree",
+          "[\"room_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.private_lesson_bookings.private_lesson_bookings_pass_id_fkey",
+    "label": "Add foreign key \"private_lesson_bookings_pass_id_fkey\" on \"private_lesson_bookings\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "private_lesson_bookings_pass_id_fkey",
+        "table": "private_lesson_bookings"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"private_lesson_bookings_pass_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "private_lesson_bookings_pass_id_fkey",
+          "public",
+          "\"public\".\"private_lesson_bookings\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"private_lesson_bookings_pass_id_fkey\" on \"private_lesson_bookings\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"private_lesson_bookings_pass_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"private_lesson_bookings\"\nADD CONSTRAINT \"private_lesson_bookings_pass_id_fkey\"\nFOREIGN KEY (\"pass_id\")\nREFERENCES \"public\".\"private_lesson_passes\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"private_lesson_bookings_pass_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "private_lesson_bookings_pass_id_fkey",
+          "public",
+          "\"public\".\"private_lesson_bookings\"",
+          "f",
+          "[\"pass_id\"]",
+          "\"public\".\"private_lesson_passes\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.private_lesson_bookings.private_lesson_bookings_slot_id_fkey",
+    "label": "Add foreign key \"private_lesson_bookings_slot_id_fkey\" on \"private_lesson_bookings\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "private_lesson_bookings_slot_id_fkey",
+        "table": "private_lesson_bookings"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"private_lesson_bookings_slot_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "private_lesson_bookings_slot_id_fkey",
+          "public",
+          "\"public\".\"private_lesson_bookings\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"private_lesson_bookings_slot_id_fkey\" on \"private_lesson_bookings\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"private_lesson_bookings_slot_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"private_lesson_bookings\"\nADD CONSTRAINT \"private_lesson_bookings_slot_id_fkey\"\nFOREIGN KEY (\"slot_id\")\nREFERENCES \"public\".\"private_lesson_slots\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"private_lesson_bookings_slot_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "private_lesson_bookings_slot_id_fkey",
+          "public",
+          "\"public\".\"private_lesson_bookings\"",
+          "f",
+          "[\"slot_id\"]",
+          "\"public\".\"private_lesson_slots\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.private_lesson_passes.private_lesson_passes_product_class_id_fkey",
+    "label": "Add foreign key \"private_lesson_passes_product_class_id_fkey\" on \"private_lesson_passes\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "private_lesson_passes_product_class_id_fkey",
+        "table": "private_lesson_passes"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"private_lesson_passes_product_class_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "private_lesson_passes_product_class_id_fkey",
+          "public",
+          "\"public\".\"private_lesson_passes\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"private_lesson_passes_product_class_id_fkey\" on \"private_lesson_passes\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"private_lesson_passes_product_class_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"private_lesson_passes\"\nADD CONSTRAINT \"private_lesson_passes_product_class_id_fkey\"\nFOREIGN KEY (\"product_class_id\")\nREFERENCES \"public\".\"private_lesson_products\" (\"class_id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"private_lesson_passes_product_class_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "private_lesson_passes_product_class_id_fkey",
+          "public",
+          "\"public\".\"private_lesson_passes\"",
+          "f",
+          "[\"product_class_id\"]",
+          "\"public\".\"private_lesson_products\"",
+          "[\"class_id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.private_lesson_passes.private_lesson_passes_member_id_fkey",
+    "label": "Add foreign key \"private_lesson_passes_member_id_fkey\" on \"private_lesson_passes\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "private_lesson_passes_member_id_fkey",
+        "table": "private_lesson_passes"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"private_lesson_passes_member_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "private_lesson_passes_member_id_fkey",
+          "public",
+          "\"public\".\"private_lesson_passes\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"private_lesson_passes_member_id_fkey\" on \"private_lesson_passes\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"private_lesson_passes_member_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"private_lesson_passes\"\nADD CONSTRAINT \"private_lesson_passes_member_id_fkey\"\nFOREIGN KEY (\"member_id\")\nREFERENCES \"public\".\"members\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"private_lesson_passes_member_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "private_lesson_passes_member_id_fkey",
+          "public",
+          "\"public\".\"private_lesson_passes\"",
+          "f",
+          "[\"member_id\"]",
+          "\"public\".\"members\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.private_lesson_passes.private_lesson_passes_order_id_fkey",
+    "label": "Add foreign key \"private_lesson_passes_order_id_fkey\" on \"private_lesson_passes\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "private_lesson_passes_order_id_fkey",
+        "table": "private_lesson_passes"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"private_lesson_passes_order_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "private_lesson_passes_order_id_fkey",
+          "public",
+          "\"public\".\"private_lesson_passes\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"private_lesson_passes_order_id_fkey\" on \"private_lesson_passes\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"private_lesson_passes_order_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"private_lesson_passes\"\nADD CONSTRAINT \"private_lesson_passes_order_id_fkey\"\nFOREIGN KEY (\"order_id\")\nREFERENCES \"public\".\"orders\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"private_lesson_passes_order_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "private_lesson_passes_order_id_fkey",
+          "public",
+          "\"public\".\"private_lesson_passes\"",
+          "f",
+          "[\"order_id\"]",
+          "\"public\".\"orders\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.private_lesson_passes.private_lesson_passes_rule_version_id_fkey",
+    "label": "Add foreign key \"private_lesson_passes_rule_version_id_fkey\" on \"private_lesson_passes\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "private_lesson_passes_rule_version_id_fkey",
+        "table": "private_lesson_passes"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"private_lesson_passes_rule_version_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "private_lesson_passes_rule_version_id_fkey",
+          "public",
+          "\"public\".\"private_lesson_passes\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"private_lesson_passes_rule_version_id_fkey\" on \"private_lesson_passes\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"private_lesson_passes_rule_version_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"private_lesson_passes\"\nADD CONSTRAINT \"private_lesson_passes_rule_version_id_fkey\"\nFOREIGN KEY (\"rule_version_id\")\nREFERENCES \"public\".\"private_lesson_rule_versions\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"private_lesson_passes_rule_version_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "private_lesson_passes_rule_version_id_fkey",
+          "public",
+          "\"public\".\"private_lesson_passes\"",
+          "f",
+          "[\"rule_version_id\"]",
+          "\"public\".\"private_lesson_rule_versions\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.private_lesson_products.private_lesson_products_class_id_fkey",
+    "label": "Add foreign key \"private_lesson_products_class_id_fkey\" on \"private_lesson_products\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "private_lesson_products_class_id_fkey",
+        "table": "private_lesson_products"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"private_lesson_products_class_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "private_lesson_products_class_id_fkey",
+          "public",
+          "\"public\".\"private_lesson_products\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"private_lesson_products_class_id_fkey\" on \"private_lesson_products\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"private_lesson_products_class_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"private_lesson_products\"\nADD CONSTRAINT \"private_lesson_products_class_id_fkey\"\nFOREIGN KEY (\"class_id\")\nREFERENCES \"public\".\"classes\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"private_lesson_products_class_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "private_lesson_products_class_id_fkey",
+          "public",
+          "\"public\".\"private_lesson_products\"",
+          "f",
+          "[\"class_id\"]",
+          "\"public\".\"classes\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.private_lesson_products.private_lesson_products_rule_version_id_fkey",
+    "label": "Add foreign key \"private_lesson_products_rule_version_id_fkey\" on \"private_lesson_products\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "private_lesson_products_rule_version_id_fkey",
+        "table": "private_lesson_products"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"private_lesson_products_rule_version_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "private_lesson_products_rule_version_id_fkey",
+          "public",
+          "\"public\".\"private_lesson_products\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"private_lesson_products_rule_version_id_fkey\" on \"private_lesson_products\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"private_lesson_products_rule_version_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"private_lesson_products\"\nADD CONSTRAINT \"private_lesson_products_rule_version_id_fkey\"\nFOREIGN KEY (\"rule_version_id\")\nREFERENCES \"public\".\"private_lesson_rule_versions\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"private_lesson_products_rule_version_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "private_lesson_products_rule_version_id_fkey",
+          "public",
+          "\"public\".\"private_lesson_products\"",
+          "f",
+          "[\"rule_version_id\"]",
+          "\"public\".\"private_lesson_rule_versions\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.private_lesson_products.private_lesson_products_refund_notice_version_id_fkey",
+    "label": "Add foreign key \"private_lesson_products_refund_notice_version_id_fkey\" on \"private_lesson_products\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "private_lesson_products_refund_notice_version_id_fkey",
+        "table": "private_lesson_products"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"private_lesson_products_refund_notice_version_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "private_lesson_products_refund_notice_version_id_fkey",
+          "public",
+          "\"public\".\"private_lesson_products\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"private_lesson_products_refund_notice_version_id_fkey\" on \"private_lesson_products\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"private_lesson_products_refund_notice_version_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"private_lesson_products\"\nADD CONSTRAINT \"private_lesson_products_refund_notice_version_id_fkey\"\nFOREIGN KEY (\"refund_notice_version_id\")\nREFERENCES \"public\".\"refund_notice_versions\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"private_lesson_products_refund_notice_version_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "private_lesson_products_refund_notice_version_id_fkey",
+          "public",
+          "\"public\".\"private_lesson_products\"",
+          "f",
+          "[\"refund_notice_version_id\"]",
+          "\"public\".\"refund_notice_versions\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.private_lesson_rule_versions.private_lesson_rule_versions_academy_id_fkey",
+    "label": "Add foreign key \"private_lesson_rule_versions_academy_id_fkey\" on \"private_lesson_rule_versions\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "private_lesson_rule_versions_academy_id_fkey",
+        "table": "private_lesson_rule_versions"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"private_lesson_rule_versions_academy_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "private_lesson_rule_versions_academy_id_fkey",
+          "public",
+          "\"public\".\"private_lesson_rule_versions\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"private_lesson_rule_versions_academy_id_fkey\" on \"private_lesson_rule_versions\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"private_lesson_rule_versions_academy_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"private_lesson_rule_versions\"\nADD CONSTRAINT \"private_lesson_rule_versions_academy_id_fkey\"\nFOREIGN KEY (\"academy_id\")\nREFERENCES \"public\".\"academies\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"private_lesson_rule_versions_academy_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "private_lesson_rule_versions_academy_id_fkey",
+          "public",
+          "\"public\".\"private_lesson_rule_versions\"",
+          "f",
+          "[\"academy_id\"]",
+          "\"public\".\"academies\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.private_lesson_rule_versions.private_lesson_rule_versions_instructor_account_id_fkey",
+    "label": "Add foreign key \"private_lesson_rule_versions_instructor_account_id_fkey\" on \"private_lesson_rule_versions\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "private_lesson_rule_versions_instructor_account_id_fkey",
+        "table": "private_lesson_rule_versions"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"private_lesson_rule_versions_instructor_account_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "private_lesson_rule_versions_instructor_account_id_fkey",
+          "public",
+          "\"public\".\"private_lesson_rule_versions\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"private_lesson_rule_versions_instructor_account_id_fkey\" on \"private_lesson_rule_versions\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"private_lesson_rule_versions_instructor_account_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"private_lesson_rule_versions\"\nADD CONSTRAINT \"private_lesson_rule_versions_instructor_account_id_fkey\"\nFOREIGN KEY (\"instructor_account_id\")\nREFERENCES \"public\".\"staff_accounts\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"private_lesson_rule_versions_instructor_account_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "private_lesson_rule_versions_instructor_account_id_fkey",
+          "public",
+          "\"public\".\"private_lesson_rule_versions\"",
+          "f",
+          "[\"instructor_account_id\"]",
+          "\"public\".\"staff_accounts\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.private_lesson_slots.private_lesson_slots_product_class_id_fkey",
+    "label": "Add foreign key \"private_lesson_slots_product_class_id_fkey\" on \"private_lesson_slots\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "private_lesson_slots_product_class_id_fkey",
+        "table": "private_lesson_slots"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"private_lesson_slots_product_class_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "private_lesson_slots_product_class_id_fkey",
+          "public",
+          "\"public\".\"private_lesson_slots\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"private_lesson_slots_product_class_id_fkey\" on \"private_lesson_slots\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"private_lesson_slots_product_class_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"private_lesson_slots\"\nADD CONSTRAINT \"private_lesson_slots_product_class_id_fkey\"\nFOREIGN KEY (\"product_class_id\")\nREFERENCES \"public\".\"private_lesson_products\" (\"class_id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"private_lesson_slots_product_class_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "private_lesson_slots_product_class_id_fkey",
+          "public",
+          "\"public\".\"private_lesson_slots\"",
+          "f",
+          "[\"product_class_id\"]",
+          "\"public\".\"private_lesson_products\"",
+          "[\"class_id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.private_lesson_slots.private_lesson_slots_academy_id_fkey",
+    "label": "Add foreign key \"private_lesson_slots_academy_id_fkey\" on \"private_lesson_slots\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "private_lesson_slots_academy_id_fkey",
+        "table": "private_lesson_slots"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"private_lesson_slots_academy_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "private_lesson_slots_academy_id_fkey",
+          "public",
+          "\"public\".\"private_lesson_slots\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"private_lesson_slots_academy_id_fkey\" on \"private_lesson_slots\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"private_lesson_slots_academy_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"private_lesson_slots\"\nADD CONSTRAINT \"private_lesson_slots_academy_id_fkey\"\nFOREIGN KEY (\"academy_id\")\nREFERENCES \"public\".\"academies\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"private_lesson_slots_academy_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "private_lesson_slots_academy_id_fkey",
+          "public",
+          "\"public\".\"private_lesson_slots\"",
+          "f",
+          "[\"academy_id\"]",
+          "\"public\".\"academies\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.private_lesson_slots.private_lesson_slots_instructor_account_id_fkey",
+    "label": "Add foreign key \"private_lesson_slots_instructor_account_id_fkey\" on \"private_lesson_slots\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "private_lesson_slots_instructor_account_id_fkey",
+        "table": "private_lesson_slots"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"private_lesson_slots_instructor_account_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "private_lesson_slots_instructor_account_id_fkey",
+          "public",
+          "\"public\".\"private_lesson_slots\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"private_lesson_slots_instructor_account_id_fkey\" on \"private_lesson_slots\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"private_lesson_slots_instructor_account_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"private_lesson_slots\"\nADD CONSTRAINT \"private_lesson_slots_instructor_account_id_fkey\"\nFOREIGN KEY (\"instructor_account_id\")\nREFERENCES \"public\".\"staff_accounts\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"private_lesson_slots_instructor_account_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "private_lesson_slots_instructor_account_id_fkey",
+          "public",
+          "\"public\".\"private_lesson_slots\"",
+          "f",
+          "[\"instructor_account_id\"]",
+          "\"public\".\"staff_accounts\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.private_lesson_slots.private_lesson_slots_room_id_fkey",
+    "label": "Add foreign key \"private_lesson_slots_room_id_fkey\" on \"private_lesson_slots\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "private_lesson_slots_room_id_fkey",
+        "table": "private_lesson_slots"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"private_lesson_slots_room_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "private_lesson_slots_room_id_fkey",
+          "public",
+          "\"public\".\"private_lesson_slots\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"private_lesson_slots_room_id_fkey\" on \"private_lesson_slots\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"private_lesson_slots_room_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"private_lesson_slots\"\nADD CONSTRAINT \"private_lesson_slots_room_id_fkey\"\nFOREIGN KEY (\"room_id\")\nREFERENCES \"public\".\"rooms\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"private_lesson_slots_room_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "private_lesson_slots_room_id_fkey",
+          "public",
+          "\"public\".\"private_lesson_slots\"",
+          "f",
+          "[\"room_id\"]",
+          "\"public\".\"rooms\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "exclude.private_lesson_slots_overlap",
+    "label": "Reject overlapping live private lesson slots per instructor and per room",
+    "summary": "Creates EXCLUDE constraints ex_pl_slots_instructor and ex_pl_slots_room on private_lesson_slots",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "private_lesson_slots"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"ex_pl_slots_instructor\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname IN ('ex_pl_slots_instructor', 'ex_pl_slots_room'))",
+        "expectation": {
+          "expects": "absent",
+          "object": "constraint \"ex_pl_slots_instructor\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create extension btree_gist",
+        "sql": "CREATE EXTENSION IF NOT EXISTS btree_gist"
+      },
+      {
+        "description": "add exclusion constraint ex_pl_slots_instructor",
+        "sql": "ALTER TABLE public.private_lesson_slots ADD CONSTRAINT ex_pl_slots_instructor\n  EXCLUDE USING gist (instructor_account_id WITH =, tstzrange(starts_at, ends_at) WITH &&)\n  WHERE (status IN ('open', 'held', 'booked'))"
+      },
+      {
+        "description": "add exclusion constraint ex_pl_slots_room",
+        "sql": "ALTER TABLE public.private_lesson_slots ADD CONSTRAINT ex_pl_slots_room\n  EXCLUDE USING gist (room_id WITH =, tstzrange(starts_at, ends_at) WITH &&)\n  WHERE (status IN ('open', 'held', 'booked') AND room_id IS NOT NULL)"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraints \"ex_pl_slots_instructor\" and \"ex_pl_slots_room\" exist",
+        "sql": "SELECT (SELECT count(*) FROM pg_constraint WHERE conname IN ('ex_pl_slots_instructor', 'ex_pl_slots_room') AND contype = 'x') = 2",
+        "expectation": {
+          "expects": "present",
+          "object": "constraint \"ex_pl_slots_instructor\""
+        }
+      }
+    ]
+  }
+]

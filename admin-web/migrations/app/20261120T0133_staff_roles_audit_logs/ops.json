@@ -1,0 +1,737 @@
+[
+  {
+    "id": "table.audit_logs",
+    "label": "Create table \"audit_logs\"",
+    "summary": "Creates table \"audit_logs\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "audit_logs"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"audit_logs\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"audit_logs\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"audit_logs\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"audit_logs\"",
+        "sql": "CREATE TABLE \"public\".\"audit_logs\" (\n  \"academy_id\" uuid,\n  \"action\" text NOT NULL,\n  \"actor_kind\" text NOT NULL,\n  \"actor_member_id\" uuid,\n  \"actor_role\" text,\n  \"actor_staff_account_id\" uuid,\n  \"after\" json,\n  \"before\" json,\n  \"id\" uuid NOT NULL,\n  \"ip_hash\" text,\n  \"occurred_at\" timestamptz DEFAULT (now()) NOT NULL,\n  \"reason\" text,\n  \"request_id\" text,\n  \"target_id\" uuid NOT NULL,\n  \"target_table\" text NOT NULL,\n  PRIMARY KEY (\"id\"),\n  CONSTRAINT \"audit_logs_actor_kind_check_b953add6\" CHECK (\"actor_kind\" IN ('staff', 'member', 'system')),\n  CONSTRAINT \"ck_audit_actor_76795b59\" CHECK ((actor_kind = 'staff' AND actor_staff_account_id IS NOT NULL AND actor_member_id IS NULL) OR (actor_kind = 'member' AND actor_member_id IS NOT NULL AND actor_staff_account_id IS NULL) OR (actor_kind = 'system' AND actor_staff_account_id IS NULL AND actor_member_id IS NULL))\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"audit_logs\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3))) AS \"result\"",
+        "params": [
+          "\"public\".\"audit_logs\"",
+          "r",
+          "p"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"audit_logs\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "table.role_grants",
+    "label": "Create table \"role_grants\"",
+    "summary": "Creates table \"role_grants\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "role_grants"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"role_grants\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"role_grants\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"role_grants\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"role_grants\"",
+        "sql": "CREATE TABLE \"public\".\"role_grants\" (\n  \"granted_at\" timestamptz DEFAULT (now()) NOT NULL,\n  \"granted_by_account_id\" uuid,\n  \"id\" uuid NOT NULL,\n  \"revoked_at\" timestamptz,\n  \"role\" text NOT NULL,\n  \"staff_account_id\" uuid NOT NULL,\n  \"status\" text DEFAULT 'active' NOT NULL,\n  PRIMARY KEY (\"id\"),\n  CONSTRAINT \"ck_role_grants_revoked_d9c66abb\" CHECK ((status = 'revoked') = (revoked_at IS NOT NULL)),\n  CONSTRAINT \"role_grants_role_check_cdfed31d\" CHECK (\"role\" IN ('instructor', 'owner', 'admin')),\n  CONSTRAINT \"role_grants_status_check_4cc0f702\" CHECK (\"status\" IN ('active', 'revoked'))\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"role_grants\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3))) AS \"result\"",
+        "params": [
+          "\"public\".\"role_grants\"",
+          "r",
+          "p"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"role_grants\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "table.staff_accounts",
+    "label": "Create table \"staff_accounts\"",
+    "summary": "Creates table \"staff_accounts\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "staff_accounts"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"staff_accounts\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"staff_accounts\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"staff_accounts\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"staff_accounts\"",
+        "sql": "CREATE TABLE \"public\".\"staff_accounts\" (\n  \"auth_user_id\" text NOT NULL,\n  \"birth_date\" date,\n  \"created_at\" timestamptz DEFAULT (now()) NOT NULL,\n  \"display_name\" text NOT NULL,\n  \"id\" uuid NOT NULL,\n  \"identity_ci_hash\" text,\n  \"phone_enc\" bytea,\n  \"phone_masked\" text,\n  \"status\" text DEFAULT 'active' NOT NULL,\n  \"updated_at\" timestamptz NOT NULL,\n  PRIMARY KEY (\"id\"),\n  CONSTRAINT \"staff_accounts_status_check_a2a679b6\" CHECK (\"status\" IN ('active', 'suspended', 'withdrawn'))\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"staff_accounts\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3))) AS \"result\"",
+        "params": [
+          "\"public\".\"staff_accounts\"",
+          "r",
+          "p"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"staff_accounts\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "index.audit_logs.audit_logs_actor_member_id_idx_fc692d2c",
+    "label": "Create index \"audit_logs_actor_member_id_idx_fc692d2c\" on \"audit_logs\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "audit_logs_actor_member_id_idx_fc692d2c",
+        "table": "audit_logs"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"audit_logs_actor_member_id_idx_fc692d2c\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"audit_logs_actor_member_id_idx_fc692d2c\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"audit_logs_actor_member_id_idx_fc692d2c\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"audit_logs_actor_member_id_idx_fc692d2c\"",
+        "sql": "CREATE INDEX \"audit_logs_actor_member_id_idx_fc692d2c\" ON \"public\".\"audit_logs\" (\"actor_member_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"audit_logs_actor_member_id_idx_fc692d2c\" exists on \"audit_logs\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"audit_logs_actor_member_id_idx_fc692d2c\"",
+          "i",
+          "I",
+          "\"public\".\"audit_logs\"",
+          "btree",
+          "[\"actor_member_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.audit_logs.audit_logs_actor_staff_account_id_idx_fc2e527b",
+    "label": "Create index \"audit_logs_actor_staff_account_id_idx_fc2e527b\" on \"audit_logs\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "audit_logs_actor_staff_account_id_idx_fc2e527b",
+        "table": "audit_logs"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"audit_logs_actor_staff_account_id_idx_fc2e527b\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"audit_logs_actor_staff_account_id_idx_fc2e527b\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"audit_logs_actor_staff_account_id_idx_fc2e527b\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"audit_logs_actor_staff_account_id_idx_fc2e527b\"",
+        "sql": "CREATE INDEX \"audit_logs_actor_staff_account_id_idx_fc2e527b\" ON \"public\".\"audit_logs\" (\"actor_staff_account_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"audit_logs_actor_staff_account_id_idx_fc2e527b\" exists on \"audit_logs\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"audit_logs_actor_staff_account_id_idx_fc2e527b\"",
+          "i",
+          "I",
+          "\"public\".\"audit_logs\"",
+          "btree",
+          "[\"actor_staff_account_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.audit_logs.ix_audit_academy_time_457ad752",
+    "label": "Create index \"ix_audit_academy_time_457ad752\" on \"audit_logs\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "ix_audit_academy_time_457ad752",
+        "table": "audit_logs"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"ix_audit_academy_time_457ad752\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ix_audit_academy_time_457ad752\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"ix_audit_academy_time_457ad752\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"ix_audit_academy_time_457ad752\"",
+        "sql": "CREATE INDEX \"ix_audit_academy_time_457ad752\" ON \"public\".\"audit_logs\" (\"academy_id\", \"occurred_at\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"ix_audit_academy_time_457ad752\" exists on \"audit_logs\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"ix_audit_academy_time_457ad752\"",
+          "i",
+          "I",
+          "\"public\".\"audit_logs\"",
+          "btree",
+          "[\"academy_id\",\"occurred_at\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.audit_logs.ix_audit_target_061eef65",
+    "label": "Create index \"ix_audit_target_061eef65\" on \"audit_logs\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "ix_audit_target_061eef65",
+        "table": "audit_logs"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"ix_audit_target_061eef65\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ix_audit_target_061eef65\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"ix_audit_target_061eef65\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"ix_audit_target_061eef65\"",
+        "sql": "CREATE INDEX \"ix_audit_target_061eef65\" ON \"public\".\"audit_logs\" (\"target_table\", \"target_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"ix_audit_target_061eef65\" exists on \"audit_logs\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"ix_audit_target_061eef65\"",
+          "i",
+          "I",
+          "\"public\".\"audit_logs\"",
+          "btree",
+          "[\"target_table\",\"target_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.role_grants.role_grants_staff_account_id_idx_97848bfb",
+    "label": "Create index \"role_grants_staff_account_id_idx_97848bfb\" on \"role_grants\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "role_grants_staff_account_id_idx_97848bfb",
+        "table": "role_grants"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"role_grants_staff_account_id_idx_97848bfb\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"role_grants_staff_account_id_idx_97848bfb\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"role_grants_staff_account_id_idx_97848bfb\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"role_grants_staff_account_id_idx_97848bfb\"",
+        "sql": "CREATE INDEX \"role_grants_staff_account_id_idx_97848bfb\" ON \"public\".\"role_grants\" (\"staff_account_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"role_grants_staff_account_id_idx_97848bfb\" exists on \"role_grants\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"role_grants_staff_account_id_idx_97848bfb\"",
+          "i",
+          "I",
+          "\"public\".\"role_grants\"",
+          "btree",
+          "[\"staff_account_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.role_grants.uq_role_grants_active_7a1b21af",
+    "label": "Create index \"uq_role_grants_active_7a1b21af\" on \"role_grants\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "uq_role_grants_active_7a1b21af",
+        "table": "role_grants"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"uq_role_grants_active_7a1b21af\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"uq_role_grants_active_7a1b21af\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"uq_role_grants_active_7a1b21af\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"uq_role_grants_active_7a1b21af\"",
+        "sql": "CREATE UNIQUE INDEX \"uq_role_grants_active_7a1b21af\" ON \"public\".\"role_grants\" (\"staff_account_id\", \"role\") WHERE ((status = 'active'))",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"uq_role_grants_active_7a1b21af\" exists on \"role_grants\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND \"i\".\"indisunique\" AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NOT NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"uq_role_grants_active_7a1b21af\"",
+          "i",
+          "I",
+          "\"public\".\"role_grants\"",
+          "btree",
+          "[\"staff_account_id\",\"role\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.staff_accounts.uq_staff_accounts_auth_user_id_7c05eb2e",
+    "label": "Create index \"uq_staff_accounts_auth_user_id_7c05eb2e\" on \"staff_accounts\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "uq_staff_accounts_auth_user_id_7c05eb2e",
+        "table": "staff_accounts"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"uq_staff_accounts_auth_user_id_7c05eb2e\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"uq_staff_accounts_auth_user_id_7c05eb2e\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"uq_staff_accounts_auth_user_id_7c05eb2e\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"uq_staff_accounts_auth_user_id_7c05eb2e\"",
+        "sql": "CREATE UNIQUE INDEX \"uq_staff_accounts_auth_user_id_7c05eb2e\" ON \"public\".\"staff_accounts\" (\"auth_user_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"uq_staff_accounts_auth_user_id_7c05eb2e\" exists on \"staff_accounts\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND \"i\".\"indisunique\" AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"uq_staff_accounts_auth_user_id_7c05eb2e\"",
+          "i",
+          "I",
+          "\"public\".\"staff_accounts\"",
+          "btree",
+          "[\"auth_user_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.staff_accounts.uq_staff_accounts_ci_2bc3c200",
+    "label": "Create index \"uq_staff_accounts_ci_2bc3c200\" on \"staff_accounts\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "uq_staff_accounts_ci_2bc3c200",
+        "table": "staff_accounts"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"uq_staff_accounts_ci_2bc3c200\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"uq_staff_accounts_ci_2bc3c200\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"uq_staff_accounts_ci_2bc3c200\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"uq_staff_accounts_ci_2bc3c200\"",
+        "sql": "CREATE UNIQUE INDEX \"uq_staff_accounts_ci_2bc3c200\" ON \"public\".\"staff_accounts\" (\"identity_ci_hash\") WHERE ((identity_ci_hash IS NOT NULL))",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"uq_staff_accounts_ci_2bc3c200\" exists on \"staff_accounts\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND \"i\".\"indisunique\" AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NOT NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"uq_staff_accounts_ci_2bc3c200\"",
+          "i",
+          "I",
+          "\"public\".\"staff_accounts\"",
+          "btree",
+          "[\"identity_ci_hash\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.audit_logs.audit_logs_actor_staff_account_id_fkey",
+    "label": "Add foreign key \"audit_logs_actor_staff_account_id_fkey\" on \"audit_logs\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "audit_logs_actor_staff_account_id_fkey",
+        "table": "audit_logs"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"audit_logs_actor_staff_account_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "audit_logs_actor_staff_account_id_fkey",
+          "public",
+          "\"public\".\"audit_logs\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"audit_logs_actor_staff_account_id_fkey\" on \"audit_logs\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"audit_logs_actor_staff_account_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"audit_logs\"\nADD CONSTRAINT \"audit_logs_actor_staff_account_id_fkey\"\nFOREIGN KEY (\"actor_staff_account_id\")\nREFERENCES \"public\".\"staff_accounts\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"audit_logs_actor_staff_account_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "audit_logs_actor_staff_account_id_fkey",
+          "public",
+          "\"public\".\"audit_logs\"",
+          "f",
+          "[\"actor_staff_account_id\"]",
+          "\"public\".\"staff_accounts\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.audit_logs.audit_logs_actor_member_id_fkey",
+    "label": "Add foreign key \"audit_logs_actor_member_id_fkey\" on \"audit_logs\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "audit_logs_actor_member_id_fkey",
+        "table": "audit_logs"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"audit_logs_actor_member_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "audit_logs_actor_member_id_fkey",
+          "public",
+          "\"public\".\"audit_logs\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"audit_logs_actor_member_id_fkey\" on \"audit_logs\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"audit_logs_actor_member_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"audit_logs\"\nADD CONSTRAINT \"audit_logs_actor_member_id_fkey\"\nFOREIGN KEY (\"actor_member_id\")\nREFERENCES \"public\".\"members\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"audit_logs_actor_member_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "audit_logs_actor_member_id_fkey",
+          "public",
+          "\"public\".\"audit_logs\"",
+          "f",
+          "[\"actor_member_id\"]",
+          "\"public\".\"members\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.role_grants.role_grants_staff_account_id_fkey",
+    "label": "Add foreign key \"role_grants_staff_account_id_fkey\" on \"role_grants\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "role_grants_staff_account_id_fkey",
+        "table": "role_grants"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"role_grants_staff_account_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "role_grants_staff_account_id_fkey",
+          "public",
+          "\"public\".\"role_grants\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"role_grants_staff_account_id_fkey\" on \"role_grants\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"role_grants_staff_account_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"role_grants\"\nADD CONSTRAINT \"role_grants_staff_account_id_fkey\"\nFOREIGN KEY (\"staff_account_id\")\nREFERENCES \"public\".\"staff_accounts\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"role_grants_staff_account_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "role_grants_staff_account_id_fkey",
+          "public",
+          "\"public\".\"role_grants\"",
+          "f",
+          "[\"staff_account_id\"]",
+          "\"public\".\"staff_accounts\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "trigger.audit_logs_append_only",
+    "label": "Make audit_logs append-only (block UPDATE, DELETE, TRUNCATE)",
+    "summary": "Adds triggers that raise an exception on UPDATE, DELETE and TRUNCATE of audit_logs",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "audit_logs"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure trigger \"trg_audit_logs_append_only\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'trg_audit_logs_append_only' AND NOT tgisinternal)",
+        "expectation": {
+          "expects": "absent",
+          "object": "trigger \"trg_audit_logs_append_only\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create function public.audit_logs_reject_change()",
+        "sql": "CREATE FUNCTION public.audit_logs_reject_change() RETURNS trigger LANGUAGE plpgsql AS $fn$\nBEGIN\n  RAISE EXCEPTION 'audit_logs 는 추가 전용입니다. % 할 수 없습니다.', TG_OP\n    USING ERRCODE = 'insufficient_privilege';\nEND;\n$fn$"
+      },
+      {
+        "description": "create row trigger blocking UPDATE and DELETE",
+        "sql": "CREATE TRIGGER trg_audit_logs_append_only BEFORE UPDATE OR DELETE ON public.audit_logs FOR EACH ROW EXECUTE FUNCTION public.audit_logs_reject_change()"
+      },
+      {
+        "description": "create statement trigger blocking TRUNCATE",
+        "sql": "CREATE TRIGGER trg_audit_logs_no_truncate BEFORE TRUNCATE ON public.audit_logs FOR EACH STATEMENT EXECUTE FUNCTION public.audit_logs_reject_change()"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify trigger \"trg_audit_logs_append_only\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'trg_audit_logs_append_only' AND NOT tgisinternal) AND EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'trg_audit_logs_no_truncate' AND NOT tgisinternal)",
+        "expectation": {
+          "expects": "present",
+          "object": "trigger \"trg_audit_logs_append_only\""
+        }
+      }
+    ]
+  }
+]

@@ -1,0 +1,487 @@
+[
+  {
+    "id": "column.public.academy_payout_accounts.proof_uploaded_at",
+    "label": "Add column \"proof_uploaded_at\" to \"academy_payout_accounts\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "proof_uploaded_at",
+        "table": "academy_payout_accounts"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"proof_uploaded_at\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "academy_payout_accounts",
+          "proof_uploaded_at"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "column \"proof_uploaded_at\" on \"academy_payout_accounts\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"proof_uploaded_at\"",
+        "sql": "ALTER TABLE \"public\".\"academy_payout_accounts\" ADD COLUMN \"proof_uploaded_at\" timestamptz"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"proof_uploaded_at\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "academy_payout_accounts",
+          "proof_uploaded_at"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "column \"proof_uploaded_at\" on \"academy_payout_accounts\""
+        }
+      },
+      {
+        "description": "verify column \"proof_uploaded_at\" has type \"timestamp with time zone\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_attribute\" AS \"a\" INNER JOIN \"pg_class\" AS \"c\" ON \"c\".\"oid\" = \"a\".\"attrelid\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"a\".\"attname\" = $3 AND (format_type(\"a\".\"atttypid\", \"a\".\"atttypmod\")) = $4 AND NOT (\"a\".\"attisdropped\"))) AS \"result\"",
+        "params": [
+          "public",
+          "academy_payout_accounts",
+          "proof_uploaded_at",
+          "timestamp with time zone"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "column.public.academy_payout_accounts.reject_reason_code",
+    "label": "Add column \"reject_reason_code\" to \"academy_payout_accounts\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "reject_reason_code",
+        "table": "academy_payout_accounts"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"reject_reason_code\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "academy_payout_accounts",
+          "reject_reason_code"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "column \"reject_reason_code\" on \"academy_payout_accounts\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"reject_reason_code\"",
+        "sql": "ALTER TABLE \"public\".\"academy_payout_accounts\" ADD COLUMN \"reject_reason_code\" text"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"reject_reason_code\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "academy_payout_accounts",
+          "reject_reason_code"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "column \"reject_reason_code\" on \"academy_payout_accounts\""
+        }
+      },
+      {
+        "description": "verify column \"reject_reason_code\" has type \"text\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_attribute\" AS \"a\" INNER JOIN \"pg_class\" AS \"c\" ON \"c\".\"oid\" = \"a\".\"attrelid\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"a\".\"attname\" = $3 AND (format_type(\"a\".\"atttypid\", \"a\".\"atttypmod\")) = $4 AND NOT (\"a\".\"attisdropped\"))) AS \"result\"",
+        "params": [
+          "public",
+          "academy_payout_accounts",
+          "reject_reason_code",
+          "text"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "column.public.academy_payout_accounts.reject_reason_text",
+    "label": "Add column \"reject_reason_text\" to \"academy_payout_accounts\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "reject_reason_text",
+        "table": "academy_payout_accounts"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"reject_reason_text\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "academy_payout_accounts",
+          "reject_reason_text"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "column \"reject_reason_text\" on \"academy_payout_accounts\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"reject_reason_text\"",
+        "sql": "ALTER TABLE \"public\".\"academy_payout_accounts\" ADD COLUMN \"reject_reason_text\" text"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"reject_reason_text\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "academy_payout_accounts",
+          "reject_reason_text"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "column \"reject_reason_text\" on \"academy_payout_accounts\""
+        }
+      },
+      {
+        "description": "verify column \"reject_reason_text\" has type \"text\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_attribute\" AS \"a\" INNER JOIN \"pg_class\" AS \"c\" ON \"c\".\"oid\" = \"a\".\"attrelid\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"a\".\"attname\" = $3 AND (format_type(\"a\".\"atttypid\", \"a\".\"atttypmod\")) = $4 AND NOT (\"a\".\"attisdropped\"))) AS \"result\"",
+        "params": [
+          "public",
+          "academy_payout_accounts",
+          "reject_reason_text",
+          "text"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "column.public.academy_payout_accounts.verification_status",
+    "label": "Add column \"verification_status\" to \"academy_payout_accounts\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "verification_status",
+        "table": "academy_payout_accounts"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"verification_status\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "academy_payout_accounts",
+          "verification_status"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "column \"verification_status\" on \"academy_payout_accounts\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"verification_status\"",
+        "sql": "ALTER TABLE \"public\".\"academy_payout_accounts\" ADD COLUMN \"verification_status\" text DEFAULT 'awaiting_proof' NOT NULL"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"verification_status\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "academy_payout_accounts",
+          "verification_status"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "column \"verification_status\" on \"academy_payout_accounts\""
+        }
+      },
+      {
+        "description": "verify column \"verification_status\" has type \"text\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_attribute\" AS \"a\" INNER JOIN \"pg_class\" AS \"c\" ON \"c\".\"oid\" = \"a\".\"attrelid\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"a\".\"attname\" = $3 AND (format_type(\"a\".\"atttypid\", \"a\".\"atttypmod\")) = $4 AND NOT (\"a\".\"attisdropped\"))) AS \"result\"",
+        "params": [
+          "public",
+          "academy_payout_accounts",
+          "verification_status",
+          "text"
+        ]
+      },
+      {
+        "description": "verify column \"verification_status\" is NOT NULL",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3 AND \"is_nullable\" = $4)) AS \"result\"",
+        "params": [
+          "public",
+          "academy_payout_accounts",
+          "verification_status",
+          "NO"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "checkConstraint.academy_payout_accounts.academy_payout_accounts_reject_reason_code_check_5a79ece8",
+    "label": "Add check constraint \"academy_payout_accounts_reject_reason_code_check_5a79ece8\" on \"academy_payout_accounts\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "checkConstraint",
+        "name": "academy_payout_accounts_reject_reason_code_check_5a79ece8",
+        "table": "academy_payout_accounts"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"academy_payout_accounts_reject_reason_code_check_5a79ece8\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "academy_payout_accounts_reject_reason_code_check_5a79ece8",
+          "public",
+          "\"public\".\"academy_payout_accounts\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "constraint \"academy_payout_accounts_reject_reason_code_check_5a79ece8\" on \"academy_payout_accounts\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add check constraint \"academy_payout_accounts_reject_reason_code_check_5a79ece8\"",
+        "sql": "ALTER TABLE \"public\".\"academy_payout_accounts\" ADD CONSTRAINT \"academy_payout_accounts_reject_reason_code_check_5a79ece8\" CHECK (\"reject_reason_code\" IN ('name_mismatch', 'file_unreadable', 'other'))"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify check constraint \"academy_payout_accounts_reject_reason_code_check_5a79ece8\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4)) AS \"result\"",
+        "params": [
+          "academy_payout_accounts_reject_reason_code_check_5a79ece8",
+          "public",
+          "\"public\".\"academy_payout_accounts\"",
+          "c"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "checkConstraint.academy_payout_accounts.academy_payout_accounts_verification_status_check_c7eade12",
+    "label": "Add check constraint \"academy_payout_accounts_verification_status_check_c7eade12\" on \"academy_payout_accounts\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "checkConstraint",
+        "name": "academy_payout_accounts_verification_status_check_c7eade12",
+        "table": "academy_payout_accounts"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"academy_payout_accounts_verification_status_check_c7eade12\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "academy_payout_accounts_verification_status_check_c7eade12",
+          "public",
+          "\"public\".\"academy_payout_accounts\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "constraint \"academy_payout_accounts_verification_status_check_c7eade12\" on \"academy_payout_accounts\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add check constraint \"academy_payout_accounts_verification_status_check_c7eade12\"",
+        "sql": "ALTER TABLE \"public\".\"academy_payout_accounts\" ADD CONSTRAINT \"academy_payout_accounts_verification_status_check_c7eade12\" CHECK (\"verification_status\" IN ('awaiting_proof', 'pending', 'verified', 'rejected'))"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify check constraint \"academy_payout_accounts_verification_status_check_c7eade12\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4)) AS \"result\"",
+        "params": [
+          "academy_payout_accounts_verification_status_check_c7eade12",
+          "public",
+          "\"public\".\"academy_payout_accounts\"",
+          "c"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "checkConstraint.academy_payout_accounts.ck_payout_accounts_proof_2c5cc241",
+    "label": "Add check constraint \"ck_payout_accounts_proof_2c5cc241\" on \"academy_payout_accounts\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "checkConstraint",
+        "name": "ck_payout_accounts_proof_2c5cc241",
+        "table": "academy_payout_accounts"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"ck_payout_accounts_proof_2c5cc241\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "ck_payout_accounts_proof_2c5cc241",
+          "public",
+          "\"public\".\"academy_payout_accounts\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "constraint \"ck_payout_accounts_proof_2c5cc241\" on \"academy_payout_accounts\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add check constraint \"ck_payout_accounts_proof_2c5cc241\"",
+        "sql": "ALTER TABLE \"public\".\"academy_payout_accounts\" ADD CONSTRAINT \"ck_payout_accounts_proof_2c5cc241\" CHECK (verification_status NOT IN ('pending', 'verified') OR holder_proof_file_id IS NOT NULL)"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify check constraint \"ck_payout_accounts_proof_2c5cc241\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4)) AS \"result\"",
+        "params": [
+          "ck_payout_accounts_proof_2c5cc241",
+          "public",
+          "\"public\".\"academy_payout_accounts\"",
+          "c"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "checkConstraint.academy_payout_accounts.ck_payout_accounts_rejected_8ca935ee",
+    "label": "Add check constraint \"ck_payout_accounts_rejected_8ca935ee\" on \"academy_payout_accounts\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "checkConstraint",
+        "name": "ck_payout_accounts_rejected_8ca935ee",
+        "table": "academy_payout_accounts"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"ck_payout_accounts_rejected_8ca935ee\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "ck_payout_accounts_rejected_8ca935ee",
+          "public",
+          "\"public\".\"academy_payout_accounts\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "constraint \"ck_payout_accounts_rejected_8ca935ee\" on \"academy_payout_accounts\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add check constraint \"ck_payout_accounts_rejected_8ca935ee\"",
+        "sql": "ALTER TABLE \"public\".\"academy_payout_accounts\" ADD CONSTRAINT \"ck_payout_accounts_rejected_8ca935ee\" CHECK (((verification_status = 'rejected') = (reject_reason_code IS NOT NULL)) AND (reject_reason_code IS DISTINCT FROM 'other' OR reject_reason_text IS NOT NULL))"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify check constraint \"ck_payout_accounts_rejected_8ca935ee\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4)) AS \"result\"",
+        "params": [
+          "ck_payout_accounts_rejected_8ca935ee",
+          "public",
+          "\"public\".\"academy_payout_accounts\"",
+          "c"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "checkConstraint.academy_payout_accounts.ck_payout_accounts_verified_a3bbce98",
+    "label": "Add check constraint \"ck_payout_accounts_verified_a3bbce98\" on \"academy_payout_accounts\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "checkConstraint",
+        "name": "ck_payout_accounts_verified_a3bbce98",
+        "table": "academy_payout_accounts"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"ck_payout_accounts_verified_a3bbce98\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "ck_payout_accounts_verified_a3bbce98",
+          "public",
+          "\"public\".\"academy_payout_accounts\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "constraint \"ck_payout_accounts_verified_a3bbce98\" on \"academy_payout_accounts\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add check constraint \"ck_payout_accounts_verified_a3bbce98\"",
+        "sql": "ALTER TABLE \"public\".\"academy_payout_accounts\" ADD CONSTRAINT \"ck_payout_accounts_verified_a3bbce98\" CHECK ((verification_status = 'verified') = (holder_verified_at IS NOT NULL))"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify check constraint \"ck_payout_accounts_verified_a3bbce98\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4)) AS \"result\"",
+        "params": [
+          "ck_payout_accounts_verified_a3bbce98",
+          "public",
+          "\"public\".\"academy_payout_accounts\"",
+          "c"
+        ]
+      }
+    ]
+  }
+]

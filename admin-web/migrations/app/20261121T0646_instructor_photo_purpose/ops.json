@@ -1,0 +1,99 @@
+[
+  {
+    "id": "dropCheckConstraint.uploaded_files.uploaded_files_purpose_check_a90aa354",
+    "label": "Drop check constraint \"uploaded_files_purpose_check_a90aa354\" on \"uploaded_files\"",
+    "operationClass": "widening",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "checkConstraint",
+        "name": "uploaded_files_purpose_check_a90aa354",
+        "table": "uploaded_files"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"uploaded_files_purpose_check_a90aa354\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "uploaded_files_purpose_check_a90aa354",
+          "public",
+          "\"public\".\"uploaded_files\""
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "constraint \"uploaded_files_purpose_check_a90aa354\" on \"uploaded_files\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "drop check constraint \"uploaded_files_purpose_check_a90aa354\"",
+        "sql": "ALTER TABLE \"public\".\"uploaded_files\" DROP CONSTRAINT \"uploaded_files_purpose_check_a90aa354\""
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"uploaded_files_purpose_check_a90aa354\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "uploaded_files_purpose_check_a90aa354",
+          "public",
+          "\"public\".\"uploaded_files\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "constraint \"uploaded_files_purpose_check_a90aa354\" on \"uploaded_files\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "checkConstraint.uploaded_files.uploaded_files_purpose_check_af31640c",
+    "label": "Add check constraint \"uploaded_files_purpose_check_af31640c\" on \"uploaded_files\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "checkConstraint",
+        "name": "uploaded_files_purpose_check_af31640c",
+        "table": "uploaded_files"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"uploaded_files_purpose_check_af31640c\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "uploaded_files_purpose_check_af31640c",
+          "public",
+          "\"public\".\"uploaded_files\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "constraint \"uploaded_files_purpose_check_af31640c\" on \"uploaded_files\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add check constraint \"uploaded_files_purpose_check_af31640c\"",
+        "sql": "ALTER TABLE \"public\".\"uploaded_files\" ADD CONSTRAINT \"uploaded_files_purpose_check_af31640c\" CHECK (\"purpose\" IN ('merchant_evidence', 'academy_photo', 'business_registration_evidence', 'instructor_photo'))"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify check constraint \"uploaded_files_purpose_check_af31640c\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4)) AS \"result\"",
+        "params": [
+          "uploaded_files_purpose_check_af31640c",
+          "public",
+          "\"public\".\"uploaded_files\"",
+          "c"
+        ]
+      }
+    ]
+  }
+]

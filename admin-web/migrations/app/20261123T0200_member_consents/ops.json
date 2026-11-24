@@ -1,0 +1,299 @@
+[
+  {
+    "id": "table.member_consents",
+    "label": "Create table \"member_consents\"",
+    "summary": "Creates table \"member_consents\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "member_consents"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"member_consents\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"member_consents\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"member_consents\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"member_consents\"",
+        "sql": "CREATE TABLE \"public\".\"member_consents\" (\n  \"agreed_at\" timestamptz NOT NULL,\n  \"created_at\" timestamptz DEFAULT (now()) NOT NULL,\n  \"id\" uuid NOT NULL,\n  \"item\" text NOT NULL,\n  \"member_id\" uuid NOT NULL,\n  \"source\" text NOT NULL,\n  \"terms_version_id\" uuid,\n  \"withdrawn_at\" timestamptz,\n  PRIMARY KEY (\"id\"),\n  CONSTRAINT \"ck_member_consents_withdrawn_after_agreed_3dec10ae\" CHECK (withdrawn_at IS NULL OR withdrawn_at >= agreed_at),\n  CONSTRAINT \"member_consents_item_check_60314628\" CHECK (\"item\" IN ('member_terms', 'member_privacy_collection', 'academy_sharing', 'age_19_plus', 'marketing_consent', 'location_info')),\n  CONSTRAINT \"member_consents_source_check_30ae6178\" CHECK (\"source\" IN ('signup', 'settings', 're_consent'))\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"member_consents\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3))) AS \"result\"",
+        "params": [
+          "\"public\".\"member_consents\"",
+          "r",
+          "p"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"member_consents\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "index.member_consents.ix_member_consents_member_item_2ffb3839",
+    "label": "Create index \"ix_member_consents_member_item_2ffb3839\" on \"member_consents\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "ix_member_consents_member_item_2ffb3839",
+        "table": "member_consents"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"ix_member_consents_member_item_2ffb3839\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ix_member_consents_member_item_2ffb3839\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"ix_member_consents_member_item_2ffb3839\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"ix_member_consents_member_item_2ffb3839\"",
+        "sql": "CREATE INDEX \"ix_member_consents_member_item_2ffb3839\" ON \"public\".\"member_consents\" (\"member_id\", \"item\", \"agreed_at\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"ix_member_consents_member_item_2ffb3839\" exists on \"member_consents\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"ix_member_consents_member_item_2ffb3839\"",
+          "i",
+          "I",
+          "\"public\".\"member_consents\"",
+          "btree",
+          "[\"member_id\",\"item\",\"agreed_at\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.member_consents.member_consents_member_id_idx_10d5a0e2",
+    "label": "Create index \"member_consents_member_id_idx_10d5a0e2\" on \"member_consents\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "member_consents_member_id_idx_10d5a0e2",
+        "table": "member_consents"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"member_consents_member_id_idx_10d5a0e2\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"member_consents_member_id_idx_10d5a0e2\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"member_consents_member_id_idx_10d5a0e2\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"member_consents_member_id_idx_10d5a0e2\"",
+        "sql": "CREATE INDEX \"member_consents_member_id_idx_10d5a0e2\" ON \"public\".\"member_consents\" (\"member_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"member_consents_member_id_idx_10d5a0e2\" exists on \"member_consents\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"member_consents_member_id_idx_10d5a0e2\"",
+          "i",
+          "I",
+          "\"public\".\"member_consents\"",
+          "btree",
+          "[\"member_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.member_consents.member_consents_terms_version_id_idx_2e21b24c",
+    "label": "Create index \"member_consents_terms_version_id_idx_2e21b24c\" on \"member_consents\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "member_consents_terms_version_id_idx_2e21b24c",
+        "table": "member_consents"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"member_consents_terms_version_id_idx_2e21b24c\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"member_consents_terms_version_id_idx_2e21b24c\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"member_consents_terms_version_id_idx_2e21b24c\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"member_consents_terms_version_id_idx_2e21b24c\"",
+        "sql": "CREATE INDEX \"member_consents_terms_version_id_idx_2e21b24c\" ON \"public\".\"member_consents\" (\"terms_version_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"member_consents_terms_version_id_idx_2e21b24c\" exists on \"member_consents\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"member_consents_terms_version_id_idx_2e21b24c\"",
+          "i",
+          "I",
+          "\"public\".\"member_consents\"",
+          "btree",
+          "[\"terms_version_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.member_consents.member_consents_member_id_fkey",
+    "label": "Add foreign key \"member_consents_member_id_fkey\" on \"member_consents\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "member_consents_member_id_fkey",
+        "table": "member_consents"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"member_consents_member_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "member_consents_member_id_fkey",
+          "public",
+          "\"public\".\"member_consents\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"member_consents_member_id_fkey\" on \"member_consents\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"member_consents_member_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"member_consents\"\nADD CONSTRAINT \"member_consents_member_id_fkey\"\nFOREIGN KEY (\"member_id\")\nREFERENCES \"public\".\"members\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"member_consents_member_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "member_consents_member_id_fkey",
+          "public",
+          "\"public\".\"member_consents\"",
+          "f",
+          "[\"member_id\"]",
+          "\"public\".\"members\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.member_consents.member_consents_terms_version_id_fkey",
+    "label": "Add foreign key \"member_consents_terms_version_id_fkey\" on \"member_consents\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "member_consents_terms_version_id_fkey",
+        "table": "member_consents"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"member_consents_terms_version_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "member_consents_terms_version_id_fkey",
+          "public",
+          "\"public\".\"member_consents\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"member_consents_terms_version_id_fkey\" on \"member_consents\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"member_consents_terms_version_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"member_consents\"\nADD CONSTRAINT \"member_consents_terms_version_id_fkey\"\nFOREIGN KEY (\"terms_version_id\")\nREFERENCES \"public\".\"terms_versions\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"member_consents_terms_version_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "member_consents_terms_version_id_fkey",
+          "public",
+          "\"public\".\"member_consents\"",
+          "f",
+          "[\"terms_version_id\"]",
+          "\"public\".\"terms_versions\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  }
+]

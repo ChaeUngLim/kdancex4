@@ -1,0 +1,32 @@
+{
+  "kinds": [
+    {
+      "kind": "explicit",
+      "reason": "선정적인 내용(노출·성적 표현)은 만들 수 없어요.",
+      "terms": ["누드", "나체", "알몸", "벌거벗", "성인물", "음란", "포르노", "야동", "성행위", "속옷차림", "노출이심한",
+                "nude", "nudity", "naked", "nsfw", "porn", "porno", "topless", "lingerie"],
+      "patterns": []
+    },
+    {
+      "kind": "violence",
+      "reason": "폭력적인 내용(무기·피·다치는 모습)은 만들 수 없어요.",
+      "terms": ["피범벅", "유혈", "권총", "총기", "소총", "칼부림", "흉기", "살인", "시체", "폭행", "학살", "참수", "잔혹",
+                "blood", "bloody", "gore", "gun", "guns", "rifle", "weapon", "weapons", "knife", "kill", "murder", "corpse"],
+      "patterns": []
+    },
+    {
+      "kind": "real_person",
+      "reason": "실제 인물(유명 댄서·연예인)의 얼굴을 흉내 낸 그림은 만들 수 없어요.",
+      "terms": ["마이클잭슨", "비욘세", "샤키라", "마돈나", "제니퍼로페즈", "아이유", "블랙핑크", "방탄소년단", "리아킴",
+                "michael jackson", "beyonce", "shakira", "madonna", "jennifer lopez", "blackpink", "bts"],
+      "patterns": ["(연예인|아이돌|가수|배우|유명인|유명댄서|셀럽).{0,8}(얼굴|닮은|닮게|처럼생긴|똑같이)"]
+    },
+    {
+      "kind": "trademark",
+      "reason": "다른 회사의 상표·로고는 넣을 수 없어요.",
+      "terms": ["나이키", "아디다스", "샤넬", "구찌", "루이비통", "에르메스", "프라다", "코카콜라", "스타벅스", "디즈니", "맥도날드",
+                "nike", "adidas", "chanel", "gucci", "louis vuitton", "hermes", "prada", "coca cola", "starbucks", "disney", "mcdonalds"],
+      "patterns": []
+    }
+  ]
+}

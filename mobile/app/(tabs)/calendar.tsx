@@ -6,6 +6,11 @@
  * 결제 대기 중인 주문은 여기 나오지 않는다.
  *
  * 한 달씩 본다. 요청 범위는 KST 달력 날짜 `from`~`to`(최대 62일)라 한 달이면 넉넉하다.
+ *
+ * 날을 고르면 그날의 수업이 모두 줄로 나오고, 수업마다 `참석 | 결석` 토글이 하나 있다
+ * (S3-4.7, FR-092e(결석 예정 미리 알리기) · 계약 04 §5). 결석으로 바꾸면 그 회차만 「결석 예정」이 되고,
+ * 자리·결제는 그대로다. 토글을 누르면 서버에 바로 보내고, 성공하면 캘린더를 다시 읽어 서버 값으로 그린다
+ * (화면이 혼자 상태를 바꿔 두지 않는다 — 서버가 거절하면 화면과 서버가 어긋나기 때문).
  */
 import { useCallback, useMemo, useRef, useState } from 'react';
 import { router, useFocusEffect } from 'expo-router';
@@ -15,8 +20,9 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { formatDateKey, formatKstTime, toKstDateKey, toKstParts } from '../../lib/catalog/format';
 import { colors, font, MIN_TOUCH, radius, space } from '../../lib/theme';
 import type { CalendarEntry } from '../../lib/catalog/types';
-import { Card, EmptyView, ErrorView, LoadingView, SecondaryButton, shared } from '../../lib/catalog/ui';
-import { useApiResource } from '../../lib/catalog/use-api-resource';
+import { Card, EmptyView, ErrorView, InlineError, LoadingView, SecondaryButton, shared } from '../../lib/catalog/ui';
+import { toApiError, useApiResource } from '../../lib/catalog/use-api-resource';
+import { absenceToggleView, markAbsent, markPresent } from '../../lib/me/absence';
 
 const WEEK_LABELS = ['일', '월', '화', '수', '목', '금', '토'] as const;
 
@@ -69,6 +75,28 @@ export default function CalendarScreen() {
 
   const byDate = useMemo(() => (state.status === 'ready' ? groupByDate(state.data.items ?? []) : {}), [state]);
 
+  // 지금 서버에 보내는 중인 회차 id(겹쳐 누르기 막기)와 마지막 실패 문장
+  const [busySessionId, setBusySessionId] = useState<string | null>(null);
+  const [toggleError, setToggleError] = useState<string | null>(null);
+
+  /** 토글을 눌렀을 때 — 결석이면 PUT, 참석이면 DELETE. 끝나면 캘린더를 다시 읽는다. */
+  const toggleAbsence = async (sessionId: string, toAbsent: boolean) => {
+    if (busySessionId !== null) {
+      return;
+    }
+    setBusySessionId(sessionId);
+    setToggleError(null);
+    try {
+      await (toAbsent ? markAbsent(sessionId) : markPresent(sessionId));
+    } catch (error: unknown) {
+      // 서버 문장을 그대로 보인다(예: 시작한 수업 409 SESSION_ALREADY_STARTED)
+      setToggleError(toApiError(error).detail);
+    } finally {
+      setBusySessionId(null);
+      reload();
+    }
+  };
+
   const moveMonth = (delta: number) => {
     const next = shiftMonth(cursor, delta);
     setCursor(next);
@@ -82,7 +110,15 @@ export default function CalendarScreen() {
         <MonthGrid cursor={cursor} byDate={byDate} selectedKey={selectedKey} todayKey={todayKey} onSelect={setSelectedKey} />
         {state.status === 'loading' && <LoadingView />}
         {state.status === 'error' && <ErrorView error={state.error} onRetry={reload} />}
-        {state.status === 'ready' && <DayEntries dateKey={selectedKey} entries={byDate[selectedKey] ?? []} />}
+        {state.status === 'ready' && (
+          <DayEntries
+            dateKey={selectedKey}
+            entries={byDate[selectedKey] ?? []}
+            busySessionId={busySessionId}
+            error={toggleError}
+            onToggle={toggleAbsence}
+          />
+        )}
       </ScrollView>
     </View>
   );
@@ -172,32 +208,108 @@ function MonthGrid({ cursor, byDate, selectedKey, todayKey, onSelect }: MonthGri
   );
 }
 
-function DayEntries({ dateKey, entries }: { dateKey: string; entries: readonly CalendarEntry[] }) {
+interface DayEntriesProps {
+  dateKey: string;
+  entries: readonly CalendarEntry[];
+  busySessionId: string | null;
+  error: string | null;
+  onToggle: (sessionId: string, toAbsent: boolean) => void;
+}
+
+function DayEntries({ dateKey, entries, busySessionId, error, onToggle }: DayEntriesProps) {
   const [, month, day] = dateKey.split('-').map(Number);
   return (
     <View style={styles.dayList}>
       <Text style={styles.dayHeading}>
-        {month}/{day} 수업
+        {month}/{day} · 수업 {entries.length}개
       </Text>
+      <InlineError message={error} />
       {entries.length === 0 && <EmptyView title="이날은 확정된 수업이 없어요" />}
       {entries.map((entry) => (
-        <EntryCard key={entry.entryId} entry={entry} />
+        <EntryCard key={entry.entryId} entry={entry} busy={busySessionId !== null} onToggle={onToggle} />
       ))}
     </View>
   );
 }
 
-function EntryCard({ entry }: { entry: CalendarEntry }) {
+interface EntryCardProps {
+  entry: CalendarEntry;
+  busy: boolean;
+  onToggle: (sessionId: string, toAbsent: boolean) => void;
+}
+
+function EntryCard({ entry, busy, onToggle }: EntryCardProps) {
   const openCancel = () => router.push(`/reservation/${encodeURIComponent(entry.reservationId)}/cancel`);
+  const view = absenceToggleView(entry, new Date());
+  const sessionId = entry.sessionId;
   return (
     <Card>
-      <Text style={[shared.tag, shared.tagOk]}>예약 확정</Text>
-      <Text style={styles.entryTitle}>{entry.title}</Text>
-      <Text style={shared.muted}>
-        {entry.academyName} · {entry.sessionSeq}회차 · {formatKstTime(entry.startsAt)}~{formatKstTime(entry.endsAt)}
-      </Text>
+      <View style={styles.entryTop}>
+        <View style={styles.entryText}>
+          {view.absent ? (
+            <Text style={[shared.tag, shared.tagWarn]}>{view.absentTag}</Text>
+          ) : (
+            <Text style={[shared.tag, shared.tagOk]}>예약 확정</Text>
+          )}
+          {/* 수업명을 누르면 신청한 수업 상세(보드 M8C, S3-4.8)로 간다 */}
+          <Pressable
+            onPress={() => router.push(`/my-class/${encodeURIComponent(entry.offeringId)}`)}
+            accessibilityRole="link"
+            accessibilityLabel={`${entry.title} 수업 상세 보기`}
+          >
+            <Text style={styles.entryTitle}>{entry.title} ›</Text>
+          </Pressable>
+          <Text style={shared.muted}>
+            {formatKstTime(entry.startsAt)}–{formatKstTime(entry.endsAt)} · {entry.academyName} · {entry.sessionSeq}회차
+          </Text>
+        </View>
+        {/* 옛 서버라 회차 id 가 없으면 토글을 그리지 않는다 — 부를 경로가 없다 */}
+        {sessionId !== undefined && (
+          <AttendanceToggle
+            title={entry.title}
+            absent={view.absent}
+            enabled={view.enabled && !busy}
+            onChange={(toAbsent) => onToggle(sessionId, toAbsent)}
+          />
+        )}
+      </View>
+      {view.note !== null && <Text style={shared.muted}>{view.note}</Text>}
       <SecondaryButton label="취소·환불 안내" onPress={openCancel} />
     </Card>
+  );
+}
+
+interface AttendanceToggleProps {
+  title: string;
+  absent: boolean;
+  enabled: boolean;
+  onChange: (toAbsent: boolean) => void;
+}
+
+/** `참석 | 결석` 두 칸짜리 토글(보드 M11). 켜진 칸만 칠한다. 이미 켜진 칸을 다시 누르면 아무 일도 없다. */
+function AttendanceToggle({ title, absent, enabled, onChange }: AttendanceToggleProps) {
+  const options = [
+    { label: '참석', on: !absent, toAbsent: false },
+    { label: '결석', on: absent, toAbsent: true },
+  ] as const;
+  return (
+    <View style={styles.toggle} accessibilityRole="radiogroup" accessibilityLabel={`${title} 참석 여부`}>
+      {options.map((option) => (
+        <Pressable
+          key={option.label}
+          style={[styles.toggleCell, option.on && (option.toAbsent ? styles.toggleAbsentOn : styles.toggleOn)]}
+          disabled={!enabled || option.on}
+          onPress={() => onChange(option.toAbsent)}
+          accessibilityRole="radio"
+          accessibilityLabel={`${title} ${option.label}`}
+          accessibilityState={{ selected: option.on, disabled: !enabled }}
+        >
+          <Text style={[styles.toggleText, option.on && styles.toggleTextOn, !enabled && !option.on && styles.toggleTextOff]}>
+            {option.label}
+          </Text>
+        </Pressable>
+      ))}
+    </View>
   );
 }
 
@@ -222,4 +334,13 @@ const styles = StyleSheet.create({
   dayList: { gap: space.md },
   dayHeading: { fontSize: 16, fontWeight: '700', color: colors.ink },
   entryTitle: { fontSize: 16, fontWeight: '700', color: colors.ink },
+  entryTop: { flexDirection: 'row', alignItems: 'flex-start', gap: space.sm },
+  entryText: { flex: 1, gap: space.xs },
+  toggle: { flexDirection: 'row', borderWidth: 1, borderColor: colors.line, borderRadius: radius.pill, overflow: 'hidden' },
+  toggleCell: { minWidth: 52, minHeight: 44, paddingHorizontal: space.sm, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.surface },
+  toggleOn: { backgroundColor: colors.brown },
+  toggleAbsentOn: { backgroundColor: colors.danger },
+  toggleText: { fontSize: font.small, fontWeight: '600', color: colors.ink },
+  toggleTextOn: { color: colors.surface, fontWeight: '700' },
+  toggleTextOff: { color: colors.disabledInk },
 });

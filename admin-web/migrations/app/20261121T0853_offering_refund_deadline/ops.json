@@ -1,0 +1,156 @@
+[
+  {
+    "id": "column.public.class_offerings.refund_deadline_on",
+    "label": "Add column \"refund_deadline_on\" to \"class_offerings\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "refund_deadline_on",
+        "table": "class_offerings"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"refund_deadline_on\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "class_offerings",
+          "refund_deadline_on"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "column \"refund_deadline_on\" on \"class_offerings\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"refund_deadline_on\"",
+        "sql": "ALTER TABLE \"public\".\"class_offerings\" ADD COLUMN \"refund_deadline_on\" date"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"refund_deadline_on\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "class_offerings",
+          "refund_deadline_on"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "column \"refund_deadline_on\" on \"class_offerings\""
+        }
+      },
+      {
+        "description": "verify column \"refund_deadline_on\" has type \"date\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_attribute\" AS \"a\" INNER JOIN \"pg_class\" AS \"c\" ON \"c\".\"oid\" = \"a\".\"attrelid\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"a\".\"attname\" = $3 AND (format_type(\"a\".\"atttypid\", \"a\".\"atttypmod\")) = $4 AND NOT (\"a\".\"attisdropped\"))) AS \"result\"",
+        "params": [
+          "public",
+          "class_offerings",
+          "refund_deadline_on",
+          "date"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "checkConstraint.class_offerings.ck_offerings_deadline_not_after_start_29f12f86",
+    "label": "Add check constraint \"ck_offerings_deadline_not_after_start_29f12f86\" on \"class_offerings\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "checkConstraint",
+        "name": "ck_offerings_deadline_not_after_start_29f12f86",
+        "table": "class_offerings"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"ck_offerings_deadline_not_after_start_29f12f86\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "ck_offerings_deadline_not_after_start_29f12f86",
+          "public",
+          "\"public\".\"class_offerings\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "constraint \"ck_offerings_deadline_not_after_start_29f12f86\" on \"class_offerings\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add check constraint \"ck_offerings_deadline_not_after_start_29f12f86\"",
+        "sql": "ALTER TABLE \"public\".\"class_offerings\" ADD CONSTRAINT \"ck_offerings_deadline_not_after_start_29f12f86\" CHECK (refund_deadline_on IS NULL OR refund_deadline_on <= (first_session_starts_at AT TIME ZONE 'Asia/Seoul')::date)"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify check constraint \"ck_offerings_deadline_not_after_start_29f12f86\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4)) AS \"result\"",
+        "params": [
+          "ck_offerings_deadline_not_after_start_29f12f86",
+          "public",
+          "\"public\".\"class_offerings\"",
+          "c"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "checkConstraint.class_offerings.ck_offerings_free_no_deadline_84debdd1",
+    "label": "Add check constraint \"ck_offerings_free_no_deadline_84debdd1\" on \"class_offerings\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "checkConstraint",
+        "name": "ck_offerings_free_no_deadline_84debdd1",
+        "table": "class_offerings"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"ck_offerings_free_no_deadline_84debdd1\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "ck_offerings_free_no_deadline_84debdd1",
+          "public",
+          "\"public\".\"class_offerings\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "constraint \"ck_offerings_free_no_deadline_84debdd1\" on \"class_offerings\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add check constraint \"ck_offerings_free_no_deadline_84debdd1\"",
+        "sql": "ALTER TABLE \"public\".\"class_offerings\" ADD CONSTRAINT \"ck_offerings_free_no_deadline_84debdd1\" CHECK (price_amount > 0 OR refund_deadline_on IS NULL)"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify check constraint \"ck_offerings_free_no_deadline_84debdd1\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4)) AS \"result\"",
+        "params": [
+          "ck_offerings_free_no_deadline_84debdd1",
+          "public",
+          "\"public\".\"class_offerings\"",
+          "c"
+        ]
+      }
+    ]
+  }
+]

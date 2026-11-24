@@ -1,0 +1,1186 @@
+[
+  {
+    "id": "table.academy_owners",
+    "label": "Create table \"academy_owners\"",
+    "summary": "Creates table \"academy_owners\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "academy_owners"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"academy_owners\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"academy_owners\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"academy_owners\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"academy_owners\"",
+        "sql": "CREATE TABLE \"public\".\"academy_owners\" (\n  \"academy_id\" uuid NOT NULL,\n  \"ended_at\" timestamptz,\n  \"id\" uuid NOT NULL,\n  \"staff_account_id\" uuid NOT NULL,\n  \"started_at\" timestamptz DEFAULT (now()) NOT NULL,\n  \"status\" text DEFAULT 'active' NOT NULL,\n  PRIMARY KEY (\"id\"),\n  CONSTRAINT \"academy_owners_status_check_65c583f3\" CHECK (\"status\" IN ('active', 'ended'))\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"academy_owners\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3))) AS \"result\"",
+        "params": [
+          "\"public\".\"academy_owners\"",
+          "r",
+          "p"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"academy_owners\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "table.instructor_affiliations",
+    "label": "Create table \"instructor_affiliations\"",
+    "summary": "Creates table \"instructor_affiliations\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "instructor_affiliations"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"instructor_affiliations\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"instructor_affiliations\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"instructor_affiliations\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"instructor_affiliations\"",
+        "sql": "CREATE TABLE \"public\".\"instructor_affiliations\" (\n  \"academy_id\" uuid NOT NULL,\n  \"applicant_message\" text,\n  \"created_at\" timestamptz DEFAULT (now()) NOT NULL,\n  \"decided_at\" timestamptz,\n  \"decided_by_account_id\" uuid,\n  \"id\" uuid NOT NULL,\n  \"instructor_account_id\" uuid NOT NULL,\n  \"invite_id\" uuid,\n  \"is_academy_employee\" bool DEFAULT false NOT NULL,\n  \"reject_reason_code\" text,\n  \"reject_reason_text\" text,\n  \"release_initiated_by\" text,\n  \"released_at\" timestamptz,\n  \"requested_at\" timestamptz DEFAULT (now()) NOT NULL,\n  \"source\" text NOT NULL,\n  \"status\" text DEFAULT 'pending' NOT NULL,\n  \"updated_at\" timestamptz NOT NULL,\n  PRIMARY KEY (\"id\"),\n  CONSTRAINT \"ck_aff_rejected_611ad5c4\" CHECK ((status = 'rejected') = (reject_reason_code IS NOT NULL)),\n  CONSTRAINT \"ck_aff_source_invite_c94db4d3\" CHECK ((source = 'invite') = (invite_id IS NOT NULL)),\n  CONSTRAINT \"instructor_affiliations_reject_reason_code_check_24d7f8c8\" CHECK (\"reject_reason_code\" IN ('not_recruiting', 'genre_mismatch', 'info_needed', 'other')),\n  CONSTRAINT \"instructor_affiliations_release_initiated_by_check_34e42fbb\" CHECK (\"release_initiated_by\" IN ('owner', 'instructor')),\n  CONSTRAINT \"instructor_affiliations_source_check_e0934815\" CHECK (\"source\" IN ('application', 'invite')),\n  CONSTRAINT \"instructor_affiliations_status_check_81b76e32\" CHECK (\"status\" IN ('pending', 'active', 'rejected', 'withdrawn', 'released'))\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"instructor_affiliations\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3))) AS \"result\"",
+        "params": [
+          "\"public\".\"instructor_affiliations\"",
+          "r",
+          "p"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"instructor_affiliations\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "table.instructor_delegations",
+    "label": "Create table \"instructor_delegations\"",
+    "summary": "Creates table \"instructor_delegations\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "instructor_delegations"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"instructor_delegations\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"instructor_delegations\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"instructor_delegations\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"instructor_delegations\"",
+        "sql": "CREATE TABLE \"public\".\"instructor_delegations\" (\n  \"affiliation_id\" uuid NOT NULL,\n  \"granted_at\" timestamptz DEFAULT (now()) NOT NULL,\n  \"granted_by_account_id\" uuid NOT NULL,\n  \"permission\" text NOT NULL,\n  PRIMARY KEY (\"affiliation_id\", \"permission\"),\n  CONSTRAINT \"instructor_delegations_permission_check_25bd9bbc\" CHECK (\"permission\" IN ('roster_manage', 'class_manage'))\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"instructor_delegations\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3))) AS \"result\"",
+        "params": [
+          "\"public\".\"instructor_delegations\"",
+          "r",
+          "p"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"instructor_delegations\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "table.instructor_invites",
+    "label": "Create table \"instructor_invites\"",
+    "summary": "Creates table \"instructor_invites\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "instructor_invites"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"instructor_invites\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"instructor_invites\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"instructor_invites\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"instructor_invites\"",
+        "sql": "CREATE TABLE \"public\".\"instructor_invites\" (\n  \"academy_id\" uuid NOT NULL,\n  \"created_at\" timestamptz DEFAULT (now()) NOT NULL,\n  \"created_by_account_id\" uuid NOT NULL,\n  \"expires_at\" timestamptz NOT NULL,\n  \"id\" uuid NOT NULL,\n  \"revoked_at\" timestamptz,\n  \"token_hash\" text NOT NULL,\n  \"used_at\" timestamptz,\n  \"used_by_account_id\" uuid,\n  PRIMARY KEY (\"id\"),\n  CONSTRAINT \"ck_invites_expiry_5a5e9d22\" CHECK (expires_at > created_at),\n  CONSTRAINT \"ck_invites_used_8fb55d15\" CHECK ((used_at IS NULL) = (used_by_account_id IS NULL))\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"instructor_invites\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3))) AS \"result\"",
+        "params": [
+          "\"public\".\"instructor_invites\"",
+          "r",
+          "p"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"instructor_invites\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "index.academy_owners.academy_owners_academy_id_idx_f46ade77",
+    "label": "Create index \"academy_owners_academy_id_idx_f46ade77\" on \"academy_owners\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "academy_owners_academy_id_idx_f46ade77",
+        "table": "academy_owners"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"academy_owners_academy_id_idx_f46ade77\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"academy_owners_academy_id_idx_f46ade77\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"academy_owners_academy_id_idx_f46ade77\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"academy_owners_academy_id_idx_f46ade77\"",
+        "sql": "CREATE INDEX \"academy_owners_academy_id_idx_f46ade77\" ON \"public\".\"academy_owners\" (\"academy_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"academy_owners_academy_id_idx_f46ade77\" exists on \"academy_owners\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"academy_owners_academy_id_idx_f46ade77\"",
+          "i",
+          "I",
+          "\"public\".\"academy_owners\"",
+          "btree",
+          "[\"academy_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.academy_owners.academy_owners_staff_account_id_idx_97848bfb",
+    "label": "Create index \"academy_owners_staff_account_id_idx_97848bfb\" on \"academy_owners\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "academy_owners_staff_account_id_idx_97848bfb",
+        "table": "academy_owners"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"academy_owners_staff_account_id_idx_97848bfb\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"academy_owners_staff_account_id_idx_97848bfb\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"academy_owners_staff_account_id_idx_97848bfb\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"academy_owners_staff_account_id_idx_97848bfb\"",
+        "sql": "CREATE INDEX \"academy_owners_staff_account_id_idx_97848bfb\" ON \"public\".\"academy_owners\" (\"staff_account_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"academy_owners_staff_account_id_idx_97848bfb\" exists on \"academy_owners\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"academy_owners_staff_account_id_idx_97848bfb\"",
+          "i",
+          "I",
+          "\"public\".\"academy_owners\"",
+          "btree",
+          "[\"staff_account_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.academy_owners.ix_academy_owners_account_72499239",
+    "label": "Create index \"ix_academy_owners_account_72499239\" on \"academy_owners\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "ix_academy_owners_account_72499239",
+        "table": "academy_owners"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"ix_academy_owners_account_72499239\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ix_academy_owners_account_72499239\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"ix_academy_owners_account_72499239\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"ix_academy_owners_account_72499239\"",
+        "sql": "CREATE INDEX \"ix_academy_owners_account_72499239\" ON \"public\".\"academy_owners\" (\"staff_account_id\", \"status\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"ix_academy_owners_account_72499239\" exists on \"academy_owners\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"ix_academy_owners_account_72499239\"",
+          "i",
+          "I",
+          "\"public\".\"academy_owners\"",
+          "btree",
+          "[\"staff_account_id\",\"status\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.academy_owners.uq_academy_owners_active_ce5c7b07",
+    "label": "Create index \"uq_academy_owners_active_ce5c7b07\" on \"academy_owners\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "uq_academy_owners_active_ce5c7b07",
+        "table": "academy_owners"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"uq_academy_owners_active_ce5c7b07\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"uq_academy_owners_active_ce5c7b07\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"uq_academy_owners_active_ce5c7b07\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"uq_academy_owners_active_ce5c7b07\"",
+        "sql": "CREATE UNIQUE INDEX \"uq_academy_owners_active_ce5c7b07\" ON \"public\".\"academy_owners\" (\"academy_id\") WHERE ((status = 'active'))",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"uq_academy_owners_active_ce5c7b07\" exists on \"academy_owners\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND \"i\".\"indisunique\" AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NOT NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"uq_academy_owners_active_ce5c7b07\"",
+          "i",
+          "I",
+          "\"public\".\"academy_owners\"",
+          "btree",
+          "[\"academy_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.instructor_affiliations.instructor_affiliations_academy_id_idx_f46ade77",
+    "label": "Create index \"instructor_affiliations_academy_id_idx_f46ade77\" on \"instructor_affiliations\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "instructor_affiliations_academy_id_idx_f46ade77",
+        "table": "instructor_affiliations"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"instructor_affiliations_academy_id_idx_f46ade77\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"instructor_affiliations_academy_id_idx_f46ade77\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"instructor_affiliations_academy_id_idx_f46ade77\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"instructor_affiliations_academy_id_idx_f46ade77\"",
+        "sql": "CREATE INDEX \"instructor_affiliations_academy_id_idx_f46ade77\" ON \"public\".\"instructor_affiliations\" (\"academy_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"instructor_affiliations_academy_id_idx_f46ade77\" exists on \"instructor_affiliations\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"instructor_affiliations_academy_id_idx_f46ade77\"",
+          "i",
+          "I",
+          "\"public\".\"instructor_affiliations\"",
+          "btree",
+          "[\"academy_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.instructor_affiliations.instructor_affiliations_instructor_account_id_idx_d1ef9c5f",
+    "label": "Create index \"instructor_affiliations_instructor_account_id_idx_d1ef9c5f\" on \"instructor_affiliations\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "instructor_affiliations_instructor_account_id_idx_d1ef9c5f",
+        "table": "instructor_affiliations"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"instructor_affiliations_instructor_account_id_idx_d1ef9c5f\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"instructor_affiliations_instructor_account_id_idx_d1ef9c5f\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"instructor_affiliations_instructor_account_id_idx_d1ef9c5f\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"instructor_affiliations_instructor_account_id_idx_d1ef9c5f\"",
+        "sql": "CREATE INDEX \"instructor_affiliations_instructor_account_id_idx_d1ef9c5f\" ON \"public\".\"instructor_affiliations\" (\"instructor_account_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"instructor_affiliations_instructor_account_id_idx_d1ef9c5f\" exists on \"instructor_affiliations\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"instructor_affiliations_instructor_account_id_idx_d1ef9c5f\"",
+          "i",
+          "I",
+          "\"public\".\"instructor_affiliations\"",
+          "btree",
+          "[\"instructor_account_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.instructor_affiliations.instructor_affiliations_invite_id_idx_0463dbec",
+    "label": "Create index \"instructor_affiliations_invite_id_idx_0463dbec\" on \"instructor_affiliations\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "instructor_affiliations_invite_id_idx_0463dbec",
+        "table": "instructor_affiliations"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"instructor_affiliations_invite_id_idx_0463dbec\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"instructor_affiliations_invite_id_idx_0463dbec\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"instructor_affiliations_invite_id_idx_0463dbec\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"instructor_affiliations_invite_id_idx_0463dbec\"",
+        "sql": "CREATE INDEX \"instructor_affiliations_invite_id_idx_0463dbec\" ON \"public\".\"instructor_affiliations\" (\"invite_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"instructor_affiliations_invite_id_idx_0463dbec\" exists on \"instructor_affiliations\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"instructor_affiliations_invite_id_idx_0463dbec\"",
+          "i",
+          "I",
+          "\"public\".\"instructor_affiliations\"",
+          "btree",
+          "[\"invite_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.instructor_affiliations.ix_aff_academy_status_5ceea05e",
+    "label": "Create index \"ix_aff_academy_status_5ceea05e\" on \"instructor_affiliations\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "ix_aff_academy_status_5ceea05e",
+        "table": "instructor_affiliations"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"ix_aff_academy_status_5ceea05e\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ix_aff_academy_status_5ceea05e\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"ix_aff_academy_status_5ceea05e\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"ix_aff_academy_status_5ceea05e\"",
+        "sql": "CREATE INDEX \"ix_aff_academy_status_5ceea05e\" ON \"public\".\"instructor_affiliations\" (\"academy_id\", \"status\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"ix_aff_academy_status_5ceea05e\" exists on \"instructor_affiliations\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"ix_aff_academy_status_5ceea05e\"",
+          "i",
+          "I",
+          "\"public\".\"instructor_affiliations\"",
+          "btree",
+          "[\"academy_id\",\"status\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.instructor_affiliations.ix_aff_instructor_21342233",
+    "label": "Create index \"ix_aff_instructor_21342233\" on \"instructor_affiliations\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "ix_aff_instructor_21342233",
+        "table": "instructor_affiliations"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"ix_aff_instructor_21342233\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ix_aff_instructor_21342233\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"ix_aff_instructor_21342233\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"ix_aff_instructor_21342233\"",
+        "sql": "CREATE INDEX \"ix_aff_instructor_21342233\" ON \"public\".\"instructor_affiliations\" (\"instructor_account_id\", \"status\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"ix_aff_instructor_21342233\" exists on \"instructor_affiliations\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"ix_aff_instructor_21342233\"",
+          "i",
+          "I",
+          "\"public\".\"instructor_affiliations\"",
+          "btree",
+          "[\"instructor_account_id\",\"status\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.instructor_affiliations.uq_affiliations_open_1b600c7f",
+    "label": "Create index \"uq_affiliations_open_1b600c7f\" on \"instructor_affiliations\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "uq_affiliations_open_1b600c7f",
+        "table": "instructor_affiliations"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"uq_affiliations_open_1b600c7f\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"uq_affiliations_open_1b600c7f\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"uq_affiliations_open_1b600c7f\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"uq_affiliations_open_1b600c7f\"",
+        "sql": "CREATE UNIQUE INDEX \"uq_affiliations_open_1b600c7f\" ON \"public\".\"instructor_affiliations\" (\"academy_id\", \"instructor_account_id\") WHERE ((status IN ('pending', 'active')))",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"uq_affiliations_open_1b600c7f\" exists on \"instructor_affiliations\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND \"i\".\"indisunique\" AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NOT NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"uq_affiliations_open_1b600c7f\"",
+          "i",
+          "I",
+          "\"public\".\"instructor_affiliations\"",
+          "btree",
+          "[\"academy_id\",\"instructor_account_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.instructor_delegations.instructor_delegations_affiliation_id_idx_0c88d6bc",
+    "label": "Create index \"instructor_delegations_affiliation_id_idx_0c88d6bc\" on \"instructor_delegations\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "instructor_delegations_affiliation_id_idx_0c88d6bc",
+        "table": "instructor_delegations"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"instructor_delegations_affiliation_id_idx_0c88d6bc\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"instructor_delegations_affiliation_id_idx_0c88d6bc\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"instructor_delegations_affiliation_id_idx_0c88d6bc\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"instructor_delegations_affiliation_id_idx_0c88d6bc\"",
+        "sql": "CREATE INDEX \"instructor_delegations_affiliation_id_idx_0c88d6bc\" ON \"public\".\"instructor_delegations\" (\"affiliation_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"instructor_delegations_affiliation_id_idx_0c88d6bc\" exists on \"instructor_delegations\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"instructor_delegations_affiliation_id_idx_0c88d6bc\"",
+          "i",
+          "I",
+          "\"public\".\"instructor_delegations\"",
+          "btree",
+          "[\"affiliation_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.instructor_invites.instructor_invites_academy_id_idx_f46ade77",
+    "label": "Create index \"instructor_invites_academy_id_idx_f46ade77\" on \"instructor_invites\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "instructor_invites_academy_id_idx_f46ade77",
+        "table": "instructor_invites"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"instructor_invites_academy_id_idx_f46ade77\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"instructor_invites_academy_id_idx_f46ade77\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"instructor_invites_academy_id_idx_f46ade77\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"instructor_invites_academy_id_idx_f46ade77\"",
+        "sql": "CREATE INDEX \"instructor_invites_academy_id_idx_f46ade77\" ON \"public\".\"instructor_invites\" (\"academy_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"instructor_invites_academy_id_idx_f46ade77\" exists on \"instructor_invites\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"instructor_invites_academy_id_idx_f46ade77\"",
+          "i",
+          "I",
+          "\"public\".\"instructor_invites\"",
+          "btree",
+          "[\"academy_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.instructor_invites.uq_invites_token_hash_caa64aca",
+    "label": "Create index \"uq_invites_token_hash_caa64aca\" on \"instructor_invites\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "uq_invites_token_hash_caa64aca",
+        "table": "instructor_invites"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"uq_invites_token_hash_caa64aca\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"uq_invites_token_hash_caa64aca\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"uq_invites_token_hash_caa64aca\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"uq_invites_token_hash_caa64aca\"",
+        "sql": "CREATE UNIQUE INDEX \"uq_invites_token_hash_caa64aca\" ON \"public\".\"instructor_invites\" (\"token_hash\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"uq_invites_token_hash_caa64aca\" exists on \"instructor_invites\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND \"i\".\"indisunique\" AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"uq_invites_token_hash_caa64aca\"",
+          "i",
+          "I",
+          "\"public\".\"instructor_invites\"",
+          "btree",
+          "[\"token_hash\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.academy_owners.academy_owners_academy_id_fkey",
+    "label": "Add foreign key \"academy_owners_academy_id_fkey\" on \"academy_owners\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "academy_owners_academy_id_fkey",
+        "table": "academy_owners"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"academy_owners_academy_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "academy_owners_academy_id_fkey",
+          "public",
+          "\"public\".\"academy_owners\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"academy_owners_academy_id_fkey\" on \"academy_owners\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"academy_owners_academy_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"academy_owners\"\nADD CONSTRAINT \"academy_owners_academy_id_fkey\"\nFOREIGN KEY (\"academy_id\")\nREFERENCES \"public\".\"academies\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"academy_owners_academy_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "academy_owners_academy_id_fkey",
+          "public",
+          "\"public\".\"academy_owners\"",
+          "f",
+          "[\"academy_id\"]",
+          "\"public\".\"academies\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.academy_owners.academy_owners_staff_account_id_fkey",
+    "label": "Add foreign key \"academy_owners_staff_account_id_fkey\" on \"academy_owners\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "academy_owners_staff_account_id_fkey",
+        "table": "academy_owners"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"academy_owners_staff_account_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "academy_owners_staff_account_id_fkey",
+          "public",
+          "\"public\".\"academy_owners\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"academy_owners_staff_account_id_fkey\" on \"academy_owners\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"academy_owners_staff_account_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"academy_owners\"\nADD CONSTRAINT \"academy_owners_staff_account_id_fkey\"\nFOREIGN KEY (\"staff_account_id\")\nREFERENCES \"public\".\"staff_accounts\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"academy_owners_staff_account_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "academy_owners_staff_account_id_fkey",
+          "public",
+          "\"public\".\"academy_owners\"",
+          "f",
+          "[\"staff_account_id\"]",
+          "\"public\".\"staff_accounts\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.instructor_affiliations.instructor_affiliations_academy_id_fkey",
+    "label": "Add foreign key \"instructor_affiliations_academy_id_fkey\" on \"instructor_affiliations\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "instructor_affiliations_academy_id_fkey",
+        "table": "instructor_affiliations"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"instructor_affiliations_academy_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "instructor_affiliations_academy_id_fkey",
+          "public",
+          "\"public\".\"instructor_affiliations\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"instructor_affiliations_academy_id_fkey\" on \"instructor_affiliations\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"instructor_affiliations_academy_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"instructor_affiliations\"\nADD CONSTRAINT \"instructor_affiliations_academy_id_fkey\"\nFOREIGN KEY (\"academy_id\")\nREFERENCES \"public\".\"academies\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"instructor_affiliations_academy_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "instructor_affiliations_academy_id_fkey",
+          "public",
+          "\"public\".\"instructor_affiliations\"",
+          "f",
+          "[\"academy_id\"]",
+          "\"public\".\"academies\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.instructor_affiliations.instructor_affiliations_instructor_account_id_fkey",
+    "label": "Add foreign key \"instructor_affiliations_instructor_account_id_fkey\" on \"instructor_affiliations\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "instructor_affiliations_instructor_account_id_fkey",
+        "table": "instructor_affiliations"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"instructor_affiliations_instructor_account_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "instructor_affiliations_instructor_account_id_fkey",
+          "public",
+          "\"public\".\"instructor_affiliations\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"instructor_affiliations_instructor_account_id_fkey\" on \"instructor_affiliations\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"instructor_affiliations_instructor_account_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"instructor_affiliations\"\nADD CONSTRAINT \"instructor_affiliations_instructor_account_id_fkey\"\nFOREIGN KEY (\"instructor_account_id\")\nREFERENCES \"public\".\"staff_accounts\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"instructor_affiliations_instructor_account_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "instructor_affiliations_instructor_account_id_fkey",
+          "public",
+          "\"public\".\"instructor_affiliations\"",
+          "f",
+          "[\"instructor_account_id\"]",
+          "\"public\".\"staff_accounts\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.instructor_affiliations.instructor_affiliations_invite_id_fkey",
+    "label": "Add foreign key \"instructor_affiliations_invite_id_fkey\" on \"instructor_affiliations\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "instructor_affiliations_invite_id_fkey",
+        "table": "instructor_affiliations"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"instructor_affiliations_invite_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "instructor_affiliations_invite_id_fkey",
+          "public",
+          "\"public\".\"instructor_affiliations\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"instructor_affiliations_invite_id_fkey\" on \"instructor_affiliations\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"instructor_affiliations_invite_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"instructor_affiliations\"\nADD CONSTRAINT \"instructor_affiliations_invite_id_fkey\"\nFOREIGN KEY (\"invite_id\")\nREFERENCES \"public\".\"instructor_invites\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"instructor_affiliations_invite_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "instructor_affiliations_invite_id_fkey",
+          "public",
+          "\"public\".\"instructor_affiliations\"",
+          "f",
+          "[\"invite_id\"]",
+          "\"public\".\"instructor_invites\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.instructor_delegations.instructor_delegations_affiliation_id_fkey",
+    "label": "Add foreign key \"instructor_delegations_affiliation_id_fkey\" on \"instructor_delegations\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "instructor_delegations_affiliation_id_fkey",
+        "table": "instructor_delegations"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"instructor_delegations_affiliation_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "instructor_delegations_affiliation_id_fkey",
+          "public",
+          "\"public\".\"instructor_delegations\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"instructor_delegations_affiliation_id_fkey\" on \"instructor_delegations\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"instructor_delegations_affiliation_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"instructor_delegations\"\nADD CONSTRAINT \"instructor_delegations_affiliation_id_fkey\"\nFOREIGN KEY (\"affiliation_id\")\nREFERENCES \"public\".\"instructor_affiliations\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"instructor_delegations_affiliation_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "instructor_delegations_affiliation_id_fkey",
+          "public",
+          "\"public\".\"instructor_delegations\"",
+          "f",
+          "[\"affiliation_id\"]",
+          "\"public\".\"instructor_affiliations\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.instructor_invites.instructor_invites_academy_id_fkey",
+    "label": "Add foreign key \"instructor_invites_academy_id_fkey\" on \"instructor_invites\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "instructor_invites_academy_id_fkey",
+        "table": "instructor_invites"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"instructor_invites_academy_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "instructor_invites_academy_id_fkey",
+          "public",
+          "\"public\".\"instructor_invites\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"instructor_invites_academy_id_fkey\" on \"instructor_invites\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"instructor_invites_academy_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"instructor_invites\"\nADD CONSTRAINT \"instructor_invites_academy_id_fkey\"\nFOREIGN KEY (\"academy_id\")\nREFERENCES \"public\".\"academies\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"instructor_invites_academy_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "instructor_invites_academy_id_fkey",
+          "public",
+          "\"public\".\"instructor_invites\"",
+          "f",
+          "[\"academy_id\"]",
+          "\"public\".\"academies\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  }
+]

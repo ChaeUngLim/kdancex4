@@ -1,0 +1,135 @@
+/* 대표 대시보드(보드 W29) — 아이보리 바탕 + 흰 카드 + 딥 플럼 강조. 색은 콘솔 틀·강사 관리 화면과 같다 */
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.head {
+  margin-bottom: 4px;
+}
+.title {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 800;
+}
+.subtitle {
+  margin: 10px 0 0;
+  font-size: 13px;
+  color: #6d6573;
+}
+
+.topGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+.moneyGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+.bottomGrid {
+  display: grid;
+  grid-template-columns: 1.6fr 1fr;
+  gap: 16px;
+  align-items: start;
+}
+
+.tile {
+  background: #fff;
+  border: 1px solid #e8e2da;
+  border-radius: 20px;
+  padding: 18px 18px 20px;
+  min-height: 128px;
+}
+.tileWide {
+  composes: tile;
+  padding: 22px 24px;
+}
+.tileTitle {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 700;
+  color: #6d6573;
+}
+.headline {
+  margin: 14px 0 0;
+  font-size: 26px;
+  font-weight: 800;
+  color: #1f1722;
+}
+.detail {
+  margin: 8px 0 0;
+  font-size: 12px;
+  color: #7d7483;
+}
+
+/* 준비 안 된 타일 — 숫자 대신 회색 배지. 0 처럼 보이지 않게 큰 숫자 자리를 비운다 */
+.pending {
+  display: inline-block;
+  margin: 16px 0 0;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: #efe9f1;
+  color: #5c3a64;
+  font-size: 14px;
+  font-weight: 700;
+}
+.pendingNote {
+  margin: 10px 0 0;
+  font-size: 12px;
+  color: #8a8190;
+}
+
+.todoCard {
+  background: #fff;
+  border: 1px solid #e8e2da;
+  border-radius: 20px;
+  padding: 22px 24px;
+}
+.cardTitle {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 800;
+}
+.count {
+  margin-left: 6px;
+  font-size: 13px;
+  color: #5c3a64;
+}
+.empty {
+  margin: 16px 0 0;
+  font-size: 13px;
+  color: #8a8190;
+}
+.todoList {
+  list-style: none;
+  margin: 8px 0 0;
+  padding: 0;
+}
+.todoList li + li {
+  border-top: 1px solid #eee8e1;
+}
+.todoLink {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 0;
+  color: inherit;
+  text-decoration: none;
+}
+.todoLink:hover .todoTitle {
+  color: #5c3a64;
+}
+.todoTitle {
+  display: block;
+  font-size: 14px;
+  font-weight: 700;
+}
+.todoNote {
+  display: block;
+  margin-top: 4px;
+  font-size: 12px;
+  color: #7d7483;
+}

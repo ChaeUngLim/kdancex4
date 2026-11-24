@@ -1,0 +1,519 @@
+[
+  {
+    "id": "column.public.orders.refund_deadline_on",
+    "label": "Add column \"refund_deadline_on\" to \"orders\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "refund_deadline_on",
+        "table": "orders"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"refund_deadline_on\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "orders",
+          "refund_deadline_on"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "column \"refund_deadline_on\" on \"orders\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"refund_deadline_on\"",
+        "sql": "ALTER TABLE \"public\".\"orders\" ADD COLUMN \"refund_deadline_on\" date"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"refund_deadline_on\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "orders",
+          "refund_deadline_on"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "column \"refund_deadline_on\" on \"orders\""
+        }
+      },
+      {
+        "description": "verify column \"refund_deadline_on\" has type \"date\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_attribute\" AS \"a\" INNER JOIN \"pg_class\" AS \"c\" ON \"c\".\"oid\" = \"a\".\"attrelid\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"a\".\"attname\" = $3 AND (format_type(\"a\".\"atttypid\", \"a\".\"atttypmod\")) = $4 AND NOT (\"a\".\"attisdropped\"))) AS \"result\"",
+        "params": [
+          "public",
+          "orders",
+          "refund_deadline_on",
+          "date"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "column.orders.class_kind",
+    "label": "Add column class_kind to orders",
+    "summary": "Adds column class_kind to table orders",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "orders"
+      }
+    },
+    "operationClass": "additive",
+    "precheck": [
+      {
+        "description": "ensure column \"class_kind\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "orders",
+          "class_kind"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "column \"class_kind\" on \"orders\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"class_kind\"",
+        "sql": "ALTER TABLE \"public\".\"orders\" ADD COLUMN \"class_kind\" text DEFAULT ('') NOT NULL"
+      },
+      {
+        "description": "drop temporary default from column \"class_kind\"",
+        "sql": "ALTER TABLE \"public\".\"orders\" ALTER COLUMN \"class_kind\" DROP DEFAULT"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"class_kind\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "orders",
+          "class_kind"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "column \"class_kind\" on \"orders\""
+        }
+      },
+      {
+        "description": "verify column \"class_kind\" is NOT NULL",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3 AND \"is_nullable\" = $4)) AS \"result\"",
+        "params": [
+          "public",
+          "orders",
+          "class_kind",
+          "NO"
+        ]
+      },
+      {
+        "description": "verify column \"class_kind\" has no default after temporary default removal",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3 AND \"column_default\" IS NOT NULL)) AS \"result\"",
+        "params": [
+          "public",
+          "orders",
+          "class_kind"
+        ]
+      },
+      {
+        "description": "verify column \"class_kind\" has type \"text\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_attribute\" AS \"a\" INNER JOIN \"pg_class\" AS \"c\" ON \"c\".\"oid\" = \"a\".\"attrelid\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"a\".\"attname\" = $3 AND (format_type(\"a\".\"atttypid\", \"a\".\"atttypmod\")) = $4 AND NOT (\"a\".\"attisdropped\"))) AS \"result\"",
+        "params": [
+          "public",
+          "orders",
+          "class_kind",
+          "text"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "column.orders.first_session_starts_at",
+    "label": "Add column first_session_starts_at to orders",
+    "summary": "Adds column first_session_starts_at to table orders",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "orders"
+      }
+    },
+    "operationClass": "additive",
+    "precheck": [
+      {
+        "description": "ensure column \"first_session_starts_at\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "orders",
+          "first_session_starts_at"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "column \"first_session_starts_at\" on \"orders\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"first_session_starts_at\"",
+        "sql": "ALTER TABLE \"public\".\"orders\" ADD COLUMN \"first_session_starts_at\" timestamptz DEFAULT ('epoch') NOT NULL"
+      },
+      {
+        "description": "drop temporary default from column \"first_session_starts_at\"",
+        "sql": "ALTER TABLE \"public\".\"orders\" ALTER COLUMN \"first_session_starts_at\" DROP DEFAULT"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"first_session_starts_at\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "orders",
+          "first_session_starts_at"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "column \"first_session_starts_at\" on \"orders\""
+        }
+      },
+      {
+        "description": "verify column \"first_session_starts_at\" is NOT NULL",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3 AND \"is_nullable\" = $4)) AS \"result\"",
+        "params": [
+          "public",
+          "orders",
+          "first_session_starts_at",
+          "NO"
+        ]
+      },
+      {
+        "description": "verify column \"first_session_starts_at\" has no default after temporary default removal",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3 AND \"column_default\" IS NOT NULL)) AS \"result\"",
+        "params": [
+          "public",
+          "orders",
+          "first_session_starts_at"
+        ]
+      },
+      {
+        "description": "verify column \"first_session_starts_at\" has type \"timestamp with time zone\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_attribute\" AS \"a\" INNER JOIN \"pg_class\" AS \"c\" ON \"c\".\"oid\" = \"a\".\"attrelid\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"a\".\"attname\" = $3 AND (format_type(\"a\".\"atttypid\", \"a\".\"atttypmod\")) = $4 AND NOT (\"a\".\"attisdropped\"))) AS \"result\"",
+        "params": [
+          "public",
+          "orders",
+          "first_session_starts_at",
+          "timestamp with time zone"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "column.orders.no_show_policy_version",
+    "label": "Add column no_show_policy_version to orders",
+    "summary": "Adds column no_show_policy_version to table orders",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "orders"
+      }
+    },
+    "operationClass": "additive",
+    "precheck": [
+      {
+        "description": "ensure column \"no_show_policy_version\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "orders",
+          "no_show_policy_version"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "column \"no_show_policy_version\" on \"orders\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"no_show_policy_version\"",
+        "sql": "ALTER TABLE \"public\".\"orders\" ADD COLUMN \"no_show_policy_version\" text DEFAULT ('') NOT NULL"
+      },
+      {
+        "description": "drop temporary default from column \"no_show_policy_version\"",
+        "sql": "ALTER TABLE \"public\".\"orders\" ALTER COLUMN \"no_show_policy_version\" DROP DEFAULT"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"no_show_policy_version\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "orders",
+          "no_show_policy_version"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "column \"no_show_policy_version\" on \"orders\""
+        }
+      },
+      {
+        "description": "verify column \"no_show_policy_version\" is NOT NULL",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3 AND \"is_nullable\" = $4)) AS \"result\"",
+        "params": [
+          "public",
+          "orders",
+          "no_show_policy_version",
+          "NO"
+        ]
+      },
+      {
+        "description": "verify column \"no_show_policy_version\" has no default after temporary default removal",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3 AND \"column_default\" IS NOT NULL)) AS \"result\"",
+        "params": [
+          "public",
+          "orders",
+          "no_show_policy_version"
+        ]
+      },
+      {
+        "description": "verify column \"no_show_policy_version\" has type \"text\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_attribute\" AS \"a\" INNER JOIN \"pg_class\" AS \"c\" ON \"c\".\"oid\" = \"a\".\"attrelid\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"a\".\"attname\" = $3 AND (format_type(\"a\".\"atttypid\", \"a\".\"atttypmod\")) = $4 AND NOT (\"a\".\"attisdropped\"))) AS \"result\"",
+        "params": [
+          "public",
+          "orders",
+          "no_show_policy_version",
+          "text"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "column.orders.session_count",
+    "label": "Add column session_count to orders",
+    "summary": "Adds column session_count to table orders",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "orders"
+      }
+    },
+    "operationClass": "additive",
+    "precheck": [
+      {
+        "description": "ensure column \"session_count\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "orders",
+          "session_count"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "column \"session_count\" on \"orders\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"session_count\"",
+        "sql": "ALTER TABLE \"public\".\"orders\" ADD COLUMN \"session_count\" int4 DEFAULT (0) NOT NULL"
+      },
+      {
+        "description": "drop temporary default from column \"session_count\"",
+        "sql": "ALTER TABLE \"public\".\"orders\" ALTER COLUMN \"session_count\" DROP DEFAULT"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"session_count\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "orders",
+          "session_count"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "column \"session_count\" on \"orders\""
+        }
+      },
+      {
+        "description": "verify column \"session_count\" is NOT NULL",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3 AND \"is_nullable\" = $4)) AS \"result\"",
+        "params": [
+          "public",
+          "orders",
+          "session_count",
+          "NO"
+        ]
+      },
+      {
+        "description": "verify column \"session_count\" has no default after temporary default removal",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3 AND \"column_default\" IS NOT NULL)) AS \"result\"",
+        "params": [
+          "public",
+          "orders",
+          "session_count"
+        ]
+      },
+      {
+        "description": "verify column \"session_count\" has type \"integer\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_attribute\" AS \"a\" INNER JOIN \"pg_class\" AS \"c\" ON \"c\".\"oid\" = \"a\".\"attrelid\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"a\".\"attname\" = $3 AND (format_type(\"a\".\"atttypid\", \"a\".\"atttypmod\")) = $4 AND NOT (\"a\".\"attisdropped\"))) AS \"result\"",
+        "params": [
+          "public",
+          "orders",
+          "session_count",
+          "integer"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "backfill.orders_snapshot_from_offering",
+    "label": "Fill order snapshot columns of pre-existing orders from offering and class",
+    "summary": "class_kind, session_count, first_session_starts_at, refund_deadline_on, no_show_policy_version copied from current offering/class",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "orders"
+      }
+    },
+    "precheck": [],
+    "execute": [
+      {
+        "description": "copy snapshot values from offering/class onto rows that existed before this migration",
+        "sql": "UPDATE public.orders AS o\n                     SET class_kind = c.class_kind,\n                         first_session_starts_at = off.first_session_starts_at,\n                         refund_deadline_on = off.refund_deadline_on,\n                         no_show_policy_version = '2026-11-10',\n                         session_count = CASE\n                           WHEN c.class_kind = 'private_lesson' AND p.session_count IS NOT NULL THEN p.session_count\n                           ELSE GREATEST(1, (SELECT count(*)::int FROM public.class_sessions s WHERE s.offering_id = off.id))\n                         END\n                    FROM public.class_offerings AS off\n                    JOIN public.classes AS c ON c.id = off.class_id\n                    LEFT JOIN public.private_lesson_products AS p ON p.class_id = c.id\n                   WHERE off.id = o.offering_id AND o.class_kind = ''"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify no order is left with an empty snapshot",
+        "sql": "SELECT NOT EXISTS (SELECT 1 FROM public.orders WHERE class_kind = '' OR session_count < 1 OR no_show_policy_version = '')",
+        "expectation": {
+          "expects": "absent",
+          "object": "orders rows with empty snapshot"
+        }
+      }
+    ]
+  },
+  {
+    "id": "checkConstraint.orders.ck_orders_session_count_102d2564",
+    "label": "Add check constraint \"ck_orders_session_count_102d2564\" on \"orders\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "checkConstraint",
+        "name": "ck_orders_session_count_102d2564",
+        "table": "orders"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"ck_orders_session_count_102d2564\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "ck_orders_session_count_102d2564",
+          "public",
+          "\"public\".\"orders\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "constraint \"ck_orders_session_count_102d2564\" on \"orders\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add check constraint \"ck_orders_session_count_102d2564\"",
+        "sql": "ALTER TABLE \"public\".\"orders\" ADD CONSTRAINT \"ck_orders_session_count_102d2564\" CHECK (session_count >= 1)"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify check constraint \"ck_orders_session_count_102d2564\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4)) AS \"result\"",
+        "params": [
+          "ck_orders_session_count_102d2564",
+          "public",
+          "\"public\".\"orders\"",
+          "c"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "checkConstraint.orders.orders_class_kind_check_a7e6290f",
+    "label": "Add check constraint \"orders_class_kind_check_a7e6290f\" on \"orders\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "checkConstraint",
+        "name": "orders_class_kind_check_a7e6290f",
+        "table": "orders"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"orders_class_kind_check_a7e6290f\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "orders_class_kind_check_a7e6290f",
+          "public",
+          "\"public\".\"orders\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "constraint \"orders_class_kind_check_a7e6290f\" on \"orders\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add check constraint \"orders_class_kind_check_a7e6290f\"",
+        "sql": "ALTER TABLE \"public\".\"orders\" ADD CONSTRAINT \"orders_class_kind_check_a7e6290f\" CHECK (\"class_kind\" IN ('regular', 'private_lesson', 'basic', 'lady_style', 'one_day', 'event', 'party', 'performance', 'competition'))"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify check constraint \"orders_class_kind_check_a7e6290f\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4)) AS \"result\"",
+        "params": [
+          "orders_class_kind_check_a7e6290f",
+          "public",
+          "\"public\".\"orders\"",
+          "c"
+        ]
+      }
+    ]
+  }
+]

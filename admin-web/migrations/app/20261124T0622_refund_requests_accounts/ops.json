@@ -1,0 +1,1240 @@
+[
+  {
+    "id": "table.refund_accounts",
+    "label": "Create table \"refund_accounts\"",
+    "summary": "Creates table \"refund_accounts\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "refund_accounts"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"refund_accounts\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"refund_accounts\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"refund_accounts\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"refund_accounts\"",
+        "sql": "CREATE TABLE \"public\".\"refund_accounts\" (\n  \"account_masked\" text NOT NULL,\n  \"account_number_enc\" bytea NOT NULL,\n  \"bank_code\" text NOT NULL,\n  \"created_at\" timestamptz DEFAULT (now()) NOT NULL,\n  \"holder_matches_identity\" bool NOT NULL,\n  \"holder_name\" text NOT NULL,\n  \"id\" uuid NOT NULL,\n  \"member_id\" uuid NOT NULL,\n  \"order_id\" uuid NOT NULL,\n  \"status\" text DEFAULT 'active' NOT NULL,\n  \"superseded_at\" timestamptz,\n  PRIMARY KEY (\"id\"),\n  CONSTRAINT \"ck_refund_accounts_holder_match_97910745\" CHECK (holder_matches_identity = true),\n  CONSTRAINT \"ck_refund_accounts_holder_name_2db25e89\" CHECK (holder_name = btrim(holder_name) AND char_length(holder_name) BETWEEN 1 AND 100),\n  CONSTRAINT \"ck_refund_accounts_superseded_84b68218\" CHECK ((status = 'superseded') = (superseded_at IS NOT NULL)),\n  CONSTRAINT \"refund_accounts_status_check_f025dd27\" CHECK (\"status\" IN ('active', 'superseded'))\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"refund_accounts\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3))) AS \"result\"",
+        "params": [
+          "\"public\".\"refund_accounts\"",
+          "r",
+          "p"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"refund_accounts\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "table.refund_requests",
+    "label": "Create table \"refund_requests\"",
+    "summary": "Creates table \"refund_requests\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "refund_requests"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"refund_requests\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"refund_requests\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"refund_requests\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"refund_requests\"",
+        "sql": "CREATE TABLE \"public\".\"refund_requests\" (\n  \"academy_id\" uuid NOT NULL,\n  \"answer_due_at\" timestamptz NOT NULL,\n  \"base_amount\" int4,\n  \"cancel_fee_amount\" int4,\n  \"cancel_fee_bp\" int4,\n  \"change_ref_id\" uuid,\n  \"completed_at\" timestamptz,\n  \"created_at\" timestamptz DEFAULT (now()) NOT NULL,\n  \"decided_amount\" int4,\n  \"decided_at\" timestamptz,\n  \"decided_by_staff_account_id\" uuid,\n  \"decision_kind\" text,\n  \"decision_note\" text,\n  \"desired_text\" text,\n  \"due_soon_notified_at\" timestamptz,\n  \"fee_window\" text,\n  \"id\" uuid NOT NULL,\n  \"idempotency_key\" text NOT NULL,\n  \"in_progress_at\" timestamptz,\n  \"kind\" text NOT NULL,\n  \"member_id\" uuid NOT NULL,\n  \"notice_item_code\" text,\n  \"notice_version_id\" uuid NOT NULL,\n  \"order_id\" uuid NOT NULL,\n  \"overdue_notified_at\" timestamptz,\n  \"reason_kind\" text NOT NULL,\n  \"reason_text\" text,\n  \"received_at\" timestamptz DEFAULT (now()) NOT NULL,\n  \"refund_account_id\" uuid,\n  \"reservation_id\" uuid NOT NULL,\n  \"status\" text DEFAULT 'received' NOT NULL,\n  \"suggested_amount\" int4,\n  \"updated_at\" timestamptz DEFAULT (now()) NOT NULL,\n  \"withdrawn_at\" timestamptz,\n  PRIMARY KEY (\"id\"),\n  CONSTRAINT \"ck_refund_requests_amount_307c7b1d\" CHECK (decided_amount IS NULL OR decided_amount >= 0),\n  CONSTRAINT \"ck_refund_requests_calc_amounts_4c2dfcd0\" CHECK ((suggested_amount IS NULL OR suggested_amount >= 0) AND (base_amount IS NULL OR base_amount >= 0) AND (cancel_fee_amount IS NULL OR cancel_fee_amount >= 0) AND (cancel_fee_bp IS NULL OR cancel_fee_bp BETWEEN 0 AND 10000)),\n  CONSTRAINT \"ck_refund_requests_decided_4f37451c\" CHECK ((status NOT IN ('completed', 'rejected') OR decided_at IS NOT NULL) AND (status <> 'completed' OR completed_at IS NOT NULL) AND (status <> 'withdrawn' OR withdrawn_at IS NOT NULL)),\n  CONSTRAINT \"ck_refund_requests_event_amount_ed50bc59\" CHECK (kind <> 'event' OR decided_amount IS NULL OR suggested_amount IS NULL OR decided_amount >= suggested_amount),\n  CONSTRAINT \"ck_refund_requests_event_final_26a28c59\" CHECK (kind <> 'event' OR (decision_kind IS DISTINCT FROM 'rejected' AND status <> 'withdrawn')),\n  CONSTRAINT \"ck_refund_requests_reject_item_b5152285\" CHECK (decision_kind IS DISTINCT FROM 'rejected' OR notice_item_code IS NOT NULL),\n  CONSTRAINT \"ck_refund_requests_text_len_2016917c\" CHECK ((reason_text IS NULL OR char_length(reason_text) <= 500) AND (desired_text IS NULL OR char_length(desired_text) <= 500) AND (decision_note IS NULL OR char_length(decision_note) <= 500)),\n  CONSTRAINT \"refund_requests_decision_kind_check_7730f052\" CHECK (\"decision_kind\" IN ('approved', 'rejected', 'auto')),\n  CONSTRAINT \"refund_requests_fee_window_check_8c846ed5\" CHECK (\"fee_window\" IN ('same_day', 'paid_within_7d_full', 'd10_plus', 'd9_d7', 'd6_d3', 'd2_to_deadline')),\n  CONSTRAINT \"refund_requests_kind_check_3e5b088f\" CHECK (\"kind\" IN ('regular', 'event')),\n  CONSTRAINT \"refund_requests_reason_kind_check_a63c439f\" CHECK (\"reason_kind\" IN ('personal', 'schedule_change', 'other')),\n  CONSTRAINT \"refund_requests_status_check_8a151ab6\" CHECK (\"status\" IN ('received', 'in_progress', 'completed', 'rejected', 'withdrawn'))\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"refund_requests\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3))) AS \"result\"",
+        "params": [
+          "\"public\".\"refund_requests\"",
+          "r",
+          "p"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"refund_requests\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "index.refund_accounts.ix_refund_accounts_member_10d5a0e2",
+    "label": "Create index \"ix_refund_accounts_member_10d5a0e2\" on \"refund_accounts\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "ix_refund_accounts_member_10d5a0e2",
+        "table": "refund_accounts"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"ix_refund_accounts_member_10d5a0e2\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ix_refund_accounts_member_10d5a0e2\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"ix_refund_accounts_member_10d5a0e2\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"ix_refund_accounts_member_10d5a0e2\"",
+        "sql": "CREATE INDEX \"ix_refund_accounts_member_10d5a0e2\" ON \"public\".\"refund_accounts\" (\"member_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"ix_refund_accounts_member_10d5a0e2\" exists on \"refund_accounts\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"ix_refund_accounts_member_10d5a0e2\"",
+          "i",
+          "I",
+          "\"public\".\"refund_accounts\"",
+          "btree",
+          "[\"member_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.refund_accounts.refund_accounts_order_id_idx_39ad19ad",
+    "label": "Create index \"refund_accounts_order_id_idx_39ad19ad\" on \"refund_accounts\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "refund_accounts_order_id_idx_39ad19ad",
+        "table": "refund_accounts"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"refund_accounts_order_id_idx_39ad19ad\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"refund_accounts_order_id_idx_39ad19ad\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"refund_accounts_order_id_idx_39ad19ad\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"refund_accounts_order_id_idx_39ad19ad\"",
+        "sql": "CREATE INDEX \"refund_accounts_order_id_idx_39ad19ad\" ON \"public\".\"refund_accounts\" (\"order_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"refund_accounts_order_id_idx_39ad19ad\" exists on \"refund_accounts\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"refund_accounts_order_id_idx_39ad19ad\"",
+          "i",
+          "I",
+          "\"public\".\"refund_accounts\"",
+          "btree",
+          "[\"order_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.refund_accounts.uq_refund_accounts_order_active_03f4820d",
+    "label": "Create index \"uq_refund_accounts_order_active_03f4820d\" on \"refund_accounts\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "uq_refund_accounts_order_active_03f4820d",
+        "table": "refund_accounts"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"uq_refund_accounts_order_active_03f4820d\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"uq_refund_accounts_order_active_03f4820d\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"uq_refund_accounts_order_active_03f4820d\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"uq_refund_accounts_order_active_03f4820d\"",
+        "sql": "CREATE UNIQUE INDEX \"uq_refund_accounts_order_active_03f4820d\" ON \"public\".\"refund_accounts\" (\"order_id\") WHERE ((status = 'active'))",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"uq_refund_accounts_order_active_03f4820d\" exists on \"refund_accounts\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND \"i\".\"indisunique\" AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NOT NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"uq_refund_accounts_order_active_03f4820d\"",
+          "i",
+          "I",
+          "\"public\".\"refund_accounts\"",
+          "btree",
+          "[\"order_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.refund_requests.ix_refund_requests_academy_due_a0dded7d",
+    "label": "Create index \"ix_refund_requests_academy_due_a0dded7d\" on \"refund_requests\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "ix_refund_requests_academy_due_a0dded7d",
+        "table": "refund_requests"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"ix_refund_requests_academy_due_a0dded7d\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ix_refund_requests_academy_due_a0dded7d\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"ix_refund_requests_academy_due_a0dded7d\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"ix_refund_requests_academy_due_a0dded7d\"",
+        "sql": "CREATE INDEX \"ix_refund_requests_academy_due_a0dded7d\" ON \"public\".\"refund_requests\" (\"academy_id\", \"status\", \"answer_due_at\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"ix_refund_requests_academy_due_a0dded7d\" exists on \"refund_requests\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"ix_refund_requests_academy_due_a0dded7d\"",
+          "i",
+          "I",
+          "\"public\".\"refund_requests\"",
+          "btree",
+          "[\"academy_id\",\"status\",\"answer_due_at\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.refund_requests.ix_refund_requests_member_2c8a8e63",
+    "label": "Create index \"ix_refund_requests_member_2c8a8e63\" on \"refund_requests\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "ix_refund_requests_member_2c8a8e63",
+        "table": "refund_requests"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"ix_refund_requests_member_2c8a8e63\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ix_refund_requests_member_2c8a8e63\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"ix_refund_requests_member_2c8a8e63\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"ix_refund_requests_member_2c8a8e63\"",
+        "sql": "CREATE INDEX \"ix_refund_requests_member_2c8a8e63\" ON \"public\".\"refund_requests\" (\"member_id\", \"created_at\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"ix_refund_requests_member_2c8a8e63\" exists on \"refund_requests\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"ix_refund_requests_member_2c8a8e63\"",
+          "i",
+          "I",
+          "\"public\".\"refund_requests\"",
+          "btree",
+          "[\"member_id\",\"created_at\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.refund_requests.refund_requests_academy_id_idx_f46ade77",
+    "label": "Create index \"refund_requests_academy_id_idx_f46ade77\" on \"refund_requests\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "refund_requests_academy_id_idx_f46ade77",
+        "table": "refund_requests"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"refund_requests_academy_id_idx_f46ade77\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"refund_requests_academy_id_idx_f46ade77\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"refund_requests_academy_id_idx_f46ade77\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"refund_requests_academy_id_idx_f46ade77\"",
+        "sql": "CREATE INDEX \"refund_requests_academy_id_idx_f46ade77\" ON \"public\".\"refund_requests\" (\"academy_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"refund_requests_academy_id_idx_f46ade77\" exists on \"refund_requests\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"refund_requests_academy_id_idx_f46ade77\"",
+          "i",
+          "I",
+          "\"public\".\"refund_requests\"",
+          "btree",
+          "[\"academy_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.refund_requests.refund_requests_decided_by_staff_account_id_idx_91b00ff5",
+    "label": "Create index \"refund_requests_decided_by_staff_account_id_idx_91b00ff5\" on \"refund_requests\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "refund_requests_decided_by_staff_account_id_idx_91b00ff5",
+        "table": "refund_requests"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"refund_requests_decided_by_staff_account_id_idx_91b00ff5\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"refund_requests_decided_by_staff_account_id_idx_91b00ff5\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"refund_requests_decided_by_staff_account_id_idx_91b00ff5\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"refund_requests_decided_by_staff_account_id_idx_91b00ff5\"",
+        "sql": "CREATE INDEX \"refund_requests_decided_by_staff_account_id_idx_91b00ff5\" ON \"public\".\"refund_requests\" (\"decided_by_staff_account_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"refund_requests_decided_by_staff_account_id_idx_91b00ff5\" exists on \"refund_requests\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"refund_requests_decided_by_staff_account_id_idx_91b00ff5\"",
+          "i",
+          "I",
+          "\"public\".\"refund_requests\"",
+          "btree",
+          "[\"decided_by_staff_account_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.refund_requests.refund_requests_member_id_idx_10d5a0e2",
+    "label": "Create index \"refund_requests_member_id_idx_10d5a0e2\" on \"refund_requests\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "refund_requests_member_id_idx_10d5a0e2",
+        "table": "refund_requests"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"refund_requests_member_id_idx_10d5a0e2\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"refund_requests_member_id_idx_10d5a0e2\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"refund_requests_member_id_idx_10d5a0e2\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"refund_requests_member_id_idx_10d5a0e2\"",
+        "sql": "CREATE INDEX \"refund_requests_member_id_idx_10d5a0e2\" ON \"public\".\"refund_requests\" (\"member_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"refund_requests_member_id_idx_10d5a0e2\" exists on \"refund_requests\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"refund_requests_member_id_idx_10d5a0e2\"",
+          "i",
+          "I",
+          "\"public\".\"refund_requests\"",
+          "btree",
+          "[\"member_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.refund_requests.refund_requests_notice_version_id_idx_14f28fee",
+    "label": "Create index \"refund_requests_notice_version_id_idx_14f28fee\" on \"refund_requests\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "refund_requests_notice_version_id_idx_14f28fee",
+        "table": "refund_requests"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"refund_requests_notice_version_id_idx_14f28fee\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"refund_requests_notice_version_id_idx_14f28fee\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"refund_requests_notice_version_id_idx_14f28fee\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"refund_requests_notice_version_id_idx_14f28fee\"",
+        "sql": "CREATE INDEX \"refund_requests_notice_version_id_idx_14f28fee\" ON \"public\".\"refund_requests\" (\"notice_version_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"refund_requests_notice_version_id_idx_14f28fee\" exists on \"refund_requests\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"refund_requests_notice_version_id_idx_14f28fee\"",
+          "i",
+          "I",
+          "\"public\".\"refund_requests\"",
+          "btree",
+          "[\"notice_version_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.refund_requests.refund_requests_order_id_idx_39ad19ad",
+    "label": "Create index \"refund_requests_order_id_idx_39ad19ad\" on \"refund_requests\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "refund_requests_order_id_idx_39ad19ad",
+        "table": "refund_requests"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"refund_requests_order_id_idx_39ad19ad\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"refund_requests_order_id_idx_39ad19ad\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"refund_requests_order_id_idx_39ad19ad\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"refund_requests_order_id_idx_39ad19ad\"",
+        "sql": "CREATE INDEX \"refund_requests_order_id_idx_39ad19ad\" ON \"public\".\"refund_requests\" (\"order_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"refund_requests_order_id_idx_39ad19ad\" exists on \"refund_requests\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"refund_requests_order_id_idx_39ad19ad\"",
+          "i",
+          "I",
+          "\"public\".\"refund_requests\"",
+          "btree",
+          "[\"order_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.refund_requests.refund_requests_refund_account_id_idx_9102b731",
+    "label": "Create index \"refund_requests_refund_account_id_idx_9102b731\" on \"refund_requests\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "refund_requests_refund_account_id_idx_9102b731",
+        "table": "refund_requests"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"refund_requests_refund_account_id_idx_9102b731\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"refund_requests_refund_account_id_idx_9102b731\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"refund_requests_refund_account_id_idx_9102b731\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"refund_requests_refund_account_id_idx_9102b731\"",
+        "sql": "CREATE INDEX \"refund_requests_refund_account_id_idx_9102b731\" ON \"public\".\"refund_requests\" (\"refund_account_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"refund_requests_refund_account_id_idx_9102b731\" exists on \"refund_requests\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"refund_requests_refund_account_id_idx_9102b731\"",
+          "i",
+          "I",
+          "\"public\".\"refund_requests\"",
+          "btree",
+          "[\"refund_account_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.refund_requests.refund_requests_reservation_id_idx_919eec76",
+    "label": "Create index \"refund_requests_reservation_id_idx_919eec76\" on \"refund_requests\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "refund_requests_reservation_id_idx_919eec76",
+        "table": "refund_requests"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"refund_requests_reservation_id_idx_919eec76\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"refund_requests_reservation_id_idx_919eec76\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"refund_requests_reservation_id_idx_919eec76\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"refund_requests_reservation_id_idx_919eec76\"",
+        "sql": "CREATE INDEX \"refund_requests_reservation_id_idx_919eec76\" ON \"public\".\"refund_requests\" (\"reservation_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"refund_requests_reservation_id_idx_919eec76\" exists on \"refund_requests\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"refund_requests_reservation_id_idx_919eec76\"",
+          "i",
+          "I",
+          "\"public\".\"refund_requests\"",
+          "btree",
+          "[\"reservation_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.refund_requests.uq_refund_requests_idem_c19dc27d",
+    "label": "Create index \"uq_refund_requests_idem_c19dc27d\" on \"refund_requests\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "uq_refund_requests_idem_c19dc27d",
+        "table": "refund_requests"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"uq_refund_requests_idem_c19dc27d\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"uq_refund_requests_idem_c19dc27d\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"uq_refund_requests_idem_c19dc27d\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"uq_refund_requests_idem_c19dc27d\"",
+        "sql": "CREATE UNIQUE INDEX \"uq_refund_requests_idem_c19dc27d\" ON \"public\".\"refund_requests\" (\"member_id\", \"idempotency_key\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"uq_refund_requests_idem_c19dc27d\" exists on \"refund_requests\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND \"i\".\"indisunique\" AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"uq_refund_requests_idem_c19dc27d\"",
+          "i",
+          "I",
+          "\"public\".\"refund_requests\"",
+          "btree",
+          "[\"member_id\",\"idempotency_key\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.refund_requests.uq_refund_requests_open_62855b1d",
+    "label": "Create index \"uq_refund_requests_open_62855b1d\" on \"refund_requests\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "uq_refund_requests_open_62855b1d",
+        "table": "refund_requests"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"uq_refund_requests_open_62855b1d\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"uq_refund_requests_open_62855b1d\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"uq_refund_requests_open_62855b1d\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"uq_refund_requests_open_62855b1d\"",
+        "sql": "CREATE UNIQUE INDEX \"uq_refund_requests_open_62855b1d\" ON \"public\".\"refund_requests\" (\"reservation_id\") WHERE ((status IN ('received', 'in_progress')))",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"uq_refund_requests_open_62855b1d\" exists on \"refund_requests\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND \"i\".\"indisunique\" AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NOT NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"uq_refund_requests_open_62855b1d\"",
+          "i",
+          "I",
+          "\"public\".\"refund_requests\"",
+          "btree",
+          "[\"reservation_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.refund_accounts.refund_accounts_order_id_fkey",
+    "label": "Add foreign key \"refund_accounts_order_id_fkey\" on \"refund_accounts\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "refund_accounts_order_id_fkey",
+        "table": "refund_accounts"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"refund_accounts_order_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "refund_accounts_order_id_fkey",
+          "public",
+          "\"public\".\"refund_accounts\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"refund_accounts_order_id_fkey\" on \"refund_accounts\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"refund_accounts_order_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"refund_accounts\"\nADD CONSTRAINT \"refund_accounts_order_id_fkey\"\nFOREIGN KEY (\"order_id\")\nREFERENCES \"public\".\"orders\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"refund_accounts_order_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "refund_accounts_order_id_fkey",
+          "public",
+          "\"public\".\"refund_accounts\"",
+          "f",
+          "[\"order_id\"]",
+          "\"public\".\"orders\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.refund_accounts.refund_accounts_member_id_fkey",
+    "label": "Add foreign key \"refund_accounts_member_id_fkey\" on \"refund_accounts\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "refund_accounts_member_id_fkey",
+        "table": "refund_accounts"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"refund_accounts_member_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "refund_accounts_member_id_fkey",
+          "public",
+          "\"public\".\"refund_accounts\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"refund_accounts_member_id_fkey\" on \"refund_accounts\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"refund_accounts_member_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"refund_accounts\"\nADD CONSTRAINT \"refund_accounts_member_id_fkey\"\nFOREIGN KEY (\"member_id\")\nREFERENCES \"public\".\"members\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"refund_accounts_member_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "refund_accounts_member_id_fkey",
+          "public",
+          "\"public\".\"refund_accounts\"",
+          "f",
+          "[\"member_id\"]",
+          "\"public\".\"members\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.refund_requests.refund_requests_order_id_fkey",
+    "label": "Add foreign key \"refund_requests_order_id_fkey\" on \"refund_requests\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "refund_requests_order_id_fkey",
+        "table": "refund_requests"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"refund_requests_order_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "refund_requests_order_id_fkey",
+          "public",
+          "\"public\".\"refund_requests\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"refund_requests_order_id_fkey\" on \"refund_requests\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"refund_requests_order_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"refund_requests\"\nADD CONSTRAINT \"refund_requests_order_id_fkey\"\nFOREIGN KEY (\"order_id\")\nREFERENCES \"public\".\"orders\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"refund_requests_order_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "refund_requests_order_id_fkey",
+          "public",
+          "\"public\".\"refund_requests\"",
+          "f",
+          "[\"order_id\"]",
+          "\"public\".\"orders\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.refund_requests.refund_requests_reservation_id_fkey",
+    "label": "Add foreign key \"refund_requests_reservation_id_fkey\" on \"refund_requests\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "refund_requests_reservation_id_fkey",
+        "table": "refund_requests"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"refund_requests_reservation_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "refund_requests_reservation_id_fkey",
+          "public",
+          "\"public\".\"refund_requests\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"refund_requests_reservation_id_fkey\" on \"refund_requests\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"refund_requests_reservation_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"refund_requests\"\nADD CONSTRAINT \"refund_requests_reservation_id_fkey\"\nFOREIGN KEY (\"reservation_id\")\nREFERENCES \"public\".\"reservations\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"refund_requests_reservation_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "refund_requests_reservation_id_fkey",
+          "public",
+          "\"public\".\"refund_requests\"",
+          "f",
+          "[\"reservation_id\"]",
+          "\"public\".\"reservations\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.refund_requests.refund_requests_academy_id_fkey",
+    "label": "Add foreign key \"refund_requests_academy_id_fkey\" on \"refund_requests\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "refund_requests_academy_id_fkey",
+        "table": "refund_requests"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"refund_requests_academy_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "refund_requests_academy_id_fkey",
+          "public",
+          "\"public\".\"refund_requests\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"refund_requests_academy_id_fkey\" on \"refund_requests\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"refund_requests_academy_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"refund_requests\"\nADD CONSTRAINT \"refund_requests_academy_id_fkey\"\nFOREIGN KEY (\"academy_id\")\nREFERENCES \"public\".\"academies\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"refund_requests_academy_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "refund_requests_academy_id_fkey",
+          "public",
+          "\"public\".\"refund_requests\"",
+          "f",
+          "[\"academy_id\"]",
+          "\"public\".\"academies\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.refund_requests.refund_requests_member_id_fkey",
+    "label": "Add foreign key \"refund_requests_member_id_fkey\" on \"refund_requests\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "refund_requests_member_id_fkey",
+        "table": "refund_requests"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"refund_requests_member_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "refund_requests_member_id_fkey",
+          "public",
+          "\"public\".\"refund_requests\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"refund_requests_member_id_fkey\" on \"refund_requests\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"refund_requests_member_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"refund_requests\"\nADD CONSTRAINT \"refund_requests_member_id_fkey\"\nFOREIGN KEY (\"member_id\")\nREFERENCES \"public\".\"members\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"refund_requests_member_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "refund_requests_member_id_fkey",
+          "public",
+          "\"public\".\"refund_requests\"",
+          "f",
+          "[\"member_id\"]",
+          "\"public\".\"members\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.refund_requests.refund_requests_refund_account_id_fkey",
+    "label": "Add foreign key \"refund_requests_refund_account_id_fkey\" on \"refund_requests\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "refund_requests_refund_account_id_fkey",
+        "table": "refund_requests"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"refund_requests_refund_account_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "refund_requests_refund_account_id_fkey",
+          "public",
+          "\"public\".\"refund_requests\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"refund_requests_refund_account_id_fkey\" on \"refund_requests\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"refund_requests_refund_account_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"refund_requests\"\nADD CONSTRAINT \"refund_requests_refund_account_id_fkey\"\nFOREIGN KEY (\"refund_account_id\")\nREFERENCES \"public\".\"refund_accounts\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"refund_requests_refund_account_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "refund_requests_refund_account_id_fkey",
+          "public",
+          "\"public\".\"refund_requests\"",
+          "f",
+          "[\"refund_account_id\"]",
+          "\"public\".\"refund_accounts\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.refund_requests.refund_requests_notice_version_id_fkey",
+    "label": "Add foreign key \"refund_requests_notice_version_id_fkey\" on \"refund_requests\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "refund_requests_notice_version_id_fkey",
+        "table": "refund_requests"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"refund_requests_notice_version_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "refund_requests_notice_version_id_fkey",
+          "public",
+          "\"public\".\"refund_requests\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"refund_requests_notice_version_id_fkey\" on \"refund_requests\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"refund_requests_notice_version_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"refund_requests\"\nADD CONSTRAINT \"refund_requests_notice_version_id_fkey\"\nFOREIGN KEY (\"notice_version_id\")\nREFERENCES \"public\".\"refund_notice_versions\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"refund_requests_notice_version_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "refund_requests_notice_version_id_fkey",
+          "public",
+          "\"public\".\"refund_requests\"",
+          "f",
+          "[\"notice_version_id\"]",
+          "\"public\".\"refund_notice_versions\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.refund_requests.refund_requests_decided_by_staff_account_id_fkey",
+    "label": "Add foreign key \"refund_requests_decided_by_staff_account_id_fkey\" on \"refund_requests\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "refund_requests_decided_by_staff_account_id_fkey",
+        "table": "refund_requests"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"refund_requests_decided_by_staff_account_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "refund_requests_decided_by_staff_account_id_fkey",
+          "public",
+          "\"public\".\"refund_requests\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"refund_requests_decided_by_staff_account_id_fkey\" on \"refund_requests\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"refund_requests_decided_by_staff_account_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"refund_requests\"\nADD CONSTRAINT \"refund_requests_decided_by_staff_account_id_fkey\"\nFOREIGN KEY (\"decided_by_staff_account_id\")\nREFERENCES \"public\".\"staff_accounts\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"refund_requests_decided_by_staff_account_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "refund_requests_decided_by_staff_account_id_fkey",
+          "public",
+          "\"public\".\"refund_requests\"",
+          "f",
+          "[\"decided_by_staff_account_id\"]",
+          "\"public\".\"staff_accounts\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  }
+]

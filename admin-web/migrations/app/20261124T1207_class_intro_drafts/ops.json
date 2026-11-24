@@ -1,0 +1,299 @@
+[
+  {
+    "id": "table.class_intro_drafts",
+    "label": "Create table \"class_intro_drafts\"",
+    "summary": "Creates table \"class_intro_drafts\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "class_intro_drafts"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"class_intro_drafts\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"class_intro_drafts\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"class_intro_drafts\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"class_intro_drafts\"",
+        "sql": "CREATE TABLE \"public\".\"class_intro_drafts\" (\n  \"ai_generated\" bool DEFAULT true NOT NULL,\n  \"body\" text NOT NULL,\n  \"class_id\" uuid NOT NULL,\n  \"created_at\" timestamptz DEFAULT (now()) NOT NULL,\n  \"emphasis\" text,\n  \"facts\" json NOT NULL,\n  \"id\" uuid NOT NULL,\n  \"model\" text,\n  \"staff_account_id\" uuid NOT NULL,\n  PRIMARY KEY (\"id\"),\n  CONSTRAINT \"ck_intro_ai_9bf5afd1\" CHECK (ai_generated = true),\n  CONSTRAINT \"ck_intro_body_len_2dd92538\" CHECK (char_length(body) BETWEEN 1 AND 600),\n  CONSTRAINT \"ck_intro_emphasis_len_db1a1e1d\" CHECK (emphasis IS NULL OR char_length(emphasis) <= 60)\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"class_intro_drafts\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3))) AS \"result\"",
+        "params": [
+          "\"public\".\"class_intro_drafts\"",
+          "r",
+          "p"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"class_intro_drafts\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "index.class_intro_drafts.class_intro_drafts_class_id_idx_0031a3d7",
+    "label": "Create index \"class_intro_drafts_class_id_idx_0031a3d7\" on \"class_intro_drafts\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "class_intro_drafts_class_id_idx_0031a3d7",
+        "table": "class_intro_drafts"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"class_intro_drafts_class_id_idx_0031a3d7\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"class_intro_drafts_class_id_idx_0031a3d7\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"class_intro_drafts_class_id_idx_0031a3d7\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"class_intro_drafts_class_id_idx_0031a3d7\"",
+        "sql": "CREATE INDEX \"class_intro_drafts_class_id_idx_0031a3d7\" ON \"public\".\"class_intro_drafts\" (\"class_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"class_intro_drafts_class_id_idx_0031a3d7\" exists on \"class_intro_drafts\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"class_intro_drafts_class_id_idx_0031a3d7\"",
+          "i",
+          "I",
+          "\"public\".\"class_intro_drafts\"",
+          "btree",
+          "[\"class_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.class_intro_drafts.class_intro_drafts_staff_account_id_idx_97848bfb",
+    "label": "Create index \"class_intro_drafts_staff_account_id_idx_97848bfb\" on \"class_intro_drafts\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "class_intro_drafts_staff_account_id_idx_97848bfb",
+        "table": "class_intro_drafts"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"class_intro_drafts_staff_account_id_idx_97848bfb\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"class_intro_drafts_staff_account_id_idx_97848bfb\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"class_intro_drafts_staff_account_id_idx_97848bfb\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"class_intro_drafts_staff_account_id_idx_97848bfb\"",
+        "sql": "CREATE INDEX \"class_intro_drafts_staff_account_id_idx_97848bfb\" ON \"public\".\"class_intro_drafts\" (\"staff_account_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"class_intro_drafts_staff_account_id_idx_97848bfb\" exists on \"class_intro_drafts\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"class_intro_drafts_staff_account_id_idx_97848bfb\"",
+          "i",
+          "I",
+          "\"public\".\"class_intro_drafts\"",
+          "btree",
+          "[\"staff_account_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.class_intro_drafts.ix_intro_class_created_698bc727",
+    "label": "Create index \"ix_intro_class_created_698bc727\" on \"class_intro_drafts\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "ix_intro_class_created_698bc727",
+        "table": "class_intro_drafts"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"ix_intro_class_created_698bc727\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ix_intro_class_created_698bc727\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"ix_intro_class_created_698bc727\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"ix_intro_class_created_698bc727\"",
+        "sql": "CREATE INDEX \"ix_intro_class_created_698bc727\" ON \"public\".\"class_intro_drafts\" (\"class_id\", \"created_at\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"ix_intro_class_created_698bc727\" exists on \"class_intro_drafts\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"ix_intro_class_created_698bc727\"",
+          "i",
+          "I",
+          "\"public\".\"class_intro_drafts\"",
+          "btree",
+          "[\"class_id\",\"created_at\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.class_intro_drafts.class_intro_drafts_staff_account_id_fkey",
+    "label": "Add foreign key \"class_intro_drafts_staff_account_id_fkey\" on \"class_intro_drafts\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "class_intro_drafts_staff_account_id_fkey",
+        "table": "class_intro_drafts"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"class_intro_drafts_staff_account_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "class_intro_drafts_staff_account_id_fkey",
+          "public",
+          "\"public\".\"class_intro_drafts\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"class_intro_drafts_staff_account_id_fkey\" on \"class_intro_drafts\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"class_intro_drafts_staff_account_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"class_intro_drafts\"\nADD CONSTRAINT \"class_intro_drafts_staff_account_id_fkey\"\nFOREIGN KEY (\"staff_account_id\")\nREFERENCES \"public\".\"staff_accounts\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"class_intro_drafts_staff_account_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "class_intro_drafts_staff_account_id_fkey",
+          "public",
+          "\"public\".\"class_intro_drafts\"",
+          "f",
+          "[\"staff_account_id\"]",
+          "\"public\".\"staff_accounts\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.class_intro_drafts.class_intro_drafts_class_id_fkey",
+    "label": "Add foreign key \"class_intro_drafts_class_id_fkey\" on \"class_intro_drafts\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "class_intro_drafts_class_id_fkey",
+        "table": "class_intro_drafts"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"class_intro_drafts_class_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "class_intro_drafts_class_id_fkey",
+          "public",
+          "\"public\".\"class_intro_drafts\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"class_intro_drafts_class_id_fkey\" on \"class_intro_drafts\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"class_intro_drafts_class_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"class_intro_drafts\"\nADD CONSTRAINT \"class_intro_drafts_class_id_fkey\"\nFOREIGN KEY (\"class_id\")\nREFERENCES \"public\".\"classes\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"class_intro_drafts_class_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "class_intro_drafts_class_id_fkey",
+          "public",
+          "\"public\".\"class_intro_drafts\"",
+          "f",
+          "[\"class_id\"]",
+          "\"public\".\"classes\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  }
+]

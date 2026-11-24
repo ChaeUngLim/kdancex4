@@ -1,0 +1,109 @@
+[
+  {
+    "id": "column.public.instructor_affiliations.calendar_color_index",
+    "label": "Add column \"calendar_color_index\" to \"instructor_affiliations\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "calendar_color_index",
+        "table": "instructor_affiliations"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"calendar_color_index\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "instructor_affiliations",
+          "calendar_color_index"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "column \"calendar_color_index\" on \"instructor_affiliations\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"calendar_color_index\"",
+        "sql": "ALTER TABLE \"public\".\"instructor_affiliations\" ADD COLUMN \"calendar_color_index\" int4"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"calendar_color_index\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "instructor_affiliations",
+          "calendar_color_index"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "column \"calendar_color_index\" on \"instructor_affiliations\""
+        }
+      },
+      {
+        "description": "verify column \"calendar_color_index\" has type \"integer\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_attribute\" AS \"a\" INNER JOIN \"pg_class\" AS \"c\" ON \"c\".\"oid\" = \"a\".\"attrelid\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"a\".\"attname\" = $3 AND (format_type(\"a\".\"atttypid\", \"a\".\"atttypmod\")) = $4 AND NOT (\"a\".\"attisdropped\"))) AS \"result\"",
+        "params": [
+          "public",
+          "instructor_affiliations",
+          "calendar_color_index",
+          "integer"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "checkConstraint.instructor_affiliations.ck_aff_color_42cf8d34",
+    "label": "Add check constraint \"ck_aff_color_42cf8d34\" on \"instructor_affiliations\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "checkConstraint",
+        "name": "ck_aff_color_42cf8d34",
+        "table": "instructor_affiliations"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"ck_aff_color_42cf8d34\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "ck_aff_color_42cf8d34",
+          "public",
+          "\"public\".\"instructor_affiliations\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "constraint \"ck_aff_color_42cf8d34\" on \"instructor_affiliations\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add check constraint \"ck_aff_color_42cf8d34\"",
+        "sql": "ALTER TABLE \"public\".\"instructor_affiliations\" ADD CONSTRAINT \"ck_aff_color_42cf8d34\" CHECK (calendar_color_index IS NULL OR calendar_color_index BETWEEN 0 AND 11)"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify check constraint \"ck_aff_color_42cf8d34\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4)) AS \"result\"",
+        "params": [
+          "ck_aff_color_42cf8d34",
+          "public",
+          "\"public\".\"instructor_affiliations\"",
+          "c"
+        ]
+      }
+    ]
+  }
+]

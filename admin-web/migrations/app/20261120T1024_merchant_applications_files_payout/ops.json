@@ -1,0 +1,1238 @@
+[
+  {
+    "id": "table.academy_payout_accounts",
+    "label": "Create table \"academy_payout_accounts\"",
+    "summary": "Creates table \"academy_payout_accounts\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "academy_payout_accounts"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"academy_payout_accounts\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"academy_payout_accounts\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"academy_payout_accounts\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"academy_payout_accounts\"",
+        "sql": "CREATE TABLE \"public\".\"academy_payout_accounts\" (\n  \"academy_id\" uuid NOT NULL,\n  \"account_enc\" bytea NOT NULL,\n  \"account_last4\" text NOT NULL,\n  \"bank_code\" text NOT NULL,\n  \"created_at\" timestamptz DEFAULT (now()) NOT NULL,\n  \"created_by_account_id\" uuid NOT NULL,\n  \"holder_name\" text NOT NULL,\n  \"holder_proof_file_id\" uuid,\n  \"holder_verified_at\" timestamptz,\n  \"holder_verified_by_account_id\" uuid,\n  \"holder_verify_method\" text,\n  \"id\" uuid NOT NULL,\n  \"replaced_at\" timestamptz,\n  \"status\" text DEFAULT 'active' NOT NULL,\n  PRIMARY KEY (\"id\"),\n  CONSTRAINT \"academy_payout_accounts_status_check_862c95be\" CHECK (\"status\" IN ('active', 'replaced')),\n  CONSTRAINT \"ck_payout_accounts_last4_f9836fa4\" CHECK (account_last4 ~ '^[0-9]{4}$')\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"academy_payout_accounts\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3))) AS \"result\"",
+        "params": [
+          "\"public\".\"academy_payout_accounts\"",
+          "r",
+          "p"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"academy_payout_accounts\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "table.merchant_application_documents",
+    "label": "Create table \"merchant_application_documents\"",
+    "summary": "Creates table \"merchant_application_documents\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "merchant_application_documents"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"merchant_application_documents\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"merchant_application_documents\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"merchant_application_documents\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"merchant_application_documents\"",
+        "sql": "CREATE TABLE \"public\".\"merchant_application_documents\" (\n  \"application_id\" uuid NOT NULL,\n  \"created_at\" timestamptz DEFAULT (now()) NOT NULL,\n  \"doc_kind\" text NOT NULL,\n  \"file_id\" uuid NOT NULL,\n  PRIMARY KEY (\"application_id\", \"doc_kind\"),\n  CONSTRAINT \"merchant_application_documents_doc_kind_check_15f96151\" CHECK (\"doc_kind\" IN ('business_registration', 'academy_registration', 'tutoring_center_report', 'sports_facility_report'))\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"merchant_application_documents\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3))) AS \"result\"",
+        "params": [
+          "\"public\".\"merchant_application_documents\"",
+          "r",
+          "p"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"merchant_application_documents\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "table.merchant_applications",
+    "label": "Create table \"merchant_applications\"",
+    "summary": "Creates table \"merchant_applications\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "merchant_applications"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"merchant_applications\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"merchant_applications\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"merchant_applications\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"merchant_applications\"",
+        "sql": "CREATE TABLE \"public\".\"merchant_applications\" (\n  \"academy_id\" uuid,\n  \"academy_name\" text,\n  \"applicant_account_id\" uuid NOT NULL,\n  \"branch_name\" text,\n  \"business_address\" text,\n  \"business_name\" text,\n  \"business_registration_number\" text,\n  \"created_at\" timestamptz DEFAULT (now()) NOT NULL,\n  \"decided_at\" timestamptz,\n  \"id\" uuid NOT NULL,\n  \"industry_code\" text,\n  \"mail_order_report_number\" text,\n  \"payout_account_enc\" bytea,\n  \"payout_account_last4\" text,\n  \"payout_bank_code\" text,\n  \"payout_holder_name\" text,\n  \"phone\" text,\n  \"region_gu\" text,\n  \"region_sido\" text,\n  \"registration_type\" text,\n  \"reject_reason_code\" text,\n  \"reject_reason_text\" text,\n  \"representative_name\" text,\n  \"review_started_at\" timestamptz,\n  \"reviewed_by_account_id\" uuid,\n  \"status\" text DEFAULT 'draft' NOT NULL,\n  \"submitted_at\" timestamptz,\n  \"updated_at\" timestamptz NOT NULL,\n  PRIMARY KEY (\"id\"),\n  CONSTRAINT \"ck_merchant_app_approved_89be692a\" CHECK ((status = 'approved') = (academy_id IS NOT NULL)),\n  CONSTRAINT \"ck_merchant_app_rejected_611ad5c4\" CHECK ((status = 'rejected') = (reject_reason_code IS NOT NULL)),\n  CONSTRAINT \"merchant_applications_registration_type_check_cfbdb865\" CHECK (\"registration_type\" IN ('academy', 'tutoring_center', 'sports_facility', 'unregistered')),\n  CONSTRAINT \"merchant_applications_reject_reason_code_check_cd7dc8fc\" CHECK (\"reject_reason_code\" IN ('info_mismatch', 'registration_missing', 'prior_termination', 'trust_violation')),\n  CONSTRAINT \"merchant_applications_status_check_5cd8e6e7\" CHECK (\"status\" IN ('draft', 'submitted', 'in_review', 'approved', 'rejected', 'withdrawn'))\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"merchant_applications\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3))) AS \"result\"",
+        "params": [
+          "\"public\".\"merchant_applications\"",
+          "r",
+          "p"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"merchant_applications\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "table.uploaded_files",
+    "label": "Create table \"uploaded_files\"",
+    "summary": "Creates table \"uploaded_files\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "uploaded_files"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"uploaded_files\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"uploaded_files\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"uploaded_files\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"uploaded_files\"",
+        "sql": "CREATE TABLE \"public\".\"uploaded_files\" (\n  \"attached_at\" timestamptz,\n  \"created_at\" timestamptz DEFAULT (now()) NOT NULL,\n  \"display_name\" text NOT NULL,\n  \"id\" uuid NOT NULL,\n  \"mime_type\" text NOT NULL,\n  \"purpose\" text NOT NULL,\n  \"sha256\" text NOT NULL,\n  \"size_bytes\" int4 NOT NULL,\n  \"storage_key\" text NOT NULL,\n  \"uploader_account_id\" uuid NOT NULL,\n  \"visibility\" text NOT NULL,\n  PRIMARY KEY (\"id\"),\n  CONSTRAINT \"ck_files_evidence_private_4b11f960\" CHECK (purpose <> 'merchant_evidence' OR visibility = 'private'),\n  CONSTRAINT \"ck_files_mime_40645965\" CHECK (mime_type IN ('image/jpeg', 'image/png', 'image/webp', 'application/pdf')),\n  CONSTRAINT \"ck_files_size_dfc78b49\" CHECK (size_bytes BETWEEN 1 AND 10485760),\n  CONSTRAINT \"uploaded_files_purpose_check_5e093679\" CHECK (\"purpose\" IN ('merchant_evidence', 'academy_photo')),\n  CONSTRAINT \"uploaded_files_visibility_check_c137d6b9\" CHECK (\"visibility\" IN ('private', 'public'))\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"uploaded_files\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3))) AS \"result\"",
+        "params": [
+          "\"public\".\"uploaded_files\"",
+          "r",
+          "p"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"uploaded_files\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "index.academy_payout_accounts.academy_payout_accounts_academy_id_idx_f46ade77",
+    "label": "Create index \"academy_payout_accounts_academy_id_idx_f46ade77\" on \"academy_payout_accounts\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "academy_payout_accounts_academy_id_idx_f46ade77",
+        "table": "academy_payout_accounts"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"academy_payout_accounts_academy_id_idx_f46ade77\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"academy_payout_accounts_academy_id_idx_f46ade77\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"academy_payout_accounts_academy_id_idx_f46ade77\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"academy_payout_accounts_academy_id_idx_f46ade77\"",
+        "sql": "CREATE INDEX \"academy_payout_accounts_academy_id_idx_f46ade77\" ON \"public\".\"academy_payout_accounts\" (\"academy_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"academy_payout_accounts_academy_id_idx_f46ade77\" exists on \"academy_payout_accounts\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"academy_payout_accounts_academy_id_idx_f46ade77\"",
+          "i",
+          "I",
+          "\"public\".\"academy_payout_accounts\"",
+          "btree",
+          "[\"academy_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.academy_payout_accounts.academy_payout_accounts_holder_proof_file_id_idx_083073b4",
+    "label": "Create index \"academy_payout_accounts_holder_proof_file_id_idx_083073b4\" on \"academy_payout_accounts\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "academy_payout_accounts_holder_proof_file_id_idx_083073b4",
+        "table": "academy_payout_accounts"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"academy_payout_accounts_holder_proof_file_id_idx_083073b4\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"academy_payout_accounts_holder_proof_file_id_idx_083073b4\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"academy_payout_accounts_holder_proof_file_id_idx_083073b4\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"academy_payout_accounts_holder_proof_file_id_idx_083073b4\"",
+        "sql": "CREATE INDEX \"academy_payout_accounts_holder_proof_file_id_idx_083073b4\" ON \"public\".\"academy_payout_accounts\" (\"holder_proof_file_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"academy_payout_accounts_holder_proof_file_id_idx_083073b4\" exists on \"academy_payout_accounts\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"academy_payout_accounts_holder_proof_file_id_idx_083073b4\"",
+          "i",
+          "I",
+          "\"public\".\"academy_payout_accounts\"",
+          "btree",
+          "[\"holder_proof_file_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.academy_payout_accounts.academy_payout_accounts_holder_verified_by_account_id__ef73afed",
+    "label": "Create index \"academy_payout_accounts_holder_verified_by_account_id__ef73afed\" on \"academy_payout_accounts\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "academy_payout_accounts_holder_verified_by_account_id__ef73afed",
+        "table": "academy_payout_accounts"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"academy_payout_accounts_holder_verified_by_account_id__ef73afed\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"academy_payout_accounts_holder_verified_by_account_id__ef73afed\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"academy_payout_accounts_holder_verified_by_account_id__ef73afed\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"academy_payout_accounts_holder_verified_by_account_id__ef73afed\"",
+        "sql": "CREATE INDEX \"academy_payout_accounts_holder_verified_by_account_id__ef73afed\" ON \"public\".\"academy_payout_accounts\" (\"holder_verified_by_account_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"academy_payout_accounts_holder_verified_by_account_id__ef73afed\" exists on \"academy_payout_accounts\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"academy_payout_accounts_holder_verified_by_account_id__ef73afed\"",
+          "i",
+          "I",
+          "\"public\".\"academy_payout_accounts\"",
+          "btree",
+          "[\"holder_verified_by_account_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.academy_payout_accounts.uq_payout_accounts_active_ce5c7b07",
+    "label": "Create index \"uq_payout_accounts_active_ce5c7b07\" on \"academy_payout_accounts\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "uq_payout_accounts_active_ce5c7b07",
+        "table": "academy_payout_accounts"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"uq_payout_accounts_active_ce5c7b07\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"uq_payout_accounts_active_ce5c7b07\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"uq_payout_accounts_active_ce5c7b07\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"uq_payout_accounts_active_ce5c7b07\"",
+        "sql": "CREATE UNIQUE INDEX \"uq_payout_accounts_active_ce5c7b07\" ON \"public\".\"academy_payout_accounts\" (\"academy_id\") WHERE ((status = 'active'))",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"uq_payout_accounts_active_ce5c7b07\" exists on \"academy_payout_accounts\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND \"i\".\"indisunique\" AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NOT NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"uq_payout_accounts_active_ce5c7b07\"",
+          "i",
+          "I",
+          "\"public\".\"academy_payout_accounts\"",
+          "btree",
+          "[\"academy_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.merchant_application_documents.merchant_application_documents_application_id_idx_e32e1f6e",
+    "label": "Create index \"merchant_application_documents_application_id_idx_e32e1f6e\" on \"merchant_application_documents\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "merchant_application_documents_application_id_idx_e32e1f6e",
+        "table": "merchant_application_documents"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"merchant_application_documents_application_id_idx_e32e1f6e\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"merchant_application_documents_application_id_idx_e32e1f6e\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"merchant_application_documents_application_id_idx_e32e1f6e\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"merchant_application_documents_application_id_idx_e32e1f6e\"",
+        "sql": "CREATE INDEX \"merchant_application_documents_application_id_idx_e32e1f6e\" ON \"public\".\"merchant_application_documents\" (\"application_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"merchant_application_documents_application_id_idx_e32e1f6e\" exists on \"merchant_application_documents\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"merchant_application_documents_application_id_idx_e32e1f6e\"",
+          "i",
+          "I",
+          "\"public\".\"merchant_application_documents\"",
+          "btree",
+          "[\"application_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.merchant_application_documents.uq_app_docs_file_723b0a69",
+    "label": "Create index \"uq_app_docs_file_723b0a69\" on \"merchant_application_documents\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "uq_app_docs_file_723b0a69",
+        "table": "merchant_application_documents"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"uq_app_docs_file_723b0a69\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"uq_app_docs_file_723b0a69\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"uq_app_docs_file_723b0a69\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"uq_app_docs_file_723b0a69\"",
+        "sql": "CREATE UNIQUE INDEX \"uq_app_docs_file_723b0a69\" ON \"public\".\"merchant_application_documents\" (\"file_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"uq_app_docs_file_723b0a69\" exists on \"merchant_application_documents\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND \"i\".\"indisunique\" AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"uq_app_docs_file_723b0a69\"",
+          "i",
+          "I",
+          "\"public\".\"merchant_application_documents\"",
+          "btree",
+          "[\"file_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.merchant_applications.ix_merchant_app_status_submitted_653d2607",
+    "label": "Create index \"ix_merchant_app_status_submitted_653d2607\" on \"merchant_applications\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "ix_merchant_app_status_submitted_653d2607",
+        "table": "merchant_applications"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"ix_merchant_app_status_submitted_653d2607\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ix_merchant_app_status_submitted_653d2607\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"ix_merchant_app_status_submitted_653d2607\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"ix_merchant_app_status_submitted_653d2607\"",
+        "sql": "CREATE INDEX \"ix_merchant_app_status_submitted_653d2607\" ON \"public\".\"merchant_applications\" (\"status\", \"submitted_at\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"ix_merchant_app_status_submitted_653d2607\" exists on \"merchant_applications\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"ix_merchant_app_status_submitted_653d2607\"",
+          "i",
+          "I",
+          "\"public\".\"merchant_applications\"",
+          "btree",
+          "[\"status\",\"submitted_at\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.merchant_applications.merchant_applications_academy_id_idx_f46ade77",
+    "label": "Create index \"merchant_applications_academy_id_idx_f46ade77\" on \"merchant_applications\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "merchant_applications_academy_id_idx_f46ade77",
+        "table": "merchant_applications"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"merchant_applications_academy_id_idx_f46ade77\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"merchant_applications_academy_id_idx_f46ade77\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"merchant_applications_academy_id_idx_f46ade77\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"merchant_applications_academy_id_idx_f46ade77\"",
+        "sql": "CREATE INDEX \"merchant_applications_academy_id_idx_f46ade77\" ON \"public\".\"merchant_applications\" (\"academy_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"merchant_applications_academy_id_idx_f46ade77\" exists on \"merchant_applications\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"merchant_applications_academy_id_idx_f46ade77\"",
+          "i",
+          "I",
+          "\"public\".\"merchant_applications\"",
+          "btree",
+          "[\"academy_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.merchant_applications.merchant_applications_applicant_account_id_idx_9513fd39",
+    "label": "Create index \"merchant_applications_applicant_account_id_idx_9513fd39\" on \"merchant_applications\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "merchant_applications_applicant_account_id_idx_9513fd39",
+        "table": "merchant_applications"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"merchant_applications_applicant_account_id_idx_9513fd39\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"merchant_applications_applicant_account_id_idx_9513fd39\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"merchant_applications_applicant_account_id_idx_9513fd39\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"merchant_applications_applicant_account_id_idx_9513fd39\"",
+        "sql": "CREATE INDEX \"merchant_applications_applicant_account_id_idx_9513fd39\" ON \"public\".\"merchant_applications\" (\"applicant_account_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"merchant_applications_applicant_account_id_idx_9513fd39\" exists on \"merchant_applications\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"merchant_applications_applicant_account_id_idx_9513fd39\"",
+          "i",
+          "I",
+          "\"public\".\"merchant_applications\"",
+          "btree",
+          "[\"applicant_account_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.merchant_applications.uq_merchant_app_open_21f94346",
+    "label": "Create index \"uq_merchant_app_open_21f94346\" on \"merchant_applications\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "uq_merchant_app_open_21f94346",
+        "table": "merchant_applications"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"uq_merchant_app_open_21f94346\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"uq_merchant_app_open_21f94346\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"uq_merchant_app_open_21f94346\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"uq_merchant_app_open_21f94346\"",
+        "sql": "CREATE UNIQUE INDEX \"uq_merchant_app_open_21f94346\" ON \"public\".\"merchant_applications\" (\"applicant_account_id\") WHERE ((status IN ('draft', 'submitted', 'in_review')))",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"uq_merchant_app_open_21f94346\" exists on \"merchant_applications\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND \"i\".\"indisunique\" AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NOT NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"uq_merchant_app_open_21f94346\"",
+          "i",
+          "I",
+          "\"public\".\"merchant_applications\"",
+          "btree",
+          "[\"applicant_account_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.uploaded_files.ix_files_unattached_a64b36d6",
+    "label": "Create index \"ix_files_unattached_a64b36d6\" on \"uploaded_files\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "ix_files_unattached_a64b36d6",
+        "table": "uploaded_files"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"ix_files_unattached_a64b36d6\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ix_files_unattached_a64b36d6\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"ix_files_unattached_a64b36d6\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"ix_files_unattached_a64b36d6\"",
+        "sql": "CREATE INDEX \"ix_files_unattached_a64b36d6\" ON \"public\".\"uploaded_files\" (\"created_at\") WHERE ((attached_at IS NULL))",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"ix_files_unattached_a64b36d6\" exists on \"uploaded_files\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NOT NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"ix_files_unattached_a64b36d6\"",
+          "i",
+          "I",
+          "\"public\".\"uploaded_files\"",
+          "btree",
+          "[\"created_at\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.uploaded_files.uploaded_files_uploader_account_id_idx_f0be89e8",
+    "label": "Create index \"uploaded_files_uploader_account_id_idx_f0be89e8\" on \"uploaded_files\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "uploaded_files_uploader_account_id_idx_f0be89e8",
+        "table": "uploaded_files"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"uploaded_files_uploader_account_id_idx_f0be89e8\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"uploaded_files_uploader_account_id_idx_f0be89e8\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"uploaded_files_uploader_account_id_idx_f0be89e8\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"uploaded_files_uploader_account_id_idx_f0be89e8\"",
+        "sql": "CREATE INDEX \"uploaded_files_uploader_account_id_idx_f0be89e8\" ON \"public\".\"uploaded_files\" (\"uploader_account_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"uploaded_files_uploader_account_id_idx_f0be89e8\" exists on \"uploaded_files\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"uploaded_files_uploader_account_id_idx_f0be89e8\"",
+          "i",
+          "I",
+          "\"public\".\"uploaded_files\"",
+          "btree",
+          "[\"uploader_account_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.uploaded_files.uq_files_storage_key_b53aa323",
+    "label": "Create index \"uq_files_storage_key_b53aa323\" on \"uploaded_files\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "uq_files_storage_key_b53aa323",
+        "table": "uploaded_files"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"uq_files_storage_key_b53aa323\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"uq_files_storage_key_b53aa323\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"uq_files_storage_key_b53aa323\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"uq_files_storage_key_b53aa323\"",
+        "sql": "CREATE UNIQUE INDEX \"uq_files_storage_key_b53aa323\" ON \"public\".\"uploaded_files\" (\"storage_key\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"uq_files_storage_key_b53aa323\" exists on \"uploaded_files\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND \"i\".\"indisunique\" AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"uq_files_storage_key_b53aa323\"",
+          "i",
+          "I",
+          "\"public\".\"uploaded_files\"",
+          "btree",
+          "[\"storage_key\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.academy_payout_accounts.academy_payout_accounts_academy_id_fkey",
+    "label": "Add foreign key \"academy_payout_accounts_academy_id_fkey\" on \"academy_payout_accounts\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "academy_payout_accounts_academy_id_fkey",
+        "table": "academy_payout_accounts"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"academy_payout_accounts_academy_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "academy_payout_accounts_academy_id_fkey",
+          "public",
+          "\"public\".\"academy_payout_accounts\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"academy_payout_accounts_academy_id_fkey\" on \"academy_payout_accounts\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"academy_payout_accounts_academy_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"academy_payout_accounts\"\nADD CONSTRAINT \"academy_payout_accounts_academy_id_fkey\"\nFOREIGN KEY (\"academy_id\")\nREFERENCES \"public\".\"academies\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"academy_payout_accounts_academy_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "academy_payout_accounts_academy_id_fkey",
+          "public",
+          "\"public\".\"academy_payout_accounts\"",
+          "f",
+          "[\"academy_id\"]",
+          "\"public\".\"academies\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.academy_payout_accounts.academy_payout_accounts_holder_proof_file_id_fkey",
+    "label": "Add foreign key \"academy_payout_accounts_holder_proof_file_id_fkey\" on \"academy_payout_accounts\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "academy_payout_accounts_holder_proof_file_id_fkey",
+        "table": "academy_payout_accounts"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"academy_payout_accounts_holder_proof_file_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "academy_payout_accounts_holder_proof_file_id_fkey",
+          "public",
+          "\"public\".\"academy_payout_accounts\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"academy_payout_accounts_holder_proof_file_id_fkey\" on \"academy_payout_accounts\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"academy_payout_accounts_holder_proof_file_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"academy_payout_accounts\"\nADD CONSTRAINT \"academy_payout_accounts_holder_proof_file_id_fkey\"\nFOREIGN KEY (\"holder_proof_file_id\")\nREFERENCES \"public\".\"uploaded_files\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"academy_payout_accounts_holder_proof_file_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "academy_payout_accounts_holder_proof_file_id_fkey",
+          "public",
+          "\"public\".\"academy_payout_accounts\"",
+          "f",
+          "[\"holder_proof_file_id\"]",
+          "\"public\".\"uploaded_files\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.academy_payout_accounts.academy_payout_accounts_holder_verified_by_account_id_fkey",
+    "label": "Add foreign key \"academy_payout_accounts_holder_verified_by_account_id_fkey\" on \"academy_payout_accounts\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "academy_payout_accounts_holder_verified_by_account_id_fkey",
+        "table": "academy_payout_accounts"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"academy_payout_accounts_holder_verified_by_account_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "academy_payout_accounts_holder_verified_by_account_id_fkey",
+          "public",
+          "\"public\".\"academy_payout_accounts\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"academy_payout_accounts_holder_verified_by_account_id_fkey\" on \"academy_payout_accounts\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"academy_payout_accounts_holder_verified_by_account_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"academy_payout_accounts\"\nADD CONSTRAINT \"academy_payout_accounts_holder_verified_by_account_id_fkey\"\nFOREIGN KEY (\"holder_verified_by_account_id\")\nREFERENCES \"public\".\"staff_accounts\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"academy_payout_accounts_holder_verified_by_account_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "academy_payout_accounts_holder_verified_by_account_id_fkey",
+          "public",
+          "\"public\".\"academy_payout_accounts\"",
+          "f",
+          "[\"holder_verified_by_account_id\"]",
+          "\"public\".\"staff_accounts\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.merchant_application_documents.merchant_application_documents_application_id_fkey",
+    "label": "Add foreign key \"merchant_application_documents_application_id_fkey\" on \"merchant_application_documents\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "merchant_application_documents_application_id_fkey",
+        "table": "merchant_application_documents"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"merchant_application_documents_application_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "merchant_application_documents_application_id_fkey",
+          "public",
+          "\"public\".\"merchant_application_documents\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"merchant_application_documents_application_id_fkey\" on \"merchant_application_documents\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"merchant_application_documents_application_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"merchant_application_documents\"\nADD CONSTRAINT \"merchant_application_documents_application_id_fkey\"\nFOREIGN KEY (\"application_id\")\nREFERENCES \"public\".\"merchant_applications\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"merchant_application_documents_application_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "merchant_application_documents_application_id_fkey",
+          "public",
+          "\"public\".\"merchant_application_documents\"",
+          "f",
+          "[\"application_id\"]",
+          "\"public\".\"merchant_applications\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.merchant_application_documents.merchant_application_documents_file_id_fkey",
+    "label": "Add foreign key \"merchant_application_documents_file_id_fkey\" on \"merchant_application_documents\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "merchant_application_documents_file_id_fkey",
+        "table": "merchant_application_documents"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"merchant_application_documents_file_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "merchant_application_documents_file_id_fkey",
+          "public",
+          "\"public\".\"merchant_application_documents\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"merchant_application_documents_file_id_fkey\" on \"merchant_application_documents\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"merchant_application_documents_file_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"merchant_application_documents\"\nADD CONSTRAINT \"merchant_application_documents_file_id_fkey\"\nFOREIGN KEY (\"file_id\")\nREFERENCES \"public\".\"uploaded_files\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"merchant_application_documents_file_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "merchant_application_documents_file_id_fkey",
+          "public",
+          "\"public\".\"merchant_application_documents\"",
+          "f",
+          "[\"file_id\"]",
+          "\"public\".\"uploaded_files\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.merchant_applications.merchant_applications_applicant_account_id_fkey",
+    "label": "Add foreign key \"merchant_applications_applicant_account_id_fkey\" on \"merchant_applications\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "merchant_applications_applicant_account_id_fkey",
+        "table": "merchant_applications"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"merchant_applications_applicant_account_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "merchant_applications_applicant_account_id_fkey",
+          "public",
+          "\"public\".\"merchant_applications\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"merchant_applications_applicant_account_id_fkey\" on \"merchant_applications\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"merchant_applications_applicant_account_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"merchant_applications\"\nADD CONSTRAINT \"merchant_applications_applicant_account_id_fkey\"\nFOREIGN KEY (\"applicant_account_id\")\nREFERENCES \"public\".\"staff_accounts\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"merchant_applications_applicant_account_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "merchant_applications_applicant_account_id_fkey",
+          "public",
+          "\"public\".\"merchant_applications\"",
+          "f",
+          "[\"applicant_account_id\"]",
+          "\"public\".\"staff_accounts\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.merchant_applications.merchant_applications_academy_id_fkey",
+    "label": "Add foreign key \"merchant_applications_academy_id_fkey\" on \"merchant_applications\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "merchant_applications_academy_id_fkey",
+        "table": "merchant_applications"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"merchant_applications_academy_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "merchant_applications_academy_id_fkey",
+          "public",
+          "\"public\".\"merchant_applications\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"merchant_applications_academy_id_fkey\" on \"merchant_applications\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"merchant_applications_academy_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"merchant_applications\"\nADD CONSTRAINT \"merchant_applications_academy_id_fkey\"\nFOREIGN KEY (\"academy_id\")\nREFERENCES \"public\".\"academies\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"merchant_applications_academy_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "merchant_applications_academy_id_fkey",
+          "public",
+          "\"public\".\"merchant_applications\"",
+          "f",
+          "[\"academy_id\"]",
+          "\"public\".\"academies\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.uploaded_files.uploaded_files_uploader_account_id_fkey",
+    "label": "Add foreign key \"uploaded_files_uploader_account_id_fkey\" on \"uploaded_files\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "uploaded_files_uploader_account_id_fkey",
+        "table": "uploaded_files"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"uploaded_files_uploader_account_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "uploaded_files_uploader_account_id_fkey",
+          "public",
+          "\"public\".\"uploaded_files\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"uploaded_files_uploader_account_id_fkey\" on \"uploaded_files\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"uploaded_files_uploader_account_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"uploaded_files\"\nADD CONSTRAINT \"uploaded_files_uploader_account_id_fkey\"\nFOREIGN KEY (\"uploader_account_id\")\nREFERENCES \"public\".\"staff_accounts\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"uploaded_files_uploader_account_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "uploaded_files_uploader_account_id_fkey",
+          "public",
+          "\"public\".\"uploaded_files\"",
+          "f",
+          "[\"uploader_account_id\"]",
+          "\"public\".\"staff_accounts\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  }
+]

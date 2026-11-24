@@ -1,23 +1,38 @@
 /**
- * 백엔드 API 클라이언트.
+ * 관리자 콘솔의 API 클라이언트.
  *
- * 백엔드 주소는 이 파일에서만 결정한다. 다른 모듈은 `apiFetch` 또는 아래
+ * API 주소는 이 파일에서만 정한다. 다른 모듈은 `apiFetch` 또는 아래
  * 엔드포인트 함수를 통해서만 호출하고, URL을 다시 적지 않는다.
+ *
+ * 왜 같은 출처 `/api` 인가: 제품 API 는 이제 옛 FastAPI(localhost:8000)가 아니라
+ * 이 Next.js 앱 안의 Route Handler(`app/api/` 아래 `route.ts`)가 맡는다(S0-5.4, U4).
+ * 화면과 API 가 같은 주소에서 나가므로 다른 서버 주소를 환경 변수로 받을 필요가 없고,
+ * 로그인 쿠키도 같은 출처라 그대로 실린다.
  */
 
-export const API_BASE_URL: string =
-  (process.env.NEXT_PUBLIC_API_BASE_URL as string | undefined) ??
-  "http://localhost:8000";
+export const API_BASE_URL = "/api";
 
-/** HTTP 2xx가 아닌 응답. `status`로 403/404 등을 구분한다. */
+/**
+ * HTTP 2xx가 아닌 응답. `status`로 403/404 등을, `code`로 같은 409 안의
+ * 서로 다른 사유(`SEAT_SOLD_OUT`·`ALREADY_RESERVED` 등)를 구분한다.
+ * 서버는 오류를 늘 `{detail, code}` 모양으로 보낸다(계약 README §4.8, lib/server/http.ts).
+ */
 export class ApiError extends Error {
   status: number;
+  /** 서버가 준 오류 코드. 본문이 그 모양이 아니면(프록시 오류 등) null 이다. */
+  code: string | null;
   detail: unknown;
 
-  constructor(status: number, message: string, detail: unknown) {
+  constructor(
+    status: number,
+    message: string,
+    code: string | null,
+    detail: unknown,
+  ) {
     super(message);
     this.name = "ApiError";
     this.status = status;
+    this.code = code;
     this.detail = detail;
   }
 }
@@ -39,7 +54,7 @@ function parseBody(raw: string): unknown {
   }
 }
 
-/** FastAPI의 `{"detail": ...}` 형태에서 사람이 읽을 메시지를 뽑는다. */
+/** 오류 본문 `{"detail": ...}` 에서 사람이 읽을 메시지를 뽑는다. */
 function extractMessage(payload: unknown): string | null {
   if (typeof payload === "string" && payload) return payload;
   if (!payload || typeof payload !== "object") return null;
@@ -57,6 +72,13 @@ function extractMessage(payload: unknown): string | null {
     if (messages.length > 0) return messages.join(" / ");
   }
   return null;
+}
+
+/** 오류 본문 `{"code": "..."}` 에서 오류 코드를 뽑는다. 화면 분기는 문장 대신 이 값으로 한다. */
+function extractCode(payload: unknown): string | null {
+  if (!payload || typeof payload !== "object") return null;
+  const code = (payload as { code?: unknown }).code;
+  return typeof code === "string" && code ? code : null;
 }
 
 /** 얇은 fetch 래퍼. JSON 직렬화·역직렬화와 에러 변환만 담당한다. */
@@ -84,6 +106,7 @@ export async function apiFetch<T>(
       response.status,
       extractMessage(payload) ??
         `${method} ${path} 실패 (HTTP ${response.status})`,
+      extractCode(payload),
       payload,
     );
   }
@@ -95,70 +118,7 @@ export async function apiFetch<T>(
 
 export type HealthResponse = { status: string };
 
+/** `GET /api/health` → `{"status":"ok"}` (계약 §1 헬스). */
 export function fetchHealth(signal?: AbortSignal): Promise<HealthResponse> {
   return apiFetch<HealthResponse>("/health", { signal });
-}
-
-/**
- * 환불 비율표 한 행. `academies.refund_policy_tiers` JSONB 원소와 동일한 형태다.
- *
- * `refund_rate_bp`는 basis point 정수(0~10000)다. 퍼센트나 소수를 넣지 않는다 —
- * 화면 표시용 퍼센트 환산은 표시 직전에만 한다.
- */
-export type RefundPolicyTier = {
-  hours_before_start: number;
-  refund_rate_bp: number;
-};
-
-function toTier(value: unknown): RefundPolicyTier | null {
-  if (!value || typeof value !== "object") return null;
-  const hours = (value as { hours_before_start?: unknown }).hours_before_start;
-  const rate = (value as { refund_rate_bp?: unknown }).refund_rate_bp;
-  if (typeof hours !== "number" || typeof rate !== "number") return null;
-  return { hours_before_start: hours, refund_rate_bp: rate };
-}
-
-/**
- * 응답 본문에서 티어 배열을 꺼낸다.
- *
- * 이 슬라이스 시점의 공유 계약(§4.4)은 티어 원소의 형태만 고정했고 응답 봉투는
- * 고정하지 않았다. 배열 그대로 오는 경우와 `refund_policy_tiers` 키로 감싸 오는
- * 경우를 모두 받아들인다.
- */
-function extractTiers(payload: unknown): RefundPolicyTier[] {
-  const source = Array.isArray(payload)
-    ? payload
-    : payload && typeof payload === "object"
-      ? (payload as { refund_policy_tiers?: unknown }).refund_policy_tiers
-      : null;
-
-  if (!Array.isArray(source)) return [];
-  return source
-    .map(toTier)
-    .filter((tier): tier is RefundPolicyTier => tier !== null);
-}
-
-function refundPolicyPath(academyId: string): string {
-  return `/admin/academies/${encodeURIComponent(academyId)}/refund-policy`;
-}
-
-export async function fetchRefundPolicy(
-  academyId: string,
-  options: { userId?: string; signal?: AbortSignal } = {},
-): Promise<RefundPolicyTier[]> {
-  const payload = await apiFetch<unknown>(refundPolicyPath(academyId), options);
-  return extractTiers(payload);
-}
-
-export async function updateRefundPolicy(
-  academyId: string,
-  tiers: RefundPolicyTier[],
-  options: { userId?: string; signal?: AbortSignal } = {},
-): Promise<RefundPolicyTier[]> {
-  const payload = await apiFetch<unknown>(refundPolicyPath(academyId), {
-    ...options,
-    method: "PUT",
-    body: { refund_policy_tiers: tiers },
-  });
-  return extractTiers(payload);
 }

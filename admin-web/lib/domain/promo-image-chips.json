@@ -1,0 +1,14 @@
+{
+  "requiredChips": [
+    { "key": "who", "label": "누가", "options": ["커플", "단체", "솔로"] },
+    { "key": "mood", "label": "분위기", "options": ["열정적인", "우아한", "경쾌한", "로맨틱한", "편안한"] },
+    { "key": "place", "label": "장소", "options": ["스튜디오", "무대", "파티 홀", "야외"] },
+    { "key": "color", "label": "색감·조명", "options": ["빨간 조명", "따뜻한 노을빛", "푸른 밤", "밝은 자연광"] }
+  ],
+  "genreDanceWords": {
+    "salsa_bachata": { "default": "살사·바차타", "salsa": "살사", "bachata": "바차타" },
+    "argentine_tango": { "default": "탱고" },
+    "swing": { "default": "스윙" },
+    "dance_sport": { "default": "댄스스포츠", "latin": "라틴 댄스", "standard": "스탠다드 댄스" }
+  }
+}

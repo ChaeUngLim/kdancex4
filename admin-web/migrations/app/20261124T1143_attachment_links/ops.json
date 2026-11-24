@@ -1,0 +1,742 @@
+[
+  {
+    "id": "dropCheckConstraint.uploaded_files.ck_files_evidence_private_a89dee53",
+    "label": "Drop check constraint \"ck_files_evidence_private_a89dee53\" on \"uploaded_files\"",
+    "operationClass": "widening",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "checkConstraint",
+        "name": "ck_files_evidence_private_a89dee53",
+        "table": "uploaded_files"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"ck_files_evidence_private_a89dee53\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "ck_files_evidence_private_a89dee53",
+          "public",
+          "\"public\".\"uploaded_files\""
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "constraint \"ck_files_evidence_private_a89dee53\" on \"uploaded_files\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "drop check constraint \"ck_files_evidence_private_a89dee53\"",
+        "sql": "ALTER TABLE \"public\".\"uploaded_files\" DROP CONSTRAINT \"ck_files_evidence_private_a89dee53\""
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"ck_files_evidence_private_a89dee53\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "ck_files_evidence_private_a89dee53",
+          "public",
+          "\"public\".\"uploaded_files\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "constraint \"ck_files_evidence_private_a89dee53\" on \"uploaded_files\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "dropCheckConstraint.uploaded_files.uploaded_files_purpose_check_eab3798e",
+    "label": "Drop check constraint \"uploaded_files_purpose_check_eab3798e\" on \"uploaded_files\"",
+    "operationClass": "widening",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "checkConstraint",
+        "name": "uploaded_files_purpose_check_eab3798e",
+        "table": "uploaded_files"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"uploaded_files_purpose_check_eab3798e\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "uploaded_files_purpose_check_eab3798e",
+          "public",
+          "\"public\".\"uploaded_files\""
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "constraint \"uploaded_files_purpose_check_eab3798e\" on \"uploaded_files\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "drop check constraint \"uploaded_files_purpose_check_eab3798e\"",
+        "sql": "ALTER TABLE \"public\".\"uploaded_files\" DROP CONSTRAINT \"uploaded_files_purpose_check_eab3798e\""
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"uploaded_files_purpose_check_eab3798e\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "uploaded_files_purpose_check_eab3798e",
+          "public",
+          "\"public\".\"uploaded_files\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "constraint \"uploaded_files_purpose_check_eab3798e\" on \"uploaded_files\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "table.attachment_links",
+    "label": "Create table \"attachment_links\"",
+    "summary": "Creates table \"attachment_links\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "attachment_links"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"attachment_links\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"attachment_links\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"attachment_links\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"attachment_links\"",
+        "sql": "CREATE TABLE \"public\".\"attachment_links\" (\n  \"created_at\" timestamptz DEFAULT (now()) NOT NULL,\n  \"file_id\" uuid NOT NULL,\n  \"id\" uuid NOT NULL,\n  \"owner_id\" uuid NOT NULL,\n  \"owner_kind\" text NOT NULL,\n  \"position\" int4 NOT NULL,\n  PRIMARY KEY (\"id\"),\n  CONSTRAINT \"attachment_links_owner_kind_check_22d163a6\" CHECK (\"owner_kind\" IN ('inquiry_message', 'report', 'restriction_explanation')),\n  CONSTRAINT \"ck_attachment_position_c03c2ccb\" CHECK (position >= 0)\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"attachment_links\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3))) AS \"result\"",
+        "params": [
+          "\"public\".\"attachment_links\"",
+          "r",
+          "p"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"attachment_links\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "column.public.uploaded_files.uploader_member_id",
+    "label": "Add column \"uploader_member_id\" to \"uploaded_files\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "uploader_member_id",
+        "table": "uploaded_files"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"uploader_member_id\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "uploaded_files",
+          "uploader_member_id"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "column \"uploader_member_id\" on \"uploaded_files\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"uploader_member_id\"",
+        "sql": "ALTER TABLE \"public\".\"uploaded_files\" ADD COLUMN \"uploader_member_id\" uuid"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"uploader_member_id\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "uploaded_files",
+          "uploader_member_id"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "column \"uploader_member_id\" on \"uploaded_files\""
+        }
+      },
+      {
+        "description": "verify column \"uploader_member_id\" has type \"uuid\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_attribute\" AS \"a\" INNER JOIN \"pg_class\" AS \"c\" ON \"c\".\"oid\" = \"a\".\"attrelid\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"a\".\"attname\" = $3 AND (format_type(\"a\".\"atttypid\", \"a\".\"atttypmod\")) = $4 AND NOT (\"a\".\"attisdropped\"))) AS \"result\"",
+        "params": [
+          "public",
+          "uploaded_files",
+          "uploader_member_id",
+          "uuid"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "alterNullability.dropNotNull.uploaded_files.uploader_account_id",
+    "label": "Drop NOT NULL on \"uploaded_files\".\"uploader_account_id\"",
+    "operationClass": "widening",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "uploader_account_id",
+        "table": "uploaded_files"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"uploader_account_id\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "uploaded_files",
+          "uploader_account_id"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "column \"uploader_account_id\" on \"uploaded_files\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "drop NOT NULL on \"uploader_account_id\"",
+        "sql": "ALTER TABLE \"public\".\"uploaded_files\" ALTER COLUMN \"uploader_account_id\" DROP NOT NULL"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"uploader_account_id\" is nullable",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3 AND \"is_nullable\" = $4)) AS \"result\"",
+        "params": [
+          "public",
+          "uploaded_files",
+          "uploader_account_id",
+          "YES"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "checkConstraint.uploaded_files.ck_files_evidence_private_407cf96a",
+    "label": "Add check constraint \"ck_files_evidence_private_407cf96a\" on \"uploaded_files\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "checkConstraint",
+        "name": "ck_files_evidence_private_407cf96a",
+        "table": "uploaded_files"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"ck_files_evidence_private_407cf96a\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "ck_files_evidence_private_407cf96a",
+          "public",
+          "\"public\".\"uploaded_files\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "constraint \"ck_files_evidence_private_407cf96a\" on \"uploaded_files\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add check constraint \"ck_files_evidence_private_407cf96a\"",
+        "sql": "ALTER TABLE \"public\".\"uploaded_files\" ADD CONSTRAINT \"ck_files_evidence_private_407cf96a\" CHECK (purpose NOT IN ('merchant_evidence', 'business_registration_evidence', 'inquiry_attachment', 'report_attachment', 'restriction_explanation') OR visibility = 'private')"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify check constraint \"ck_files_evidence_private_407cf96a\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4)) AS \"result\"",
+        "params": [
+          "ck_files_evidence_private_407cf96a",
+          "public",
+          "\"public\".\"uploaded_files\"",
+          "c"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "checkConstraint.uploaded_files.ck_files_member_purpose_e3519be2",
+    "label": "Add check constraint \"ck_files_member_purpose_e3519be2\" on \"uploaded_files\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "checkConstraint",
+        "name": "ck_files_member_purpose_e3519be2",
+        "table": "uploaded_files"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"ck_files_member_purpose_e3519be2\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "ck_files_member_purpose_e3519be2",
+          "public",
+          "\"public\".\"uploaded_files\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "constraint \"ck_files_member_purpose_e3519be2\" on \"uploaded_files\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add check constraint \"ck_files_member_purpose_e3519be2\"",
+        "sql": "ALTER TABLE \"public\".\"uploaded_files\" ADD CONSTRAINT \"ck_files_member_purpose_e3519be2\" CHECK (uploader_member_id IS NULL OR purpose IN ('inquiry_attachment', 'report_attachment', 'restriction_explanation'))"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify check constraint \"ck_files_member_purpose_e3519be2\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4)) AS \"result\"",
+        "params": [
+          "ck_files_member_purpose_e3519be2",
+          "public",
+          "\"public\".\"uploaded_files\"",
+          "c"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "checkConstraint.uploaded_files.ck_files_uploader_7c286659",
+    "label": "Add check constraint \"ck_files_uploader_7c286659\" on \"uploaded_files\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "checkConstraint",
+        "name": "ck_files_uploader_7c286659",
+        "table": "uploaded_files"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"ck_files_uploader_7c286659\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "ck_files_uploader_7c286659",
+          "public",
+          "\"public\".\"uploaded_files\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "constraint \"ck_files_uploader_7c286659\" on \"uploaded_files\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add check constraint \"ck_files_uploader_7c286659\"",
+        "sql": "ALTER TABLE \"public\".\"uploaded_files\" ADD CONSTRAINT \"ck_files_uploader_7c286659\" CHECK (num_nonnulls(uploader_account_id, uploader_member_id) = 1)"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify check constraint \"ck_files_uploader_7c286659\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4)) AS \"result\"",
+        "params": [
+          "ck_files_uploader_7c286659",
+          "public",
+          "\"public\".\"uploaded_files\"",
+          "c"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "checkConstraint.uploaded_files.uploaded_files_purpose_check_0d7540e0",
+    "label": "Add check constraint \"uploaded_files_purpose_check_0d7540e0\" on \"uploaded_files\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "checkConstraint",
+        "name": "uploaded_files_purpose_check_0d7540e0",
+        "table": "uploaded_files"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"uploaded_files_purpose_check_0d7540e0\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "uploaded_files_purpose_check_0d7540e0",
+          "public",
+          "\"public\".\"uploaded_files\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "constraint \"uploaded_files_purpose_check_0d7540e0\" on \"uploaded_files\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add check constraint \"uploaded_files_purpose_check_0d7540e0\"",
+        "sql": "ALTER TABLE \"public\".\"uploaded_files\" ADD CONSTRAINT \"uploaded_files_purpose_check_0d7540e0\" CHECK (\"purpose\" IN ('merchant_evidence', 'academy_photo', 'business_registration_evidence', 'instructor_photo', 'poster', 'class_promo_image', 'inquiry_attachment', 'report_attachment', 'restriction_explanation'))"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify check constraint \"uploaded_files_purpose_check_0d7540e0\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4)) AS \"result\"",
+        "params": [
+          "uploaded_files_purpose_check_0d7540e0",
+          "public",
+          "\"public\".\"uploaded_files\"",
+          "c"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.attachment_links.ix_attachment_owner_52a0fbe0",
+    "label": "Create index \"ix_attachment_owner_52a0fbe0\" on \"attachment_links\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "ix_attachment_owner_52a0fbe0",
+        "table": "attachment_links"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"ix_attachment_owner_52a0fbe0\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ix_attachment_owner_52a0fbe0\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"ix_attachment_owner_52a0fbe0\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"ix_attachment_owner_52a0fbe0\"",
+        "sql": "CREATE INDEX \"ix_attachment_owner_52a0fbe0\" ON \"public\".\"attachment_links\" (\"owner_kind\", \"owner_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"ix_attachment_owner_52a0fbe0\" exists on \"attachment_links\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"ix_attachment_owner_52a0fbe0\"",
+          "i",
+          "I",
+          "\"public\".\"attachment_links\"",
+          "btree",
+          "[\"owner_kind\",\"owner_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.attachment_links.uq_attachment_file_723b0a69",
+    "label": "Create index \"uq_attachment_file_723b0a69\" on \"attachment_links\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "uq_attachment_file_723b0a69",
+        "table": "attachment_links"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"uq_attachment_file_723b0a69\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"uq_attachment_file_723b0a69\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"uq_attachment_file_723b0a69\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"uq_attachment_file_723b0a69\"",
+        "sql": "CREATE UNIQUE INDEX \"uq_attachment_file_723b0a69\" ON \"public\".\"attachment_links\" (\"file_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"uq_attachment_file_723b0a69\" exists on \"attachment_links\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND \"i\".\"indisunique\" AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"uq_attachment_file_723b0a69\"",
+          "i",
+          "I",
+          "\"public\".\"attachment_links\"",
+          "btree",
+          "[\"file_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.attachment_links.uq_attachment_position_7a606cf8",
+    "label": "Create index \"uq_attachment_position_7a606cf8\" on \"attachment_links\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "uq_attachment_position_7a606cf8",
+        "table": "attachment_links"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"uq_attachment_position_7a606cf8\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"uq_attachment_position_7a606cf8\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"uq_attachment_position_7a606cf8\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"uq_attachment_position_7a606cf8\"",
+        "sql": "CREATE UNIQUE INDEX \"uq_attachment_position_7a606cf8\" ON \"public\".\"attachment_links\" (\"owner_kind\", \"owner_id\", \"position\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"uq_attachment_position_7a606cf8\" exists on \"attachment_links\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND \"i\".\"indisunique\" AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"uq_attachment_position_7a606cf8\"",
+          "i",
+          "I",
+          "\"public\".\"attachment_links\"",
+          "btree",
+          "[\"owner_kind\",\"owner_id\",\"position\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.uploaded_files.uploaded_files_uploader_member_id_idx_2675b010",
+    "label": "Create index \"uploaded_files_uploader_member_id_idx_2675b010\" on \"uploaded_files\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "uploaded_files_uploader_member_id_idx_2675b010",
+        "table": "uploaded_files"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"uploaded_files_uploader_member_id_idx_2675b010\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"uploaded_files_uploader_member_id_idx_2675b010\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"uploaded_files_uploader_member_id_idx_2675b010\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"uploaded_files_uploader_member_id_idx_2675b010\"",
+        "sql": "CREATE INDEX \"uploaded_files_uploader_member_id_idx_2675b010\" ON \"public\".\"uploaded_files\" (\"uploader_member_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"uploaded_files_uploader_member_id_idx_2675b010\" exists on \"uploaded_files\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"uploaded_files_uploader_member_id_idx_2675b010\"",
+          "i",
+          "I",
+          "\"public\".\"uploaded_files\"",
+          "btree",
+          "[\"uploader_member_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.attachment_links.attachment_links_file_id_fkey",
+    "label": "Add foreign key \"attachment_links_file_id_fkey\" on \"attachment_links\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "attachment_links_file_id_fkey",
+        "table": "attachment_links"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"attachment_links_file_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "attachment_links_file_id_fkey",
+          "public",
+          "\"public\".\"attachment_links\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"attachment_links_file_id_fkey\" on \"attachment_links\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"attachment_links_file_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"attachment_links\"\nADD CONSTRAINT \"attachment_links_file_id_fkey\"\nFOREIGN KEY (\"file_id\")\nREFERENCES \"public\".\"uploaded_files\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"attachment_links_file_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "attachment_links_file_id_fkey",
+          "public",
+          "\"public\".\"attachment_links\"",
+          "f",
+          "[\"file_id\"]",
+          "\"public\".\"uploaded_files\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.uploaded_files.uploaded_files_uploader_member_id_fkey",
+    "label": "Add foreign key \"uploaded_files_uploader_member_id_fkey\" on \"uploaded_files\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "uploaded_files_uploader_member_id_fkey",
+        "table": "uploaded_files"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"uploaded_files_uploader_member_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "uploaded_files_uploader_member_id_fkey",
+          "public",
+          "\"public\".\"uploaded_files\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"uploaded_files_uploader_member_id_fkey\" on \"uploaded_files\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"uploaded_files_uploader_member_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"uploaded_files\"\nADD CONSTRAINT \"uploaded_files_uploader_member_id_fkey\"\nFOREIGN KEY (\"uploader_member_id\")\nREFERENCES \"public\".\"members\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"uploaded_files_uploader_member_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "uploaded_files_uploader_member_id_fkey",
+          "public",
+          "\"public\".\"uploaded_files\"",
+          "f",
+          "[\"uploader_member_id\"]",
+          "\"public\".\"members\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  }
+]

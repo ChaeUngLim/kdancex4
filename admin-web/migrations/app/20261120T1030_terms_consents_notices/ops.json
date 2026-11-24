@@ -1,0 +1,1041 @@
+[
+  {
+    "id": "table.merchant_consents",
+    "label": "Create table \"merchant_consents\"",
+    "summary": "Creates table \"merchant_consents\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "merchant_consents"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"merchant_consents\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"merchant_consents\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"merchant_consents\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"merchant_consents\"",
+        "sql": "CREATE TABLE \"public\".\"merchant_consents\" (\n  \"academy_id\" uuid,\n  \"agreed_at\" timestamptz NOT NULL,\n  \"application_id\" uuid NOT NULL,\n  \"id\" uuid NOT NULL,\n  \"item\" text NOT NULL,\n  \"source\" text NOT NULL,\n  \"staff_account_id\" uuid NOT NULL,\n  \"terms_version_id\" uuid NOT NULL,\n  \"withdrawn_at\" timestamptz,\n  PRIMARY KEY (\"id\"),\n  CONSTRAINT \"merchant_consents_item_check_13771d73\" CHECK (\"item\" IN ('merchant_terms', 'merchant_privacy_collection', 'privacy_policy', 'platform_fee_notice', 'card_fee_notice', 'content_license', 'one_plus_one_notice')),\n  CONSTRAINT \"merchant_consents_source_check_92be763f\" CHECK (\"source\" IN ('application', 're_consent'))\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"merchant_consents\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3))) AS \"result\"",
+        "params": [
+          "\"public\".\"merchant_consents\"",
+          "r",
+          "p"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"merchant_consents\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "table.terms_change_notices",
+    "label": "Create table \"terms_change_notices\"",
+    "summary": "Creates table \"terms_change_notices\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "terms_change_notices"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"terms_change_notices\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"terms_change_notices\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"terms_change_notices\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"terms_change_notices\"",
+        "sql": "CREATE TABLE \"public\".\"terms_change_notices\" (\n  \"academy_id\" uuid NOT NULL,\n  \"id\" uuid NOT NULL,\n  \"notification_id\" uuid NOT NULL,\n  \"notified_at\" timestamptz NOT NULL,\n  \"read_at\" timestamptz,\n  \"terms_version_id\" uuid NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"terms_change_notices\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3))) AS \"result\"",
+        "params": [
+          "\"public\".\"terms_change_notices\"",
+          "r",
+          "p"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"terms_change_notices\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "table.terms_versions",
+    "label": "Create table \"terms_versions\"",
+    "summary": "Creates table \"terms_versions\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "terms_versions"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"terms_versions\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"terms_versions\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"terms_versions\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"terms_versions\"",
+        "sql": "CREATE TABLE \"public\".\"terms_versions\" (\n  \"body\" text NOT NULL,\n  \"created_at\" timestamptz DEFAULT (now()) NOT NULL,\n  \"effective_at\" timestamptz NOT NULL,\n  \"id\" uuid NOT NULL,\n  \"kind\" text NOT NULL,\n  \"published_at\" timestamptz NOT NULL,\n  \"version\" text NOT NULL,\n  PRIMARY KEY (\"id\"),\n  CONSTRAINT \"ck_terms_effective_after_published_098ca5b0\" CHECK (effective_at >= published_at),\n  CONSTRAINT \"terms_versions_kind_check_f37acedd\" CHECK (\"kind\" IN ('merchant_terms', 'merchant_privacy_collection', 'privacy_policy', 'platform_fee_notice', 'card_fee_notice', 'content_license', 'one_plus_one_notice'))\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"terms_versions\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3))) AS \"result\"",
+        "params": [
+          "\"public\".\"terms_versions\"",
+          "r",
+          "p"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"terms_versions\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "index.merchant_consents.ix_consents_academy_fe03aa62",
+    "label": "Create index \"ix_consents_academy_fe03aa62\" on \"merchant_consents\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "ix_consents_academy_fe03aa62",
+        "table": "merchant_consents"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"ix_consents_academy_fe03aa62\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ix_consents_academy_fe03aa62\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"ix_consents_academy_fe03aa62\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"ix_consents_academy_fe03aa62\"",
+        "sql": "CREATE INDEX \"ix_consents_academy_fe03aa62\" ON \"public\".\"merchant_consents\" (\"academy_id\", \"item\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"ix_consents_academy_fe03aa62\" exists on \"merchant_consents\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"ix_consents_academy_fe03aa62\"",
+          "i",
+          "I",
+          "\"public\".\"merchant_consents\"",
+          "btree",
+          "[\"academy_id\",\"item\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.merchant_consents.merchant_consents_academy_id_idx_f46ade77",
+    "label": "Create index \"merchant_consents_academy_id_idx_f46ade77\" on \"merchant_consents\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "merchant_consents_academy_id_idx_f46ade77",
+        "table": "merchant_consents"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"merchant_consents_academy_id_idx_f46ade77\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"merchant_consents_academy_id_idx_f46ade77\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"merchant_consents_academy_id_idx_f46ade77\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"merchant_consents_academy_id_idx_f46ade77\"",
+        "sql": "CREATE INDEX \"merchant_consents_academy_id_idx_f46ade77\" ON \"public\".\"merchant_consents\" (\"academy_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"merchant_consents_academy_id_idx_f46ade77\" exists on \"merchant_consents\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"merchant_consents_academy_id_idx_f46ade77\"",
+          "i",
+          "I",
+          "\"public\".\"merchant_consents\"",
+          "btree",
+          "[\"academy_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.merchant_consents.merchant_consents_application_id_idx_e32e1f6e",
+    "label": "Create index \"merchant_consents_application_id_idx_e32e1f6e\" on \"merchant_consents\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "merchant_consents_application_id_idx_e32e1f6e",
+        "table": "merchant_consents"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"merchant_consents_application_id_idx_e32e1f6e\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"merchant_consents_application_id_idx_e32e1f6e\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"merchant_consents_application_id_idx_e32e1f6e\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"merchant_consents_application_id_idx_e32e1f6e\"",
+        "sql": "CREATE INDEX \"merchant_consents_application_id_idx_e32e1f6e\" ON \"public\".\"merchant_consents\" (\"application_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"merchant_consents_application_id_idx_e32e1f6e\" exists on \"merchant_consents\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"merchant_consents_application_id_idx_e32e1f6e\"",
+          "i",
+          "I",
+          "\"public\".\"merchant_consents\"",
+          "btree",
+          "[\"application_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.merchant_consents.merchant_consents_staff_account_id_idx_97848bfb",
+    "label": "Create index \"merchant_consents_staff_account_id_idx_97848bfb\" on \"merchant_consents\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "merchant_consents_staff_account_id_idx_97848bfb",
+        "table": "merchant_consents"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"merchant_consents_staff_account_id_idx_97848bfb\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"merchant_consents_staff_account_id_idx_97848bfb\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"merchant_consents_staff_account_id_idx_97848bfb\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"merchant_consents_staff_account_id_idx_97848bfb\"",
+        "sql": "CREATE INDEX \"merchant_consents_staff_account_id_idx_97848bfb\" ON \"public\".\"merchant_consents\" (\"staff_account_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"merchant_consents_staff_account_id_idx_97848bfb\" exists on \"merchant_consents\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"merchant_consents_staff_account_id_idx_97848bfb\"",
+          "i",
+          "I",
+          "\"public\".\"merchant_consents\"",
+          "btree",
+          "[\"staff_account_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.merchant_consents.merchant_consents_terms_version_id_idx_2e21b24c",
+    "label": "Create index \"merchant_consents_terms_version_id_idx_2e21b24c\" on \"merchant_consents\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "merchant_consents_terms_version_id_idx_2e21b24c",
+        "table": "merchant_consents"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"merchant_consents_terms_version_id_idx_2e21b24c\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"merchant_consents_terms_version_id_idx_2e21b24c\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"merchant_consents_terms_version_id_idx_2e21b24c\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"merchant_consents_terms_version_id_idx_2e21b24c\"",
+        "sql": "CREATE INDEX \"merchant_consents_terms_version_id_idx_2e21b24c\" ON \"public\".\"merchant_consents\" (\"terms_version_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"merchant_consents_terms_version_id_idx_2e21b24c\" exists on \"merchant_consents\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"merchant_consents_terms_version_id_idx_2e21b24c\"",
+          "i",
+          "I",
+          "\"public\".\"merchant_consents\"",
+          "btree",
+          "[\"terms_version_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.merchant_consents.uq_consents_app_version_9ae1f19f",
+    "label": "Create index \"uq_consents_app_version_9ae1f19f\" on \"merchant_consents\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "uq_consents_app_version_9ae1f19f",
+        "table": "merchant_consents"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"uq_consents_app_version_9ae1f19f\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"uq_consents_app_version_9ae1f19f\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"uq_consents_app_version_9ae1f19f\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"uq_consents_app_version_9ae1f19f\"",
+        "sql": "CREATE UNIQUE INDEX \"uq_consents_app_version_9ae1f19f\" ON \"public\".\"merchant_consents\" (\"application_id\", \"terms_version_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"uq_consents_app_version_9ae1f19f\" exists on \"merchant_consents\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND \"i\".\"indisunique\" AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"uq_consents_app_version_9ae1f19f\"",
+          "i",
+          "I",
+          "\"public\".\"merchant_consents\"",
+          "btree",
+          "[\"application_id\",\"terms_version_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.terms_change_notices.terms_change_notices_academy_id_idx_f46ade77",
+    "label": "Create index \"terms_change_notices_academy_id_idx_f46ade77\" on \"terms_change_notices\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "terms_change_notices_academy_id_idx_f46ade77",
+        "table": "terms_change_notices"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"terms_change_notices_academy_id_idx_f46ade77\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"terms_change_notices_academy_id_idx_f46ade77\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"terms_change_notices_academy_id_idx_f46ade77\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"terms_change_notices_academy_id_idx_f46ade77\"",
+        "sql": "CREATE INDEX \"terms_change_notices_academy_id_idx_f46ade77\" ON \"public\".\"terms_change_notices\" (\"academy_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"terms_change_notices_academy_id_idx_f46ade77\" exists on \"terms_change_notices\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"terms_change_notices_academy_id_idx_f46ade77\"",
+          "i",
+          "I",
+          "\"public\".\"terms_change_notices\"",
+          "btree",
+          "[\"academy_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.terms_change_notices.terms_change_notices_notification_id_idx_0162823f",
+    "label": "Create index \"terms_change_notices_notification_id_idx_0162823f\" on \"terms_change_notices\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "terms_change_notices_notification_id_idx_0162823f",
+        "table": "terms_change_notices"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"terms_change_notices_notification_id_idx_0162823f\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"terms_change_notices_notification_id_idx_0162823f\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"terms_change_notices_notification_id_idx_0162823f\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"terms_change_notices_notification_id_idx_0162823f\"",
+        "sql": "CREATE INDEX \"terms_change_notices_notification_id_idx_0162823f\" ON \"public\".\"terms_change_notices\" (\"notification_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"terms_change_notices_notification_id_idx_0162823f\" exists on \"terms_change_notices\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"terms_change_notices_notification_id_idx_0162823f\"",
+          "i",
+          "I",
+          "\"public\".\"terms_change_notices\"",
+          "btree",
+          "[\"notification_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.terms_change_notices.terms_change_notices_terms_version_id_idx_2e21b24c",
+    "label": "Create index \"terms_change_notices_terms_version_id_idx_2e21b24c\" on \"terms_change_notices\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "terms_change_notices_terms_version_id_idx_2e21b24c",
+        "table": "terms_change_notices"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"terms_change_notices_terms_version_id_idx_2e21b24c\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"terms_change_notices_terms_version_id_idx_2e21b24c\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"terms_change_notices_terms_version_id_idx_2e21b24c\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"terms_change_notices_terms_version_id_idx_2e21b24c\"",
+        "sql": "CREATE INDEX \"terms_change_notices_terms_version_id_idx_2e21b24c\" ON \"public\".\"terms_change_notices\" (\"terms_version_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"terms_change_notices_terms_version_id_idx_2e21b24c\" exists on \"terms_change_notices\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"terms_change_notices_terms_version_id_idx_2e21b24c\"",
+          "i",
+          "I",
+          "\"public\".\"terms_change_notices\"",
+          "btree",
+          "[\"terms_version_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.terms_change_notices.uq_terms_notice_c542c693",
+    "label": "Create index \"uq_terms_notice_c542c693\" on \"terms_change_notices\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "uq_terms_notice_c542c693",
+        "table": "terms_change_notices"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"uq_terms_notice_c542c693\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"uq_terms_notice_c542c693\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"uq_terms_notice_c542c693\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"uq_terms_notice_c542c693\"",
+        "sql": "CREATE UNIQUE INDEX \"uq_terms_notice_c542c693\" ON \"public\".\"terms_change_notices\" (\"terms_version_id\", \"academy_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"uq_terms_notice_c542c693\" exists on \"terms_change_notices\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND \"i\".\"indisunique\" AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"uq_terms_notice_c542c693\"",
+          "i",
+          "I",
+          "\"public\".\"terms_change_notices\"",
+          "btree",
+          "[\"terms_version_id\",\"academy_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.terms_versions.uq_terms_kind_version_725d8c30",
+    "label": "Create index \"uq_terms_kind_version_725d8c30\" on \"terms_versions\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "uq_terms_kind_version_725d8c30",
+        "table": "terms_versions"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"uq_terms_kind_version_725d8c30\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"uq_terms_kind_version_725d8c30\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"uq_terms_kind_version_725d8c30\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"uq_terms_kind_version_725d8c30\"",
+        "sql": "CREATE UNIQUE INDEX \"uq_terms_kind_version_725d8c30\" ON \"public\".\"terms_versions\" (\"kind\", \"version\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"uq_terms_kind_version_725d8c30\" exists on \"terms_versions\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND \"i\".\"indisunique\" AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"uq_terms_kind_version_725d8c30\"",
+          "i",
+          "I",
+          "\"public\".\"terms_versions\"",
+          "btree",
+          "[\"kind\",\"version\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.merchant_consents.merchant_consents_application_id_fkey",
+    "label": "Add foreign key \"merchant_consents_application_id_fkey\" on \"merchant_consents\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "merchant_consents_application_id_fkey",
+        "table": "merchant_consents"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"merchant_consents_application_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "merchant_consents_application_id_fkey",
+          "public",
+          "\"public\".\"merchant_consents\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"merchant_consents_application_id_fkey\" on \"merchant_consents\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"merchant_consents_application_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"merchant_consents\"\nADD CONSTRAINT \"merchant_consents_application_id_fkey\"\nFOREIGN KEY (\"application_id\")\nREFERENCES \"public\".\"merchant_applications\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"merchant_consents_application_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "merchant_consents_application_id_fkey",
+          "public",
+          "\"public\".\"merchant_consents\"",
+          "f",
+          "[\"application_id\"]",
+          "\"public\".\"merchant_applications\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.merchant_consents.merchant_consents_academy_id_fkey",
+    "label": "Add foreign key \"merchant_consents_academy_id_fkey\" on \"merchant_consents\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "merchant_consents_academy_id_fkey",
+        "table": "merchant_consents"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"merchant_consents_academy_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "merchant_consents_academy_id_fkey",
+          "public",
+          "\"public\".\"merchant_consents\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"merchant_consents_academy_id_fkey\" on \"merchant_consents\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"merchant_consents_academy_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"merchant_consents\"\nADD CONSTRAINT \"merchant_consents_academy_id_fkey\"\nFOREIGN KEY (\"academy_id\")\nREFERENCES \"public\".\"academies\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"merchant_consents_academy_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "merchant_consents_academy_id_fkey",
+          "public",
+          "\"public\".\"merchant_consents\"",
+          "f",
+          "[\"academy_id\"]",
+          "\"public\".\"academies\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.merchant_consents.merchant_consents_staff_account_id_fkey",
+    "label": "Add foreign key \"merchant_consents_staff_account_id_fkey\" on \"merchant_consents\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "merchant_consents_staff_account_id_fkey",
+        "table": "merchant_consents"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"merchant_consents_staff_account_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "merchant_consents_staff_account_id_fkey",
+          "public",
+          "\"public\".\"merchant_consents\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"merchant_consents_staff_account_id_fkey\" on \"merchant_consents\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"merchant_consents_staff_account_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"merchant_consents\"\nADD CONSTRAINT \"merchant_consents_staff_account_id_fkey\"\nFOREIGN KEY (\"staff_account_id\")\nREFERENCES \"public\".\"staff_accounts\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"merchant_consents_staff_account_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "merchant_consents_staff_account_id_fkey",
+          "public",
+          "\"public\".\"merchant_consents\"",
+          "f",
+          "[\"staff_account_id\"]",
+          "\"public\".\"staff_accounts\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.merchant_consents.merchant_consents_terms_version_id_fkey",
+    "label": "Add foreign key \"merchant_consents_terms_version_id_fkey\" on \"merchant_consents\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "merchant_consents_terms_version_id_fkey",
+        "table": "merchant_consents"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"merchant_consents_terms_version_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "merchant_consents_terms_version_id_fkey",
+          "public",
+          "\"public\".\"merchant_consents\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"merchant_consents_terms_version_id_fkey\" on \"merchant_consents\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"merchant_consents_terms_version_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"merchant_consents\"\nADD CONSTRAINT \"merchant_consents_terms_version_id_fkey\"\nFOREIGN KEY (\"terms_version_id\")\nREFERENCES \"public\".\"terms_versions\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"merchant_consents_terms_version_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "merchant_consents_terms_version_id_fkey",
+          "public",
+          "\"public\".\"merchant_consents\"",
+          "f",
+          "[\"terms_version_id\"]",
+          "\"public\".\"terms_versions\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.terms_change_notices.terms_change_notices_terms_version_id_fkey",
+    "label": "Add foreign key \"terms_change_notices_terms_version_id_fkey\" on \"terms_change_notices\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "terms_change_notices_terms_version_id_fkey",
+        "table": "terms_change_notices"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"terms_change_notices_terms_version_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "terms_change_notices_terms_version_id_fkey",
+          "public",
+          "\"public\".\"terms_change_notices\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"terms_change_notices_terms_version_id_fkey\" on \"terms_change_notices\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"terms_change_notices_terms_version_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"terms_change_notices\"\nADD CONSTRAINT \"terms_change_notices_terms_version_id_fkey\"\nFOREIGN KEY (\"terms_version_id\")\nREFERENCES \"public\".\"terms_versions\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"terms_change_notices_terms_version_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "terms_change_notices_terms_version_id_fkey",
+          "public",
+          "\"public\".\"terms_change_notices\"",
+          "f",
+          "[\"terms_version_id\"]",
+          "\"public\".\"terms_versions\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.terms_change_notices.terms_change_notices_academy_id_fkey",
+    "label": "Add foreign key \"terms_change_notices_academy_id_fkey\" on \"terms_change_notices\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "terms_change_notices_academy_id_fkey",
+        "table": "terms_change_notices"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"terms_change_notices_academy_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "terms_change_notices_academy_id_fkey",
+          "public",
+          "\"public\".\"terms_change_notices\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"terms_change_notices_academy_id_fkey\" on \"terms_change_notices\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"terms_change_notices_academy_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"terms_change_notices\"\nADD CONSTRAINT \"terms_change_notices_academy_id_fkey\"\nFOREIGN KEY (\"academy_id\")\nREFERENCES \"public\".\"academies\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"terms_change_notices_academy_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "terms_change_notices_academy_id_fkey",
+          "public",
+          "\"public\".\"terms_change_notices\"",
+          "f",
+          "[\"academy_id\"]",
+          "\"public\".\"academies\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.terms_change_notices.terms_change_notices_notification_id_fkey",
+    "label": "Add foreign key \"terms_change_notices_notification_id_fkey\" on \"terms_change_notices\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "terms_change_notices_notification_id_fkey",
+        "table": "terms_change_notices"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"terms_change_notices_notification_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "terms_change_notices_notification_id_fkey",
+          "public",
+          "\"public\".\"terms_change_notices\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"terms_change_notices_notification_id_fkey\" on \"terms_change_notices\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"terms_change_notices_notification_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"terms_change_notices\"\nADD CONSTRAINT \"terms_change_notices_notification_id_fkey\"\nFOREIGN KEY (\"notification_id\")\nREFERENCES \"public\".\"notifications\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"terms_change_notices_notification_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "terms_change_notices_notification_id_fkey",
+          "public",
+          "\"public\".\"terms_change_notices\"",
+          "f",
+          "[\"notification_id\"]",
+          "\"public\".\"notifications\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  }
+]

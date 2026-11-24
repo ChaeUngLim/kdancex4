@@ -1,0 +1,846 @@
+[
+  {
+    "id": "table.instructor_credentials",
+    "label": "Create table \"instructor_credentials\"",
+    "summary": "Creates table \"instructor_credentials\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "instructor_credentials"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"instructor_credentials\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"instructor_credentials\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"instructor_credentials\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"instructor_credentials\"",
+        "sql": "CREATE TABLE \"public\".\"instructor_credentials\" (\n  \"created_at\" timestamptz DEFAULT (now()) NOT NULL,\n  \"id\" uuid NOT NULL,\n  \"kind\" text NOT NULL,\n  \"position\" int4 NOT NULL,\n  \"staff_account_id\" uuid NOT NULL,\n  \"title\" text NOT NULL,\n  PRIMARY KEY (\"id\"),\n  CONSTRAINT \"ck_instr_cred_title_ade378da\" CHECK (char_length(title) BETWEEN 1 AND 100),\n  CONSTRAINT \"instructor_credentials_kind_check_9df712a2\" CHECK (\"kind\" IN ('qualification', 'competition'))\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"instructor_credentials\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3))) AS \"result\"",
+        "params": [
+          "\"public\".\"instructor_credentials\"",
+          "r",
+          "p"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"instructor_credentials\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "table.instructor_personal_events",
+    "label": "Create table \"instructor_personal_events\"",
+    "summary": "Creates table \"instructor_personal_events\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "instructor_personal_events"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"instructor_personal_events\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"instructor_personal_events\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"instructor_personal_events\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"instructor_personal_events\"",
+        "sql": "CREATE TABLE \"public\".\"instructor_personal_events\" (\n  \"created_at\" timestamptz DEFAULT (now()) NOT NULL,\n  \"ends_at\" timestamptz NOT NULL,\n  \"id\" uuid NOT NULL,\n  \"repeat_rule\" text DEFAULT 'none' NOT NULL,\n  \"repeat_until\" date,\n  \"staff_account_id\" uuid NOT NULL,\n  \"starts_at\" timestamptz NOT NULL,\n  \"title\" text NOT NULL,\n  PRIMARY KEY (\"id\"),\n  CONSTRAINT \"ck_personal_repeat_fa60223c\" CHECK (repeat_rule <> 'none' OR repeat_until IS NULL),\n  CONSTRAINT \"ck_personal_time_30314b5b\" CHECK (ends_at > starts_at),\n  CONSTRAINT \"ck_personal_title_dc8be521\" CHECK (char_length(title) BETWEEN 1 AND 50),\n  CONSTRAINT \"instructor_personal_events_repeat_rule_check_ad90391b\" CHECK (\"repeat_rule\" IN ('none', 'weekly', 'daily'))\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"instructor_personal_events\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3))) AS \"result\"",
+        "params": [
+          "\"public\".\"instructor_personal_events\"",
+          "r",
+          "p"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"instructor_personal_events\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "table.instructor_profiles",
+    "label": "Create table \"instructor_profiles\"",
+    "summary": "Creates table \"instructor_profiles\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "instructor_profiles"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"instructor_profiles\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"instructor_profiles\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"instructor_profiles\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"instructor_profiles\"",
+        "sql": "CREATE TABLE \"public\".\"instructor_profiles\" (\n  \"activity_genre\" text NOT NULL,\n  \"bio\" text,\n  \"business_registration_file_id\" uuid,\n  \"business_registration_number\" text,\n  \"career_years\" int4,\n  \"created_at\" timestamptz DEFAULT (now()) NOT NULL,\n  \"marketing_opt_in_at\" timestamptz,\n  \"photo_file_id\" uuid,\n  \"signup_completed_at\" timestamptz NOT NULL,\n  \"staff_account_id\" uuid NOT NULL,\n  \"updated_at\" timestamptz NOT NULL,\n  PRIMARY KEY (\"staff_account_id\"),\n  CONSTRAINT \"ck_instr_profiles_bio_30bcc083\" CHECK (bio IS NULL OR char_length(bio) <= 500),\n  CONSTRAINT \"ck_instr_profiles_brn_5612ec31\" CHECK (business_registration_number IS NULL OR business_registration_number ~ '^[0-9]{10}$'),\n  CONSTRAINT \"ck_instr_profiles_brn_file_12934886\" CHECK (business_registration_file_id IS NULL OR business_registration_number IS NOT NULL),\n  CONSTRAINT \"ck_instr_profiles_career_14958881\" CHECK (career_years IS NULL OR career_years BETWEEN 0 AND 80),\n  CONSTRAINT \"instructor_profiles_activity_genre_check_601e4fa1\" CHECK (\"activity_genre\" IN ('dance_sport', 'argentine_tango', 'swing', 'salsa_bachata'))\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"instructor_profiles\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3))) AS \"result\"",
+        "params": [
+          "\"public\".\"instructor_profiles\"",
+          "r",
+          "p"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"instructor_profiles\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "table.instructor_regions",
+    "label": "Create table \"instructor_regions\"",
+    "summary": "Creates table \"instructor_regions\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "instructor_regions"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"instructor_regions\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"instructor_regions\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"instructor_regions\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"instructor_regions\"",
+        "sql": "CREATE TABLE \"public\".\"instructor_regions\" (\n  \"region_gu\" text NOT NULL,\n  \"region_sido\" text NOT NULL,\n  \"staff_account_id\" uuid NOT NULL,\n  PRIMARY KEY (\"staff_account_id\", \"region_sido\", \"region_gu\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"instructor_regions\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3))) AS \"result\"",
+        "params": [
+          "\"public\".\"instructor_regions\"",
+          "r",
+          "p"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"instructor_regions\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "index.instructor_credentials.instructor_credentials_staff_account_id_idx_97848bfb",
+    "label": "Create index \"instructor_credentials_staff_account_id_idx_97848bfb\" on \"instructor_credentials\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "instructor_credentials_staff_account_id_idx_97848bfb",
+        "table": "instructor_credentials"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"instructor_credentials_staff_account_id_idx_97848bfb\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"instructor_credentials_staff_account_id_idx_97848bfb\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"instructor_credentials_staff_account_id_idx_97848bfb\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"instructor_credentials_staff_account_id_idx_97848bfb\"",
+        "sql": "CREATE INDEX \"instructor_credentials_staff_account_id_idx_97848bfb\" ON \"public\".\"instructor_credentials\" (\"staff_account_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"instructor_credentials_staff_account_id_idx_97848bfb\" exists on \"instructor_credentials\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"instructor_credentials_staff_account_id_idx_97848bfb\"",
+          "i",
+          "I",
+          "\"public\".\"instructor_credentials\"",
+          "btree",
+          "[\"staff_account_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.instructor_credentials.uq_instr_cred_position_52f57715",
+    "label": "Create index \"uq_instr_cred_position_52f57715\" on \"instructor_credentials\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "uq_instr_cred_position_52f57715",
+        "table": "instructor_credentials"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"uq_instr_cred_position_52f57715\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"uq_instr_cred_position_52f57715\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"uq_instr_cred_position_52f57715\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"uq_instr_cred_position_52f57715\"",
+        "sql": "CREATE UNIQUE INDEX \"uq_instr_cred_position_52f57715\" ON \"public\".\"instructor_credentials\" (\"staff_account_id\", \"kind\", \"position\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"uq_instr_cred_position_52f57715\" exists on \"instructor_credentials\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND \"i\".\"indisunique\" AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"uq_instr_cred_position_52f57715\"",
+          "i",
+          "I",
+          "\"public\".\"instructor_credentials\"",
+          "btree",
+          "[\"staff_account_id\",\"kind\",\"position\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.instructor_personal_events.instructor_personal_events_staff_account_id_idx_97848bfb",
+    "label": "Create index \"instructor_personal_events_staff_account_id_idx_97848bfb\" on \"instructor_personal_events\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "instructor_personal_events_staff_account_id_idx_97848bfb",
+        "table": "instructor_personal_events"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"instructor_personal_events_staff_account_id_idx_97848bfb\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"instructor_personal_events_staff_account_id_idx_97848bfb\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"instructor_personal_events_staff_account_id_idx_97848bfb\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"instructor_personal_events_staff_account_id_idx_97848bfb\"",
+        "sql": "CREATE INDEX \"instructor_personal_events_staff_account_id_idx_97848bfb\" ON \"public\".\"instructor_personal_events\" (\"staff_account_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"instructor_personal_events_staff_account_id_idx_97848bfb\" exists on \"instructor_personal_events\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"instructor_personal_events_staff_account_id_idx_97848bfb\"",
+          "i",
+          "I",
+          "\"public\".\"instructor_personal_events\"",
+          "btree",
+          "[\"staff_account_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.instructor_personal_events.ix_personal_account_time_abfe7dfa",
+    "label": "Create index \"ix_personal_account_time_abfe7dfa\" on \"instructor_personal_events\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "ix_personal_account_time_abfe7dfa",
+        "table": "instructor_personal_events"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"ix_personal_account_time_abfe7dfa\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ix_personal_account_time_abfe7dfa\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"ix_personal_account_time_abfe7dfa\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"ix_personal_account_time_abfe7dfa\"",
+        "sql": "CREATE INDEX \"ix_personal_account_time_abfe7dfa\" ON \"public\".\"instructor_personal_events\" (\"staff_account_id\", \"starts_at\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"ix_personal_account_time_abfe7dfa\" exists on \"instructor_personal_events\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"ix_personal_account_time_abfe7dfa\"",
+          "i",
+          "I",
+          "\"public\".\"instructor_personal_events\"",
+          "btree",
+          "[\"staff_account_id\",\"starts_at\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.instructor_profiles.instructor_profiles_business_registration_file_id_idx_64638c6d",
+    "label": "Create index \"instructor_profiles_business_registration_file_id_idx_64638c6d\" on \"instructor_profiles\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "instructor_profiles_business_registration_file_id_idx_64638c6d",
+        "table": "instructor_profiles"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"instructor_profiles_business_registration_file_id_idx_64638c6d\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"instructor_profiles_business_registration_file_id_idx_64638c6d\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"instructor_profiles_business_registration_file_id_idx_64638c6d\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"instructor_profiles_business_registration_file_id_idx_64638c6d\"",
+        "sql": "CREATE INDEX \"instructor_profiles_business_registration_file_id_idx_64638c6d\" ON \"public\".\"instructor_profiles\" (\"business_registration_file_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"instructor_profiles_business_registration_file_id_idx_64638c6d\" exists on \"instructor_profiles\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"instructor_profiles_business_registration_file_id_idx_64638c6d\"",
+          "i",
+          "I",
+          "\"public\".\"instructor_profiles\"",
+          "btree",
+          "[\"business_registration_file_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.instructor_profiles.instructor_profiles_photo_file_id_idx_e13a637e",
+    "label": "Create index \"instructor_profiles_photo_file_id_idx_e13a637e\" on \"instructor_profiles\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "instructor_profiles_photo_file_id_idx_e13a637e",
+        "table": "instructor_profiles"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"instructor_profiles_photo_file_id_idx_e13a637e\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"instructor_profiles_photo_file_id_idx_e13a637e\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"instructor_profiles_photo_file_id_idx_e13a637e\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"instructor_profiles_photo_file_id_idx_e13a637e\"",
+        "sql": "CREATE INDEX \"instructor_profiles_photo_file_id_idx_e13a637e\" ON \"public\".\"instructor_profiles\" (\"photo_file_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"instructor_profiles_photo_file_id_idx_e13a637e\" exists on \"instructor_profiles\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"instructor_profiles_photo_file_id_idx_e13a637e\"",
+          "i",
+          "I",
+          "\"public\".\"instructor_profiles\"",
+          "btree",
+          "[\"photo_file_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.instructor_regions.instructor_regions_staff_account_id_idx_97848bfb",
+    "label": "Create index \"instructor_regions_staff_account_id_idx_97848bfb\" on \"instructor_regions\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "instructor_regions_staff_account_id_idx_97848bfb",
+        "table": "instructor_regions"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"instructor_regions_staff_account_id_idx_97848bfb\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"instructor_regions_staff_account_id_idx_97848bfb\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"instructor_regions_staff_account_id_idx_97848bfb\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"instructor_regions_staff_account_id_idx_97848bfb\"",
+        "sql": "CREATE INDEX \"instructor_regions_staff_account_id_idx_97848bfb\" ON \"public\".\"instructor_regions\" (\"staff_account_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"instructor_regions_staff_account_id_idx_97848bfb\" exists on \"instructor_regions\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"instructor_regions_staff_account_id_idx_97848bfb\"",
+          "i",
+          "I",
+          "\"public\".\"instructor_regions\"",
+          "btree",
+          "[\"staff_account_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.instructor_credentials.instructor_credentials_staff_account_id_fkey",
+    "label": "Add foreign key \"instructor_credentials_staff_account_id_fkey\" on \"instructor_credentials\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "instructor_credentials_staff_account_id_fkey",
+        "table": "instructor_credentials"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"instructor_credentials_staff_account_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "instructor_credentials_staff_account_id_fkey",
+          "public",
+          "\"public\".\"instructor_credentials\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"instructor_credentials_staff_account_id_fkey\" on \"instructor_credentials\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"instructor_credentials_staff_account_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"instructor_credentials\"\nADD CONSTRAINT \"instructor_credentials_staff_account_id_fkey\"\nFOREIGN KEY (\"staff_account_id\")\nREFERENCES \"public\".\"staff_accounts\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"instructor_credentials_staff_account_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "instructor_credentials_staff_account_id_fkey",
+          "public",
+          "\"public\".\"instructor_credentials\"",
+          "f",
+          "[\"staff_account_id\"]",
+          "\"public\".\"staff_accounts\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.instructor_personal_events.instructor_personal_events_staff_account_id_fkey",
+    "label": "Add foreign key \"instructor_personal_events_staff_account_id_fkey\" on \"instructor_personal_events\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "instructor_personal_events_staff_account_id_fkey",
+        "table": "instructor_personal_events"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"instructor_personal_events_staff_account_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "instructor_personal_events_staff_account_id_fkey",
+          "public",
+          "\"public\".\"instructor_personal_events\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"instructor_personal_events_staff_account_id_fkey\" on \"instructor_personal_events\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"instructor_personal_events_staff_account_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"instructor_personal_events\"\nADD CONSTRAINT \"instructor_personal_events_staff_account_id_fkey\"\nFOREIGN KEY (\"staff_account_id\")\nREFERENCES \"public\".\"staff_accounts\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"instructor_personal_events_staff_account_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "instructor_personal_events_staff_account_id_fkey",
+          "public",
+          "\"public\".\"instructor_personal_events\"",
+          "f",
+          "[\"staff_account_id\"]",
+          "\"public\".\"staff_accounts\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.instructor_profiles.instructor_profiles_staff_account_id_fkey",
+    "label": "Add foreign key \"instructor_profiles_staff_account_id_fkey\" on \"instructor_profiles\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "instructor_profiles_staff_account_id_fkey",
+        "table": "instructor_profiles"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"instructor_profiles_staff_account_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "instructor_profiles_staff_account_id_fkey",
+          "public",
+          "\"public\".\"instructor_profiles\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"instructor_profiles_staff_account_id_fkey\" on \"instructor_profiles\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"instructor_profiles_staff_account_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"instructor_profiles\"\nADD CONSTRAINT \"instructor_profiles_staff_account_id_fkey\"\nFOREIGN KEY (\"staff_account_id\")\nREFERENCES \"public\".\"staff_accounts\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"instructor_profiles_staff_account_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "instructor_profiles_staff_account_id_fkey",
+          "public",
+          "\"public\".\"instructor_profiles\"",
+          "f",
+          "[\"staff_account_id\"]",
+          "\"public\".\"staff_accounts\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.instructor_profiles.instructor_profiles_photo_file_id_fkey",
+    "label": "Add foreign key \"instructor_profiles_photo_file_id_fkey\" on \"instructor_profiles\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "instructor_profiles_photo_file_id_fkey",
+        "table": "instructor_profiles"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"instructor_profiles_photo_file_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "instructor_profiles_photo_file_id_fkey",
+          "public",
+          "\"public\".\"instructor_profiles\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"instructor_profiles_photo_file_id_fkey\" on \"instructor_profiles\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"instructor_profiles_photo_file_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"instructor_profiles\"\nADD CONSTRAINT \"instructor_profiles_photo_file_id_fkey\"\nFOREIGN KEY (\"photo_file_id\")\nREFERENCES \"public\".\"uploaded_files\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"instructor_profiles_photo_file_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "instructor_profiles_photo_file_id_fkey",
+          "public",
+          "\"public\".\"instructor_profiles\"",
+          "f",
+          "[\"photo_file_id\"]",
+          "\"public\".\"uploaded_files\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.instructor_profiles.instructor_profiles_business_registration_file_id_fkey",
+    "label": "Add foreign key \"instructor_profiles_business_registration_file_id_fkey\" on \"instructor_profiles\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "instructor_profiles_business_registration_file_id_fkey",
+        "table": "instructor_profiles"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"instructor_profiles_business_registration_file_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "instructor_profiles_business_registration_file_id_fkey",
+          "public",
+          "\"public\".\"instructor_profiles\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"instructor_profiles_business_registration_file_id_fkey\" on \"instructor_profiles\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"instructor_profiles_business_registration_file_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"instructor_profiles\"\nADD CONSTRAINT \"instructor_profiles_business_registration_file_id_fkey\"\nFOREIGN KEY (\"business_registration_file_id\")\nREFERENCES \"public\".\"uploaded_files\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"instructor_profiles_business_registration_file_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "instructor_profiles_business_registration_file_id_fkey",
+          "public",
+          "\"public\".\"instructor_profiles\"",
+          "f",
+          "[\"business_registration_file_id\"]",
+          "\"public\".\"uploaded_files\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.instructor_regions.instructor_regions_staff_account_id_fkey",
+    "label": "Add foreign key \"instructor_regions_staff_account_id_fkey\" on \"instructor_regions\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "instructor_regions_staff_account_id_fkey",
+        "table": "instructor_regions"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"instructor_regions_staff_account_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "instructor_regions_staff_account_id_fkey",
+          "public",
+          "\"public\".\"instructor_regions\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"instructor_regions_staff_account_id_fkey\" on \"instructor_regions\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"instructor_regions_staff_account_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"instructor_regions\"\nADD CONSTRAINT \"instructor_regions_staff_account_id_fkey\"\nFOREIGN KEY (\"staff_account_id\")\nREFERENCES \"public\".\"staff_accounts\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"instructor_regions_staff_account_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "instructor_regions_staff_account_id_fkey",
+          "public",
+          "\"public\".\"instructor_regions\"",
+          "f",
+          "[\"staff_account_id\"]",
+          "\"public\".\"staff_accounts\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  }
+]

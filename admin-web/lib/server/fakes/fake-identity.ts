@@ -66,7 +66,21 @@ interface TokenClaims {
 const INVALID: IdentityVerificationResult = Object.freeze({ ok: false, reason: "invalid" });
 const EXPIRED: IdentityVerificationResult = Object.freeze({ ok: false, reason: "expired" });
 
+/**
+ * 가짜 본인확인을 알아보는 전역 표식(2026-11-23). `instanceof` 대신 이것으로 판별한다.
+ * next dev 는 파일이 바뀌면 모듈을 다시 읽어 클래스를 새로 만든다. globalThis 에 남아 있던 옛 인스턴스는
+ * 새 클래스의 instanceof 에 걸리지 않아, dev 가짜 본인확인 경로가 404 를 냈다. Symbol.for 는 프로세스 전체에서 같은 값이다.
+ */
+export const FAKE_IDENTITY_BRAND: unique symbol = Symbol.for("kdance.fakeIdentityVerification") as never;
+
+/** 이 구현이 가짜 본인확인인가 — 모듈을 다시 읽은 뒤에도 같은 답을 준다 */
+export function isFakeIdentityVerification(port: unknown): port is FakeIdentityVerification {
+  return typeof port === "object" && port !== null && (port as Record<symbol, unknown>)[FAKE_IDENTITY_BRAND] === true;
+}
+
 export class FakeIdentityVerification implements IdentityVerificationPort {
+  /** 전역 표식 — isFakeIdentityVerification 이 본다 */
+  readonly [FAKE_IDENTITY_BRAND] = true;
   readonly #secret: string;
   readonly #ciPepper: string;
   readonly #clock: Clock;

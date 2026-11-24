@@ -1,0 +1,1869 @@
+[
+  {
+    "id": "table.inquiries",
+    "label": "Create table \"inquiries\"",
+    "summary": "Creates table \"inquiries\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "inquiries"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"inquiries\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"inquiries\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"inquiries\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"inquiries\"",
+        "sql": "CREATE TABLE \"public\".\"inquiries\" (\n  \"academy_id\" uuid,\n  \"ai_conversation_id\" text,\n  \"asker_kind\" text NOT NULL,\n  \"asker_member_id\" uuid,\n  \"asker_staff_account_id\" uuid,\n  \"category\" text NOT NULL,\n  \"closed_at\" timestamptz,\n  \"created_at\" timestamptz DEFAULT (now()) NOT NULL,\n  \"first_response_due_at\" timestamptz NOT NULL,\n  \"id\" uuid NOT NULL,\n  \"idempotency_key\" character varying(200) NOT NULL,\n  \"kind\" text NOT NULL,\n  \"last_message_at\" timestamptz DEFAULT (now()) NOT NULL,\n  \"offering_id\" uuid,\n  \"overdue_reminded_at\" timestamptz,\n  \"refund_request_id\" uuid,\n  \"related_settlement_ref\" uuid,\n  \"reservation_id\" uuid,\n  \"route\" text DEFAULT 'human' NOT NULL,\n  \"status\" text DEFAULT 'answer_waiting' NOT NULL,\n  PRIMARY KEY (\"id\"),\n  CONSTRAINT \"ck_inquiries_asker_b8f8336a\" CHECK ((asker_kind = 'member' AND asker_member_id IS NOT NULL AND asker_staff_account_id IS NULL) OR (asker_kind <> 'member' AND asker_staff_account_id IS NOT NULL AND asker_member_id IS NULL)),\n  CONSTRAINT \"ck_inquiries_closed_3d83488f\" CHECK ((status = 'closed') = (closed_at IS NOT NULL)),\n  CONSTRAINT \"ck_inquiries_idempotency_key_100850a9\" CHECK (char_length(idempotency_key) > 0),\n  CONSTRAINT \"ck_inquiries_reservation_member_cbc47c77\" CHECK (reservation_id IS NULL OR asker_kind = 'member'),\n  CONSTRAINT \"ck_inquiries_target_6b485064\" CHECK ((kind = 'academy') = (academy_id IS NOT NULL)),\n  CONSTRAINT \"inquiries_asker_kind_check_d08a3764\" CHECK (\"asker_kind\" IN ('member', 'instructor', 'owner')),\n  CONSTRAINT \"inquiries_category_check_f4d410d8\" CHECK (\"category\" IN ('class', 'refund', 'schedule', 'settlement_basis', 'capacity', 'absence', 'account', 'app_error', 'payment_outage', 'membership', 'other')),\n  CONSTRAINT \"inquiries_kind_check_c310bb44\" CHECK (\"kind\" IN ('academy', 'system')),\n  CONSTRAINT \"inquiries_route_check_9c12ab5f\" CHECK (\"route\" IN ('human', 'ai_handoff')),\n  CONSTRAINT \"inquiries_status_check_fe07f0c8\" CHECK (\"status\" IN ('answer_waiting', 'answered', 'closed', 'ai_answered'))\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"inquiries\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3))) AS \"result\"",
+        "params": [
+          "\"public\".\"inquiries\"",
+          "r",
+          "p"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"inquiries\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "table.inquiry_messages",
+    "label": "Create table \"inquiry_messages\"",
+    "summary": "Creates table \"inquiry_messages\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "inquiry_messages"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"inquiry_messages\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"inquiry_messages\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"inquiry_messages\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"inquiry_messages\"",
+        "sql": "CREATE TABLE \"public\".\"inquiry_messages\" (\n  \"body\" text NOT NULL,\n  \"created_at\" timestamptz DEFAULT (now()) NOT NULL,\n  \"id\" uuid NOT NULL,\n  \"inquiry_id\" uuid NOT NULL,\n  \"sender_kind\" text NOT NULL,\n  \"sender_member_id\" uuid,\n  \"sender_staff_account_id\" uuid,\n  PRIMARY KEY (\"id\"),\n  CONSTRAINT \"ck_inquiry_messages_body_da5da88e\" CHECK (char_length(body) BETWEEN 1 AND 2000),\n  CONSTRAINT \"ck_inquiry_messages_sender_61dab5c4\" CHECK ((sender_kind = 'asker' AND num_nonnulls(sender_member_id, sender_staff_account_id) = 1) OR (sender_kind IN ('academy_owner', 'operator') AND sender_staff_account_id IS NOT NULL AND sender_member_id IS NULL) OR (sender_kind = 'ai' AND sender_member_id IS NULL AND sender_staff_account_id IS NULL)),\n  CONSTRAINT \"inquiry_messages_sender_kind_check_06e973bf\" CHECK (\"sender_kind\" IN ('asker', 'academy_owner', 'operator', 'ai'))\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"inquiry_messages\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3))) AS \"result\"",
+        "params": [
+          "\"public\".\"inquiry_messages\"",
+          "r",
+          "p"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"inquiry_messages\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "table.reports",
+    "label": "Create table \"reports\"",
+    "summary": "Creates table \"reports\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "reports"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"reports\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"reports\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"reports\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"reports\"",
+        "sql": "CREATE TABLE \"public\".\"reports\" (\n  \"detail\" text,\n  \"id\" uuid NOT NULL,\n  \"idempotency_key\" character varying(200) NOT NULL,\n  \"outcome\" text,\n  \"outcome_note\" text,\n  \"reason_code\" text NOT NULL,\n  \"received_at\" timestamptz DEFAULT (now()) NOT NULL,\n  \"reporter_kind\" text NOT NULL,\n  \"reporter_member_id\" uuid,\n  \"reporter_staff_account_id\" uuid,\n  \"resolved_at\" timestamptz,\n  \"resolved_by_account_id\" uuid,\n  \"restriction_case_id\" uuid,\n  \"reviewed_at\" timestamptz,\n  \"status\" text DEFAULT 'received' NOT NULL,\n  \"target_id\" uuid NOT NULL,\n  \"target_kind\" text NOT NULL,\n  PRIMARY KEY (\"id\"),\n  CONSTRAINT \"ck_reports_idempotency_key_100850a9\" CHECK (char_length(idempotency_key) > 0),\n  CONSTRAINT \"ck_reports_reporter_7c2264e4\" CHECK ((reporter_kind = 'member' AND reporter_member_id IS NOT NULL AND reporter_staff_account_id IS NULL) OR (reporter_kind <> 'member' AND reporter_staff_account_id IS NOT NULL AND reporter_member_id IS NULL)),\n  CONSTRAINT \"ck_reports_resolved_8b216426\" CHECK ((status = 'resolved') = (outcome IS NOT NULL AND resolved_at IS NOT NULL) AND (status = 'resolved' OR (outcome IS NULL AND resolved_at IS NULL))),\n  CONSTRAINT \"reports_outcome_check_082ffed4\" CHECK (\"outcome\" IN ('dismissed', 'upheld')),\n  CONSTRAINT \"reports_reason_code_check_a51b0373\" CHECK (\"reason_code\" IN ('off_platform_payment', 'info_mismatch', 'harassment', 'illegal_dangerous', 'other')),\n  CONSTRAINT \"reports_reporter_kind_check_88b38334\" CHECK (\"reporter_kind\" IN ('member', 'instructor', 'owner')),\n  CONSTRAINT \"reports_status_check_103e43a0\" CHECK (\"status\" IN ('received', 'in_review', 'resolved')),\n  CONSTRAINT \"reports_target_kind_check_57057f37\" CHECK (\"target_kind\" IN ('academy', 'instructor', 'class', 'member'))\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"reports\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3))) AS \"result\"",
+        "params": [
+          "\"public\".\"reports\"",
+          "r",
+          "p"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"reports\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "index.inquiries.inquiries_academy_id_idx_f46ade77",
+    "label": "Create index \"inquiries_academy_id_idx_f46ade77\" on \"inquiries\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "inquiries_academy_id_idx_f46ade77",
+        "table": "inquiries"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"inquiries_academy_id_idx_f46ade77\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"inquiries_academy_id_idx_f46ade77\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"inquiries_academy_id_idx_f46ade77\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"inquiries_academy_id_idx_f46ade77\"",
+        "sql": "CREATE INDEX \"inquiries_academy_id_idx_f46ade77\" ON \"public\".\"inquiries\" (\"academy_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"inquiries_academy_id_idx_f46ade77\" exists on \"inquiries\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"inquiries_academy_id_idx_f46ade77\"",
+          "i",
+          "I",
+          "\"public\".\"inquiries\"",
+          "btree",
+          "[\"academy_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.inquiries.inquiries_asker_member_id_idx_7e1d178d",
+    "label": "Create index \"inquiries_asker_member_id_idx_7e1d178d\" on \"inquiries\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "inquiries_asker_member_id_idx_7e1d178d",
+        "table": "inquiries"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"inquiries_asker_member_id_idx_7e1d178d\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"inquiries_asker_member_id_idx_7e1d178d\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"inquiries_asker_member_id_idx_7e1d178d\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"inquiries_asker_member_id_idx_7e1d178d\"",
+        "sql": "CREATE INDEX \"inquiries_asker_member_id_idx_7e1d178d\" ON \"public\".\"inquiries\" (\"asker_member_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"inquiries_asker_member_id_idx_7e1d178d\" exists on \"inquiries\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"inquiries_asker_member_id_idx_7e1d178d\"",
+          "i",
+          "I",
+          "\"public\".\"inquiries\"",
+          "btree",
+          "[\"asker_member_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.inquiries.inquiries_asker_staff_account_id_idx_6b0599d3",
+    "label": "Create index \"inquiries_asker_staff_account_id_idx_6b0599d3\" on \"inquiries\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "inquiries_asker_staff_account_id_idx_6b0599d3",
+        "table": "inquiries"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"inquiries_asker_staff_account_id_idx_6b0599d3\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"inquiries_asker_staff_account_id_idx_6b0599d3\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"inquiries_asker_staff_account_id_idx_6b0599d3\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"inquiries_asker_staff_account_id_idx_6b0599d3\"",
+        "sql": "CREATE INDEX \"inquiries_asker_staff_account_id_idx_6b0599d3\" ON \"public\".\"inquiries\" (\"asker_staff_account_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"inquiries_asker_staff_account_id_idx_6b0599d3\" exists on \"inquiries\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"inquiries_asker_staff_account_id_idx_6b0599d3\"",
+          "i",
+          "I",
+          "\"public\".\"inquiries\"",
+          "btree",
+          "[\"asker_staff_account_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.inquiries.inquiries_offering_id_idx_47c4ad39",
+    "label": "Create index \"inquiries_offering_id_idx_47c4ad39\" on \"inquiries\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "inquiries_offering_id_idx_47c4ad39",
+        "table": "inquiries"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"inquiries_offering_id_idx_47c4ad39\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"inquiries_offering_id_idx_47c4ad39\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"inquiries_offering_id_idx_47c4ad39\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"inquiries_offering_id_idx_47c4ad39\"",
+        "sql": "CREATE INDEX \"inquiries_offering_id_idx_47c4ad39\" ON \"public\".\"inquiries\" (\"offering_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"inquiries_offering_id_idx_47c4ad39\" exists on \"inquiries\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"inquiries_offering_id_idx_47c4ad39\"",
+          "i",
+          "I",
+          "\"public\".\"inquiries\"",
+          "btree",
+          "[\"offering_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.inquiries.inquiries_reservation_id_idx_919eec76",
+    "label": "Create index \"inquiries_reservation_id_idx_919eec76\" on \"inquiries\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "inquiries_reservation_id_idx_919eec76",
+        "table": "inquiries"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"inquiries_reservation_id_idx_919eec76\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"inquiries_reservation_id_idx_919eec76\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"inquiries_reservation_id_idx_919eec76\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"inquiries_reservation_id_idx_919eec76\"",
+        "sql": "CREATE INDEX \"inquiries_reservation_id_idx_919eec76\" ON \"public\".\"inquiries\" (\"reservation_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"inquiries_reservation_id_idx_919eec76\" exists on \"inquiries\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"inquiries_reservation_id_idx_919eec76\"",
+          "i",
+          "I",
+          "\"public\".\"inquiries\"",
+          "btree",
+          "[\"reservation_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.inquiries.ix_inquiries_academy_status_aa70d93c",
+    "label": "Create index \"ix_inquiries_academy_status_aa70d93c\" on \"inquiries\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "ix_inquiries_academy_status_aa70d93c",
+        "table": "inquiries"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"ix_inquiries_academy_status_aa70d93c\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ix_inquiries_academy_status_aa70d93c\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"ix_inquiries_academy_status_aa70d93c\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"ix_inquiries_academy_status_aa70d93c\"",
+        "sql": "CREATE INDEX \"ix_inquiries_academy_status_aa70d93c\" ON \"public\".\"inquiries\" (\"academy_id\", \"status\", \"created_at\") WHERE ((academy_id IS NOT NULL))",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"ix_inquiries_academy_status_aa70d93c\" exists on \"inquiries\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NOT NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"ix_inquiries_academy_status_aa70d93c\"",
+          "i",
+          "I",
+          "\"public\".\"inquiries\"",
+          "btree",
+          "[\"academy_id\",\"status\",\"created_at\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.inquiries.ix_inquiries_asker_member_2b02e9d3",
+    "label": "Create index \"ix_inquiries_asker_member_2b02e9d3\" on \"inquiries\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "ix_inquiries_asker_member_2b02e9d3",
+        "table": "inquiries"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"ix_inquiries_asker_member_2b02e9d3\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ix_inquiries_asker_member_2b02e9d3\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"ix_inquiries_asker_member_2b02e9d3\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"ix_inquiries_asker_member_2b02e9d3\"",
+        "sql": "CREATE INDEX \"ix_inquiries_asker_member_2b02e9d3\" ON \"public\".\"inquiries\" (\"asker_member_id\", \"created_at\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"ix_inquiries_asker_member_2b02e9d3\" exists on \"inquiries\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"ix_inquiries_asker_member_2b02e9d3\"",
+          "i",
+          "I",
+          "\"public\".\"inquiries\"",
+          "btree",
+          "[\"asker_member_id\",\"created_at\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.inquiries.ix_inquiries_asker_staff_437dfd09",
+    "label": "Create index \"ix_inquiries_asker_staff_437dfd09\" on \"inquiries\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "ix_inquiries_asker_staff_437dfd09",
+        "table": "inquiries"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"ix_inquiries_asker_staff_437dfd09\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ix_inquiries_asker_staff_437dfd09\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"ix_inquiries_asker_staff_437dfd09\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"ix_inquiries_asker_staff_437dfd09\"",
+        "sql": "CREATE INDEX \"ix_inquiries_asker_staff_437dfd09\" ON \"public\".\"inquiries\" (\"asker_staff_account_id\", \"created_at\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"ix_inquiries_asker_staff_437dfd09\" exists on \"inquiries\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"ix_inquiries_asker_staff_437dfd09\"",
+          "i",
+          "I",
+          "\"public\".\"inquiries\"",
+          "btree",
+          "[\"asker_staff_account_id\",\"created_at\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.inquiries.ix_inquiries_overdue_e9baaf6d",
+    "label": "Create index \"ix_inquiries_overdue_e9baaf6d\" on \"inquiries\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "ix_inquiries_overdue_e9baaf6d",
+        "table": "inquiries"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"ix_inquiries_overdue_e9baaf6d\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ix_inquiries_overdue_e9baaf6d\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"ix_inquiries_overdue_e9baaf6d\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"ix_inquiries_overdue_e9baaf6d\"",
+        "sql": "CREATE INDEX \"ix_inquiries_overdue_e9baaf6d\" ON \"public\".\"inquiries\" (\"first_response_due_at\") WHERE ((status = 'answer_waiting' AND overdue_reminded_at IS NULL))",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"ix_inquiries_overdue_e9baaf6d\" exists on \"inquiries\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NOT NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"ix_inquiries_overdue_e9baaf6d\"",
+          "i",
+          "I",
+          "\"public\".\"inquiries\"",
+          "btree",
+          "[\"first_response_due_at\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.inquiries.uq_inquiries_idem_member_7cddcd33",
+    "label": "Create index \"uq_inquiries_idem_member_7cddcd33\" on \"inquiries\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "uq_inquiries_idem_member_7cddcd33",
+        "table": "inquiries"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"uq_inquiries_idem_member_7cddcd33\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"uq_inquiries_idem_member_7cddcd33\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"uq_inquiries_idem_member_7cddcd33\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"uq_inquiries_idem_member_7cddcd33\"",
+        "sql": "CREATE UNIQUE INDEX \"uq_inquiries_idem_member_7cddcd33\" ON \"public\".\"inquiries\" (\"asker_member_id\", \"idempotency_key\") WHERE ((asker_member_id IS NOT NULL))",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"uq_inquiries_idem_member_7cddcd33\" exists on \"inquiries\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND \"i\".\"indisunique\" AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NOT NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"uq_inquiries_idem_member_7cddcd33\"",
+          "i",
+          "I",
+          "\"public\".\"inquiries\"",
+          "btree",
+          "[\"asker_member_id\",\"idempotency_key\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.inquiries.uq_inquiries_idem_staff_ef1d21d6",
+    "label": "Create index \"uq_inquiries_idem_staff_ef1d21d6\" on \"inquiries\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "uq_inquiries_idem_staff_ef1d21d6",
+        "table": "inquiries"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"uq_inquiries_idem_staff_ef1d21d6\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"uq_inquiries_idem_staff_ef1d21d6\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"uq_inquiries_idem_staff_ef1d21d6\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"uq_inquiries_idem_staff_ef1d21d6\"",
+        "sql": "CREATE UNIQUE INDEX \"uq_inquiries_idem_staff_ef1d21d6\" ON \"public\".\"inquiries\" (\"asker_staff_account_id\", \"idempotency_key\") WHERE ((asker_staff_account_id IS NOT NULL))",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"uq_inquiries_idem_staff_ef1d21d6\" exists on \"inquiries\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND \"i\".\"indisunique\" AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NOT NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"uq_inquiries_idem_staff_ef1d21d6\"",
+          "i",
+          "I",
+          "\"public\".\"inquiries\"",
+          "btree",
+          "[\"asker_staff_account_id\",\"idempotency_key\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.inquiry_messages.inquiry_messages_inquiry_id_idx_eb325e4c",
+    "label": "Create index \"inquiry_messages_inquiry_id_idx_eb325e4c\" on \"inquiry_messages\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "inquiry_messages_inquiry_id_idx_eb325e4c",
+        "table": "inquiry_messages"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"inquiry_messages_inquiry_id_idx_eb325e4c\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"inquiry_messages_inquiry_id_idx_eb325e4c\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"inquiry_messages_inquiry_id_idx_eb325e4c\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"inquiry_messages_inquiry_id_idx_eb325e4c\"",
+        "sql": "CREATE INDEX \"inquiry_messages_inquiry_id_idx_eb325e4c\" ON \"public\".\"inquiry_messages\" (\"inquiry_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"inquiry_messages_inquiry_id_idx_eb325e4c\" exists on \"inquiry_messages\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"inquiry_messages_inquiry_id_idx_eb325e4c\"",
+          "i",
+          "I",
+          "\"public\".\"inquiry_messages\"",
+          "btree",
+          "[\"inquiry_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.inquiry_messages.inquiry_messages_sender_member_id_idx_72c43b0a",
+    "label": "Create index \"inquiry_messages_sender_member_id_idx_72c43b0a\" on \"inquiry_messages\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "inquiry_messages_sender_member_id_idx_72c43b0a",
+        "table": "inquiry_messages"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"inquiry_messages_sender_member_id_idx_72c43b0a\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"inquiry_messages_sender_member_id_idx_72c43b0a\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"inquiry_messages_sender_member_id_idx_72c43b0a\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"inquiry_messages_sender_member_id_idx_72c43b0a\"",
+        "sql": "CREATE INDEX \"inquiry_messages_sender_member_id_idx_72c43b0a\" ON \"public\".\"inquiry_messages\" (\"sender_member_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"inquiry_messages_sender_member_id_idx_72c43b0a\" exists on \"inquiry_messages\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"inquiry_messages_sender_member_id_idx_72c43b0a\"",
+          "i",
+          "I",
+          "\"public\".\"inquiry_messages\"",
+          "btree",
+          "[\"sender_member_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.inquiry_messages.inquiry_messages_sender_staff_account_id_idx_ac99962e",
+    "label": "Create index \"inquiry_messages_sender_staff_account_id_idx_ac99962e\" on \"inquiry_messages\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "inquiry_messages_sender_staff_account_id_idx_ac99962e",
+        "table": "inquiry_messages"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"inquiry_messages_sender_staff_account_id_idx_ac99962e\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"inquiry_messages_sender_staff_account_id_idx_ac99962e\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"inquiry_messages_sender_staff_account_id_idx_ac99962e\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"inquiry_messages_sender_staff_account_id_idx_ac99962e\"",
+        "sql": "CREATE INDEX \"inquiry_messages_sender_staff_account_id_idx_ac99962e\" ON \"public\".\"inquiry_messages\" (\"sender_staff_account_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"inquiry_messages_sender_staff_account_id_idx_ac99962e\" exists on \"inquiry_messages\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"inquiry_messages_sender_staff_account_id_idx_ac99962e\"",
+          "i",
+          "I",
+          "\"public\".\"inquiry_messages\"",
+          "btree",
+          "[\"sender_staff_account_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.inquiry_messages.ix_inquiry_messages_inquiry_9aaa9eb9",
+    "label": "Create index \"ix_inquiry_messages_inquiry_9aaa9eb9\" on \"inquiry_messages\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "ix_inquiry_messages_inquiry_9aaa9eb9",
+        "table": "inquiry_messages"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"ix_inquiry_messages_inquiry_9aaa9eb9\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ix_inquiry_messages_inquiry_9aaa9eb9\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"ix_inquiry_messages_inquiry_9aaa9eb9\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"ix_inquiry_messages_inquiry_9aaa9eb9\"",
+        "sql": "CREATE INDEX \"ix_inquiry_messages_inquiry_9aaa9eb9\" ON \"public\".\"inquiry_messages\" (\"inquiry_id\", \"created_at\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"ix_inquiry_messages_inquiry_9aaa9eb9\" exists on \"inquiry_messages\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"ix_inquiry_messages_inquiry_9aaa9eb9\"",
+          "i",
+          "I",
+          "\"public\".\"inquiry_messages\"",
+          "btree",
+          "[\"inquiry_id\",\"created_at\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.reports.ix_reports_status_a30bf36b",
+    "label": "Create index \"ix_reports_status_a30bf36b\" on \"reports\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "ix_reports_status_a30bf36b",
+        "table": "reports"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"ix_reports_status_a30bf36b\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ix_reports_status_a30bf36b\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"ix_reports_status_a30bf36b\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"ix_reports_status_a30bf36b\"",
+        "sql": "CREATE INDEX \"ix_reports_status_a30bf36b\" ON \"public\".\"reports\" (\"status\", \"received_at\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"ix_reports_status_a30bf36b\" exists on \"reports\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"ix_reports_status_a30bf36b\"",
+          "i",
+          "I",
+          "\"public\".\"reports\"",
+          "btree",
+          "[\"status\",\"received_at\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.reports.reports_reporter_member_id_idx_d730bdb6",
+    "label": "Create index \"reports_reporter_member_id_idx_d730bdb6\" on \"reports\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "reports_reporter_member_id_idx_d730bdb6",
+        "table": "reports"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"reports_reporter_member_id_idx_d730bdb6\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"reports_reporter_member_id_idx_d730bdb6\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"reports_reporter_member_id_idx_d730bdb6\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"reports_reporter_member_id_idx_d730bdb6\"",
+        "sql": "CREATE INDEX \"reports_reporter_member_id_idx_d730bdb6\" ON \"public\".\"reports\" (\"reporter_member_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"reports_reporter_member_id_idx_d730bdb6\" exists on \"reports\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"reports_reporter_member_id_idx_d730bdb6\"",
+          "i",
+          "I",
+          "\"public\".\"reports\"",
+          "btree",
+          "[\"reporter_member_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.reports.reports_reporter_staff_account_id_idx_7135b0e3",
+    "label": "Create index \"reports_reporter_staff_account_id_idx_7135b0e3\" on \"reports\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "reports_reporter_staff_account_id_idx_7135b0e3",
+        "table": "reports"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"reports_reporter_staff_account_id_idx_7135b0e3\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"reports_reporter_staff_account_id_idx_7135b0e3\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"reports_reporter_staff_account_id_idx_7135b0e3\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"reports_reporter_staff_account_id_idx_7135b0e3\"",
+        "sql": "CREATE INDEX \"reports_reporter_staff_account_id_idx_7135b0e3\" ON \"public\".\"reports\" (\"reporter_staff_account_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"reports_reporter_staff_account_id_idx_7135b0e3\" exists on \"reports\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"reports_reporter_staff_account_id_idx_7135b0e3\"",
+          "i",
+          "I",
+          "\"public\".\"reports\"",
+          "btree",
+          "[\"reporter_staff_account_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.reports.reports_resolved_by_account_id_idx_1e675b62",
+    "label": "Create index \"reports_resolved_by_account_id_idx_1e675b62\" on \"reports\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "reports_resolved_by_account_id_idx_1e675b62",
+        "table": "reports"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"reports_resolved_by_account_id_idx_1e675b62\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"reports_resolved_by_account_id_idx_1e675b62\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"reports_resolved_by_account_id_idx_1e675b62\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"reports_resolved_by_account_id_idx_1e675b62\"",
+        "sql": "CREATE INDEX \"reports_resolved_by_account_id_idx_1e675b62\" ON \"public\".\"reports\" (\"resolved_by_account_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"reports_resolved_by_account_id_idx_1e675b62\" exists on \"reports\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"reports_resolved_by_account_id_idx_1e675b62\"",
+          "i",
+          "I",
+          "\"public\".\"reports\"",
+          "btree",
+          "[\"resolved_by_account_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.reports.uq_reports_idem_member_34f592d7",
+    "label": "Create index \"uq_reports_idem_member_34f592d7\" on \"reports\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "uq_reports_idem_member_34f592d7",
+        "table": "reports"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"uq_reports_idem_member_34f592d7\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"uq_reports_idem_member_34f592d7\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"uq_reports_idem_member_34f592d7\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"uq_reports_idem_member_34f592d7\"",
+        "sql": "CREATE UNIQUE INDEX \"uq_reports_idem_member_34f592d7\" ON \"public\".\"reports\" (\"reporter_member_id\", \"idempotency_key\") WHERE ((reporter_member_id IS NOT NULL))",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"uq_reports_idem_member_34f592d7\" exists on \"reports\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND \"i\".\"indisunique\" AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NOT NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"uq_reports_idem_member_34f592d7\"",
+          "i",
+          "I",
+          "\"public\".\"reports\"",
+          "btree",
+          "[\"reporter_member_id\",\"idempotency_key\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.reports.uq_reports_idem_staff_dec02f34",
+    "label": "Create index \"uq_reports_idem_staff_dec02f34\" on \"reports\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "uq_reports_idem_staff_dec02f34",
+        "table": "reports"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"uq_reports_idem_staff_dec02f34\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"uq_reports_idem_staff_dec02f34\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"uq_reports_idem_staff_dec02f34\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"uq_reports_idem_staff_dec02f34\"",
+        "sql": "CREATE UNIQUE INDEX \"uq_reports_idem_staff_dec02f34\" ON \"public\".\"reports\" (\"reporter_staff_account_id\", \"idempotency_key\") WHERE ((reporter_staff_account_id IS NOT NULL))",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"uq_reports_idem_staff_dec02f34\" exists on \"reports\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND \"i\".\"indisunique\" AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NOT NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"uq_reports_idem_staff_dec02f34\"",
+          "i",
+          "I",
+          "\"public\".\"reports\"",
+          "btree",
+          "[\"reporter_staff_account_id\",\"idempotency_key\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.reports.uq_reports_open_member_20c5ee6d",
+    "label": "Create index \"uq_reports_open_member_20c5ee6d\" on \"reports\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "uq_reports_open_member_20c5ee6d",
+        "table": "reports"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"uq_reports_open_member_20c5ee6d\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"uq_reports_open_member_20c5ee6d\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"uq_reports_open_member_20c5ee6d\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"uq_reports_open_member_20c5ee6d\"",
+        "sql": "CREATE UNIQUE INDEX \"uq_reports_open_member_20c5ee6d\" ON \"public\".\"reports\" (\"reporter_member_id\", \"target_kind\", \"target_id\", \"reason_code\") WHERE ((status <> 'resolved' AND reporter_member_id IS NOT NULL))",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"uq_reports_open_member_20c5ee6d\" exists on \"reports\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND \"i\".\"indisunique\" AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NOT NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"uq_reports_open_member_20c5ee6d\"",
+          "i",
+          "I",
+          "\"public\".\"reports\"",
+          "btree",
+          "[\"reporter_member_id\",\"target_kind\",\"target_id\",\"reason_code\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.reports.uq_reports_open_staff_e174e4ef",
+    "label": "Create index \"uq_reports_open_staff_e174e4ef\" on \"reports\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "uq_reports_open_staff_e174e4ef",
+        "table": "reports"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"uq_reports_open_staff_e174e4ef\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"uq_reports_open_staff_e174e4ef\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"uq_reports_open_staff_e174e4ef\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"uq_reports_open_staff_e174e4ef\"",
+        "sql": "CREATE UNIQUE INDEX \"uq_reports_open_staff_e174e4ef\" ON \"public\".\"reports\" (\"reporter_staff_account_id\", \"target_kind\", \"target_id\", \"reason_code\") WHERE ((status <> 'resolved' AND reporter_staff_account_id IS NOT NULL))",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"uq_reports_open_staff_e174e4ef\" exists on \"reports\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND \"i\".\"indisunique\" AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NOT NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"uq_reports_open_staff_e174e4ef\"",
+          "i",
+          "I",
+          "\"public\".\"reports\"",
+          "btree",
+          "[\"reporter_staff_account_id\",\"target_kind\",\"target_id\",\"reason_code\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.inquiries.inquiries_asker_member_id_fkey",
+    "label": "Add foreign key \"inquiries_asker_member_id_fkey\" on \"inquiries\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "inquiries_asker_member_id_fkey",
+        "table": "inquiries"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"inquiries_asker_member_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "inquiries_asker_member_id_fkey",
+          "public",
+          "\"public\".\"inquiries\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"inquiries_asker_member_id_fkey\" on \"inquiries\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"inquiries_asker_member_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"inquiries\"\nADD CONSTRAINT \"inquiries_asker_member_id_fkey\"\nFOREIGN KEY (\"asker_member_id\")\nREFERENCES \"public\".\"members\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"inquiries_asker_member_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "inquiries_asker_member_id_fkey",
+          "public",
+          "\"public\".\"inquiries\"",
+          "f",
+          "[\"asker_member_id\"]",
+          "\"public\".\"members\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.inquiries.inquiries_asker_staff_account_id_fkey",
+    "label": "Add foreign key \"inquiries_asker_staff_account_id_fkey\" on \"inquiries\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "inquiries_asker_staff_account_id_fkey",
+        "table": "inquiries"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"inquiries_asker_staff_account_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "inquiries_asker_staff_account_id_fkey",
+          "public",
+          "\"public\".\"inquiries\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"inquiries_asker_staff_account_id_fkey\" on \"inquiries\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"inquiries_asker_staff_account_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"inquiries\"\nADD CONSTRAINT \"inquiries_asker_staff_account_id_fkey\"\nFOREIGN KEY (\"asker_staff_account_id\")\nREFERENCES \"public\".\"staff_accounts\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"inquiries_asker_staff_account_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "inquiries_asker_staff_account_id_fkey",
+          "public",
+          "\"public\".\"inquiries\"",
+          "f",
+          "[\"asker_staff_account_id\"]",
+          "\"public\".\"staff_accounts\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.inquiries.inquiries_academy_id_fkey",
+    "label": "Add foreign key \"inquiries_academy_id_fkey\" on \"inquiries\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "inquiries_academy_id_fkey",
+        "table": "inquiries"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"inquiries_academy_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "inquiries_academy_id_fkey",
+          "public",
+          "\"public\".\"inquiries\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"inquiries_academy_id_fkey\" on \"inquiries\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"inquiries_academy_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"inquiries\"\nADD CONSTRAINT \"inquiries_academy_id_fkey\"\nFOREIGN KEY (\"academy_id\")\nREFERENCES \"public\".\"academies\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"inquiries_academy_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "inquiries_academy_id_fkey",
+          "public",
+          "\"public\".\"inquiries\"",
+          "f",
+          "[\"academy_id\"]",
+          "\"public\".\"academies\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.inquiries.inquiries_reservation_id_fkey",
+    "label": "Add foreign key \"inquiries_reservation_id_fkey\" on \"inquiries\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "inquiries_reservation_id_fkey",
+        "table": "inquiries"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"inquiries_reservation_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "inquiries_reservation_id_fkey",
+          "public",
+          "\"public\".\"inquiries\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"inquiries_reservation_id_fkey\" on \"inquiries\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"inquiries_reservation_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"inquiries\"\nADD CONSTRAINT \"inquiries_reservation_id_fkey\"\nFOREIGN KEY (\"reservation_id\")\nREFERENCES \"public\".\"reservations\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"inquiries_reservation_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "inquiries_reservation_id_fkey",
+          "public",
+          "\"public\".\"inquiries\"",
+          "f",
+          "[\"reservation_id\"]",
+          "\"public\".\"reservations\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.inquiries.inquiries_offering_id_fkey",
+    "label": "Add foreign key \"inquiries_offering_id_fkey\" on \"inquiries\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "inquiries_offering_id_fkey",
+        "table": "inquiries"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"inquiries_offering_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "inquiries_offering_id_fkey",
+          "public",
+          "\"public\".\"inquiries\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"inquiries_offering_id_fkey\" on \"inquiries\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"inquiries_offering_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"inquiries\"\nADD CONSTRAINT \"inquiries_offering_id_fkey\"\nFOREIGN KEY (\"offering_id\")\nREFERENCES \"public\".\"class_offerings\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"inquiries_offering_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "inquiries_offering_id_fkey",
+          "public",
+          "\"public\".\"inquiries\"",
+          "f",
+          "[\"offering_id\"]",
+          "\"public\".\"class_offerings\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.inquiry_messages.inquiry_messages_inquiry_id_fkey",
+    "label": "Add foreign key \"inquiry_messages_inquiry_id_fkey\" on \"inquiry_messages\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "inquiry_messages_inquiry_id_fkey",
+        "table": "inquiry_messages"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"inquiry_messages_inquiry_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "inquiry_messages_inquiry_id_fkey",
+          "public",
+          "\"public\".\"inquiry_messages\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"inquiry_messages_inquiry_id_fkey\" on \"inquiry_messages\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"inquiry_messages_inquiry_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"inquiry_messages\"\nADD CONSTRAINT \"inquiry_messages_inquiry_id_fkey\"\nFOREIGN KEY (\"inquiry_id\")\nREFERENCES \"public\".\"inquiries\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"inquiry_messages_inquiry_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "inquiry_messages_inquiry_id_fkey",
+          "public",
+          "\"public\".\"inquiry_messages\"",
+          "f",
+          "[\"inquiry_id\"]",
+          "\"public\".\"inquiries\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.inquiry_messages.inquiry_messages_sender_member_id_fkey",
+    "label": "Add foreign key \"inquiry_messages_sender_member_id_fkey\" on \"inquiry_messages\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "inquiry_messages_sender_member_id_fkey",
+        "table": "inquiry_messages"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"inquiry_messages_sender_member_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "inquiry_messages_sender_member_id_fkey",
+          "public",
+          "\"public\".\"inquiry_messages\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"inquiry_messages_sender_member_id_fkey\" on \"inquiry_messages\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"inquiry_messages_sender_member_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"inquiry_messages\"\nADD CONSTRAINT \"inquiry_messages_sender_member_id_fkey\"\nFOREIGN KEY (\"sender_member_id\")\nREFERENCES \"public\".\"members\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"inquiry_messages_sender_member_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "inquiry_messages_sender_member_id_fkey",
+          "public",
+          "\"public\".\"inquiry_messages\"",
+          "f",
+          "[\"sender_member_id\"]",
+          "\"public\".\"members\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.inquiry_messages.inquiry_messages_sender_staff_account_id_fkey",
+    "label": "Add foreign key \"inquiry_messages_sender_staff_account_id_fkey\" on \"inquiry_messages\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "inquiry_messages_sender_staff_account_id_fkey",
+        "table": "inquiry_messages"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"inquiry_messages_sender_staff_account_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "inquiry_messages_sender_staff_account_id_fkey",
+          "public",
+          "\"public\".\"inquiry_messages\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"inquiry_messages_sender_staff_account_id_fkey\" on \"inquiry_messages\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"inquiry_messages_sender_staff_account_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"inquiry_messages\"\nADD CONSTRAINT \"inquiry_messages_sender_staff_account_id_fkey\"\nFOREIGN KEY (\"sender_staff_account_id\")\nREFERENCES \"public\".\"staff_accounts\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"inquiry_messages_sender_staff_account_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "inquiry_messages_sender_staff_account_id_fkey",
+          "public",
+          "\"public\".\"inquiry_messages\"",
+          "f",
+          "[\"sender_staff_account_id\"]",
+          "\"public\".\"staff_accounts\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.reports.reports_reporter_member_id_fkey",
+    "label": "Add foreign key \"reports_reporter_member_id_fkey\" on \"reports\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "reports_reporter_member_id_fkey",
+        "table": "reports"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"reports_reporter_member_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "reports_reporter_member_id_fkey",
+          "public",
+          "\"public\".\"reports\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"reports_reporter_member_id_fkey\" on \"reports\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"reports_reporter_member_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"reports\"\nADD CONSTRAINT \"reports_reporter_member_id_fkey\"\nFOREIGN KEY (\"reporter_member_id\")\nREFERENCES \"public\".\"members\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"reports_reporter_member_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "reports_reporter_member_id_fkey",
+          "public",
+          "\"public\".\"reports\"",
+          "f",
+          "[\"reporter_member_id\"]",
+          "\"public\".\"members\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.reports.reports_reporter_staff_account_id_fkey",
+    "label": "Add foreign key \"reports_reporter_staff_account_id_fkey\" on \"reports\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "reports_reporter_staff_account_id_fkey",
+        "table": "reports"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"reports_reporter_staff_account_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "reports_reporter_staff_account_id_fkey",
+          "public",
+          "\"public\".\"reports\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"reports_reporter_staff_account_id_fkey\" on \"reports\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"reports_reporter_staff_account_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"reports\"\nADD CONSTRAINT \"reports_reporter_staff_account_id_fkey\"\nFOREIGN KEY (\"reporter_staff_account_id\")\nREFERENCES \"public\".\"staff_accounts\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"reports_reporter_staff_account_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "reports_reporter_staff_account_id_fkey",
+          "public",
+          "\"public\".\"reports\"",
+          "f",
+          "[\"reporter_staff_account_id\"]",
+          "\"public\".\"staff_accounts\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.reports.reports_resolved_by_account_id_fkey",
+    "label": "Add foreign key \"reports_resolved_by_account_id_fkey\" on \"reports\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "reports_resolved_by_account_id_fkey",
+        "table": "reports"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"reports_resolved_by_account_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "reports_resolved_by_account_id_fkey",
+          "public",
+          "\"public\".\"reports\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"reports_resolved_by_account_id_fkey\" on \"reports\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"reports_resolved_by_account_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"reports\"\nADD CONSTRAINT \"reports_resolved_by_account_id_fkey\"\nFOREIGN KEY (\"resolved_by_account_id\")\nREFERENCES \"public\".\"staff_accounts\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"reports_resolved_by_account_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "reports_resolved_by_account_id_fkey",
+          "public",
+          "\"public\".\"reports\"",
+          "f",
+          "[\"resolved_by_account_id\"]",
+          "\"public\".\"staff_accounts\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "trigger.inquiry_messages_append_only",
+    "label": "Make inquiry_messages append-only (block UPDATE, DELETE)",
+    "summary": "Adds a row trigger that raises an exception on UPDATE and DELETE of inquiry_messages",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "inquiry_messages"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure trigger \"trg_inquiry_messages_append_only\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'trg_inquiry_messages_append_only' AND NOT tgisinternal)",
+        "expectation": {
+          "expects": "absent",
+          "object": "trigger \"trg_inquiry_messages_append_only\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create function public.inquiry_messages_reject_change()",
+        "sql": "CREATE FUNCTION public.inquiry_messages_reject_change() RETURNS trigger LANGUAGE plpgsql AS $fn$\nBEGIN\n  RAISE EXCEPTION 'inquiry_messages 는 추가 전용입니다. % 할 수 없습니다.', TG_OP\n    USING ERRCODE = 'insufficient_privilege';\nEND;\n$fn$"
+      },
+      {
+        "description": "create row trigger blocking UPDATE and DELETE",
+        "sql": "CREATE TRIGGER trg_inquiry_messages_append_only BEFORE UPDATE OR DELETE ON public.inquiry_messages FOR EACH ROW EXECUTE FUNCTION public.inquiry_messages_reject_change()"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify trigger \"trg_inquiry_messages_append_only\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'trg_inquiry_messages_append_only' AND NOT tgisinternal)",
+        "expectation": {
+          "expects": "present",
+          "object": "trigger \"trg_inquiry_messages_append_only\""
+        }
+      }
+    ]
+  }
+]

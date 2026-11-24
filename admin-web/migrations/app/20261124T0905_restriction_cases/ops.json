@@ -1,0 +1,1251 @@
+[
+  {
+    "id": "table.restriction_cases",
+    "label": "Create table \"restriction_cases\"",
+    "summary": "Creates table \"restriction_cases\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "restriction_cases"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"restriction_cases\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"restriction_cases\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"restriction_cases\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"restriction_cases\"",
+        "sql": "CREATE TABLE \"public\".\"restriction_cases\" (\n  \"closed_by_account_id\" uuid,\n  \"created_at\" timestamptz DEFAULT (now()) NOT NULL,\n  \"explanation_due_at\" timestamptz,\n  \"id\" uuid NOT NULL,\n  \"idempotency_key\" character varying(200),\n  \"lifted_at\" timestamptz,\n  \"measure\" text,\n  \"measure_applied_at\" timestamptz,\n  \"notice_sent_at\" timestamptz NOT NULL,\n  \"opened_by_account_id\" uuid,\n  \"planned_measure\" text,\n  \"reason_code\" text NOT NULL,\n  \"reason_text\" text NOT NULL,\n  \"source\" text NOT NULL,\n  \"source_check_id\" uuid,\n  \"source_report_id\" uuid,\n  \"state\" text NOT NULL,\n  \"subject_academy_id\" uuid,\n  \"subject_kind\" text NOT NULL,\n  \"subject_member_id\" uuid,\n  \"subject_staff_account_id\" uuid,\n  \"updated_at\" timestamptz NOT NULL,\n  \"urgent\" bool DEFAULT false NOT NULL,\n  PRIMARY KEY (\"id\"),\n  CONSTRAINT \"ck_restriction_idempotency_key_7d8ee603\" CHECK (idempotency_key IS NULL OR char_length(idempotency_key) > 0),\n  CONSTRAINT \"ck_restriction_reason_f13e51b3\" CHECK (char_length(btrim(reason_text)) > 0 AND char_length(reason_code) > 0),\n  CONSTRAINT \"ck_restriction_state_measure_6c177359\" CHECK (state <> 'measure_applied' OR (measure IS NOT NULL AND measure_applied_at IS NOT NULL)),\n  CONSTRAINT \"ck_restriction_subject_e4eb745d\" CHECK ((subject_kind = 'member' AND subject_member_id IS NOT NULL AND subject_staff_account_id IS NULL AND subject_academy_id IS NULL) OR (subject_kind = 'instructor' AND subject_staff_account_id IS NOT NULL AND subject_member_id IS NULL AND subject_academy_id IS NULL) OR (subject_kind = 'academy' AND subject_academy_id IS NOT NULL AND subject_member_id IS NULL AND subject_staff_account_id IS NULL)),\n  CONSTRAINT \"restriction_cases_measure_check_ac9702ab\" CHECK (\"measure\" IN ('warning', 'feature_limit', 'listing_limit', 'payout_hold', 'suspension', 'termination')),\n  CONSTRAINT \"restriction_cases_planned_measure_check_2a08ace2\" CHECK (\"planned_measure\" IN ('warning', 'feature_limit', 'listing_limit', 'payout_hold', 'suspension', 'termination')),\n  CONSTRAINT \"restriction_cases_source_check_a0510dfe\" CHECK (\"source\" IN ('report', 'business_status', 'operator_manual')),\n  CONSTRAINT \"restriction_cases_state_check_751d67ac\" CHECK (\"state\" IN ('notice_sent', 'explained', 'measure_applied', 'lifted', 'dismissed')),\n  CONSTRAINT \"restriction_cases_subject_kind_check_5f9f070b\" CHECK (\"subject_kind\" IN ('member', 'instructor', 'academy'))\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"restriction_cases\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3))) AS \"result\"",
+        "params": [
+          "\"public\".\"restriction_cases\"",
+          "r",
+          "p"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"restriction_cases\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "column.public.academy_restrictions.source_case_id",
+    "label": "Add column \"source_case_id\" to \"academy_restrictions\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "source_case_id",
+        "table": "academy_restrictions"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"source_case_id\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "academy_restrictions",
+          "source_case_id"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "column \"source_case_id\" on \"academy_restrictions\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"source_case_id\"",
+        "sql": "ALTER TABLE \"public\".\"academy_restrictions\" ADD COLUMN \"source_case_id\" uuid"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"source_case_id\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "academy_restrictions",
+          "source_case_id"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "column \"source_case_id\" on \"academy_restrictions\""
+        }
+      },
+      {
+        "description": "verify column \"source_case_id\" has type \"uuid\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_attribute\" AS \"a\" INNER JOIN \"pg_class\" AS \"c\" ON \"c\".\"oid\" = \"a\".\"attrelid\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"a\".\"attname\" = $3 AND (format_type(\"a\".\"atttypid\", \"a\".\"atttypmod\")) = $4 AND NOT (\"a\".\"attisdropped\"))) AS \"result\"",
+        "params": [
+          "public",
+          "academy_restrictions",
+          "source_case_id",
+          "uuid"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.academy_restrictions.academy_restrictions_source_case_id_idx_69772f6c",
+    "label": "Create index \"academy_restrictions_source_case_id_idx_69772f6c\" on \"academy_restrictions\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "academy_restrictions_source_case_id_idx_69772f6c",
+        "table": "academy_restrictions"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"academy_restrictions_source_case_id_idx_69772f6c\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"academy_restrictions_source_case_id_idx_69772f6c\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"academy_restrictions_source_case_id_idx_69772f6c\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"academy_restrictions_source_case_id_idx_69772f6c\"",
+        "sql": "CREATE INDEX \"academy_restrictions_source_case_id_idx_69772f6c\" ON \"public\".\"academy_restrictions\" (\"source_case_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"academy_restrictions_source_case_id_idx_69772f6c\" exists on \"academy_restrictions\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"academy_restrictions_source_case_id_idx_69772f6c\"",
+          "i",
+          "I",
+          "\"public\".\"academy_restrictions\"",
+          "btree",
+          "[\"source_case_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.reports.reports_restriction_case_id_idx_cd26829b",
+    "label": "Create index \"reports_restriction_case_id_idx_cd26829b\" on \"reports\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "reports_restriction_case_id_idx_cd26829b",
+        "table": "reports"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"reports_restriction_case_id_idx_cd26829b\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"reports_restriction_case_id_idx_cd26829b\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"reports_restriction_case_id_idx_cd26829b\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"reports_restriction_case_id_idx_cd26829b\"",
+        "sql": "CREATE INDEX \"reports_restriction_case_id_idx_cd26829b\" ON \"public\".\"reports\" (\"restriction_case_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"reports_restriction_case_id_idx_cd26829b\" exists on \"reports\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"reports_restriction_case_id_idx_cd26829b\"",
+          "i",
+          "I",
+          "\"public\".\"reports\"",
+          "btree",
+          "[\"restriction_case_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.restriction_cases.ix_restriction_state_c44b6fcf",
+    "label": "Create index \"ix_restriction_state_c44b6fcf\" on \"restriction_cases\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "ix_restriction_state_c44b6fcf",
+        "table": "restriction_cases"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"ix_restriction_state_c44b6fcf\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ix_restriction_state_c44b6fcf\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"ix_restriction_state_c44b6fcf\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"ix_restriction_state_c44b6fcf\"",
+        "sql": "CREATE INDEX \"ix_restriction_state_c44b6fcf\" ON \"public\".\"restriction_cases\" (\"state\", \"explanation_due_at\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"ix_restriction_state_c44b6fcf\" exists on \"restriction_cases\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"ix_restriction_state_c44b6fcf\"",
+          "i",
+          "I",
+          "\"public\".\"restriction_cases\"",
+          "btree",
+          "[\"state\",\"explanation_due_at\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.restriction_cases.ix_restriction_subject_academy_3d27bb80",
+    "label": "Create index \"ix_restriction_subject_academy_3d27bb80\" on \"restriction_cases\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "ix_restriction_subject_academy_3d27bb80",
+        "table": "restriction_cases"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"ix_restriction_subject_academy_3d27bb80\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ix_restriction_subject_academy_3d27bb80\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"ix_restriction_subject_academy_3d27bb80\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"ix_restriction_subject_academy_3d27bb80\"",
+        "sql": "CREATE INDEX \"ix_restriction_subject_academy_3d27bb80\" ON \"public\".\"restriction_cases\" (\"subject_academy_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"ix_restriction_subject_academy_3d27bb80\" exists on \"restriction_cases\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"ix_restriction_subject_academy_3d27bb80\"",
+          "i",
+          "I",
+          "\"public\".\"restriction_cases\"",
+          "btree",
+          "[\"subject_academy_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.restriction_cases.restriction_cases_closed_by_account_id_idx_6925076a",
+    "label": "Create index \"restriction_cases_closed_by_account_id_idx_6925076a\" on \"restriction_cases\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "restriction_cases_closed_by_account_id_idx_6925076a",
+        "table": "restriction_cases"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"restriction_cases_closed_by_account_id_idx_6925076a\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"restriction_cases_closed_by_account_id_idx_6925076a\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"restriction_cases_closed_by_account_id_idx_6925076a\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"restriction_cases_closed_by_account_id_idx_6925076a\"",
+        "sql": "CREATE INDEX \"restriction_cases_closed_by_account_id_idx_6925076a\" ON \"public\".\"restriction_cases\" (\"closed_by_account_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"restriction_cases_closed_by_account_id_idx_6925076a\" exists on \"restriction_cases\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"restriction_cases_closed_by_account_id_idx_6925076a\"",
+          "i",
+          "I",
+          "\"public\".\"restriction_cases\"",
+          "btree",
+          "[\"closed_by_account_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.restriction_cases.restriction_cases_opened_by_account_id_idx_99acd508",
+    "label": "Create index \"restriction_cases_opened_by_account_id_idx_99acd508\" on \"restriction_cases\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "restriction_cases_opened_by_account_id_idx_99acd508",
+        "table": "restriction_cases"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"restriction_cases_opened_by_account_id_idx_99acd508\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"restriction_cases_opened_by_account_id_idx_99acd508\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"restriction_cases_opened_by_account_id_idx_99acd508\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"restriction_cases_opened_by_account_id_idx_99acd508\"",
+        "sql": "CREATE INDEX \"restriction_cases_opened_by_account_id_idx_99acd508\" ON \"public\".\"restriction_cases\" (\"opened_by_account_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"restriction_cases_opened_by_account_id_idx_99acd508\" exists on \"restriction_cases\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"restriction_cases_opened_by_account_id_idx_99acd508\"",
+          "i",
+          "I",
+          "\"public\".\"restriction_cases\"",
+          "btree",
+          "[\"opened_by_account_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.restriction_cases.restriction_cases_source_check_id_idx_28a6646f",
+    "label": "Create index \"restriction_cases_source_check_id_idx_28a6646f\" on \"restriction_cases\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "restriction_cases_source_check_id_idx_28a6646f",
+        "table": "restriction_cases"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"restriction_cases_source_check_id_idx_28a6646f\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"restriction_cases_source_check_id_idx_28a6646f\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"restriction_cases_source_check_id_idx_28a6646f\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"restriction_cases_source_check_id_idx_28a6646f\"",
+        "sql": "CREATE INDEX \"restriction_cases_source_check_id_idx_28a6646f\" ON \"public\".\"restriction_cases\" (\"source_check_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"restriction_cases_source_check_id_idx_28a6646f\" exists on \"restriction_cases\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"restriction_cases_source_check_id_idx_28a6646f\"",
+          "i",
+          "I",
+          "\"public\".\"restriction_cases\"",
+          "btree",
+          "[\"source_check_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.restriction_cases.restriction_cases_source_report_id_idx_aeeafcfd",
+    "label": "Create index \"restriction_cases_source_report_id_idx_aeeafcfd\" on \"restriction_cases\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "restriction_cases_source_report_id_idx_aeeafcfd",
+        "table": "restriction_cases"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"restriction_cases_source_report_id_idx_aeeafcfd\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"restriction_cases_source_report_id_idx_aeeafcfd\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"restriction_cases_source_report_id_idx_aeeafcfd\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"restriction_cases_source_report_id_idx_aeeafcfd\"",
+        "sql": "CREATE INDEX \"restriction_cases_source_report_id_idx_aeeafcfd\" ON \"public\".\"restriction_cases\" (\"source_report_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"restriction_cases_source_report_id_idx_aeeafcfd\" exists on \"restriction_cases\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"restriction_cases_source_report_id_idx_aeeafcfd\"",
+          "i",
+          "I",
+          "\"public\".\"restriction_cases\"",
+          "btree",
+          "[\"source_report_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.restriction_cases.restriction_cases_subject_member_id_idx_7cd49872",
+    "label": "Create index \"restriction_cases_subject_member_id_idx_7cd49872\" on \"restriction_cases\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "restriction_cases_subject_member_id_idx_7cd49872",
+        "table": "restriction_cases"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"restriction_cases_subject_member_id_idx_7cd49872\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"restriction_cases_subject_member_id_idx_7cd49872\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"restriction_cases_subject_member_id_idx_7cd49872\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"restriction_cases_subject_member_id_idx_7cd49872\"",
+        "sql": "CREATE INDEX \"restriction_cases_subject_member_id_idx_7cd49872\" ON \"public\".\"restriction_cases\" (\"subject_member_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"restriction_cases_subject_member_id_idx_7cd49872\" exists on \"restriction_cases\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"restriction_cases_subject_member_id_idx_7cd49872\"",
+          "i",
+          "I",
+          "\"public\".\"restriction_cases\"",
+          "btree",
+          "[\"subject_member_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.restriction_cases.restriction_cases_subject_staff_account_id_idx_1840ef38",
+    "label": "Create index \"restriction_cases_subject_staff_account_id_idx_1840ef38\" on \"restriction_cases\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "restriction_cases_subject_staff_account_id_idx_1840ef38",
+        "table": "restriction_cases"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"restriction_cases_subject_staff_account_id_idx_1840ef38\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"restriction_cases_subject_staff_account_id_idx_1840ef38\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"restriction_cases_subject_staff_account_id_idx_1840ef38\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"restriction_cases_subject_staff_account_id_idx_1840ef38\"",
+        "sql": "CREATE INDEX \"restriction_cases_subject_staff_account_id_idx_1840ef38\" ON \"public\".\"restriction_cases\" (\"subject_staff_account_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"restriction_cases_subject_staff_account_id_idx_1840ef38\" exists on \"restriction_cases\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"restriction_cases_subject_staff_account_id_idx_1840ef38\"",
+          "i",
+          "I",
+          "\"public\".\"restriction_cases\"",
+          "btree",
+          "[\"subject_staff_account_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.restriction_cases.uq_restriction_idem_4a94d430",
+    "label": "Create index \"uq_restriction_idem_4a94d430\" on \"restriction_cases\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "uq_restriction_idem_4a94d430",
+        "table": "restriction_cases"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"uq_restriction_idem_4a94d430\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"uq_restriction_idem_4a94d430\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"uq_restriction_idem_4a94d430\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"uq_restriction_idem_4a94d430\"",
+        "sql": "CREATE UNIQUE INDEX \"uq_restriction_idem_4a94d430\" ON \"public\".\"restriction_cases\" (\"opened_by_account_id\", \"idempotency_key\") WHERE ((idempotency_key IS NOT NULL))",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"uq_restriction_idem_4a94d430\" exists on \"restriction_cases\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND \"i\".\"indisunique\" AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NOT NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"uq_restriction_idem_4a94d430\"",
+          "i",
+          "I",
+          "\"public\".\"restriction_cases\"",
+          "btree",
+          "[\"opened_by_account_id\",\"idempotency_key\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.restriction_cases.uq_restriction_open_academy_415795c3",
+    "label": "Create index \"uq_restriction_open_academy_415795c3\" on \"restriction_cases\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "uq_restriction_open_academy_415795c3",
+        "table": "restriction_cases"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"uq_restriction_open_academy_415795c3\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"uq_restriction_open_academy_415795c3\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"uq_restriction_open_academy_415795c3\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"uq_restriction_open_academy_415795c3\"",
+        "sql": "CREATE UNIQUE INDEX \"uq_restriction_open_academy_415795c3\" ON \"public\".\"restriction_cases\" (\"subject_academy_id\", \"source\") WHERE ((state IN ('notice_sent', 'explained', 'measure_applied') AND subject_academy_id IS NOT NULL))",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"uq_restriction_open_academy_415795c3\" exists on \"restriction_cases\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND \"i\".\"indisunique\" AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NOT NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"uq_restriction_open_academy_415795c3\"",
+          "i",
+          "I",
+          "\"public\".\"restriction_cases\"",
+          "btree",
+          "[\"subject_academy_id\",\"source\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.restriction_cases.uq_restriction_open_member_7c3ca15d",
+    "label": "Create index \"uq_restriction_open_member_7c3ca15d\" on \"restriction_cases\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "uq_restriction_open_member_7c3ca15d",
+        "table": "restriction_cases"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"uq_restriction_open_member_7c3ca15d\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"uq_restriction_open_member_7c3ca15d\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"uq_restriction_open_member_7c3ca15d\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"uq_restriction_open_member_7c3ca15d\"",
+        "sql": "CREATE UNIQUE INDEX \"uq_restriction_open_member_7c3ca15d\" ON \"public\".\"restriction_cases\" (\"subject_member_id\", \"source\") WHERE ((state IN ('notice_sent', 'explained', 'measure_applied') AND subject_member_id IS NOT NULL))",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"uq_restriction_open_member_7c3ca15d\" exists on \"restriction_cases\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND \"i\".\"indisunique\" AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NOT NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"uq_restriction_open_member_7c3ca15d\"",
+          "i",
+          "I",
+          "\"public\".\"restriction_cases\"",
+          "btree",
+          "[\"subject_member_id\",\"source\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.restriction_cases.uq_restriction_open_staff_0720e3db",
+    "label": "Create index \"uq_restriction_open_staff_0720e3db\" on \"restriction_cases\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "uq_restriction_open_staff_0720e3db",
+        "table": "restriction_cases"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"uq_restriction_open_staff_0720e3db\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"uq_restriction_open_staff_0720e3db\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"uq_restriction_open_staff_0720e3db\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"uq_restriction_open_staff_0720e3db\"",
+        "sql": "CREATE UNIQUE INDEX \"uq_restriction_open_staff_0720e3db\" ON \"public\".\"restriction_cases\" (\"subject_staff_account_id\", \"source\") WHERE ((state IN ('notice_sent', 'explained', 'measure_applied') AND subject_staff_account_id IS NOT NULL))",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"uq_restriction_open_staff_0720e3db\" exists on \"restriction_cases\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND \"i\".\"indisunique\" AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NOT NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"uq_restriction_open_staff_0720e3db\"",
+          "i",
+          "I",
+          "\"public\".\"restriction_cases\"",
+          "btree",
+          "[\"subject_staff_account_id\",\"source\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.restriction_cases.restriction_cases_subject_member_id_fkey",
+    "label": "Add foreign key \"restriction_cases_subject_member_id_fkey\" on \"restriction_cases\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "restriction_cases_subject_member_id_fkey",
+        "table": "restriction_cases"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"restriction_cases_subject_member_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "restriction_cases_subject_member_id_fkey",
+          "public",
+          "\"public\".\"restriction_cases\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"restriction_cases_subject_member_id_fkey\" on \"restriction_cases\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"restriction_cases_subject_member_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"restriction_cases\"\nADD CONSTRAINT \"restriction_cases_subject_member_id_fkey\"\nFOREIGN KEY (\"subject_member_id\")\nREFERENCES \"public\".\"members\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"restriction_cases_subject_member_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "restriction_cases_subject_member_id_fkey",
+          "public",
+          "\"public\".\"restriction_cases\"",
+          "f",
+          "[\"subject_member_id\"]",
+          "\"public\".\"members\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.restriction_cases.restriction_cases_subject_staff_account_id_fkey",
+    "label": "Add foreign key \"restriction_cases_subject_staff_account_id_fkey\" on \"restriction_cases\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "restriction_cases_subject_staff_account_id_fkey",
+        "table": "restriction_cases"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"restriction_cases_subject_staff_account_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "restriction_cases_subject_staff_account_id_fkey",
+          "public",
+          "\"public\".\"restriction_cases\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"restriction_cases_subject_staff_account_id_fkey\" on \"restriction_cases\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"restriction_cases_subject_staff_account_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"restriction_cases\"\nADD CONSTRAINT \"restriction_cases_subject_staff_account_id_fkey\"\nFOREIGN KEY (\"subject_staff_account_id\")\nREFERENCES \"public\".\"staff_accounts\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"restriction_cases_subject_staff_account_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "restriction_cases_subject_staff_account_id_fkey",
+          "public",
+          "\"public\".\"restriction_cases\"",
+          "f",
+          "[\"subject_staff_account_id\"]",
+          "\"public\".\"staff_accounts\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.restriction_cases.restriction_cases_subject_academy_id_fkey",
+    "label": "Add foreign key \"restriction_cases_subject_academy_id_fkey\" on \"restriction_cases\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "restriction_cases_subject_academy_id_fkey",
+        "table": "restriction_cases"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"restriction_cases_subject_academy_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "restriction_cases_subject_academy_id_fkey",
+          "public",
+          "\"public\".\"restriction_cases\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"restriction_cases_subject_academy_id_fkey\" on \"restriction_cases\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"restriction_cases_subject_academy_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"restriction_cases\"\nADD CONSTRAINT \"restriction_cases_subject_academy_id_fkey\"\nFOREIGN KEY (\"subject_academy_id\")\nREFERENCES \"public\".\"academies\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"restriction_cases_subject_academy_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "restriction_cases_subject_academy_id_fkey",
+          "public",
+          "\"public\".\"restriction_cases\"",
+          "f",
+          "[\"subject_academy_id\"]",
+          "\"public\".\"academies\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.restriction_cases.restriction_cases_source_report_id_fkey",
+    "label": "Add foreign key \"restriction_cases_source_report_id_fkey\" on \"restriction_cases\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "restriction_cases_source_report_id_fkey",
+        "table": "restriction_cases"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"restriction_cases_source_report_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "restriction_cases_source_report_id_fkey",
+          "public",
+          "\"public\".\"restriction_cases\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"restriction_cases_source_report_id_fkey\" on \"restriction_cases\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"restriction_cases_source_report_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"restriction_cases\"\nADD CONSTRAINT \"restriction_cases_source_report_id_fkey\"\nFOREIGN KEY (\"source_report_id\")\nREFERENCES \"public\".\"reports\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"restriction_cases_source_report_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "restriction_cases_source_report_id_fkey",
+          "public",
+          "\"public\".\"restriction_cases\"",
+          "f",
+          "[\"source_report_id\"]",
+          "\"public\".\"reports\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.restriction_cases.restriction_cases_source_check_id_fkey",
+    "label": "Add foreign key \"restriction_cases_source_check_id_fkey\" on \"restriction_cases\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "restriction_cases_source_check_id_fkey",
+        "table": "restriction_cases"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"restriction_cases_source_check_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "restriction_cases_source_check_id_fkey",
+          "public",
+          "\"public\".\"restriction_cases\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"restriction_cases_source_check_id_fkey\" on \"restriction_cases\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"restriction_cases_source_check_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"restriction_cases\"\nADD CONSTRAINT \"restriction_cases_source_check_id_fkey\"\nFOREIGN KEY (\"source_check_id\")\nREFERENCES \"public\".\"business_status_checks\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"restriction_cases_source_check_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "restriction_cases_source_check_id_fkey",
+          "public",
+          "\"public\".\"restriction_cases\"",
+          "f",
+          "[\"source_check_id\"]",
+          "\"public\".\"business_status_checks\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.restriction_cases.restriction_cases_opened_by_account_id_fkey",
+    "label": "Add foreign key \"restriction_cases_opened_by_account_id_fkey\" on \"restriction_cases\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "restriction_cases_opened_by_account_id_fkey",
+        "table": "restriction_cases"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"restriction_cases_opened_by_account_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "restriction_cases_opened_by_account_id_fkey",
+          "public",
+          "\"public\".\"restriction_cases\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"restriction_cases_opened_by_account_id_fkey\" on \"restriction_cases\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"restriction_cases_opened_by_account_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"restriction_cases\"\nADD CONSTRAINT \"restriction_cases_opened_by_account_id_fkey\"\nFOREIGN KEY (\"opened_by_account_id\")\nREFERENCES \"public\".\"staff_accounts\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"restriction_cases_opened_by_account_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "restriction_cases_opened_by_account_id_fkey",
+          "public",
+          "\"public\".\"restriction_cases\"",
+          "f",
+          "[\"opened_by_account_id\"]",
+          "\"public\".\"staff_accounts\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.restriction_cases.restriction_cases_closed_by_account_id_fkey",
+    "label": "Add foreign key \"restriction_cases_closed_by_account_id_fkey\" on \"restriction_cases\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "restriction_cases_closed_by_account_id_fkey",
+        "table": "restriction_cases"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"restriction_cases_closed_by_account_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "restriction_cases_closed_by_account_id_fkey",
+          "public",
+          "\"public\".\"restriction_cases\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"restriction_cases_closed_by_account_id_fkey\" on \"restriction_cases\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"restriction_cases_closed_by_account_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"restriction_cases\"\nADD CONSTRAINT \"restriction_cases_closed_by_account_id_fkey\"\nFOREIGN KEY (\"closed_by_account_id\")\nREFERENCES \"public\".\"staff_accounts\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"restriction_cases_closed_by_account_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "restriction_cases_closed_by_account_id_fkey",
+          "public",
+          "\"public\".\"restriction_cases\"",
+          "f",
+          "[\"closed_by_account_id\"]",
+          "\"public\".\"staff_accounts\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.academy_restrictions.academy_restrictions_source_case_id_fkey",
+    "label": "Add foreign key \"academy_restrictions_source_case_id_fkey\" on \"academy_restrictions\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "academy_restrictions_source_case_id_fkey",
+        "table": "academy_restrictions"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"academy_restrictions_source_case_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "academy_restrictions_source_case_id_fkey",
+          "public",
+          "\"public\".\"academy_restrictions\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"academy_restrictions_source_case_id_fkey\" on \"academy_restrictions\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"academy_restrictions_source_case_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"academy_restrictions\"\nADD CONSTRAINT \"academy_restrictions_source_case_id_fkey\"\nFOREIGN KEY (\"source_case_id\")\nREFERENCES \"public\".\"restriction_cases\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"academy_restrictions_source_case_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "academy_restrictions_source_case_id_fkey",
+          "public",
+          "\"public\".\"academy_restrictions\"",
+          "f",
+          "[\"source_case_id\"]",
+          "\"public\".\"restriction_cases\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.reports.reports_restriction_case_id_fkey",
+    "label": "Add foreign key \"reports_restriction_case_id_fkey\" on \"reports\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "reports_restriction_case_id_fkey",
+        "table": "reports"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"reports_restriction_case_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "reports_restriction_case_id_fkey",
+          "public",
+          "\"public\".\"reports\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"reports_restriction_case_id_fkey\" on \"reports\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"reports_restriction_case_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"reports\"\nADD CONSTRAINT \"reports_restriction_case_id_fkey\"\nFOREIGN KEY (\"restriction_case_id\")\nREFERENCES \"public\".\"restriction_cases\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"reports_restriction_case_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "reports_restriction_case_id_fkey",
+          "public",
+          "\"public\".\"reports\"",
+          "f",
+          "[\"restriction_case_id\"]",
+          "\"public\".\"restriction_cases\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  }
+]

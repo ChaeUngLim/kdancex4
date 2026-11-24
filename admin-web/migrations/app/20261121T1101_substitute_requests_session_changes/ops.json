@@ -1,0 +1,1241 @@
+[
+  {
+    "id": "table.session_changes",
+    "label": "Create table \"session_changes\"",
+    "summary": "Creates table \"session_changes\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "session_changes"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"session_changes\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"session_changes\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"session_changes\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"session_changes\"",
+        "sql": "CREATE TABLE \"public\".\"session_changes\" (\n  \"after\" json DEFAULT ('{}'::jsonb) NOT NULL,\n  \"batch_id\" uuid,\n  \"before\" json DEFAULT ('{}'::jsonb) NOT NULL,\n  \"changed_by_account_id\" uuid NOT NULL,\n  \"class_id\" uuid NOT NULL,\n  \"created_at\" timestamptz DEFAULT (now()) NOT NULL,\n  \"id\" uuid NOT NULL,\n  \"kind\" text NOT NULL,\n  \"member_choice_deadline_at\" timestamptz,\n  \"notified_member_count\" int4 DEFAULT 0 NOT NULL,\n  \"reason\" text,\n  \"session_id\" uuid NOT NULL,\n  PRIMARY KEY (\"id\"),\n  CONSTRAINT \"ck_session_changes_deadline_3cc5e5d6\" CHECK ((kind = 'cancelled') = (member_choice_deadline_at IS NOT NULL)),\n  CONSTRAINT \"ck_session_changes_notified_4f77ff7c\" CHECK (notified_member_count >= 0),\n  CONSTRAINT \"session_changes_kind_check_df74eef0\" CHECK (\"kind\" IN ('time_place', 'cancelled', 'closed', 'instructor_changed'))\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"session_changes\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3))) AS \"result\"",
+        "params": [
+          "\"public\".\"session_changes\"",
+          "r",
+          "p"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"session_changes\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "table.substitute_request_candidates",
+    "label": "Create table \"substitute_request_candidates\"",
+    "summary": "Creates table \"substitute_request_candidates\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "substitute_request_candidates"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"substitute_request_candidates\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"substitute_request_candidates\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"substitute_request_candidates\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"substitute_request_candidates\"",
+        "sql": "CREATE TABLE \"public\".\"substitute_request_candidates\" (\n  \"candidate_account_id\" uuid NOT NULL,\n  \"request_id\" uuid NOT NULL,\n  \"responded_at\" timestamptz,\n  \"status\" text DEFAULT 'invited' NOT NULL,\n  PRIMARY KEY (\"request_id\", \"candidate_account_id\"),\n  CONSTRAINT \"substitute_request_candidates_status_check_4a650df5\" CHECK (\"status\" IN ('invited', 'accepted', 'declined', 'closed'))\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"substitute_request_candidates\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3))) AS \"result\"",
+        "params": [
+          "\"public\".\"substitute_request_candidates\"",
+          "r",
+          "p"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"substitute_request_candidates\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "table.substitute_requests",
+    "label": "Create table \"substitute_requests\"",
+    "summary": "Creates table \"substitute_requests\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "substitute_requests"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"substitute_requests\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"substitute_requests\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"substitute_requests\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"substitute_requests\"",
+        "sql": "CREATE TABLE \"public\".\"substitute_requests\" (\n  \"accepted_at\" timestamptz,\n  \"accepted_candidate_account_id\" uuid,\n  \"cancelled_at\" timestamptz,\n  \"confirmed_at\" timestamptz,\n  \"confirmed_by_account_id\" uuid,\n  \"created_at\" timestamptz DEFAULT (now()) NOT NULL,\n  \"id\" uuid NOT NULL,\n  \"idempotency_key\" character varying(200) NOT NULL,\n  \"message\" text,\n  \"requested_by_account_id\" uuid NOT NULL,\n  \"session_id\" uuid NOT NULL,\n  \"status\" text DEFAULT 'open' NOT NULL,\n  PRIMARY KEY (\"id\"),\n  CONSTRAINT \"ck_substitute_accepted_4bb6d5d7\" CHECK (status NOT IN ('accepted', 'confirmed') OR (accepted_candidate_account_id IS NOT NULL AND accepted_at IS NOT NULL)),\n  CONSTRAINT \"ck_substitute_confirmed_a76bd466\" CHECK ((status = 'confirmed') = (confirmed_at IS NOT NULL)),\n  CONSTRAINT \"ck_substitute_msg_821b4462\" CHECK (message IS NULL OR char_length(message) <= 200),\n  CONSTRAINT \"substitute_requests_status_check_ae2bfbaa\" CHECK (\"status\" IN ('open', 'accepted', 'confirmed', 'cancelled', 'expired'))\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"substitute_requests\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3))) AS \"result\"",
+        "params": [
+          "\"public\".\"substitute_requests\"",
+          "r",
+          "p"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"substitute_requests\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "index.session_changes.ix_session_changes_batch_130bc9ee",
+    "label": "Create index \"ix_session_changes_batch_130bc9ee\" on \"session_changes\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "ix_session_changes_batch_130bc9ee",
+        "table": "session_changes"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"ix_session_changes_batch_130bc9ee\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ix_session_changes_batch_130bc9ee\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"ix_session_changes_batch_130bc9ee\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"ix_session_changes_batch_130bc9ee\"",
+        "sql": "CREATE INDEX \"ix_session_changes_batch_130bc9ee\" ON \"public\".\"session_changes\" (\"batch_id\") WHERE ((batch_id IS NOT NULL))",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"ix_session_changes_batch_130bc9ee\" exists on \"session_changes\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NOT NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"ix_session_changes_batch_130bc9ee\"",
+          "i",
+          "I",
+          "\"public\".\"session_changes\"",
+          "btree",
+          "[\"batch_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.session_changes.ix_session_changes_session_d635b073",
+    "label": "Create index \"ix_session_changes_session_d635b073\" on \"session_changes\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "ix_session_changes_session_d635b073",
+        "table": "session_changes"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"ix_session_changes_session_d635b073\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ix_session_changes_session_d635b073\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"ix_session_changes_session_d635b073\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"ix_session_changes_session_d635b073\"",
+        "sql": "CREATE INDEX \"ix_session_changes_session_d635b073\" ON \"public\".\"session_changes\" (\"session_id\", \"created_at\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"ix_session_changes_session_d635b073\" exists on \"session_changes\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"ix_session_changes_session_d635b073\"",
+          "i",
+          "I",
+          "\"public\".\"session_changes\"",
+          "btree",
+          "[\"session_id\",\"created_at\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.session_changes.session_changes_changed_by_account_id_idx_a2704a0f",
+    "label": "Create index \"session_changes_changed_by_account_id_idx_a2704a0f\" on \"session_changes\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "session_changes_changed_by_account_id_idx_a2704a0f",
+        "table": "session_changes"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"session_changes_changed_by_account_id_idx_a2704a0f\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"session_changes_changed_by_account_id_idx_a2704a0f\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"session_changes_changed_by_account_id_idx_a2704a0f\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"session_changes_changed_by_account_id_idx_a2704a0f\"",
+        "sql": "CREATE INDEX \"session_changes_changed_by_account_id_idx_a2704a0f\" ON \"public\".\"session_changes\" (\"changed_by_account_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"session_changes_changed_by_account_id_idx_a2704a0f\" exists on \"session_changes\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"session_changes_changed_by_account_id_idx_a2704a0f\"",
+          "i",
+          "I",
+          "\"public\".\"session_changes\"",
+          "btree",
+          "[\"changed_by_account_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.session_changes.session_changes_class_id_idx_0031a3d7",
+    "label": "Create index \"session_changes_class_id_idx_0031a3d7\" on \"session_changes\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "session_changes_class_id_idx_0031a3d7",
+        "table": "session_changes"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"session_changes_class_id_idx_0031a3d7\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"session_changes_class_id_idx_0031a3d7\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"session_changes_class_id_idx_0031a3d7\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"session_changes_class_id_idx_0031a3d7\"",
+        "sql": "CREATE INDEX \"session_changes_class_id_idx_0031a3d7\" ON \"public\".\"session_changes\" (\"class_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"session_changes_class_id_idx_0031a3d7\" exists on \"session_changes\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"session_changes_class_id_idx_0031a3d7\"",
+          "i",
+          "I",
+          "\"public\".\"session_changes\"",
+          "btree",
+          "[\"class_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.session_changes.session_changes_session_id_idx_00ba47bf",
+    "label": "Create index \"session_changes_session_id_idx_00ba47bf\" on \"session_changes\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "session_changes_session_id_idx_00ba47bf",
+        "table": "session_changes"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"session_changes_session_id_idx_00ba47bf\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"session_changes_session_id_idx_00ba47bf\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"session_changes_session_id_idx_00ba47bf\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"session_changes_session_id_idx_00ba47bf\"",
+        "sql": "CREATE INDEX \"session_changes_session_id_idx_00ba47bf\" ON \"public\".\"session_changes\" (\"session_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"session_changes_session_id_idx_00ba47bf\" exists on \"session_changes\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"session_changes_session_id_idx_00ba47bf\"",
+          "i",
+          "I",
+          "\"public\".\"session_changes\"",
+          "btree",
+          "[\"session_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.substitute_request_candidates.substitute_request_candidates_candidate_account_id_idx_70175292",
+    "label": "Create index \"substitute_request_candidates_candidate_account_id_idx_70175292\" on \"substitute_request_candidates\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "substitute_request_candidates_candidate_account_id_idx_70175292",
+        "table": "substitute_request_candidates"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"substitute_request_candidates_candidate_account_id_idx_70175292\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"substitute_request_candidates_candidate_account_id_idx_70175292\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"substitute_request_candidates_candidate_account_id_idx_70175292\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"substitute_request_candidates_candidate_account_id_idx_70175292\"",
+        "sql": "CREATE INDEX \"substitute_request_candidates_candidate_account_id_idx_70175292\" ON \"public\".\"substitute_request_candidates\" (\"candidate_account_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"substitute_request_candidates_candidate_account_id_idx_70175292\" exists on \"substitute_request_candidates\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"substitute_request_candidates_candidate_account_id_idx_70175292\"",
+          "i",
+          "I",
+          "\"public\".\"substitute_request_candidates\"",
+          "btree",
+          "[\"candidate_account_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.substitute_request_candidates.substitute_request_candidates_request_id_idx_0aa129e0",
+    "label": "Create index \"substitute_request_candidates_request_id_idx_0aa129e0\" on \"substitute_request_candidates\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "substitute_request_candidates_request_id_idx_0aa129e0",
+        "table": "substitute_request_candidates"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"substitute_request_candidates_request_id_idx_0aa129e0\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"substitute_request_candidates_request_id_idx_0aa129e0\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"substitute_request_candidates_request_id_idx_0aa129e0\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"substitute_request_candidates_request_id_idx_0aa129e0\"",
+        "sql": "CREATE INDEX \"substitute_request_candidates_request_id_idx_0aa129e0\" ON \"public\".\"substitute_request_candidates\" (\"request_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"substitute_request_candidates_request_id_idx_0aa129e0\" exists on \"substitute_request_candidates\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"substitute_request_candidates_request_id_idx_0aa129e0\"",
+          "i",
+          "I",
+          "\"public\".\"substitute_request_candidates\"",
+          "btree",
+          "[\"request_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.substitute_requests.substitute_requests_accepted_candidate_account_id_idx_eb8dce11",
+    "label": "Create index \"substitute_requests_accepted_candidate_account_id_idx_eb8dce11\" on \"substitute_requests\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "substitute_requests_accepted_candidate_account_id_idx_eb8dce11",
+        "table": "substitute_requests"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"substitute_requests_accepted_candidate_account_id_idx_eb8dce11\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"substitute_requests_accepted_candidate_account_id_idx_eb8dce11\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"substitute_requests_accepted_candidate_account_id_idx_eb8dce11\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"substitute_requests_accepted_candidate_account_id_idx_eb8dce11\"",
+        "sql": "CREATE INDEX \"substitute_requests_accepted_candidate_account_id_idx_eb8dce11\" ON \"public\".\"substitute_requests\" (\"accepted_candidate_account_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"substitute_requests_accepted_candidate_account_id_idx_eb8dce11\" exists on \"substitute_requests\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"substitute_requests_accepted_candidate_account_id_idx_eb8dce11\"",
+          "i",
+          "I",
+          "\"public\".\"substitute_requests\"",
+          "btree",
+          "[\"accepted_candidate_account_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.substitute_requests.substitute_requests_confirmed_by_account_id_idx_3ad8179a",
+    "label": "Create index \"substitute_requests_confirmed_by_account_id_idx_3ad8179a\" on \"substitute_requests\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "substitute_requests_confirmed_by_account_id_idx_3ad8179a",
+        "table": "substitute_requests"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"substitute_requests_confirmed_by_account_id_idx_3ad8179a\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"substitute_requests_confirmed_by_account_id_idx_3ad8179a\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"substitute_requests_confirmed_by_account_id_idx_3ad8179a\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"substitute_requests_confirmed_by_account_id_idx_3ad8179a\"",
+        "sql": "CREATE INDEX \"substitute_requests_confirmed_by_account_id_idx_3ad8179a\" ON \"public\".\"substitute_requests\" (\"confirmed_by_account_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"substitute_requests_confirmed_by_account_id_idx_3ad8179a\" exists on \"substitute_requests\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"substitute_requests_confirmed_by_account_id_idx_3ad8179a\"",
+          "i",
+          "I",
+          "\"public\".\"substitute_requests\"",
+          "btree",
+          "[\"confirmed_by_account_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.substitute_requests.substitute_requests_requested_by_account_id_idx_571f847c",
+    "label": "Create index \"substitute_requests_requested_by_account_id_idx_571f847c\" on \"substitute_requests\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "substitute_requests_requested_by_account_id_idx_571f847c",
+        "table": "substitute_requests"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"substitute_requests_requested_by_account_id_idx_571f847c\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"substitute_requests_requested_by_account_id_idx_571f847c\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"substitute_requests_requested_by_account_id_idx_571f847c\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"substitute_requests_requested_by_account_id_idx_571f847c\"",
+        "sql": "CREATE INDEX \"substitute_requests_requested_by_account_id_idx_571f847c\" ON \"public\".\"substitute_requests\" (\"requested_by_account_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"substitute_requests_requested_by_account_id_idx_571f847c\" exists on \"substitute_requests\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"substitute_requests_requested_by_account_id_idx_571f847c\"",
+          "i",
+          "I",
+          "\"public\".\"substitute_requests\"",
+          "btree",
+          "[\"requested_by_account_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.substitute_requests.substitute_requests_session_id_idx_00ba47bf",
+    "label": "Create index \"substitute_requests_session_id_idx_00ba47bf\" on \"substitute_requests\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "substitute_requests_session_id_idx_00ba47bf",
+        "table": "substitute_requests"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"substitute_requests_session_id_idx_00ba47bf\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"substitute_requests_session_id_idx_00ba47bf\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"substitute_requests_session_id_idx_00ba47bf\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"substitute_requests_session_id_idx_00ba47bf\"",
+        "sql": "CREATE INDEX \"substitute_requests_session_id_idx_00ba47bf\" ON \"public\".\"substitute_requests\" (\"session_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"substitute_requests_session_id_idx_00ba47bf\" exists on \"substitute_requests\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"substitute_requests_session_id_idx_00ba47bf\"",
+          "i",
+          "I",
+          "\"public\".\"substitute_requests\"",
+          "btree",
+          "[\"session_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.substitute_requests.uq_substitute_active_9ce6bfe5",
+    "label": "Create index \"uq_substitute_active_9ce6bfe5\" on \"substitute_requests\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "uq_substitute_active_9ce6bfe5",
+        "table": "substitute_requests"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"uq_substitute_active_9ce6bfe5\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"uq_substitute_active_9ce6bfe5\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"uq_substitute_active_9ce6bfe5\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"uq_substitute_active_9ce6bfe5\"",
+        "sql": "CREATE UNIQUE INDEX \"uq_substitute_active_9ce6bfe5\" ON \"public\".\"substitute_requests\" (\"session_id\") WHERE ((status IN ('open', 'accepted')))",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"uq_substitute_active_9ce6bfe5\" exists on \"substitute_requests\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND \"i\".\"indisunique\" AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NOT NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"uq_substitute_active_9ce6bfe5\"",
+          "i",
+          "I",
+          "\"public\".\"substitute_requests\"",
+          "btree",
+          "[\"session_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.substitute_requests.uq_substitute_idem_dc3b3c03",
+    "label": "Create index \"uq_substitute_idem_dc3b3c03\" on \"substitute_requests\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "uq_substitute_idem_dc3b3c03",
+        "table": "substitute_requests"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"uq_substitute_idem_dc3b3c03\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"uq_substitute_idem_dc3b3c03\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"uq_substitute_idem_dc3b3c03\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"uq_substitute_idem_dc3b3c03\"",
+        "sql": "CREATE UNIQUE INDEX \"uq_substitute_idem_dc3b3c03\" ON \"public\".\"substitute_requests\" (\"requested_by_account_id\", \"idempotency_key\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"uq_substitute_idem_dc3b3c03\" exists on \"substitute_requests\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND \"i\".\"indisunique\" AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"uq_substitute_idem_dc3b3c03\"",
+          "i",
+          "I",
+          "\"public\".\"substitute_requests\"",
+          "btree",
+          "[\"requested_by_account_id\",\"idempotency_key\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.session_changes.session_changes_class_id_fkey",
+    "label": "Add foreign key \"session_changes_class_id_fkey\" on \"session_changes\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "session_changes_class_id_fkey",
+        "table": "session_changes"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"session_changes_class_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "session_changes_class_id_fkey",
+          "public",
+          "\"public\".\"session_changes\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"session_changes_class_id_fkey\" on \"session_changes\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"session_changes_class_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"session_changes\"\nADD CONSTRAINT \"session_changes_class_id_fkey\"\nFOREIGN KEY (\"class_id\")\nREFERENCES \"public\".\"classes\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"session_changes_class_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "session_changes_class_id_fkey",
+          "public",
+          "\"public\".\"session_changes\"",
+          "f",
+          "[\"class_id\"]",
+          "\"public\".\"classes\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.session_changes.session_changes_session_id_fkey",
+    "label": "Add foreign key \"session_changes_session_id_fkey\" on \"session_changes\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "session_changes_session_id_fkey",
+        "table": "session_changes"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"session_changes_session_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "session_changes_session_id_fkey",
+          "public",
+          "\"public\".\"session_changes\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"session_changes_session_id_fkey\" on \"session_changes\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"session_changes_session_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"session_changes\"\nADD CONSTRAINT \"session_changes_session_id_fkey\"\nFOREIGN KEY (\"session_id\")\nREFERENCES \"public\".\"class_sessions\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"session_changes_session_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "session_changes_session_id_fkey",
+          "public",
+          "\"public\".\"session_changes\"",
+          "f",
+          "[\"session_id\"]",
+          "\"public\".\"class_sessions\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.session_changes.session_changes_changed_by_account_id_fkey",
+    "label": "Add foreign key \"session_changes_changed_by_account_id_fkey\" on \"session_changes\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "session_changes_changed_by_account_id_fkey",
+        "table": "session_changes"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"session_changes_changed_by_account_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "session_changes_changed_by_account_id_fkey",
+          "public",
+          "\"public\".\"session_changes\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"session_changes_changed_by_account_id_fkey\" on \"session_changes\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"session_changes_changed_by_account_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"session_changes\"\nADD CONSTRAINT \"session_changes_changed_by_account_id_fkey\"\nFOREIGN KEY (\"changed_by_account_id\")\nREFERENCES \"public\".\"staff_accounts\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"session_changes_changed_by_account_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "session_changes_changed_by_account_id_fkey",
+          "public",
+          "\"public\".\"session_changes\"",
+          "f",
+          "[\"changed_by_account_id\"]",
+          "\"public\".\"staff_accounts\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.substitute_request_candidates.substitute_request_candidates_request_id_fkey",
+    "label": "Add foreign key \"substitute_request_candidates_request_id_fkey\" on \"substitute_request_candidates\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "substitute_request_candidates_request_id_fkey",
+        "table": "substitute_request_candidates"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"substitute_request_candidates_request_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "substitute_request_candidates_request_id_fkey",
+          "public",
+          "\"public\".\"substitute_request_candidates\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"substitute_request_candidates_request_id_fkey\" on \"substitute_request_candidates\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"substitute_request_candidates_request_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"substitute_request_candidates\"\nADD CONSTRAINT \"substitute_request_candidates_request_id_fkey\"\nFOREIGN KEY (\"request_id\")\nREFERENCES \"public\".\"substitute_requests\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"substitute_request_candidates_request_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "substitute_request_candidates_request_id_fkey",
+          "public",
+          "\"public\".\"substitute_request_candidates\"",
+          "f",
+          "[\"request_id\"]",
+          "\"public\".\"substitute_requests\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.substitute_request_candidates.substitute_request_candidates_candidate_account_id_fkey",
+    "label": "Add foreign key \"substitute_request_candidates_candidate_account_id_fkey\" on \"substitute_request_candidates\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "substitute_request_candidates_candidate_account_id_fkey",
+        "table": "substitute_request_candidates"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"substitute_request_candidates_candidate_account_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "substitute_request_candidates_candidate_account_id_fkey",
+          "public",
+          "\"public\".\"substitute_request_candidates\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"substitute_request_candidates_candidate_account_id_fkey\" on \"substitute_request_candidates\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"substitute_request_candidates_candidate_account_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"substitute_request_candidates\"\nADD CONSTRAINT \"substitute_request_candidates_candidate_account_id_fkey\"\nFOREIGN KEY (\"candidate_account_id\")\nREFERENCES \"public\".\"staff_accounts\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"substitute_request_candidates_candidate_account_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "substitute_request_candidates_candidate_account_id_fkey",
+          "public",
+          "\"public\".\"substitute_request_candidates\"",
+          "f",
+          "[\"candidate_account_id\"]",
+          "\"public\".\"staff_accounts\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.substitute_requests.substitute_requests_session_id_fkey",
+    "label": "Add foreign key \"substitute_requests_session_id_fkey\" on \"substitute_requests\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "substitute_requests_session_id_fkey",
+        "table": "substitute_requests"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"substitute_requests_session_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "substitute_requests_session_id_fkey",
+          "public",
+          "\"public\".\"substitute_requests\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"substitute_requests_session_id_fkey\" on \"substitute_requests\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"substitute_requests_session_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"substitute_requests\"\nADD CONSTRAINT \"substitute_requests_session_id_fkey\"\nFOREIGN KEY (\"session_id\")\nREFERENCES \"public\".\"class_sessions\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"substitute_requests_session_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "substitute_requests_session_id_fkey",
+          "public",
+          "\"public\".\"substitute_requests\"",
+          "f",
+          "[\"session_id\"]",
+          "\"public\".\"class_sessions\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.substitute_requests.substitute_requests_requested_by_account_id_fkey",
+    "label": "Add foreign key \"substitute_requests_requested_by_account_id_fkey\" on \"substitute_requests\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "substitute_requests_requested_by_account_id_fkey",
+        "table": "substitute_requests"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"substitute_requests_requested_by_account_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "substitute_requests_requested_by_account_id_fkey",
+          "public",
+          "\"public\".\"substitute_requests\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"substitute_requests_requested_by_account_id_fkey\" on \"substitute_requests\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"substitute_requests_requested_by_account_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"substitute_requests\"\nADD CONSTRAINT \"substitute_requests_requested_by_account_id_fkey\"\nFOREIGN KEY (\"requested_by_account_id\")\nREFERENCES \"public\".\"staff_accounts\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"substitute_requests_requested_by_account_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "substitute_requests_requested_by_account_id_fkey",
+          "public",
+          "\"public\".\"substitute_requests\"",
+          "f",
+          "[\"requested_by_account_id\"]",
+          "\"public\".\"staff_accounts\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.substitute_requests.substitute_requests_accepted_candidate_account_id_fkey",
+    "label": "Add foreign key \"substitute_requests_accepted_candidate_account_id_fkey\" on \"substitute_requests\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "substitute_requests_accepted_candidate_account_id_fkey",
+        "table": "substitute_requests"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"substitute_requests_accepted_candidate_account_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "substitute_requests_accepted_candidate_account_id_fkey",
+          "public",
+          "\"public\".\"substitute_requests\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"substitute_requests_accepted_candidate_account_id_fkey\" on \"substitute_requests\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"substitute_requests_accepted_candidate_account_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"substitute_requests\"\nADD CONSTRAINT \"substitute_requests_accepted_candidate_account_id_fkey\"\nFOREIGN KEY (\"accepted_candidate_account_id\")\nREFERENCES \"public\".\"staff_accounts\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"substitute_requests_accepted_candidate_account_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "substitute_requests_accepted_candidate_account_id_fkey",
+          "public",
+          "\"public\".\"substitute_requests\"",
+          "f",
+          "[\"accepted_candidate_account_id\"]",
+          "\"public\".\"staff_accounts\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.substitute_requests.substitute_requests_confirmed_by_account_id_fkey",
+    "label": "Add foreign key \"substitute_requests_confirmed_by_account_id_fkey\" on \"substitute_requests\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "substitute_requests_confirmed_by_account_id_fkey",
+        "table": "substitute_requests"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"substitute_requests_confirmed_by_account_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "substitute_requests_confirmed_by_account_id_fkey",
+          "public",
+          "\"public\".\"substitute_requests\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"substitute_requests_confirmed_by_account_id_fkey\" on \"substitute_requests\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"substitute_requests_confirmed_by_account_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"substitute_requests\"\nADD CONSTRAINT \"substitute_requests_confirmed_by_account_id_fkey\"\nFOREIGN KEY (\"confirmed_by_account_id\")\nREFERENCES \"public\".\"staff_accounts\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"substitute_requests_confirmed_by_account_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "substitute_requests_confirmed_by_account_id_fkey",
+          "public",
+          "\"public\".\"substitute_requests\"",
+          "f",
+          "[\"confirmed_by_account_id\"]",
+          "\"public\".\"staff_accounts\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  }
+]
