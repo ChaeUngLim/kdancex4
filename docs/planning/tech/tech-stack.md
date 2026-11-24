@@ -20,6 +20,7 @@ ADR-004, 경계는 「11-3. 백엔드 교체」). `Agent 서버`·`Agent`·`Agen
 | UI | React | 19.3.0 | Web UI                        |
 | Mobile | Expo SDK | 58.0.23 | 모바일 툴체인 · RN 앵커 (2026-11-06 preview.6 → 정식판) |
 | Mobile | React Native | 0.88.1 | Android/iOS App (Expo SDK 핀, 2026-11-06 rc.1 → 정식판) |
+| Mobile | react-native-web | 0.21.4 | Expo 웹으로 앱 화면을 띄워 스크린샷 검증(Expo 58 핀 ~0.21.4, MIT, 2026-11-20 사용자 승인) |
 | Language | TypeScript | 6.0.3 | 타입 안정성                        |
 | Runtime | Node.js | 24.22.0 LTS (Krypton) | Next.js/Prisma 실행환경           |
 | CSS | Tailwind CSS | 4.3.3 | UI 스타일                        |
@@ -28,7 +29,7 @@ ADR-004, 경계는 「11-3. 백엔드 교체」). `Agent 서버`·`Agent`·`Agen
 | Server State | TanStack Query | 5.103.1 | API/cache                     |
 | Auth | Better Auth | 1.7.5 | 인증                            |
 | Auth 대안 | Clerk | 보류 | 관리형 인증                        |
-| ORM | Prisma | 8.0.0-rc.15 (CLI) / @prisma/orm-postgres 8.0.0-rc.11 (런타임) | DB 접근                         |
+| ORM | Prisma | 8.0.0-rc.24 (CLI) / @prisma/orm-postgres 8.0.0-rc.24 (런타임) — 2026-11-19 둘을 같은 RC 로 맞춤(정확한 버전 고정, unit 183 passed·next build 성공) | DB 접근                         |
 | DB | PostgreSQL | 18.6 | 관계형 DB                        |
 | Vector | pgvector | 0.8.6 (`pgvector/pgvector:0.8.6-pg18`) | RAG                           |
 | AI UI | Vercel AI SDK | 7.0.113 (`ai`) | Streaming/Tool/UI             |
@@ -48,6 +49,7 @@ ADR-004, 경계는 「11-3. 백엔드 교체」). `Agent 서버`·`Agent`·`Agen
 | 본인확인 | 휴대폰 본인확인 — **미정** | 선정 필요 | 1인 1계정·미성년자 확인·가입 거절 판정(FR-003(본인확인 계정 식별) · FR-257(가입 거절 사유)). 개인정보 처리방침 위탁 `[본인확인 기관]` |
 | Push | 앱 푸시 발송 — **미정** | 선정 필요 | 결제·환불·대기·약관 변경 알림. SMS 는 쓰지 않는다(19-3-6). 국외 이전 대상이면 개인정보 처리방침 4절에 적는다 |
 | Map | 지도·경로 API — **미정** | 선정 필요 | 주변 수업 검색·이동 시간 계산. 위치는 저장하지 않는다(FR-186(위치 미저장)). 위치기반서비스 사업 신고 필요 여부는 법률 검토 |
+| E2E Test | Playwright (`@playwright/test`) | 1.65.1 (admin-web devDependency, 정확한 버전 고정) — 2026-11-20 `npm view` 의 `latest`. 브라우저는 새로 받지 않고 이 PC 의 `~/.cache/ms-playwright/chromium-1247`(Chrome for Testing 155.0.8059.12)을 `executablePath` 로 쓴다(1.65.1 기본은 1255). 다른 PC 는 `E2E_CHROMIUM_PATH` 로 바꾼다 | 관리자 웹 화면 테스트 — `tests/e2e/*.spec.ts`, 실행은 `./node_modules/.bin/playwright test` (S1-0.1) |
 | Protocol | MCP | 1.30.1 (`@modelcontextprotocol/sdk`, Next.js 도구 서버) · 2.2.0 (`mcp`, Python 클라이언트) | 에이전트가 데이터를 읽는 유일한 통로(ADR-004) |
 | Storage | Cloudflare R2 | latest | 이미지/영상/파일                     |
 | Deploy | Vercel | latest | Web/Edge/배포                   |
@@ -163,6 +165,10 @@ API 다. AI SDK 7 은 agent 루프와 tool 호출 구조가 6 과 다르고, Lan
 | Qwen 비전 서빙(`--mmproj`) | 2026-09-24 실측. llama-server 는 비전 부품을 `--mmproj` 별도 파일로 받는다. `unsloth/Qwen3.5-9B-GGUF` 의 `mmproj-F16.gguf`(0.92GB, Apache 2.0, 원본 `Qwen/Qwen3.5-9B`, sha256 `f70dc350…` HF 값과 일치)를 `~/models/qwen3.5-9b/` 에 받아, compose 원본은 두고 임시 override 로 `LLAMA_ARG_MMPROJ` 만 더해 10슬롯 그대로 시험했다. 캐시 끔(`cache_prompt: false`), 합성 포스터 1장, 각 구성 1회씩이라 편차가 있다.<br>· **기준선(비전 없음)**: VRAM 6,735MiB · 텍스트 동시 10건 완료 p95 5.61초 · 89.5 tok/s<br>· **A. 비전 GPU**: VRAM 7,869MiB(**+약 1.1GB, 남는 공간 약 320MB**) · 포스터 11.2~11.7초 · 18/18 정확 · 텍스트 동시 10건 p95 6.5~7.3초 · 텍스트 10건과 포스터를 동시에 넣어도 VRAM 최고 7,911MiB·에러 0<br>· **B. 비전 CPU(`LLAMA_ARG_MMPROJ_OFFLOAD=false`)**: VRAM 6,787MiB(기준선과 거의 같음) · 포스터 **25.8~26.4초** · 18/18 정확 · 텍스트 p95 6.73초<br>**둘 다 8GB 에 들어간다.** A 는 빠르지만 여유가 320MB 뿐이고, B 는 포스터가 2배 넘게 느린 대신 GPU 여유를 그대로 둔다. 포스터 등록은 실시간 요청이 아니라 뒤에서 도는 작업이라 **베타는 B 가 안전한 쪽**이다. **JSON 모드가 먹지 않았다** — `response_format: {type: json_object}` 를 줘도 출력이 ```` ```json ```` 코드블록에 싸여 왔다. 호출 쪽에서 감싸개를 벗기거나 `json_schema` 로 강제할지 확인해야 한다. **베타는 B 로 compose 에 반영했다**(`infra/docker-compose.yml` — `--mmproj` + `--no-mmproj-offload`, `${HOME}/models/qwen3.5-9b` 읽기 전용 마운트). 반영 뒤 재확인: `vision: True`, VRAM 6,836MiB, 포스터 24.7~25.5초 18/18, 텍스트 동시 10건 p95 7.51초·에러 0. **mmproj 파일이 없으면 컨테이너가 뜨지 않는다** — 새 PC 에서는 먼저 받는다: `mkdir -p ~/models/qwen3.5-9b && curl -L -o ~/models/qwen3.5-9b/mmproj-F16.gguf https://huggingface.co/unsloth/Qwen3.5-9B-GGUF/resolve/main/mmproj-F16.gguf` 후 `sha256sum` 이 `f70dc350…ae029f` 인지 본다.<br>**베타 이후(GPU 서버로 옮길 때)**: ① `--no-mmproj-offload` 를 지워 비전을 GPU 에 올린다(같은 인스턴스, 모델 한 벌) ② 포스터 처리는 작업 큐로 받아 **동시 1건**으로 제한한다 — 채팅 슬롯을 몰아 쓰지 않게 ③ 출력은 `json_schema` 로 강제한다 ④ 서버에서 A 구성을 다시 잰다. 채팅 p95 가 포스터 때문에 목표를 넘기면 그때 비전 전용 인스턴스를 따로 띄운다 <br>**2026-09-24 A 로 되돌렸다** — B 에서는 CPU 가 이미지를 읽는 동안 채팅 슬롯이 멈췄다(채팅 10 + 포스터 1: 채팅 p95 **24.28초**, 채팅만 6.49초). 임베딩을 GPU 밖(NVIDIA 호스팅)으로 빼서 A 의 VRAM 을 확보했다 — 아래 「임베딩·리랭커 배치」 | **A 적용(비전 GPU)** |
 
 | 이미지 생성(Hugging Face FLUX.1-dev / SDXL) | **2026-09-25 결정(같은 날 Cloudflare FLUX.1 [schnell]에서 변경), 호출 미검증.**<br>① **FLUX.1-dev 라이선스**: 모델 카드 기준 「FLUX.1 [dev] Non-Commercial License」. **생성 결과물은 상업적으로 써도 되지만, 모델을 상업 서비스에서 돌리는 것은 제한될 수 있다.** 출시 전 BFL 상용 라이선스 구매 또는 법률 확인이 필요하다. 그 전까지는 베타 한정.<br>② **SDXL 라이선스**: CreativeML Open RAIL++-M. 사용 제한 조항을 지키면 상업 이용이 가능한 것으로 알려져 있다(원문 재확인 필요, 미검증). 라이선스 문제가 풀리기 전까지 **출시 기본값은 SDXL**, FLUX.1-dev 는 품질 비교용.<br>③ **무료 한도**: HF 무료 계정은 Inference Providers 크레딧 월 $0.10(검색 결과 기준, 미검증). HF 공식 예시로 FLUX.1-dev 1건 약 $0.0012 → 월 약 80장. **2026-09-25 사용자 확인: 월 약 80장 무료로 충분 — 무료 한도 안에서 운영한다.** 계정마다 **하루 N회**로 제한한다 — **베타 3회(임시), 정식 1회**, 설정값(FR-061a(홍보 이미지 생성 조건)). 베타 3회면 계정 1개가 매일 다 써도 월 90장이라 무료량을 넘을 수 있다. 횟수는 Next.js 가 DB 에 기록·검사하고, 통과한 요청만 에이전트 서버로 넘긴다(ADR-004: DB 쓰기는 Next.js 하나). 한도가 차면 FR-061a(홍보 이미지 생성 조건)대로 생성 버튼을 막고 사진 올리기로 안내하며, 유료 전환은 하지 않는다. 장당 비용은 제공사·모델마다 달라(SDXL 은 따로 확인 필요) 첫 호출 때 실제 차감액을 재서 이 수치를 고친다.<br>④ **제공사**: 모델 카드에 나온 호출처는 FLUX.1-dev 가 bfl.ml·replicate·fal·mystic, SDXL 이 fal. 어느 제공사로 나갈지는 HF 가 정하며 가격도 제공사 가격을 따른다.<br>⑤ **한글**: 이미지 안 글자를 제대로 못 그린다 → 글자는 앱이 얹는다(FR-061a(홍보 이미지 생성 조건)).<br>⑥ 로컬 GPU 에 올리지 않는다 — 8GB 를 `kdance-llm` 이 쓰고 있다.<br>⑦ 대안 기록: Cloudflare Workers AI FLUX.1 [schnell](Apache 2.0, 무료 하루 1만 뉴런 ≈ 1024×1024 약 170장). 한도·라이선스 문제가 생기면 이쪽으로 옮긴다 |
+| Prisma 8 RC 트랜잭션·잠금(R2) | 2026-11-19 실측 통과 — rc.24 에서 S-1~S-6 6/6 통과(롤백·FOR UPDATE·동시 20건 중 1건만 성공·부분 유니크 0행·격리 수준·Temporal). 기본 경로 Prisma `db.transaction` + raw 레인으로 확정(T-M1-2). 근거 `_workspace/03_research.md` §3-1 | 실측 통과 |
+| Prisma CLI 내부 툴체인 어긋남 | rc.24 CLI 가 툴체인 rc.18 을 실어 `contract emit` 이 실패한다. `admin-web/package.json` overrides 로 `@prisma/orm-toolchain: 8.0.0-rc.24`, `@prisma/composer-cli > @prisma/cli-engine: 0.9.0` 을 맞췄다(사용자 승인 2026-11-19). 정식판이 나오면 overrides 를 뺀다 | 감수(정식판 때 제거) |
+| Prisma rc 올림 절차 | **rc 를 올릴 때 세 곳을 같이 바꾼다** — ① `prisma`·`@prisma/orm-postgres` 버전, ② overrides 의 `@prisma/orm-toolchain` 을 그 rc 와 같은 번호로, ③ overrides 의 `@prisma/composer-cli > @prisma/cli-engine` 을 새 CLI 가 실은 번호로. 하나만 바꾸면 `contract emit` 이 툴체인 어긋남으로 실패한다(위 행). 올린 뒤 `npm run db:emit` 을 돌려 확인한다 | 절차(리뷰 L-4) |
+| Better Auth `auth` 스키마(R-10) | 2026-11-19 실측 통과 — Better Auth 1.7.5 + Kysely + 같은 BYO 풀, `schemaName: "auth"` 로 `auth.user/session/account/verification` 생성(public 침범 없음). bearer 토큰 응답 헤더는 `set-auth-token`. Next 16.3.5 Route Handler·`next build` 통과. 대체안(public + `auth_` 접두어)도 통과했지만 기본안을 쓴다 | 실측 통과 |
 
 ### 11-3. 백엔드 교체
 

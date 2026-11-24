@@ -223,6 +223,47 @@
       <dt>해결</dt><dd>빈 O48C 를 지우고 <code>const S=FIND('O21 ·');</code> 한 줄을 owner_lib 뒤에 붙여 실행했다: <code>pp.py lib.js boards/owner_lib.js boards/owner_src.js boards/o48c_N.js</code>(S 정의를 <code>boards/owner_src.js</code> 로 저장소에 남겼다). 실행 전에 O21 구조(첫 자식 상태바 · <code>screen</code> 안 <code>topnav</code> · <code>tabbar</code>)가 맞는지 먼저 확인했다. 저장은 스냅샷 1135 로 확인했다.</dd>
     </dl>
   </div>
+
+  <div class="issue">
+    <h4><span class="tag fixed">해결</span>같은 실수를 한 번 더 함 — 전체 조회로 연결이 다시 끊김</h4>
+    <dl>
+      <dt>증상</dt><dd>오후 세션 첫 호출에서 또 <code>findShapes()</code> 로 페이지 전체를 훑었다. 30초 시간 초과가 났고 연결이 끊겼다.</dd>
+      <dt>원인</dt><dd>바로 위 상자에 적어 둔 규칙을 첫 호출 전에 읽지 않았다.</dd>
+      <dt>해결</dt><dd>사용자가 Connect 를 다시 눌렀다. 그다음부터 <code>root.children</code> 과 <code>getShapeById</code> 만 써서 끊김 없이 끝냈다. 첫 호출 전에 이 일지부터 본다.</dd>
+    </dl>
+  </div>
+
+  <p>마무리한 것: O3(이전 안)에 넣었던 계좌 환불 대조 문구를 지웠다(같은 규칙은 W31·O48C 에 있다). 운영자 보드 P1~P11 사이드 메뉴에 서로 가는 클릭 연결 110개를 걸었다(보드당 10개). W31 의 「환불 요청 처리로」에서 W27 로 가는 연결도 걸었다. 저장은 스냅샷 1138 로 확인했다.</p>
+
+  <div class="issue">
+    <h4><span class="tag fixed">해결</span>보드 내보내기(export_shape)가 계속 30초 시간 초과</h4>
+    <dl>
+      <dt>증상</dt><dd>오후에 보드 수십 장을 점검하는 에이전트가 <code>export_shape</code> 를 여러 장 한꺼번에 보내자 대부분 시간 초과가 났다. 94장 중 12장만 볼 수 있었다.</dd>
+      <dt>원인</dt><dd>플러그인 작업 줄은 하나뿐이다. 여러 호출이 쌓이면 앞의 것이 끝날 때까지 뒤의 것이 모두 기다리다가 30초를 넘긴다.</dd>
+      <dt>해결</dt><dd>호출은 한 번에 하나만 보낸다. 그림은 플러그인 안에서 <code>shape.export</code> 로 PNG 를 만들어 로컬 수신 서버(127.0.0.1:8765)로 보내 저장했다(기록: <code>_workspace/evidence/penpot-doc-sync-2026-11-20/board_fix.md</code>). 저장 직후 찍은 그림은 한 박자 늦을 수 있어 확인용으로 한 번 더 찍는다.</dd>
+    </dl>
+  </div>
+
+  <div class="issue">
+    <h4><span class="tag fixed">해결</span>flex 보드 안 글자를 새로 만들어 넣으면 배치가 무너짐</h4>
+    <dl>
+      <dt>증상</dt><dd>M1C·M15B 에서 옛 글자를 지우고 새 글자를 만들어 넣었더니 레이아웃이 밀리고 글자가 엉뚱한 곳으로 갔다.</dd>
+      <dt>해결</dt><dd>되돌린 뒤, 같은 모양의 기존 상자를 복제해 글자만 고쳤다. 컴포넌트 복사본(O6)은 <code>appendChild</code> 가 막혀 <code>characters</code> 대입으로 바꾸고 그림으로 확인했다. <code>fix20_m15b.js</code> 는 다시 쓰지 않는다.</dd>
+    </dl>
+  </div>
+
+  <p>오후 마무리: 보드·문서 대조로 보드 약 50장을 고치고 새 보드 8장(W27B·I26B·I23B·I42B·I9F·O49B·O48D·O42B)을 그렸다. 환불 예시 금액은 「예매 수수료 2,000원 제외」로 맞췄다. 저장은 스냅샷 1220 으로 확인했다.</p>
+
+  <div class="issue">
+    <h4><span class="tag fixed">해결</span>밤 — 글자가 많은 보드(W27, 자식 107개)는 한 장만 내보내도 시간 초과</h4>
+    <dl>
+      <dt>증상</dt><dd>호출을 하나씩 보내도 W27 의 <code>export_shape</code>, 자식 글자를 한꺼번에 읽는 호출(<code>characters</code>)이 30초를 넘겼다. 바뀐 부분만 임시 보드로 복제하던 호출 뒤에는 페이지 이름 읽기까지 멈춰서 Connect 를 다시 눌러야 했다.</dd>
+      <dt>원인</dt><dd>짐작: 글자 도형이 많으면 그리기와 글자 읽기가 오래 걸린다. 복제는 시간 초과로 보였지만 실제로는 끝까지 돌았다(재연결 뒤 임시 보드에 35개가 들어 있었다).</dd>
+      <dt>해결</dt><dd>이름·위치만 먼저 읽고(<code>name</code>·<code>x</code>·<code>y</code>), 글자는 필요한 영역만 골라 읽는다. 확인용 그림은 바뀐 영역만 임시 보드에 복제해서 내보낸 뒤 지운다. 이때 <code>children</code> 을 뒤집어 <code>appendChild</code> 하면 쌓는 순서가 거꾸로 돼 카드가 글자를 덮는다. 복제한 뒤에는 카드를 <code>sendToBack</code>, 글자를 <code>bringToFront</code> 로 바로잡는다.</dd>
+    </dl>
+  </div>
+
+  <p>밤 마무리: W27(환불 요청 처리 · 정규형) 목록 3번째 행을 계좌 결제분으로 표시하고 <code>송금 처리 ›</code> 버튼을 넣어 W31(계좌 환불 송금)로 연결했다(사용자 결정). 확인 그림은 <code>_workspace/evidence/penpot-w27-w31-2026-11-20/w27-list.png</code>.</p>
 </section>
 
 <section class="log-day">
