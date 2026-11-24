@@ -1,0 +1,13 @@
+{
+ "id": "S2-2.12",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence PASS, 로그 # when 이 모두 2026-11-21 18:26~18:30 KST로 이번 작업 시각이다",
+  "직접 다시 돌린 DB 테스트 6/6 통과(skip 0), tsc exit 0, 계약 린터 전체 검사 오류 0(경고 364, 전부 MISSING)",
+  "goal 충족: 조건부 UPDATE 한 문장으로 고르고 표시까지 하고, 같은 트랜잭션에서 활성 대표에게 class_approval_reminder 알림을 쓴다(dedupe 키 class:<id>:rev<n>:reminder, ON CONFLICT DO NOTHING). 내부 토큰 경로, {processed} 응답, 한국어 주석이 있고 useEffect·비밀값은 없다",
+  "(참고) 계약 11-instructor.md §12(747행)는 아직 `approval_reminded_at IS NULL` 로 적혀 있다. 구현은 `IS NULL OR approval_reminded_at < submitted_at` 다. class-registration.ts:633 이 다시 낼 때마다 submitted_at 을 새로 쓰고 §7 의 rev<n> 열쇠와도 맞으므로 이 편차는 타당하다. 다만 계약 문장을 구현에 맞춰 고쳐 두는 것이 좋다",
+  "(참고) 과제 verify 의 테스트 경로 tests/db/s2-2-12.db.test.ts 는 class-approval-reminders.db.test.ts 로 이름이 바뀌었다. roadmap-tasks.json 의 verify 문구도 맞춰 두는 것이 좋다",
+  "(참고) git diff 로 본 lib/domain/constants.ts 에는 앞선 Task 들의 커밋 안 된 변경도 섞여 있다. 이번 Task 몫은 class_approval_reminder 한 줄이다"
+ ],
+ "when": "2026-11-21T18:30:59+09:00"
+}

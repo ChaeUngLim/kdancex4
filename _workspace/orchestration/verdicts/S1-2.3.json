@@ -1,0 +1,14 @@
+{
+ "id": "S1-2.3",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence PASS(행 11·문제 0), 로그 머리 # when 이 모두 2026-11-21 12:47~12:50 KST 로 이번 작업분",
+  "rooms DB 테스트를 직접 다시 돌려 9 passed(1 file)·skip 0, tsc --noEmit exit 0, prisma db verify 일치",
+  "개발 DB 의 \\d rooms 가 data-model §7-3 과 같다: 칸 9개, status 기본 'active', uq_rooms_branch_name(WHERE status='active'), base_capacity>0 CHECK, branch FK, EXCLUDE 없음(S2-2 몫, note 와 같음)",
+  "contract.prisma 의 Room·RoomStatus 에 한국어 주석이 있고 useEffect·비밀값은 없다. 범위 밖 수정도 보이지 않는다",
+  "(참고) verify 에 적힌 tests/db/s1-2-3.db.test.ts 대신 기능 이름 tests/db/rooms.db.test.ts 를 썼다. tests/db 는 모두 기능 이름이라 관례에 맞고 EVIDENCE.md 에도 적혀 있다. roadmap-tasks.json 의 verify 경로는 맞춰 고치는 편이 낫다",
+  "(참고) 제약 이름 뒤에 해시가 붙는다(uq_rooms_branch_name_ee96f182). 기존 마이그레이션과 같은 Prisma 관례다",
+  "(참고) DB 테스트 전체에서 2개가 실패한다(permission-matrix·guard-tables ③). 앞선 Task 몫이고 log-fail 로 기록돼 있다. 따로 고쳐야 한다"
+ ],
+ "when": "2026-11-21T12:50:58+09:00"
+}

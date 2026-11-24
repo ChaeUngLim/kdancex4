@@ -1,0 +1,9 @@
+{"id":"S2-1.9","verdict":"PASS","reasons":[
+"check_evidence PASS(11행·문제 0), 로그 # when 모두 2026-11-21 16:21~16:27 — 이번 작업 로그",
+"직접 재실행: DB 테스트 9 passed(skip 0) · tsc exit 0 · 계약 린터 PASS 오류 0, 두 경로 MISSING 없음 — 워커 보고와 같다",
+"계약 11 §3-1(active 학원만·이름/시/구 검색·최근 소속 상태·canSubmitClass 면별 위임·canOpenPrivateLesson·genres)·§3-2(0~11, 403/404/409/422) 대로 구현. 승인 때 자동 색 부여도 §3-2 추천안에 적혀 있어 범위 밖이 아니다",
+"한국어 주석 있음, useEffect 없음, 비밀값 없음, 색은 번호만 저장(data-model §8 열린 점 ③)",
+"(참고) data-model §8-2 는 smallint 인데 int4 + CHECK 로 만들었다 — 범위는 같지만 data-model 문서 또는 칸 타입 중 하나를 맞춰 둘 것",
+"(참고) roadmap-tasks.json 의 verify 는 tests/db/s2-1-9.db.test.ts 를 가리키는데 파일 이름을 instructor-academies.db.test.ts 로 바꿨다 — verify 문구 갱신 필요",
+"(참고) genres 는 open 판매 단위 기준(수업 게시 상태 S2-2 이전 임시) — S2-2 때 「공개 수업」 기준으로 다시 볼 것"
+],"when":"2026-11-21T16:28:17+09:00"}

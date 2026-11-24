@@ -1,0 +1,14 @@
+{
+ "id": "S3-3.17",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence PASS, 로그 # when 이 2026-11-24 09:53~09:56 KST 로 이번 작업 시각이다",
+  "tsc exit 0, 단위 21 passed, DB 8 passed(skip 0)를 직접 다시 돌려 워커 보고와 같은 결과를 얻었다",
+  "goal 달성: domain appliedPlatformFee 가 개인 레슨에 한해 강사 가입 KST 날짜+1년(그날 포함)까지 0bp, 그 뒤 rate_bp(100). 일반 수업은 기존 입점 면제 분기 그대로. server 는 instructor_profiles.signup_completed_at 을 LEFT JOIN 으로 읽어 넘긴다. method 와 일치",
+  "강사 가입일 칸은 기존 칸(signup_completed_at)을 써 새 칸이 필요 없었다. 담당 강사 없음 → 100bp 는 추천안으로 data-model·13-settlement 에 「(추천안·사후 확인 2026-11-24)」로 기록했고, 돈이 덜 나가는 쪽이 아니라 보수적으로 수수료를 받는 쪽이라 멈출 일이 아니다. spec 2026-11-23 변경 이력(강사 가입일 기준, 학원 면제와 따로 셈)과 어긋나지 않는다",
+  "옛 기대값(면제 기간 개인 레슨 100bp)을 새 규칙에 맞게 고쳤고 경계(마지막 날 23:59 0 / 다음 날 00:00 100, 2월 29일, KST 날짜)를 단위·DB 양쪽에서 시험한다. 핵심 함수에 한국어 주석이 있고 useEffect·비밀값 없음. 호출처 order-create 는 tsc·회귀 DB 38 passed 로 확인했다",
+  "(참고) data-model §7-8b 409행 첫 문장 「입점 면제 안이고 onboarding_exemption_applies=true 일 때만 0」은 뒤 문장의 개인 레슨 강사 면제와 함께 읽어야 한다. 다음에 손볼 때 「일반 분류는 …일 때만 0」처럼 분류를 밝히면 덜 헷갈린다",
+  "(참고) 전체 단위 실패 2건(env-example-names·internal-routes)과 계약 13 MISSING 50건은 이 Task 범위 밖이라 반려 사유로 보지 않았다"
+ ],
+ "when": "2026-11-24T09:57:18+09:00"
+}

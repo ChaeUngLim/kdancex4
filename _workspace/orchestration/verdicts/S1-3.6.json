@@ -1,0 +1,14 @@
+{
+ "id": "S1-3.6",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence.py PASS(행 8·문제 0), 로그 # when 은 전부 2026-11-21 11:35~11:36 KST 로 이번 작업 시각",
+  "크리틱이 다시 돌린 결과: flock DB 테스트 refund-notice-publish-gate.db.test.ts 1 file 6 passed(skip 0), tsc --noEmit exit 0 — 워커 보고와 같다",
+  "goal 충족: hasPublishedRefundNotice 가 refund_notice_versions 를 학원·종류별 EXISTS 로 보고, assertRefundNoticeForPublish 가 없으면 HttpError('NOTICE_MISSING') 를 던진다. http.ts 공통 표에 NOTICE_MISSING:409 가 있어 withRoute 로 409 가 나는 것을 시나리오 6 테스트가 확인한다. 계약 09 §1 「게시 차단(FR-246)」·README §4 와 맞다",
+  "범위: 새 라우트 없음(게시 경로는 M2), 계약 09 에는 S1-3.6 구현 메모 한 줄만 더했다. 한국어 핵심 주석 있음, useEffect·비밀값 없음",
+  "(참고) verify 의 경로 tests/db/s1-3-6.db.test.ts 는 존재하지 않는다(그대로 돌리면 'No test files found'). 워커가 refund-notice-publish-gate.db.test.ts 로 바꿨다고 테스트 머리·EVIDENCE.md 에 밝혔고 S1-3.4·S1-3.5 와 같은 관례다. roadmap-tasks.json 의 verify 문구를 갱신하는 게 좋다",
+  "(참고) 함수 시그니처가 계약 본문의 hasPublishedRefundNotice(academyId, kind) 와 달리 db 를 첫 인자로 받는다 — 구현 메모 줄에 실제 시그니처를 적어 두었다",
+  "(참고) 409 detail 문장 3개(종류별)는 워커 추천값이라 사용자 확인 대상이다"
+ ],
+ "when": "2026-11-21T11:37:14+09:00"
+}

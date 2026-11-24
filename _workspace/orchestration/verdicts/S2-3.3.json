@@ -1,0 +1,14 @@
+{
+ "id": "S2-3.3",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence PASS, 로그 # when 2026-11-21 20:28~20:29 KST로 이번 작업 시각",
+  "verify DB 테스트 재실행 5 passed skip 0, tsc exit 0, 단위 6 passed — 워커 보고와 일치",
+  "goal 충족: 정원 하한(held+confirmed) 미달 시 요청 422·승인 409 CAPACITY_BELOW_RESERVED+minimum(계약 11 §5와 일치), 가격 변경은 class_offerings만 갱신하고 orders 불변을 테스트가 updated_at까지 확인",
+  "한국어 핵심 주석 있음, useEffect·비밀값 없음, 범위 밖 수정 없음(route·class_edit_requests 미작성은 endpoints 빈 Task라 적절)",
+  "(참고) verify의 tests/db/s2-3-3.db.test.ts 대신 기능 이름 class-capacity-price-change.db.test.ts — tests/db 전체가 기능 이름 관례라 허용, roadmap verify 문구 갱신 권장",
+  "(참고) 무료↔유료 전환 422 거부는 계약에 없는 추천안 — 사람 확인 필요(EVIDENCE.md에 기록됨)",
+  "(참고) class_edit_requests·§5 수정 요청 경로를 맡은 Task가 로드맵에 없다는 워커 지적은 플랜 쪽 확인 필요"
+ ],
+ "when": "2026-11-21T20:29:55+09:00"
+}

@@ -1,0 +1,14 @@
+{
+ "id": "S6-3.2",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence PASS, 로그 머리 # when 이 모두 2026-11-24 22:32~22:33 KST(이번 작업 시각)",
+  "verify 테스트 재실행 35 passed — 8회 중 6회 완주 +1 · 5회 0 · 강사 표시 결석도 셈 확인",
+  "tsc --noEmit exit 0(재실행). 처음 한 번은 다른 병렬 Task 의 business-checks 파일이 만들어지던 중이라 TS2307 이 났고, 그 파일이 생긴 뒤 다시 돌리니 통과 — 이 Task 와 무관",
+  "level-evaluation.ts 는 DB 를 읽지 않는 순수 함수, 결석 기록을 입력으로 받음, 출석×10≥회차×7 정수 비교, 10 상한, 내리지 않음 — FR-169a(출석 70% 레벨업)·계약 14 §5-1 과 일치. 한국어 주석 있음, useEffect·비밀값·나이 표현 없음",
+  "추천안 6개는 EVIDENCE.md 와 계약 14 §5-1 에 이유와 함께 기록됨. spec 과 어긋나지 않고 돈·삭제·바깥 계약 진행 없음",
+  "(참고) verify 에 적힌 테스트 파일 이름 tests/unit/s6-3-2.test.ts 가 기능 이름 level-evaluation.test.ts 로 바뀌었다. roadmap-tasks.json 의 verify 경로를 맞춰 두면 좋다(sync_verify_paths 대상)",
+  "(참고) 기본 힙으로 tsc 를 돌리면 OOM 이 났다. 재검증할 때는 NODE_OPTIONS=--max-old-space-size=8192 가 필요하다"
+ ],
+ "when": "2026-11-24T22:38:32+09:00"
+}

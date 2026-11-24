@@ -1,0 +1,15 @@
+{
+ "id": "S3-3.15b",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence PASS(행 9개, 문제 0), 로그 # when 이 2026-11-23 16:15~16:16 KST 로 이번 작업 시각이다",
+  "verify 핵심 명령을 다시 돌려 같은 결과가 나왔다: tsc exit 0, DB 테스트 order-detail-read 7 passed(skip 0), 단위 테스트 fake-payment-gateway-payment-fail 10 passed, 계약 린터 02·03 PASS(오류 0)",
+  "goal ①: GET /api/orders/{orderId} 는 readOrderView 를 다시 써서 결제 시작 응답과 모양이 같다. 본인 확인(남의 주문 403)을 정리·PG 조회보다 먼저 하고, 없는 id는 404, 세션은 requireMember 로 확인한다",
+  "goal ②: 수업 상세 응답에 classKind·priceBreakdownPreview 가 들어갔다. 금액은 주문 생성과 같은 computeOrderAmounts 로 계산하고, 계약 02 §2 에도 설명이 적혀 있다",
+  "goal ③: fail dev 경로를 withDevRoute 로 감쌌고 가짜 PG 가 아니면 404 를 낸다. 계약 03 §7 표에 행을 넣고, §8 의 옛 문장에 취소선을 그은 뒤 그 아래에 결정을 적었다(method 대로다)",
+  "핵심 코드에 한국어 주석이 있다. useEffect 없음(서버 코드), 비밀값 하드코딩 없음(서명은 deps.sign 이 PG_WEBHOOK_SECRET 을 쓴다)",
+  "(참고) 워커가 추천안으로 정한 404/403 코드, 끝난 결제의 cardCheckout null, 409 PAYMENT_NOT_FAILABLE 는 계약 03 §2·§7 에 「추천안·사후 확인」으로 적혀 있다. 사용자가 나중에 확인해야 한다",
+  "(참고) 작업 트리에 다른 Task 의 미커밋 변경이 많아(348건) git diff 로 이 Task 만의 범위를 가려내지는 못했다. files_changed 에 적힌 파일에서는 범위 밖 수정이 보이지 않았다"
+ ],
+ "when": "2026-11-23T16:18:57+09:00"
+}

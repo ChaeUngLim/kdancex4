@@ -1,0 +1,15 @@
+{
+ "id": "S3-4.3c",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence PASS(행 13 · 문제 0), 로그 머리 when 이 모두 2026-11-23 17:33~17:41 KST(이번 작업 시각)",
+  "크리틱 재실행: absence-disputes.db.test.ts 5 passed(skip 0), tsc exit 0, 전체 계약 린터 PASS 오류 0·경고 300 — 워커 보고와 같다",
+  "계약 04 §8 대로: 이의는 marked_by_kind<>'member' 이고 살아 있는 행만(회원 행·거둔 행 409 ABSENCE_NOT_DISPUTABLE), 이미 requested 면 200 같은 본문, 처리된 행 409 DISPUTE_ALREADY_RESOLVED, accept→accepted+cancelled_at, reject→rejected·결석 유지, 처리자는 표시한 직원(active 소속)·학원 대표, 감사 1행·알림 1건(dedupe_key, ON CONFLICT DO NOTHING), 상태 조건을 UPDATE WHERE + FOR UPDATE 로 걸어 동시 요청에도 1회",
+  "마이그레이션 20261123T0833 은 notifications kind CHECK 에 두 값만 더하고, 상수·contract.prisma 가 데이터 §15-4 ⑦ 의 새 값과 맞는다",
+  "한국어 주석 있음, useEffect·비밀값 하드코딩 없음, 범위 밖 수정 없음(§6-2 직원 취소·DISPUTE_CLOSED 는 열린 점 ⑦ 대로 미룸)",
+  "(참고) verify 문구의 테스트 파일명 s3-4-3c.db.test.ts 대신 기능 이름 absence-disputes.db.test.ts 를 썼다 — tests/db 이름 관례·S3-4.3b 판정과 같아 문제로 보지 않음",
+  "(참고) 회원 알림 dedupe_key 가 코드에서 absence:<markId>:dispute_resolved 인데 데이터 모델 §15-4 ⑦ 은 :resolved 로 적었다 — §6-2 직원 취소 경로(같은 알림을 쓴다)를 만들 때 한쪽으로 맞춰야 중복 알림이 막힌다",
+  "(참고) permission-matrix ROUTE_FILE_COVERAGE 에 이번 경로 2개를 포함해 11개가 빠져 16 failed(이전부터) — log-fail 로 남긴 것이 맞고 후속 정리 대상"
+ ],
+ "when": "2026-11-23T17:42:19+09:00"
+}

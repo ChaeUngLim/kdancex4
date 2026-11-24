@@ -1,0 +1,13 @@
+{
+ "id": "M2-END.3",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence.py PASS, 로그 # when 이 모두 2026-11-23 10:55~10:56 KST 로 이번 작업 시각이다",
+  "크리틱이 다시 돌린 test:db m2-gate 가 Test Files 1 passed · Tests 7 passed, skip 0 이고 tsc --noEmit 은 exit 0 으로 워커 보고와 같다",
+  "verify 의 항목(가입, 소속 승인, 정규 8회차 남6·여6, 공지 자동 입력, 승인, 공개 목록, SCHEDULE_CONFLICT, ROOM_CONFLICT, REFUND_DEADLINE_REQUIRED)이 한 파일의 ①~⑦ 단계로 모두 확인된다",
+  "작업 시각 뒤에 바뀐 파일은 m2-gate.db.test.ts 하나와 tsbuildinfo 뿐이라 범위 밖 제품 코드 수정이 없다. 한국어 주석 있음, useEffect 없음, 서명 비밀값은 실행마다 randomUUID 로 만든다",
+  "(참고) stderr 에 Better Auth 'Database schema mismatch' 경고가 한 번 찍힌다. createStaffAuth 뒤 마이그레이션 전에 나는 로그로 보이고 테스트는 통과한다",
+  "(참고) 공개 목록은 GET /api/home/offerings 가 M3 몫이라 계약 02 §1 조건을 SQL 로 센다. 테스트 머리 주석에 이유가 적혀 있다"
+ ],
+ "when": "2026-11-23T10:57:32+09:00"
+}

@@ -1,0 +1,13 @@
+{
+ "id": "S3-4.4",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence PASS, 로그 머리 # when 이 모두 2026-11-23 17:45~17:50 KST 로 이번 작업 시각이다",
+  "직접 다시 돌린 DB 테스트 6 passed, skip 0. tsc --noEmit exit 0, 계약 린터 PASS(오류 0, 경고 300)",
+  "goal 충족: INSERT…SELECT…ON CONFLICT DO NOTHING 이 유니크 인덱스 uq_notifications_kind_order_recipient(부분 인덱스 아님)에 걸려 주문·회원마다 1행만 생긴다. 내부 경로 하나, withInternalRoute 로 토큰을 검사하고 strict zod 로 본문을 받으며, asOf 는 devRoutesEnabled 일 때만 읽는다",
+  "계약 04 §10, 데이터 모델 §15-4 ⑧, contract.prisma, constants.ts, 마이그레이션 CHECK 목록이 payment_deadline_soon 하나로 서로 맞는다. 한국어 핵심 주석이 있고 useEffect·비밀값 하드코딩은 없다",
+  "(참고) verify 는 tests/db/s3-4-4.db.test.ts 를 가리키지만 워커는 기능 이름 payment-deadline-reminders.db.test.ts 로 바꿨다. tests/db 의 다른 파일도 모두 기능 이름을 쓰므로 받아들인다",
+  "(참고) FR-114a 는 알림에 「입금 계좌」를 넣으라고 하는데 본문에서 뺐다. 10-2 열린 점 ①에 임시 확정·사후 확인으로 적혀 있으니 사용자 확인이 필요하다"
+ ],
+ "when": "2026-11-23T17:51:46+09:00"
+}

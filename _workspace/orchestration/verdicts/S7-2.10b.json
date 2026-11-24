@@ -1,0 +1,14 @@
+{
+ "id": "S7-2.10b",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence PASS(행 12·문제 0), 로그 # when 이 2026-11-24 21:44~21:48 KST 로 이번 작업 시각",
+  "직접 재실행: tsc 0, npm run build exit 0(ƒ /admin/reports), admin-reports.spec.ts 2 passed(콘솔 오류 0 단언 포함), shots 2장(목록·처리)",
+  "goal 달성: 운영자가 목록·거르기·확인 시작·인정/기각·이용 제한 절차 열기까지 처리. resolve 본문 {outcome,note,openRestriction} 이 계약 15-ops §2-7 과 같고 API·데이터 모델 변경 없음, useEffect 없음, 핵심 함수 한국어 주석, 비밀값 없음",
+  "추천안·사후 확인 6개가 EVIDENCE.md 에 이유와 함께 기록됨 — spec 규칙·돈·삭제·바깥 계약 위반 없음",
+  "(참고) verify 의 tests/e2e/s7-2-10b.spec.ts 대신 admin-reports.spec.ts — 기존 e2e 파일 이름 관례(기능 이름)와 같아 인정",
+  "(참고) E2E 를 돌릴 때마다 개발 DB 에 처리 끝 신고 2건·학원 1곳이 쌓인다(이번 재실행으로도 추가됨). 처리 칸이 열리면 표 열이 좁아 대상·신고자 글자가 두 줄로 꺾인다 — 기능 결함은 아님",
+  "(참고) 사이드 메뉴 「신고 처리」 항목 없음 — 주소로만 진입, 기존 운영자 화면과 같은 상태"
+ ],
+ "when": "2026-11-24T21:49:54+09:00"
+}

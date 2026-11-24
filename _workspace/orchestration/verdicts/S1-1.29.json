@@ -1,0 +1,13 @@
+{
+ "id": "S1-1.29",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence PASS(행 24·문제 0), 로그 # when 2026-11-24 21:53~22:12 — 이번 작업 시각",
+  "verify 재실행: business-check-listing-suspension.db.test.ts 7 passed skip 0 — 8일째 제한 2개+「기한 지남」, suspend 뒤 3개, 소명 없음 409 NO_EXPLANATION, 수락 시 new_sales_blocked·payout_hold 닫힘 모두 테스트에 있음. tsc exit 0",
+  "goal 충족: 자동 중단 없음(listBusinessCheckCases 는 계산만), suspend-listing 이 listing_suspended·감사·대표 알림을 한 트랜잭션으로 연다. 계약 13 §10-3 과 일치, 구현 메모 ①~⑦ 기록됨. 한국어 주석 있음, useEffect 없음, 비밀값은 env",
+  "(참고) roadmap verify 의 파일명 tests/db/s1-1-29.db.test.ts 가 이름이 바뀌어 없다 — rename 로그는 증거에 있음. roadmap-tasks.json verify 문구는 오케스트레이터가 고쳐야 한다",
+  "(참고) accept-explanation 이 listing_suspended 와 source_case_id 없는 옛 점검 제한까지 닫는 추천안은 계약 13 560행에 이유와 함께 기록됨 — spec 과 어긋나지 않음",
+  "(참고) 권한 행렬 전체 테스트 1 failed 는 다른 Task 경로 7개 누락 — 이 Task 의 두 경로는 표 958·962·1418·1419·2205행에 들어 있음"
+ ],
+ "when": "2026-11-24T22:14:02+09:00"
+}

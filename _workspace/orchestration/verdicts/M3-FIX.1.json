@@ -1,0 +1,14 @@
+{
+ "id": "M3-FIX.1",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence PASS(행 9·문제 0), 로그 # when 은 2026-11-24 15:58~16:41 이번 작업 시각",
+  "바뀐 테스트 5개 파일을 직접 다시 돌림: 272 passed·1 failed. 실패는 행렬 「모든 route.ts 가 표에 있다」 한 건뿐이고, 빠진 4파일(refund-accounts·inquiries replies 2개·inquiries remind-overdue)은 16:05·16:16 에 생겼다. S4-1.2a·S7-2.3 은 todo 상태에 증거 폴더가 있어 진행 중이다 — verify 예외 조항에 맞고 EVIDENCE.md 에 적혀 있다",
+  "tsc --noEmit exit 0",
+  "goal ①~④ 달성: 행렬 WEB_AND_APP(웹 쿠키 칸 + 앱 Bearer 파생 검사), affiliation 2단계 사례를 웹 401 / 앱 200 으로 나눔(정책 그대로), mobile .env.example 에 EXPO_PUBLIC_MEMBERSHIP_THREE_MONTH_PRICE 추가, internal-routes 가 import 한 공장 함수 한 단계 추적 + 음성 사례. 바꾼 곳에 한국어 주석이 있고 useEffect·비밀값 없음",
+  "(참고) private-lesson-products-slots 의 흔들리는 전화번호 검사 수정은 goal 목록 밖이지만, 1회차 실패 20건 중 1건이라 범위 안이다",
+  "(참고) git diff 기준 mobile/.env.example 에서 EXPO_PUBLIC_API_URL 값도 비었다(S0-6.4 주석). 작업 트리가 커밋 전이라 이번 Task 가 한 변경인지 가릴 수 없다. env 예시 테스트는 통과한다",
+  "(참고) 전체 npm test 는 속도 규칙(2026-11-24)에 따라 크리틱이 다시 돌리지 않았다 — M3-END 가 돌린다"
+ ],
+ "when": "2026-11-24T16:43:01+09:00"
+}

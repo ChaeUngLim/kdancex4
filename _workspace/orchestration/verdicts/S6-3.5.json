@@ -1,0 +1,15 @@
+{
+ "id": "S6-3.5",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence PASS(행 15·문제 0), 로그 # when 이 2026-11-25 01:56~02:02 로 이번 작업 시각",
+  "verify DB 테스트를 직접 다시 돌림: new-class-candidates.db.test.ts 7 passed, skip 0. tsc --noEmit exit 0",
+  "목표 충족: 동의 판정은 서버(readCandidateFlags 의 candidate_contact_consents.consented)가 하고, 명단 경로는 동의자만 items 로 내고 비동의자는 notConsentingCount 숫자만 낸다(id·이름·번호 없음). 수 경로는 개인 값이 없다. 응답은 strictObject 로 검사한다",
+  "reveal 경로: HMAC 토큰(강사·회원·만료 15분)을 timingSafeEqual 로 검증하고, 동의를 다시 확인한 뒤 같은 트랜잭션에서 감사(가린 번호만)를 먼저 쓰고 번호를 낸다. 비밀값은 환경 변수(BETTER_AUTH_SECRET)에서 용도 키로 뽑아 하드코딩이 없다",
+  "시연 스크립트를 두 번 돌려도 결과가 같다(dev-demo-again.log: 이미 동의 — 건너뜀, total 22·동의 3·비동의 19). 화면 Task 가 아니라 스크린샷은 없음",
+  "한국어 핵심 주석 있음, useEffect 없음(UI 없음). 범위를 넘은 회원 동의 GET·PUT 은 시연 데이터를 진짜 경로로 넣으려고 추가했고 계약 14 §5 에 있는 경로라 이유·기록이 있음",
+  "(참고) verify 에 적힌 tests/db/s6-3-5.db.test.ts 대신 new-class-candidates.db.test.ts 로 이름을 바꿨다. EVIDENCE.md 에 기록돼 있으니 roadmap-tasks.json 의 verify 경로를 오케스트레이터가 맞춰 두면 좋다",
+  "(참고) 목록 경로의 cursor 처리에 non-null 단언(q.cursor!)이 있고, 커서 뒤에 남은 동의자가 없으면 빈 쪽을 낸다. 동작은 맞지만 다듬을 여지가 있다"
+ ],
+ "when": "2026-11-25T02:03:19+09:00"
+}

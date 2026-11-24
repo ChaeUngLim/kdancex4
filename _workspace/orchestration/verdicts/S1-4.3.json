@@ -1,0 +1,14 @@
+{
+ "id": "S1-4.3",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence PASS, 로그 7개 # when 모두 2026-11-21 13:13 KST(이번 작업)",
+  "verify 재실행: DB 테스트 13 passed·skip 0, tsc exit 0, 계약 린터 전체 오류 0 — 워커 보고와 같다",
+  "goal 충족: PATCH 는 FOR UPDATE 후 published 면 409 NOTICE_ALREADY_PUBLISHED, publish 는 행 잠금+draft 조건부 갱신+ON CONFLICT 로 두 번·동시 눌러도 강사당 알림 1건(테스트 228·255·266·277행)",
+  "권한 owner+관리자 웹 2단계(createConsoleRoute), 위임 강사 403·제목 101자 422 테스트 있음. 한국어 주석·useEffect 없음·비밀값 없음",
+  "(참고) dedupe_key 를 staff_notice:<id>:<강사id> 로 바꾼 것은 uq_notifications_dedupe(kind, dedupe_key) 때문에 타당하고 09 §3 구현 줄에 기록됐다. 다만 같은 계약 84행 원문은 아직 staff_notice:<id> 라 한 곳으로 맞추면 좋다",
+  "(참고) 테스트 파일 이름을 verify 의 s1-4-3 대신 academy-staff-notice-publish 로 바꿨다 — roadmap-tasks.json verify 문구 갱신 필요",
+  "(참고) permission-matrix 1 failed 는 다른 Task 경로(지금 재실행 기준 11개)가 표에 없어서 — staff-notices 3경로는 표에 있다. 범위 밖 기준선 실패"
+ ],
+ "when": "2026-11-21T13:14:40+09:00"
+}

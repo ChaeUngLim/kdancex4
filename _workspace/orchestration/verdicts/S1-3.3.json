@@ -1,0 +1,14 @@
+{
+ "id": "S1-3.3",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence PASS(행 9·문제 0), 로그 # when 은 2026-11-21 11:19~11:21 KST 로 이번 작업 시각",
+  "크리틱 재실행: DB 통합 테스트 9 passed(skip 0) · tsc --noEmit exit 0 · 계약 린터 전체 오류 0(경고 397) — 워커 보고와 같음. refund-notices 는 POST(S1-3.4) 만 MISSING",
+  "goal 충족: GET 3개 라우트 + 서비스, 주문(orders 가 가리키는 판본 id)이 가리키는 옛 판본 1 이 판본 3 이후에도 content·body 그대로 열림을 테스트가 확인. 응답은 계약 09 §1 모양과 맞고 strict zod 스키마로 검사",
+  "규칙 준수: 핵심 지점 한국어 주석, useEffect 없음, 비밀값 하드코딩 없음, 권한 판정 순서(401→403→2단계 401→404→403)와 uuid·판본 번호 형식 검사로 500 방지, Cache-Control private no-store",
+  "(참고) verify 가 지정한 tests/db/s1-3-3.db.test.ts 를 refund-notice-read.db.test.ts 로 이름 바꿔 돌렸다 — roadmap-tasks.json 의 verify 경로를 맞춰 두면 다음 재검증이 덜 헷갈린다",
+  "(참고) 위임 강사 조회 허용은 Task method 와 계약 머리말을 따랐지만 플랜 6-3 권한 표·계약 열린 점 ②(사용자 확인 대기)와 어긋난다 — 사람이 정해야 하고, 정해지면 isDelegate 가드 한 줄 수정",
+  "(참고) 신고 체육시설(확인됨) template null 은 spec 에 값이 없어서다(Q11(환불 방식 변경의 뒤처리) ① 미정) — 계약에 적혀 있음"
+ ],
+ "when": "2026-11-21T11:22:02+09:00"
+}

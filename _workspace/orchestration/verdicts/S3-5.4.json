@@ -1,0 +1,15 @@
+{
+ "id": "S3-5.4",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence PASS(행 15·문제 0), 로그 # when 이 2026-11-23 19:56~20:08 KST 로 이번 작업 시각",
+  "verify 재실행: session-onsite-headcount.db.test.ts 11 passed·skip 0, tsc exit 0 — 워커 보고와 같다",
+  "계약 18 §6 규칙 1~7 이 서비스에 반영됨: seat_pools FOR UPDATE 후 상한 판정·409 ONSITE_EXCEEDS_CAPACITY+maxOnsite, 422 칸 불일치, 409 SESSION_ENDED/CANCELLED, 값이 바뀔 때만 감사 1행, orders·payments·settlement_entries 미접근, 줄면 onSeatFreed(빈 함수), 주문 생성·상세·홈이 앞으로 올 회차 최대 onsite 를 뺌",
+  "수용 ④: 테스트가 settlement_entries 1행 포함 돈 쪽 6개 표 md5 지문 불변과 감사 행을 확인한다",
+  "시연 스크립트는 진짜 API 를 Bearer 로 부르고 두 번째 실행은 감사 행 존재로 건너뜀(demo-run-2 로그). 한국어 핵심 주석 있음, useEffect·비밀값 하드코딩 없음",
+  "(참고) task verify 의 파일 이름 tests/db/s3-5-4.db.test.ts 는 없고 기능 이름 파일로 대체했다 — 워커가 보고에 밝혔고 내용은 수용 ④ 를 덮는다. roadmap-tasks.json verify 문구를 실제 파일 이름으로 맞추길 권함",
+  "(참고) data-model §15-4 ② 는 「회차 생성 때 onsite_count=0 행을 만들어 둔다」인데 구현은 행이 없으면 0 으로 보고 UPSERT 한다 — 동작은 같으나 데이터 모델 문구와 다르다",
+  "(참고) 단위 전체의 env-example-names 1건 실패는 mobile/.env.example(다른 작업) 탓으로 log-fail 기록됨 — 이 Task 범위 밖"
+ ],
+ "when": "2026-11-23T20:10:34+09:00"
+}

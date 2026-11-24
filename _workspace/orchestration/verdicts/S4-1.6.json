@@ -1,0 +1,12 @@
+{
+ "id": "S4-1.6",
+ "verdict": "PASS",
+ "reasons": [
+  "verify 파일 재실행 1 file 10 passed skip 0, tsc exit 0, check_evidence PASS — 워커 보고와 같다",
+  "goal 세 갈래(같은 원인 동시 2건 → 1회, 같은 예약 다른 원인 각각 허용, 상한 결제액−수수료·청약철회는 결제액까지)를 ①~⑧ 이 다 단정한다. 진 쪽의 거부 이유가 uq_refunds_basis_active·ck_orders_refunded_cap 인지까지 확인한다",
+  "테스트 파일 하나만 추가했다. 운영 코드·마이그레이션은 손대지 않았다(method 대로). 한국어 주석이 있고 비밀값은 없다",
+  "(참고) verify 에 적힌 이름 tests/db/s4-1-6.db.test.ts 대신 refund-once-concurrency.db.test.ts 를 썼다. 기능 이름을 붙이는 tests/db 관례와 맞고 파일 머리와 EVIDENCE 에 바꾼 사실을 적었다. 로드맵 verify 문구는 나중에 맞춰 두면 좋다",
+  "(참고) 휴강 선택·일괄 취소·청약철회 원인은 아직 서비스가 없어서(S4-2·S4-3) 계약 §1-3 모양의 SQL 로 직접 넣었다. DB 방어선만 보는 Task 범위라 괜찮다. 서비스가 생기면 그 경로로 다시 검증해야 한다"
+ ],
+ "when": "2026-11-24T20:58:42+09:00"
+}

@@ -1,0 +1,15 @@
+{
+ "id": "S3-4.8",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence PASS(행 14 · 문제 0), 로그 # when 이 모두 2026-11-23 18:20~18:38 로 이번 작업 시각",
+  "mobile tsc exit 0 · admin-web tsc exit 0 · 스크린샷 3장 test -f exit 0 을 직접 다시 확인",
+  "시연 스크립트를 크리틱이 한 번 더 돌림 → 「건너뜀: 결제완료 주문 1건이 이미 있다」 exit 0 — 두 번 돌려도 깨지지 않음. 수업·주문·결제는 진짜 경로(POST /api/classes·orders·가짜 PG 입금 웹훅), SQL 은 회원 행뿐, DB 이름 kdance_next 가드 있음",
+  "스크린샷 3장 직접 확인: 첫 달 2026년 11월 한 달만·‹ 흐림·30일 동그라미 / 다음 달 12월 ‹ › 열림·월·수 9일 / 마지막 달 2027년 1월 › 흐림·6일. 요약 카드 「월·수 20:30–21:30」·총 16회·300,000원 실데이터. 화면 코드에 시연 값 박힘 없음(grep 결과 0)",
+  "화면 코드: useEffect 없음, 달 이동은 ‹ › onPress 의 setCursor, 계산은 lib/me/class-month-calendar.ts 순수 함수, 핵심 지점 한국어 주석 있음, 비밀값 하드코딩 없음(시연 비밀번호는 개발 DB 시연 계정용). 새 서버 경로 없이 계약 02 §2·04 §1 만 읽음",
+  "(참고) files_changed 에 실제로 새로 만든 mobile/lib/me/class-month-calendar.ts 와 진입 링크를 단 mobile/app/(tabs)/calendar.tsx 가 빠져 있다 — 보고 목록만 보정하면 됨",
+  "(참고) 「신청함」 태그가 공용 shared.tagOk(colors.ok 녹색 계열)를 쓴다 — 「녹색 성공색 금지」 팔레트 기억과 어긋날 수 있으나 기존 공용 토큰이라 이 Task 범위 밖",
+  "(참고) 촬영 스크립트가 앱 로그인 대신 Node 에서 토큰을 받아 Bearer 만 붙인다 — S3-4.7b 의 출처 검사(403) 열린 점 때문이며 응답 본문·상태는 실서버 그대로"
+ ],
+ "when": "2026-11-23T18:39:57+09:00"
+}

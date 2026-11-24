@@ -1,0 +1,14 @@
+{
+ "id": "S1-1.33",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence.py PASS(행 13·문제 0), 로그 # when 은 모두 2026-11-21 01:59~02:01 KST 로 이번 작업 시각",
+  "직접 다시 돌림: tsc --noEmit exit 0, npm run build exit 0(경로 /admin/merchant-applications·/[id] 생성), E2E admin-merchant-review.spec.ts 2 passed, 단위 admin-merchant-review-form 8 passed",
+  "스크린샷 3장(목록·상세·반려-사유-입력)을 열어 EVIDENCE 「확인한 것」과 일치 확인 — 거르기 칩·제출 이른 순, 심사 전 「심사 시작」만, 가린 계좌, 반려 사유 4종·52/500자",
+  "goal(목록→상세→승인·반려) 충족, 기존 S1-1.13~15 API 재사용·계약 변경 없음, useEffect 없음, 핵심 지점 한국어 주석 있음, 비밀값은 env 에서만 읽음",
+  "(참고) verify 문구의 테스트 경로 tests/e2e/s1-1-33.spec.ts 는 없다 — 실제 파일은 tests/e2e/admin-merchant-review.spec.ts. roadmap-tasks.json 의 S1-1.33 verify 경로를 새 이름으로 고쳐 두는 것이 좋다",
+  "(참고) 사이드 메뉴에 「입점 심사」 진입점 없음·403 문구가 대표 기준 — 워커가 사람 확인 권장으로 올린 2건, 범위상 결함 아님",
+  "(참고) 반려 글자 수는 trim 기준으로 세지만 textarea maxLength 는 원문 기준 — 앞뒤 공백이 많으면 표시와 한도가 조금 어긋날 수 있다(서버도 500자로 다시 검사하므로 사소)"
+ ],
+ "when": "2026-11-21T02:03:40+09:00"
+}

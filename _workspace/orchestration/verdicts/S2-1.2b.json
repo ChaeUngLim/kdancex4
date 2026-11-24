@@ -1,0 +1,13 @@
+{
+ "id": "S2-1.2b",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence PASS(행 12·문제 0), 로그 # when 이 모두 2026-11-21 15:15~15:21 KST — 이번 작업 시각",
+  "직접 다시 돌린 DB 테스트 7 passed·skip 0, tsc exit 0, 계약 린터 오류 0·경고 381 — 워커 보고와 같다",
+  "goal(수용 ⑤) 충족: 테스트가 진짜 가입 경로로 번호 없이 가입한 뒤 2단계 없이 PUT 으로 번호·등록증을 넣는 흐름을 확인한다. 계약 11 §2-2(둘 다 null 이면 비우기, 본인 business_registration_evidence 파일만, 파일만 422, 422 BUSINESS_NUMBER_INVALID, 감사는 끝 4자리)와 맞다",
+  "마이그레이션은 purpose CHECK 에 값을 더하고 ck_files_evidence_private 를 넓히는 것만 한다(등록증은 늘 비공개). file-upload.ts 는 계약 11 열린 점 ⑩(임시 확정)대로 이 목적일 때만 2단계 대신 instructor 역할을 본다. 핵심 지점에 한국어 주석이 있고 useEffect·하드코딩된 비밀값은 없다",
+  "(참고) verify 에는 tests/db/s2-1-2b.db.test.ts 라고 적혀 있지만 실제 파일은 tests/db/instructor-business-registration.db.test.ts 다. EVIDENCE.md 에 이름을 바꾼 이유가 적혀 있다. roadmap-tasks.json 의 verify 경로를 새 이름으로 고쳐 두어야 다음 재검증 때 헛돌지 않는다",
+  "(참고) 2단계를 마치지 않은 세션이 POST /api/files 를 부르면 이제 multipart 를 다 읽은 뒤 401 이 난다. 크기 검사는 여전히 먼저 하므로 위험은 작지만, 권한 표의 401→400 변경과 함께 M1 담당과 조율할 때 알려야 한다. 계약 07 §1 의 purpose 목록 갱신과 등록증 내려받기(S1-1.7)가 2단계를 요구하는 문제도 아직 남아 있다"
+ ],
+ "when": "2026-11-21T15:22:45+09:00"
+}

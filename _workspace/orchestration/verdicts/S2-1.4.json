@@ -1,0 +1,13 @@
+{
+ "id": "S2-1.4",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence PASS(행 14·문제 0), 로그 머리 # when 이 모두 2026-11-21 15:32~15:40 KST 로 이번 작업 시각",
+  "크리틱 재실행: instructor-release-request.db.test.ts 3 passed skip 0(①201·알림 release_requested 1건·감사·소속 active 유지·같은 키 200·열린 요청 409 / ④undecided 409·422 / ⑤401·403·404·400·409), 함께 고친 등록 표 포함 4파일 98 passed, tsc exit 0, constants-contract 63 passed",
+  "goal·method 충족: 요청 1행+release_requested_at+대표 알림(approval, dedupe release:<id>:requested)+감사를 한 트랜잭션에 쓰고 소속은 active 그대로 — 계약 11 §3-3·data-model §8-2·§8-3(uq_release_req_open·uq_release_req_idem·ck_release_req_resolved)과 일치, 핵심 지점 한국어 주석 있음, useEffect·비밀값 없음",
+  "(참고) verify 의 파일명 tests/db/s2-1-4.db.test.ts 대신 instructor-release-request.db.test.ts 로 바꿨다 — EVIDENCE.md 에 이유를 적었으나 roadmap-tasks.json verify 문구는 옛 이름 그대로라 맞춰 두면 좋다",
+  "(참고) data-model §8-3 은 session_choices·private_lesson_choices 를 jsonb 로 적었지만 실제 칸은 json(Prisma Json 기본 매핑) — 프로젝트의 다른 Json 칸과 같은 관례라 결함은 아니고, data-model 표기를 맞출지는 나중에 정리",
+  "(참고) 남은 회차 목록 기본값 listRemainingWorkNone 은 늘 빈 목록(강사↔회차 칸이 S2-2 전에는 없음) — S2-3 에서 실제 조회로 바꿔야 한다"
+ ],
+ "when": "2026-11-21T15:41:48+09:00"
+}

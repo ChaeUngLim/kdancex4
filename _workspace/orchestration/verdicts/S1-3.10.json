@@ -1,0 +1,14 @@
+{
+ "id": "S1-3.10",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence.py PASS(행 12·문제 0), 로그 # when 2026-11-21 11:57~11:59 KST 로 이번 작업 시각",
+  "직접 다시 돌림: tsc exit 0 · next build exit 0(/academies/[academyId]/no-show-policy·/refund-notices/event 경로 있음) · 단위 800 passed · E2E(이벤트형·노쇼 3 + 정규·설정 회귀 4) 7 passed · no-show-policy DB 테스트 4 passed",
+  "스크린샷 3장(수수료-표·상한-초과-오류·노쇼-안내)을 열어 봄 — 최대 10/10/20/30, 0·15 낮춤 안내, 25% 칸 빨간 테두리·「20% 이하여야 해요」·위쪽 422 문장, W8B 규칙 넷·미리보기·입력 없음 모두 기록과 일치",
+  "goal 충족: 이벤트 탭은 서버 컴포넌트가 미리 받은 조회 응답으로 그리고 저장은 handleSave 안에서만 POST …/event/versions. 요청 모양(feeTiers window·percent×4, nonRefundableCases, processingBusinessDays, ownerContact)·오류 경로 content.feeTiers.<i>.percent 가 계약 09 §1 과 일치. W8B 는 API 처리기와 같은 readNoShowPolicy() 사용. useEffect 없음, 핵심 지점 한국어 주석, 비밀값 하드코딩 없음",
+  "(참고) verify 문구의 E2E 파일 tests/e2e/s1-3-10.spec.ts 가 실제로는 refund-notice-event-no-show.spec.ts — S1-3.9 와 같은 관례지만 roadmap-tasks.json verify 문구를 새 이름으로 고쳐 두는 게 좋다",
+  "(참고) 노쇼 안내 스크린샷 왼쪽 아래 「Compiling…」 배지는 Next 개발 서버 표시로 화면 결함 아님",
+  "(참고) 사람 확인 항목: W8B 진입이 설정 화면 링크(「정산 · 원장」 메뉴 없음), 첫 판본 기본값=플랫폼 최대, 보드 안내 두 줄을 D15(2026-11-20) 결정에 맞춰 바꿈"
+ ],
+ "when": "2026-11-21T12:01:26+09:00"
+}

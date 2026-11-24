@@ -1,0 +1,13 @@
+{
+ "id": "S2-2.13",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence PASS, 로그 # when 2026-11-22 00:21 KST — 이번 작업 시각",
+  "verify 재실행: class-list-reads.db.test.ts 5 passed, skip 0 · tsc --noEmit exit 0",
+  "계약 린터 --contract 11 의 MISSING 12건에 이 Task 3경로 없음, 전체 린터 PASS",
+  "3경로 응답 모양이 계약 11 §4·§4-5·§4-6 과 일치(strict zod 스키마). created_by=나 고정, 폐강 제외 기본값, 오래 기다린 순 커서, 대표만 승인 대기",
+  "(참고) 승인 대기 목록의 kind:edit 줄은 class_edit_requests 표가 아직 없어 미구현이다(스키마만 둠). S2-3.12(공개 뒤 수업 수정 요청 API) 때 이 목록에 edit 줄을 채우는 일을 잊지 않게 적어 둘 것",
+  "(참고) 권한 행렬 「모든 route.ts 가 표에 있다」 실패는 S2-4 개인 레슨·강사 일정·dev 경로 8개 때문이고, 이 Task 의 새 3행은 통과(재실행 1 failed/119 passed 확인)"
+ ],
+ "when": "2026-11-22T00:25:06+09:00"
+}

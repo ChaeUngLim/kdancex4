@@ -1,0 +1,12 @@
+{
+ "id": "M2-END.1",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence.py PASS(행 2개·문제 0), 로그 3개의 # when 이 2026-11-23 10:32~10:33 으로 이번 작업 시각이다",
+  "크리틱이 npm run build 를 다시 돌렸다: exit 0, Compiled successfully, Finished TypeScript",
+  "크리틱이 api_contract_lint.py --contract 11-instructor.md 를 다시 돌렸다: PASS(오류 0·경고 318), 11-instructor.md 를 가리키는 MISSING 은 0건",
+  "(참고) EVIDENCE.md 에는 경고가 '12~18 등' 계약 경로라고 적혀 있지만, 실제로는 01·02·03·04 계약 경로도 29건 섞여 있다. 판정에는 영향이 없다",
+  "(참고) 코드를 바꾸지 않는 Task 다. files_changed 는 증거 파일 4개뿐이라 범위 밖 수정이 없다"
+ ],
+ "when": "2026-11-23T10:34:29+09:00"
+}

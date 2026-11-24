@@ -1,0 +1,15 @@
+{
+ "id": "S7-1.4",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence PASS, 로그 머리 # when 이 모두 2026-11-24 10:38~10:43 으로 이번 작업 시각이다",
+  "verify 를 다시 돌렸다: DB 테스트 7 passed·skip 0, tsc exit 0, 계약 린터 오류 0. 수용 ①(거래 알림 끄기 422 TRANSACTIONAL_NOT_DISABLEABLE, 아무것도 저장 안 함)이 코드와 테스트 양쪽에서 확인된다",
+  "goal·method 를 지켰다: 경로는 GET·PUT /api/me/notification-settings 하나, 종류별 켜고 끄기, 거래 알림은 저장할 칸이 없음, 강사 정규 신청·취소는 instructorEnrollmentDelivery 로 push:false·알림함만. 한국어 주석 있음, useEffect 없음, 비밀값은 env 로만 읽는다",
+  "추천안·사후 확인 선택({alwaysOn:false} 도 거부, 동의 중이 아니면 agreedAt null, source='settings')은 계약 15 §1-1 에 날짜와 함께 적혀 있다",
+  "(참고) verify 의 테스트 파일 이름 tests/db/s7-1-4.db.test.ts 대신 기능명 member-notification-settings.db.test.ts 를 썼다. 워커가 보고에서 밝혔고 내용은 같다",
+  "(참고) 계약 15 §1-1 본문은 member_consents 항목을 'marketing' 이라 적었지만, 실제 enum 과 코드는 marketing_consent 다. 계약 문구를 나중에 맞추면 좋다",
+  "(참고) PUT /api/me/optional-consents(계약 15:51)도 광고성 동의를 켜고 끈다. 그 Task 를 구현할 때는 같은 agree/withdraw…InTx 함수를 써야 기록이 갈라지지 않는다",
+  "(참고) 화면은 S7-1.8 몫이라 이번에는 스크린샷이 없다. 시연 스크립트는 진짜 처리기를 부르고, 두 번 돌려도 updated_at 과 동의 줄 수가 그대로임을 로그로 확인했다"
+ ],
+ "when": "2026-11-24T10:44:37+09:00"
+}

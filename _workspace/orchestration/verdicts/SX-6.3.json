@@ -1,0 +1,13 @@
+{
+ "id": "SX-6.3",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence PASS(7행, 문제 0). 로그 머리 # when 은 모두 2026-11-24 20:16~20:19 KST라 이번 작업 시각이고, RED 로그(모듈 없음, exit 1)도 있다",
+  "verify 테스트를 다시 돌려 27 passed, tsc --noEmit exit 0. 워커 보고와 같다",
+  "goal 충족: screenPromoInput 이 선정·폭력·실존 인물·타사 상표 네 갈래를 JSON 목록과 정규식으로 글자만 대조한다(FR-270(입력 지시문은 데이터)). guardPromoGeneration 은 막히면 proceed(차감·생성)를 부르지 않고 422 PROMO_INPUT_BLOCKED·blockedKind·remaining 을 돌려준다. 계약 16 §4-7 3단계와 맞고, 주석은 한국어이며 useEffect·비밀값 없음",
+  "추천안(목록 범위, 「섹시」·「로고」를 막지 않음, 한 글자 낱말 금지, 앞 갈래 우선)은 EVIDENCE.md 와 계약에 「추천안·사후 확인 2026-11-24」로 이유와 함께 적혀 있다. 열린 점 ⑪(실존 인물·타사 상표 목록 범위는 사용자 확인)도 지킴",
+  "(참고) verify 의 테스트 파일 이름 tests/unit/sx-6-3.test.ts 를 promo-image-blocked-input.test.ts 로 바꿨다. SX-6.1·6.2 와 같은 관례이고 EVIDENCE.md 에 적어 두었다. roadmap-tasks.json 의 verify 문구도 새 이름으로 맞추면 좋다",
+  "(참고) 계약 16 §4-7 3단계는 정규화를 「NFKC」라 적었는데, 코드는 NFKD → 결합 부호 제거 → NFC 순서다. 계약 문구를 코드에 맞춰 고치면 좋다"
+ ],
+ "when": "2026-11-24T20:20:13+09:00"
+}

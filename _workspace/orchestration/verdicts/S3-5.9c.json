@@ -1,0 +1,16 @@
+{
+ "id": "S3-5.9c",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence PASS(행 28·문제 0), 로그 # when 모두 2026-11-24 11:14~11:21 KST로 이번 작업 시각",
+  "verify 재실행: mobile tsc exit 0, shots/O6·O40·O45.png 존재. admin-web tsc exit 0",
+  "DB 테스트 재실행 headcount 13 passed, 회귀 4파일 48 passed, 단위 2파일 26 passed — 워커 보고와 같음",
+  "스크린샷 O6(오늘 수업 표 3줄·합계·현장등록/주문 바로가기), O40(카드 3장·−/+·남은 자리), O40-저장-후(현장 남 2, + 막힘), O45(검색·칩 4개·첫 줄 이력 펼침) 모두 시연 데이터로 채워져 있고 EVIDENCE 설명과 일치",
+  "대표 경로 owner-headcount.ts 는 consoleRoute permission owner + academyId 검사, 강사 경로 readHeadcount 를 instructorId '' + academyId 범위로 재사용 — 계약 18 §7 과 맞음, 남의 학원·강사 403 은 DB 테스트로 확인",
+  "바뀐 mobile 화면·뷰 파일에 useEffect 0, 한국어 주석 있음, 화면 코드에 시연 값 박힘 없음, 비밀값 하드코딩 없음, 시연 스크립트 2차 실행은 건너뜀(exit 0)",
+  "추천안 11건은 EVIDENCE 「추천안·사후 확인」에 후보·이유와 함께 기록, 계약 18 §2-1·§7 에도 표시 — 돈·삭제·바깥 계약 진행 없음",
+  "(참고) O40 「N개 회차를 저장했어요」가 theme colors.ok(#1E7A4C 녹색)이다 — 메모리 「녹색 성공색 금지」와 어긋날 수 있으니 테마 정리 때 확인",
+  "(참고) 계약 18 단독 린트 FAIL 1건은 S3-5.10(역할 불균형 알림 작업) 몫 경로 미구현이라 이 Task 결함 아님. 위임 강사 403 과 권한 행렬 행 추가는 미검증으로 남음"
+ ],
+ "when": "2026-11-24T11:23:41+09:00"
+}

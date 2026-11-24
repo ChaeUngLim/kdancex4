@@ -1,0 +1,13 @@
+{
+ "id": "S3-3.11",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence PASS(행 10·문제 0), 로그 머리 # when 2026-11-23 14:51~14:54 KST 로 이번 작업 시각",
+  "verify 재실행: payment-exceptions.db.test.ts 5 passed, skip 0 — ①amount_mismatch 행 ②expired 불변 ④중복 결제 confirmed 1 확인",
+  "tsc --noEmit exit 0",
+  "payment-webhook.ts: 5·7번 자리에 recordRefundDue(payment_exceptions refund_due 1행 + payment_refund_due 알림 2건), NOT EXISTS + ON CONFLICT 로 한 결제 1회만 — 계약 03 §6 5·7행·data-model §4.1·§4-1 expired 행과 일치, 한국어 주석 있음, useEffect·비밀값 없음",
+  "(참고) 테스트 파일명이 verify 의 tests/db/s3-3-11.db.test.ts 가 아니라 payment-exceptions.db.test.ts — 파일 머리와 EVIDENCE.md 에 사유를 적었고 내용은 verify 를 그대로 덮는다. roadmap verify 문구 갱신 필요",
+  "(참고) 중복 결제 해석(한 주문 한 결제 → 재통지는 ignored, PG 이중 청구 자동 환불은 S8-1)·알림 payload·대표 알림 settlement 칩·닫힌 이벤트 주문 카드 승인의 PG 자동 취소 여부는 사후 사용자 확인 대상"
+ ],
+ "when": "2026-11-23T14:55:37+09:00"
+}

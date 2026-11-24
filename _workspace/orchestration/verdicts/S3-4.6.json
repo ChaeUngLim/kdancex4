@@ -1,0 +1,13 @@
+{
+ "id": "S3-4.6",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence PASS, 로그 머리 when 2026-11-23 18:04~18:05 KST 로 이번 작업 시각",
+  "직접 다시 돌림: me-orders.db.test.ts 7 passed skip 0, tsc --noEmit exit 0, 계약 린터 PASS 오류 0·경고 298",
+  "계약 04 §9 응답 모양·쿼리(status 6종 쉼표·limit 1~50 기본 20·cursor createdAt DESC,id DESC)·오류(401·403·422)·receipt null/false·dueAt pending 일 때만·refundedAmount succeeded 합계와 일치. 상태 값은 constants.ts ORDER_STATUSES 그대로 씀",
+  "내 주문만 member_id 로 거르고, strict 응답 스키마로 계좌·카드 번호가 나갈 수 없게 막음. 핵심 지점에 한국어 주석 있음, useEffect·비밀값 없음, 범위 밖 수정 없음",
+  "(참고) verify 의 tests/db/s3-4-6.db.test.ts 대신 기능 이름 me-orders.db.test.ts 로 만들었다. 이유는 테스트 머리 주석과 EVIDENCE.md 에 적혀 있다",
+  "(참고) 읽기 전에 기한 지난 결제 대기를 정리하는 단계는 계약 §9 에 없던 판단이다. 계약 03 §5 와 단건 조회 규칙에 맞춘 것이라 사후 확인으로 남긴다"
+ ],
+ "when": "2026-11-23T18:06:32+09:00"
+}

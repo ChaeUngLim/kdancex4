@@ -1,0 +1,14 @@
+{
+ "id": "S3-3.10",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence PASS(9행, 문제 0), 로그 # when 모두 2026-11-23 14:45~14:47 KST — 이번 작업 시각",
+  "verify 재실행: event-card-approval-cancel.db.test.ts 7 passed, skip 0 · tsc --noEmit exit 0 — 워커 보고와 같다",
+  "payment-webhook.ts: 확정 경로(pending·ready)에서 금액 대조 전에 orders.class_kind 스냅샷 + 승인 수단(reported.method ?? payments.method)을 isPaymentMethodAllowed 로 판정, 거절이면 closeOrderOnPaymentFailure 뒤 cancelPayment 1회, 0행이면 PG 미호출 — goal·method 와 맞다. 한국어 주석 있음, useEffect·비밀값 없음",
+  "계약 03 §6 5-a 행이 구현(결과 payment_failed + cancelledApproval·approvedMethod·notice)과 일치",
+  "(참고) verify 의 파일명 tests/db/s3-3-10.db.test.ts 를 기능 이름 event-card-approval-cancel.db.test.ts 로 바꿨다 — tests/db 에 Task 번호 이름 파일이 하나도 없어 저장소 관례와 맞고 EVIDENCE.md 에 적혀 있다. roadmap-tasks.json 의 verify 문구는 갱신 필요",
+  "(참고) 새 CHECK 값 없이 payment_failed 재사용, payment_exceptions 행 미작성, GatewayPayment.method? 추가는 추천안 — 사후 확인 대상(S3-3.11·S8-1 에서 실 어댑터가 method 를 채워야 함)",
+  "(참고) 계약 03 git diff 의 0·3-a·3-b 행은 다른 Task 의 미커밋 변경이며 이 Task 범위가 아니다"
+ ],
+ "when": "2026-11-23T14:48:50+09:00"
+}

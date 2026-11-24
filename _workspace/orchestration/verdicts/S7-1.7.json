@@ -1,0 +1,15 @@
+{
+ "id": "S7-1.7",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence PASS(20행·문제 0), 로그 # when 이 2026-11-24 16:02~16:19 KST 로 이번 작업 시각",
+  "verify DB 테스트를 직접 다시 돌려 10 passed, skip 0 — 두 번·동시 호출 시 행 1건 확인",
+  "tsc --noEmit exit 0(첫 실행은 다른 작업과 겹쳐 heap 부족으로 중단, 힙 8GB 로 다시 돌려 통과)",
+  "코드: 단일 INSERT…SELECT + dedupe_key ON CONFLICT DO NOTHING 으로 멱등, 커밋 뒤 발송, 한국어 주석 있음, useEffect·비밀값 없음, 계약 15-ops §1-4 와 일치",
+  "스크린샷 01(M21 알림함)에 「곧 수업이 시작해요 / 바차타 센슈얼 입문 · 12월 1일 20:00 시작」이 실제 API 데이터로 보이고, 시연 스크립트 재실행은 건너뜀(멱등)",
+  "(참고) verify 의 테스트 파일 이름 s7-1-7.db.test.ts 대신 pre-class-reminders.db.test.ts 로 바꿨다 — 보고·증거에 적혀 있음",
+  "(참고) 자녀 예약→보호자 받는 사람(계약 §1-4)과 notifications.class 칸은 S7-3·dispatch Task 로 미뤘고 계약 196행에 추천안으로 기록함",
+  "(참고) 권한 행렬 전체 1 fail·15-ops 린터 MISSING 66개는 다른 Task 몫 경로로 log-fail 기록됨"
+ ],
+ "when": "2026-11-24T16:37:15+09:00"
+}

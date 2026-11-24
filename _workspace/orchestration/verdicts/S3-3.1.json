@@ -1,0 +1,12 @@
+{
+ "id": "S3-3.1",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence PASS, 로그 # when 은 모두 2026-11-23 13:05~13:06 KST 로 이번 작업 시각이다",
+  "테스트를 다시 돌려도 결과가 같다: payment-methods.test.ts 49 passed, 단위 전체 76 files 1083 passed, tsc exit 0",
+  "spec FR-280 표와 맞는다: 정규·단기(basic·lady_style)·개인 레슨은 카드 기본에 4수단, 이벤트형 5종(EVENT_CLASS_KINDS)은 간편 계좌이체 기본에 가상계좌까지 두 수단",
+  "순수 함수이고 반환값은 얼려 두었다. 핵심 지점에 한국어 주석이 있고 useEffect·비밀값은 없다. 테스트보다 늦게 수정된 파일은 payment-methods.ts 하나뿐이라 범위 밖 수정도 없다",
+  "(참고) verify 에는 tests/unit/s3-3-1.test.ts 로 적혀 있지만 실제 파일은 tests/unit/payment-methods.test.ts 다. 파일 이름만 다르고 검증 내용은 같다"
+ ],
+ "when": "2026-11-23T13:07:49+09:00"
+}

@@ -1,0 +1,14 @@
+{
+ "id": "S1-1.15",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence PASS(행 10·문제 0), 로그 # when 모두 2026-11-20 23:16~23:18 KST — 이번 작업 시각",
+  "반려 DB 테스트 재실행 8 passed·skip 0, tsc exit 0, 계약 린터 PASS(오류 0·경고 424, reject MISSING 아님) — 워커 보고와 같음",
+  "goal 충족: 사유 코드(FR-250 4종 zod enum)·글(1~500자)이 신청자 알림 payload 와 GET /api/merchant-applications/me 의 rejectReasonCode·rejectReasonText 로 돌아간다. 통합 테스트(반려 뒤 초안 저장 → 새 applicationId, 옛 신청 rejected)도 통과",
+  "구현이 계약 07 §3(123행)과 열린 점 ⑪ 기록에 맞다 — 권한 admin·web, in_review 만, FOR UPDATE 잠금+조건부 갱신, 감사 1행. 핵심 지점 한국어 주석 있음, useEffect·console.log·비밀값 없음",
+  "(참고) verify 의 파일명 tests/db/s1-1-15.db.test.ts 대신 기능 이름 admin-merchant-reject.db.test.ts 로 만들었다 — tests/db 의 다른 파일도 모두 기능 이름이라 관례에 맞음",
+  "(참고) 권한 행렬 1 failed 는 이전부터 있던 것 — 표에 없는 7개(academies consents·terms-notices read·admin terms-versions·files 등)는 다른 Task 경로이고 reject 행은 들어 있다",
+  "(참고) 열린 점 ⑪(사유 글 필수·in_review 만·재요청 200/409)은 임시 확정이라 사람 확인이 남았다. roadmap goal 의 FR-257 표기는 FR-250 이 맞아 보인다 — roadmap 쪽 정정 필요"
+ ],
+ "when": "2026-11-20T23:20:50+09:00"
+}

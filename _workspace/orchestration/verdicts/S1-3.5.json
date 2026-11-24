@@ -1,0 +1,13 @@
+{
+ "id": "S1-3.5",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence.py PASS(행 10·문제 0), 로그 # when 은 전부 2026-11-21 11:32~11:33 KST로 이번 작업 시각",
+  "크리틱이 다시 돌린 결과: DB 테스트 event-refund-notice-publish + refund-notice-publish 2 files, 14 passed(7+7, skip 0). 단위 event-cancel-fee-max 6 passed. tsc exit 0. 계약 린터 오류 0·경고 396",
+  "상한은 EVENT_CANCEL_FEE_MAX_PERCENTS 한 곳에서만 읽는다(findFeeTiersAboveMax). 422 CANCEL_FEE_ABOVE_MAX·PROCESSING_DAYS_TOO_LONG, content 모양, template_code NULL이 계약 09 §1과 data-model §7-6과 맞다. 핵심 지점에 한국어 주석이 있고 useEffect·비밀값은 없다",
+  "goal 뒷부분 「마감 지난 행사 변경 금지」를 이 API에서 빼고 S2-2·S6-4로 미룬 근거는 HEAD 커밋에 이미 있던 계약 09 §1 「적용 시점」(49행)이다. 워커가 만든 근거가 아니라서 정당한 범위 판단으로 본다",
+  "(참고) verify에 적힌 파일명 tests/db/s1-3-5.db.test.ts 대신 event-refund-notice-publish.db.test.ts를 썼다. EVIDENCE.md에 적어 두었으니 로드맵 verify 문구를 갱신하면 된다",
+  "(참고) 기존 refund-notice-publish 테스트에서 event NOT_READY 기대를 뺀 것은 이 Task가 바꾼 동작에 맞춘 수정이고, private_lesson NOT_READY 검사는 그대로 남아 있다"
+ ],
+ "when": "2026-11-21T11:34:06+09:00"
+}

@@ -1,0 +1,12 @@
+{
+ "id": "S3-3.2a",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence PASS, 로그 머리 when 2026-11-23 13:31~13:32 KST 로 이번 작업 시각",
+  "단위 12 passed·DB 13 passed(skip 0)·tsc exit 0 를 직접 재현 — 면제 기간 일반 0bp·개인 레슨 100bp·면제 뒤 일반 500bp 포함",
+  "순수 함수(분류·유효 판본·KST 종료일 포함 면제)와 DB 읽기가 data-model §7-8b 규칙(onboarding_exemption_applies·effective_from·class_kind 분류)과 일치, 한국어 주석·useEffect 없음·비밀값 없음",
+  "(참고) verify 가 지정한 tests/unit/s3-3-2a.test.ts 대신 tests/unit/platform-fee-rate.test.ts 로 이름을 바꿨다 — roadmap-tasks.json 의 verify 문구를 새 파일 이름으로 맞추면 좋다",
+  "(참고) POST /api/orders 에서 platform_fee_rate_bp 에 실제로 넣는 연결은 아직 없다 — 워커 보고대로 다른 S3-3 Task 몫이며 goal 의 「결제 때 고정」은 그 Task 에서 마무리된다"
+ ],
+ "when": "2026-11-23T13:33:13+09:00"
+}

@@ -1,0 +1,13 @@
+{
+ "id": "S4-1.5",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence PASS(19행·문제 0), 로그 머리 when 이 2026-11-24 18:09~20:20 로 이번 작업 시각",
+  "verify 재실행: refund-execution.db.test.ts 1 file 8 passed skip 0, tsc --noEmit exit 0 — 워커 보고와 같다",
+  "goal 달성: 승인 트랜잭션 안 refunds pending + 주문 합계 조건부 증가, 커밋 뒤 pg_cancel 만 포트 refund(부분 취소) 호출, 새 트랜잭션 조건부 갱신. 테스트가 카드 주문 refundCalls 1회(수용 ②)·재생 1회·계좌분 0회를 단언",
+  "계약 12 293행·데이터 모델 817행에 추천안·사후 확인 범위 기록, S4-1.7 몫(주문 상태 전이·감사·알림·재시도 행)을 남긴 이유가 적혀 있다. 한국어 주석 충분, useEffect·비밀값 없음",
+  "(참고) verify 의 테스트 파일명 s4-1-5.db.test.ts 대신 refund-execution.db.test.ts — 워커가 보고·EVIDENCE 에 밝혔다",
+  "(참고) 실패 시 refunded_total_amount 되돌림은 조건(>= amount) 0행이어도 조용히 지나간다 — 로그·감사는 S4-1.7 에서 보강 권장"
+ ],
+ "when": "2026-11-24T20:25:03+09:00"
+}

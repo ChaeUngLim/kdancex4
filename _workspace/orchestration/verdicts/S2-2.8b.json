@@ -1,0 +1,13 @@
+{
+ "id": "S2-2.8b",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence PASS(행 9·문제 0), 로그 # when 모두 2026-11-21 19:28~19:29 KST 로 이번 작업 시각",
+  "verify 재실행: class-withdrawal.db.test.ts 4 passed·skip 0, tsc --noEmit exit 0 — 워커 로그와 같다",
+  "1차 반려 사유 해소: class-withdrawal.ts 가 「올린 사람」 403 뒤 requireClassWriter 를 불러 requireClassAccess 와 같은 기준(AFFILIATION_REQUIRED·CLASS_PERMISSION_REQUIRED), actor_role 은 writer.isOwner. 테스트 ③ 에 두 경우가 있고 1차 판정으로 돌린 실패 로그(1 failed)도 남겼다",
+  "계약 11 §4-4(348줄): pending_approval→draft, 회차·판매 단위·자리 삭제, 승인 기록 withdrawn, draft 면 200 같은 본문, 그 밖은 409 CLASS_STATE_CONFLICT — 구현과 맞다. 조건부 UPDATE 한 문장으로 동시성 처리, 한국어 주석 있음, useEffect·비밀값 없음",
+  "(참고) verify 문구의 테스트 파일명은 tests/db/s2-2-8b.db.test.ts 인데 실제 파일은 tests/db/class-withdrawal.db.test.ts 다. 내용은 verify 가 요구한 확인(회차 0행·withdrawn·대기 목록 제외)을 담고 있어 결함으로 보지 않지만, roadmap-tasks.json 의 verify 문구를 맞춰 두면 좋다",
+  "(참고) --contract 11 린터 FAIL 오류 45 는 모두 아직 안 만든 11번 계약 경로의 MISSING 이며 withdraw 경로는 목록에 없다"
+ ],
+ "when": "2026-11-21T19:30:45+09:00"
+}

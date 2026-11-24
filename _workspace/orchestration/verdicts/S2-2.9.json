@@ -1,0 +1,15 @@
+{
+ "id": "S2-2.9",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence PASS(행 13·문제 0), 로그 # when 이 모두 2026-11-21 19:50~19:51 KST 로 이번 작업 시각",
+  "verify 재실행: mobile tsc --noEmit exit 0, 스크린샷 4장(I2·I2D·I2E·I2S) 존재, admin-web tsc exit 0",
+  "스크린샷 7장을 직접 열어 확인 — I2 겹침 상자와 빈 시간 칩·「다음」 꺼짐, I2D 남·여 스테퍼·환불 공지 표·요약 카드, I2E 마감일·취소 수수료 표·계좌이체 안내, I2S 승인 중 칩·여덟 줄·「등록 취소」가 EVIDENCE 설명과 맞다",
+  "부르는 경로 6종(rooms·schedule-check·POST/PUT classes·submit·withdraw) route.ts 모두 있음, 요청 본문·Idempotency-Key·withdraw/submit {} 가 계약 11 §3-4·§4-1·§4-2·§4-4 와 맞음",
+  "useEffect 없음, 핵심 지점 한국어 주석 있음, 비밀값 하드코딩 없음, S2-2.8c 뒤에 바뀐 파일이 files_changed 와 같아 범위 밖 수정 없음",
+  "(참고) routes-used.sh 의 첫 루프는 `test -f … && echo` 라 파일이 없어도 set -e 로 멈추지 않는다 — 크리틱이 6개 route.ts 를 따로 ls 로 확인함. 다음에는 `test -f … || exit 1` 로 쓰는 편이 낫다",
+  "(참고) 임시 저장을 불러온 직후에는 겹침 미리 보기가 idle 이라 「다음」이 켜진다 — 서버 PUT 의 SCHEDULE_CONFLICT 409 가 막으므로 결함은 아니다",
+  "(참고) 강조색이 갈색, I2C 가 I2 안에 펼쳐짐, AI 초안 띠 없음 — 워커가 보고에 밝힌 보드 차이로 별도 작업 몫"
+ ],
+ "when": "2026-11-21T19:53:06+09:00"
+}

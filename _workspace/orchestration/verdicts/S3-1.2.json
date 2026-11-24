@@ -1,0 +1,16 @@
+{
+ "id": "S3-1.2",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence PASS(행 16·문제 0). 로그 # when 은 모두 2026-11-23 11:07~11:24 KST로, 이번 작업 시각이다",
+  "verify ① 다시 돌림: flock … npm run test:db -- tests/db/member-signup.db.test.ts 12 passed, skip 0. 테스트 이름을 Task 번호에서 기능 이름으로 바꾼 것은 sync_verify_paths.py 관례에 맞다",
+  "verify ③ 계약 린터(전체) 결과 PASS, 오류 0·경고 317(MISSING)",
+  "verify ② tsc: 그대로 돌리면 exit 2다. 원인은 tests/unit/dev-app-web-cors.test.ts(../../proxy 없음) 하나다. 이 파일은 git 미추적이고 11:25:36에 생겼다. 워커가 끝낸 11:24 뒤이고 files_changed에도 없으니 동시에 돌던 다른 Task가 만든 파일이다. 이 파일만 뺀 tsconfig로 돌리면 exit 0이다",
+  "goal 충족: 본인확인 값으로만 이름·성별·생년·연락처를 채우고(strict 스키마, 빈 값이면 422), 같은 CI는 409 IDENTITY_ALREADY_USED(유니크 색인과 ON CONFLICT로 동시 요청도 막음), 닉네임은 2~12자 필수·중복 허용·금칙어 422 NICKNAME_NOT_ALLOWED, 필수 동의 넷이 빠지면 422 CONSENT_REQUIRED",
+  "데이터 모델 §2-2 members(nickname·nickname_changed_at·ck_members_nickname, UNIQUE 없음)와 contract.prisma·마이그레이션이 맞다. 제약 이름 끝의 해시(_99460e30)는 다른 마이그레이션과 같은 관례다",
+  "규칙: 핵심 지점에 한국어 주석이 있다. useEffect·console.log·비밀값 하드코딩 없음",
+  "(참고) 계약 01에 consents 여섯 칸·CONSENT_REQUIRED(열린 점 ④)를 더하고 금칙어 목록(⑤)을 임시로 채웠다. 사후에 사용자 확인이 필요하다",
+  "(참고) 다른 Task가 만든 tests/unit/dev-app-web-cors.test.ts 때문에 지금 tsc가 exit 2다. 그 Task 크리틱이 확인해야 한다"
+ ],
+ "when": "2026-11-23T11:26:52+09:00"
+}

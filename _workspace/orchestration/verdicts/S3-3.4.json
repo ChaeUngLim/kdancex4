@@ -1,0 +1,14 @@
+{
+ "id": "S3-3.4",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence PASS(7행·문제 0), 로그 # when 모두 2026-11-23 13:52~13:53 KST 로 이번 작업 시각",
+  "재실행: order-create.db.test.ts 12 passed skip 0, tsc exit 0, 계약 린터 오류 0(경고 313 MISSING, POST /api/orders 는 MISSING 에 없음), 단위 checkout-amounts·payment-deadline 42 passed",
+  "goal 충족: 요청 스키마에 금액 칸 없음(서버가 class_offerings.price_amount 로 계산), 조건부 UPDATE 로 held 잡기, 주문·예약·이벤트·결제를 한 트랜잭션, Idempotency-Key + uq_orders_member_idempotency·uq_reservations_member_offering_active 로 중복 차단, 기존 held 주문 200 반환, 공지 없으면 NOTICE_MISSING",
+  "(참고) verify 가 적은 파일명 tests/db/s3-3-4.db.test.ts 대신 tests/db/order-create.db.test.ts 로 바꿨다 — 로드맵 verify 문구를 맞춰 두면 다음 크리틱이 헷갈리지 않는다",
+  "(참고) readOrderView 가 재요청 때도 paymentGateway.createPayment 를 다시 불러 결제창 키를 얻는다 — 가짜 PG 의 결제 번호 멱등에 기대므로 실제 PG 어댑터(S17)에서 같은 성질을 확인해야 한다",
+  "(참고) permission-matrix 16건 실패는 orders 와 무관(home/offerings·offerings/[id] route 미등록, academies·staff 행) — orders 두 행은 통과",
+  "(참고) 계약 03 §1 에 임시 판단 4가지(수업 고정 공지 판본·간편 수단 15분·0원 이벤트 수수료 없음·unversioned-beta)를 적었다 — 사용자 사후 확인 대상"
+ ],
+ "when": "2026-11-23T13:56:22+09:00"
+}

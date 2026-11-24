@@ -1,0 +1,13 @@
+{
+ "id": "S1-2.2",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence PASS(행 11, 문제 0), 로그 # when 이 모두 2026-11-21 09:34~09:36 KST 로 이번 작업 시각",
+  "verify 재실행: instructor-share-rates.db.test.ts 10 passed, skip 0. tsc --noEmit exit 0. prisma db verify 결과 schema match contract, migration check 결과 All checks passed",
+  "contract.prisma 의 두 모델이 data-model §7-5 의 칸·ck_share_rate_bp·uq_share_rates_aff_from·uq_share_overrides 와 맞는다. 마이그레이션 14 ops 는 두 표·색인·FK 만 만들어 범위 밖 변경이 없다. 핵심 지점에 한국어 주석이 있고 useEffect·비밀값은 없다",
+  "(참고) 설계에 있는 DESC 색인 ix_share_rates_aff_from·ix_share_overrides_lookup 은 같은 칸의 유니크 색인으로 대신했다. 근거는 주석과 EVIDENCE 에 있고 기존 방식(ix_bsc_academy_checked)과 같다. data-model §7-5 에 이 차이를 한 줄 반영하면 설계와 실제가 맞는다",
+  "(참고) verify 가 적은 파일명 s1-2-2.db.test.ts 대신 기능 이름 instructor-share-rates.db.test.ts 를 썼다. 다른 DB 테스트 파일들과 같은 이름 규칙이라 받아들인다. roadmap-tasks.json 의 verify 경로를 고치는 것을 권한다",
+  "(참고) DB 전체 테스트에서 permission-matrix 1건이 실패한다. S1-1 때부터 있던 route MATRIX 누락이고 이 Task 와는 관계없다. log-fail 로 기록되어 있다"
+ ],
+ "when": "2026-11-21T09:37:46+09:00"
+}

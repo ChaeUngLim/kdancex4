@@ -1,0 +1,15 @@
+{
+ "id": "S1-1.11",
+ "verdict": "PASS",
+ "reasons": [
+  "증거 검사기 PASS, 로그 13개 모두 2026-11-20 22:45~22:48 KST(이번 작업)",
+  "verify 핵심 명령 재실행 결과 같음: 제출 DB 테스트 13 passed / skip 0, tsc exit 0, 계약 린터 PASS 오류 0(submit 경로 MISSING 아님)",
+  "goal 충족: 사업자등록증 + 형태별 증빙 판정(merchant-evidence.ts), 필수 동의 5개 판정, FOR UPDATE 잠금 뒤 감사 행 키 지문으로 재생해 같은 키 차례로·동시 모두 1건(테스트 236·279행)",
+  "method 충족: Idempotency-Key 필수(없거나 짧으면 400), 미등록 학원은 감사 after.strictRefundStandard=true(FR-087)",
+  "계약 07 §2 순서 1~6과 맞고, 정하지 않았던 부분은 열린 점 ⑦ 에 임시 확정으로 적음. 핵심 코드 한국어 주석 있음, useEffect 없음, 비밀값 하드코딩 없음, 키 원문·계좌 원문을 감사에 남기지 않음",
+  "(참고) verify 의 테스트 파일 이름 tests/db/s1-1-11.db.test.ts 가 merchant-application-submit.db.test.ts 로 바뀜. EVIDENCE.md 에 적혀 있으니 roadmap verify 문구를 맞춰 두면 좋다",
+  "(참고) permission-matrix 「모든 route.ts 가 표에 있다」 1건 실패는 직접 돌려 확인함. 빠진 7개가 다른 Task 경로(consents·terms-notices·admin/terms-versions·files 2개·terms 2개)이고 submit 은 표에 들어 있어 이 Task 몫이 아님",
+  "(참고) 열린 점 ⑦ ⓐ~ⓓ(멱등 키를 감사 행에 기록, 추가 필수 칸, 엄격 기준 표시 위치, 404)는 사람 확인이 필요. 계약 §4 의 국세청 사업자 상태 조회는 범위 밖으로 남겼다고 적혀 있음"
+ ],
+ "when": "2026-11-20T22:50:17+09:00"
+}

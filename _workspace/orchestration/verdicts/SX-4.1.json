@@ -1,0 +1,15 @@
+{
+ "id": "SX-4.1",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence PASS(행 10개·문제 0), 로그 # when 이 모두 2026-11-24 22:21~22:33 KST 로 이번 작업 시각",
+  "verify 재실행: tests/test_planner_search_conditions.py 18 passed(진짜 kdance-llm 포함, skip 0) — 워커 보고와 같음",
+  "goal 충족: 표본 5문장(강남 평일 저녁 살사·마포구 주말 오후 스윙·서울 19~21시 탱고·홍대 오전 바차타·부산 해운대구 라틴)이 장르·지역·시간대 기대값과 같고 결과 키가 계약 16 §5-1 칸 11개(CONDITION_KEYS) 순서와 같다",
+  "method 충족: 새 노드 없이 LangGraph 노드 extract_conditions 1개를 넓혔고, 추천안·사후 확인 7건이 EVIDENCE.md 와 계약 16 §5-1 398행에 이유와 함께 기록됨",
+  "계약 정합: S3-2 searchOfferingCards 가 regionSido·regionGu 를 받아 a.region_sido/region_gu 와 글자 그대로 비교하므로 학원 표 낱말로 맞추는 방식이 맞다. DB·쓰기 코드 없음, 비밀값 없음, 핵심 함수에 한국어 주석 있음",
+  "(참고) verify 의 tests/test_sx_4_1.py 를 기능 이름 tests/test_planner_search_conditions.py 로 바꿨다 — 오케스트레이션 README 의 sync_verify_paths.py 규칙과 같아 문제 아님",
+  "(참고) mypy --strict 전체의 2건은 다른 Task(SX-6) 파일 tests/test_intro_draft_writer.py 에 있어 범위 밖. 응답 시간 10~13초는 정식 측정이 아니라고 기록돼 있다",
+  "(참고) 경기 학원의 region_gu 가 「수원시」 모양으로 저장되는지는 미확인으로 기록돼 있다 — 학원 입점 화면이 자유 입력이라 뒤 Task 에서 맞출 일"
+ ],
+ "when": "2026-11-24T22:35:17+09:00"
+}

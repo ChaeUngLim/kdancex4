@@ -1,0 +1,13 @@
+{
+ "id": "S7-2.7",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence PASS(행 20개·문제 0), 로그 # when 이 모두 2026-11-24 20:43~21:00 KST 라 이번 작업분이다",
+  "verify 테스트를 직접 다시 돌려 7 passed·skip 0, tsc --noEmit exit 0 으로 워커 보고와 같다",
+  "canOpenAttachment 규칙이 goal(당사자와 받는 쪽만)과 FR-204(운영자는 학원 문의를 받지 않음)에 맞는다. 운영자 몫은 2단계 뒤에만 열리고, 남의 파일을 붙이면 403, 붙이기가 하나라도 실패하면 같은 트랜잭션에서 롤백된다. 한국어 주석이 있고 useEffect·비밀값 하드코딩은 없다(시연 스크립트는 env 로 읽는다)",
+  "(참고) verify 에 적힌 tests/db/s7-2-7.db.test.ts 를 inquiry-report-attachments.db.test.ts 로 이름을 바꿨다. EVIDENCE.md 25행에 이유가 적혀 있다. roadmap verify 문구는 오케스트레이터가 맞춰 주면 된다",
+  "(참고) 권한 행렬 DB 테스트 1건 실패는 다른 Task 가 만든 경로 5개(refund-transfers·ai/promo-images)가 MATRIX 에 없어서다. 이 Task 의 files 두 행은 통과했다. 그 Task 들 쪽에서 해결해야 한다",
+  "(참고) 계약 린터 --contract 15-ops 의 오류 57 은 아직 만들지 않은 15 경로의 MISSING 이다. 이 Task 는 endpoints 가 빈 목록이다"
+ ],
+ "when": "2026-11-24T21:02:07+09:00"
+}

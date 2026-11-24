@@ -20,6 +20,7 @@
 | backend 테스트 | `uv run pytest -q` | 186 passed (DB 미기동 시 159 passed, 27 skipped) |
 | backend DB 테스트만 | `uv run pytest -m requires_db -q` | 27 passed. DB 가 없으면 27개 전부 skip(에러가 나면 실패다). 테스트 DB 는 `kdance_test` — 스키마는 conftest 가 `create_all` 로 만든다 |
 | admin-web | `npm run build` | 성공. 타입 검사도 여기서 한다 |
+| admin-web 테스트 | `npm test` (단위만 `npm run test:unit`, DB만 `npm run test:db`) | 192 passed(단위 184 + DB 8). DB 가 꺼져 있으면 184 passed, 8 skipped — 완료 판정 전에는 DB 를 띄운다. DB 테스트는 `flock /tmp/kdance-next-test.lock npm run test:db -- <파일>` 로 한 번에 하나만 (2026-11-19 실측) |
 | mobile | `npx tsc --noEmit` | 출력 없음 (exit 0) |
 | AI 생성 서버 | `curl localhost:11436/health` · `python3 infra/ai-bench/bench_pipeline.py http://localhost:11436 10` (루트) | `{"status":"ok"}` · 예열 뒤 동시 10명 첫 글자 p95 약 9초, 완료 p95 약 15~17초. 기동 직후 첫 측정은 느리다 |
 | DB·Redis·AI 기동 | `docker compose -f infra/docker-compose.yml up -d` (루트) | `kdance-db`·`kdance-redis` healthy. **Windows 의 Docker Desktop 이 켜져 있어야 한다** — 꺼져 있으면 WSL 의 `docker` 가 "could not be found in this WSL 2 distro" 를 낸다(WSL 연동 설정은 이미 켜져 있다). 새 컨테이너면 `docker exec kdance-db psql -U kdance -d kdance -c "CREATE DATABASE kdance_test OWNER kdance"` 를 한 번 실행한다 |
@@ -36,6 +37,20 @@
 
 - **React 의 `useEffect` 처럼 추상화 수준이 높은 코드는 쓰지 않는다**(admin-web·mobile 공통). 언제 실행되는지가 코드에 바로 드러나지 않아 읽기 어렵기 때문이다. 대신 이벤트 핸들러 안에서 직접 처리하거나, 렌더링 중에 값을 바로 계산하거나, Next.js 서버 컴포넌트에서 미리 데이터를 받아 오는 방식처럼 흐름이 눈에 보이는 방법을 쓴다.
 - **핵심 코드에는 한국어로 쉬운 주석을 단다.** 무엇을 하는지, 왜 이렇게 했는지를 처음 보는 사람도 알아듣게 쓴다. 핵심 함수·분기·계산 같은 주요 지점에 달고, 문체는 `.claude/skills/kdance-dev-harness/references/beginner-comment-style.md` 를 따른다.
+
+## 계획·설계 검증 — grill-with-docs (2026-11-19 사용자 지시로 프로젝트에 둠)
+
+- 스킬 사본 3개를 프로젝트에 두었다 — `.claude/skills/grill-with-docs/`·`grilling/`·`domain-modeling/`(Matt Pocock `mattpocock/skills` 의 `skills/engineering/grill-with-docs`·`skills/productivity/grilling`·`skills/engineering/domain-modeling` 고정 사본, 전역 `~/.claude/skills/` 와 같은 내용). 다른 PC 에서도 쓰이게 하려는 것이다. 2026-11-19 원본 저장소 main 과 글자 단위로 같음을 확인했고, 숨은 문자·명령 실행·외부 접속·권한 확장 설정은 없었다. 원본의 `agents/openai.yaml`(다른 도구용 설정)은 넣지 않았다.
+- **쓰는 법**: 사용자가 `/grill-with-docs` 를 입력하면 실행한다. 이 스킬은 자동 호출이 막혀 있으므로(`disable-model-invocation`), 에이전트가 계획·설계를 확정하기 전에 검증할 때는 `grilling` → `domain-modeling` 을 차례로 직접 부른다(전역 규칙 「계획·설계 검증」).
+- 질문은 전역 「사용자 인터뷰 방식」(한 번에 하나, 선택지 3개, 추천 맨 앞)을 따른다.
+- **기록 위치**: 되돌리기 어려운 결정은 새 `docs/adr/` 를 만들지 않고 `CLAUDE-decisions.md` 에 ADR 로 이어 적는다. 용어는 `GLOSSARY.md`(루트, 아직 없음 — 처음 쓸 때 만든다). 제품 요구사항이 바뀌면 spec 원본 `specs/001-ai-dance-class-platform/spec.md` 의 FR·변경 이력에도 반영한다.
+
+## 보안 감사 — security-audit (2026-11-19 사용자 지시로 프로젝트에 둠)
+
+- 스킬 사본 `.claude/skills/security-audit/`(Cloudflare `cloudflare/security-audit-skill` main `c1c8a8c`, MIT) — 다른 PC 에서도 쓰이게. 설치 전 점검(2026-11-19): 숨은 문자 0, 지시 무시·비밀값 요구·외부 전송 문구 없음, `allowed-tools`·hooks 같은 권한 확장 없음. 실행 파일은 결과 검증기 2개(`validate-findings.cjs`·`validate-coverage-ledger.cjs` — `fs`·`path`·`util` 만 쓰고 네트워크·명령 실행 없음)와 그 테스트(로컬 `node` 만 실행).
+- **두 가지 모드**: 평소에는 「안내 모드」(보안 질문·특정 코드 리뷰에 필요한 부분만, 파일을 만들지 않음). 「전체 감사 모드」(6단계·여러 에이전트·결과 파일)는 사용자가 감사·모의 해킹·전체 보안 리뷰를 명시적으로 요청할 때만 쓴다 — 비용이 크다.
+- 전체 감사 결과는 기본적으로 프로젝트 밖 `~/security-audit-skill/<repo>/run-N` 에 쓴다. 프로젝트 안에 두려면 git 이 그 폴더 전체를 무시하는지 먼저 확인한다(스킬 규칙). 감사 중에는 의존성을 설치하지 않고 배포 환경에 트래픽을 보내지 않는다.
+- 공구 계층(ECC)의 `ecc:security-reviewer` 는 Phase 8(코드 리뷰)에서 바뀐 코드만 보는 리뷰이고, 이 스킬은 저장소 전체를 신뢰 경계 기준으로 훑는 감사다 — 겹치지 않게 쓴다.
 
 ## Astryx 디자인 시스템 (2026-11-13 사용자 지시로 허용)
 

@@ -1,0 +1,14 @@
+{
+ "id": "S2-2.7",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence PASS(15행·문제 0), 로그 # when 2026-11-21 18:04~18:11 KST 로 이번 작업 시각",
+  "verify 재실행: class-approval.db.test.ts 6 passed·skip 0, tsc --noEmit exit 0 — 워커 보고와 같다",
+  "approve·request-revision 둘 다 조건부 UPDATE … WHERE status='pending_approval' 한 문장 + 같은 트랜잭션 안의 판매 단위 open/삭제·승인 기록·강사 알림·감사 — 계약 11 §4-5 와 맞다. 승인 때 canPublish·공지·마감일을 다시 본다",
+  "(참고) verify 에 적힌 파일명 tests/db/s2-2-7.db.test.ts 대신 기능 이름 class-approval.db.test.ts 를 썼다 — tests/db 의 기존 관례와 같다",
+  "(참고) 회원 공개 목록 경로(GET /api/home/offerings)가 아직 없어 수용 ③ 의 「공개 목록 1건」은 판매 조건 SQL 로 셌다. 그 경로가 생기면 같은 흐름을 경로로 다시 확인할 것",
+  "(참고) 승인 시점 마감일 판정은 checkRefundDeadline 을 다시 부르지만 「이미 지난 마감일」 전용 오류 코드는 계약에 없어 넣지 않았다 — 계약 보강 필요",
+  "(참고) admin-web 전체 테스트 1 failed(instructor-affiliation-tables ①)는 이전 Task 증거에도 있던 기존 실패"
+ ],
+ "when": "2026-11-21T18:12:46+09:00"
+}

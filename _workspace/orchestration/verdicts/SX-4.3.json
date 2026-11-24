@@ -1,0 +1,13 @@
+{
+ "id": "SX-4.3",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence PASS, 로그 # when 이 모두 2026-11-24 23:02~23:06 KST(이번 작업)",
+  "verify 테스트 재실행 9 passed — 이름 없는 추천 질문도 에이전트 조건으로 필터 검색, 카드가 이미 나갔으면 재검색 없이 안내·닫기만, 조건이 규칙에 안 맞으면 SX-5.5 이름 검색으로 감. goal(시간 초과 시 일반 검색 결과) 달성",
+  "에이전트 조건은 searchOfferingsInputSchema 로 검사한 뒤에만 사용(신뢰 경계 지킴), 대체 경로에 DB 쓰기 없음, 한국어 주석 있음, useEffect·비밀값 없음, 계약 16 §3-1 에 규칙 행 추가(추천안·사후 확인 표기)",
+  "(참고) tsc 전체 1건 오류는 scripts/dev-demo-planner-search.ts(264) 의 다른 Task 미추적 파일(로컬 타입 229행이 novice_intermediate 를 빠뜨림) — 이 Task 파일과 무관",
+  "(참고) verify 에 적힌 tests/unit/sx-4-3.test.ts 는 recommend-timeout-filter-search.test.ts 로 이름이 바뀜 — roadmap-tasks.json verify 문구를 나중에 맞추면 좋다",
+  "(참고) planner-plain-search.ts 에서 runPlainSearch 설명 JSDoc(「모델 없이 질문 글자만으로…」)이 PlainSearchFixed 타입 위에 떨어져 있다 — 함수 바로 위로 옮기면 읽기 쉽다"
+ ],
+ "when": "2026-11-24T23:07:40+09:00"
+}

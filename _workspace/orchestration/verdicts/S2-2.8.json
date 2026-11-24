@@ -1,0 +1,11 @@
+{
+ "id": "S2-2.8",
+ "verdict": "PASS",
+ "reasons": [
+  "모든 확인 통과: check_evidence PASS, 로그 # when 이 2026-11-21 18:14~18:22 KST(이번 작업), verify DB 테스트 다시 돌려 4 passed skip 0, tsc exit 0",
+  "(참고) verify 에 적힌 tests/db/s2-2-8.db.test.ts 를 tests/db/class-poster.db.test.ts 로 이름을 바꿨다. EVIDENCE.md 에 이유가 있으니 roadmap-tasks.json 의 verify 경로를 이 이름으로 맞추면 된다",
+  "(참고) data-model §14-2(poster 는 private 이었다가 게시 때 public)와 계약 11 §4-6·Task method(공개)가 서로 다르다. 워커는 계약을 따랐고 EVIDENCE 에 숨기지 않고 적었다. 어느 쪽이 맞는지 사람이 정해야 한다",
+  "(참고) posterUrl 이 계약 예시의 https://… 가 아니라 /api/files/{id} 상대 경로다. 강사 사진 S2-1.6 과 같은 방식이고 EVIDENCE 에 적혀 있다"
+ ],
+ "when": "2026-11-21T18:22:55+09:00"
+}

@@ -1,0 +1,13 @@
+{
+ "id": "S1-4.4",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence PASS, 로그 # when 13:19~13:20 KST 로 이번 작업 시각",
+  "DB 테스트 재실행 10 passed·skip 0(시나리오 5 포함), tsc exit 0, 계약 린터 전체·--contract 09 모두 오류 0 — 워커 보고와 같음",
+  "staff-notice-reads.ts: 강사 목록·읽음 모두 '받는 사람 행 + 지금 active 소속 EXISTS' 두 조건을 같은 WHERE/UPDATE 에 걸어 goal(해제 강사는 옛 공지도 못 봄)을 만족, 읽음은 COALESCE 로 멱등, 못 보는 공지는 404",
+  "한국어 주석 있음, useEffect 없음, 비밀값 하드코딩 없음(테스트 전용 SECRET 상수뿐), 범위 밖 수정 없음. 계약 09 §3 에 정한 4가지(응답 모양·status·limit) 기록",
+  "(참고) 권한 행렬 1건 실패는 직접 돌려 확인 — 대응표에 없는 route 11개(consents·refund-notices·terms·files·no-show-policy 등)는 모두 다른 Task 것이고 S1-4.4 경로 3개는 표에 들어가 있다. 그 Task 들이 표를 채워야 한다",
+  "(참고) roadmap verify 의 테스트 파일 이름 tests/db/s1-4-4.db.test.ts 가 staff-notice-reads.db.test.ts 로 바뀌었다 — roadmap-tasks.json 의 verify 문구를 새 이름으로 고치면 다음 재검증이 헷갈리지 않는다"
+ ],
+ "when": "2026-11-21T13:21:00+09:00"
+}

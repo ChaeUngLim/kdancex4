@@ -1,0 +1,14 @@
+{
+ "id": "S2-4.2",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence PASS, 로그 # when 전부 2026-11-21 22:07~22:08 KST(이번 작업)",
+  "DB 테스트 재실행 7 passed·skip 0, tsc exit 0, 계약 린터 PASS(오류 0) — 워커 보고와 일치. POST /api/instructor/private-lesson-products 는 MISSING 에서 빠짐",
+  "goal 충족: classes.academy_id = 요청 academyId(판매자=고른 학원), instructor_affiliations active 아니면 403 AFFILIATION_REQUIRED(없는 학원·pending 포함). 계약 11 §10-1 요청·응답 모양·한 트랜잭션·class_approvals 미생성·restricted 409·멱등 200 과 맞음",
+  "규칙 준수: 핵심 지점 한국어 주석, useEffect 없음(서버 코드), 비밀값 하드코딩 없음",
+  "(참고) verify 의 테스트 경로 tests/db/s2-4-2.db.test.ts 대신 기능 이름 private-lesson-product-open.db.test.ts 로 만들었다 — tests/db 에 Task 번호 이름 파일이 하나도 없는 기존 관례를 따른 것이고 보고·EVIDENCE 에 밝혔다",
+  "(참고) 멱등 재요청 판정이 소속 검사 뒤에 있어, 첫 요청 뒤 소속이 풀리면 같은 키 재요청이 200 대신 403 이 된다 — 계약 위반은 아니나 S2-4 후속에서 순서를 볼 만하다",
+  "(참고) 단체 수업에 쓴 키 재사용 시 409 IDEMPOTENCY_KEY_REUSED 는 계약에 없는 판단 — 계약 11 §0/§10-1 에 한 줄 반영 필요"
+ ],
+ "when": "2026-11-21T22:09:34+09:00"
+}

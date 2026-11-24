@@ -1,0 +1,14 @@
+{
+ "id": "S1-2.6",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence PASS(행 10·문제 0), 로그 # when 은 모두 2026-11-21 09:59~10:01 로 이번 작업 시각",
+  "크리틱 재실행: DB 테스트 8 passed·skip 0, tsc exit 0, 계약 린터 전체 PASS(오류 0·경고 409), 이번 3개 경로는 MISSING 에 없음",
+  "코드가 계약 08 §2 와 맞음: 201 pending/409 AFFILIATION_ALREADY_OPEN·ACADEMY_NOT_ACCEPTING/404, 철회 200·409 AFFILIATION_STATE_CONFLICT·남의 것 404, 목록 카드에 거절 사유 코드·글 포함. 재신청은 ON CONFLICT ... WHERE status IN (pending,active) 로 새 행을 넣고, 테스트가 [rejected, pending] 두 행을 확인함",
+  "한국어 핵심 주석 있음, useEffect 없음, 비밀값 하드코딩 없음, 범위 밖 수정 없음(S1-2.5 함수 export 와 source·message 인자 추가는 회귀 7 passed)",
+  "(참고) verify 의 파일 이름 tests/db/s1-2-6.db.test.ts 대신 instructor-affiliations.db.test.ts 를 씀. tests/db 의 다른 파일도 모두 기능 이름을 쓰고 있어서 같은 관례로 보고 받아들임",
+  "(참고) 권한 행렬의 실패 1건은 S1-1 쪽 route 7개(admin/terms-versions·files·terms 등)가 대응표에 없어서 나는 것이고 이번 경로와는 관계없음. 다시 돌려 확인함",
+  "(참고) 계약에 없어 직접 정한 값 4개(한마디 200자, 학원마다 최근 카드 1장, 재철회 409, 감사 affiliation.withdrawn)는 사람이 확인해야 함. EVIDENCE.md 에 적혀 있음"
+ ],
+ "when": "2026-11-21T10:03:30+09:00"
+}

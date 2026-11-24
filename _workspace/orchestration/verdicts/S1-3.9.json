@@ -1,0 +1,14 @@
+{
+ "id": "S1-3.9",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence.py PASS(행 13·문제 0), 로그 # when 2026-11-21 11:48~11:50 KST 로 이번 작업 시각",
+  "직접 다시 돌림: tsc exit 0 · next build exit 0(/academies/[academyId]/refund-notices 경로 있음) · E2E 2 passed · 단위 789 passed",
+  "스크린샷 3장(입력·하한-오류·저장-완료)을 열어 봄 — 템플릿 100/67/50/0 미리 채움, 40% 칸 빨간 테두리·「50% 이상이어야 해요」·위쪽 422 문장, 67% 저장 뒤 「판본 1(으)로 저장했어요」·「지금 판본 1」, 미리보기 반영 모두 기록과 일치",
+  "goal 충족: 서버 컴포넌트가 readCurrentRefundNotices 로 첫 값을 받고, 저장은 handleSave 핸들러 안에서만 POST …/regular/versions(baseVersion 포함). 422 fields→칸 오류, 409 NOTICE_VERSION_CONFLICT→새로 불러오기. useEffect 없음, 핵심 지점 한국어 주석 있음, 비밀값 하드코딩 없음, 계약 09 §1 요청 모양과 일치",
+  "(참고) verify 문구의 E2E 파일은 tests/e2e/s1-3-9.spec.ts 인데 실제는 refund-notice-regular.spec.ts — 다른 E2E 파일도 기능 이름이라 관례에 맞지만, roadmap-tasks.json verify 문구를 새 이름으로 고쳐 두는 게 좋다",
+  "(참고) DEFAULT_PROCESSING_DAYS 는 5 인데 스크린샷은 3(E2E 가 넣은 값으로 보임). 보드의 두 숫자 처리 기간 예시는 계약이 한 숫자라 아직 못 담음 — 워커가 사람 확인 항목으로 올려 둠",
+  "(참고) 「환불 처리」 메뉴가 없어 설정 화면 링크로 들어가고 사이드바는 「입점 · 설정」을 밝힘. 이벤트형 탭은 글자만(S1-3.10 몫)"
+ ],
+ "when": "2026-11-21T11:52:06+09:00"
+}

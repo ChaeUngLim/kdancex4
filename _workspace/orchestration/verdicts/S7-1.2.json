@@ -1,0 +1,13 @@
+{
+ "id": "S7-1.2",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence PASS(행 13개·문제 0), 로그 머리 when 이 모두 2026-11-24 10:01~10:22 KST 로 이번 작업 시각",
+  "직접 재실행: db:migrate exit 0(marker 1fc8dd17…), DB 테스트 5 passed skip 0, tsc exit 0, constants 짝 단위 테스트 96 passed — 워커 보고와 같다",
+  "contract.prisma 의 3표·4 enum 이 data-model §12-4 와 맞는다(PK·FK·one_owner·부분 UNIQUE·부분 색인·값 집합). 핵심 지점 한국어 주석 있음, useEffect·비밀값 없음",
+  "(참고) 설계에 없던 CHECK 2개(ck_push_tokens_not_blank·revoked_after_created)와 now() 기본값은 추천안으로 data-model 1670행·EVIDENCE.md 에 이유와 함께 기록돼 있어 반려 사유 아님",
+  "(참고) verify 의 테스트 파일 이름 s7-1-2 대신 push-notification-settings-tables 를 썼고 기록함 — roadmap verify 문구는 옛 이름 그대로라 다음 판정 때 혼동 여지",
+  "(참고) DB 전체 회귀 17건 실패는 permission-matrix(경로 수 163 대 136)·affiliation-delegation-permissions(2단계 인증) — 경로·인증 쪽이라 이번 표 추가와 무관해 보이나 변경 없이 다시 돌린 대조는 없다"
+ ],
+ "when": "2026-11-24T10:24:21+09:00"
+}

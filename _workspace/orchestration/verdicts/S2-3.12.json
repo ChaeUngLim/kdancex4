@@ -1,0 +1,14 @@
+{
+ "id": "S2-3.12",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence.py PASS(18행, 문제 0), 로그 # when 이 2026-11-22 00:28~00:44 KST 로 이번 작업 시각",
+  "verify 재실행: class-edit-requests.db.test.ts 1 file 6 passed, skip 0 — 승인 전 옛 값·승인 뒤 새 값, 반려 사유 저장, 처리된 요청 취소 409 를 테스트가 확인",
+  "계약 린터 --contract 11-instructor.md 재실행: 오류 8개는 모두 다른 Task 경로의 MISSING, edit-request 4개 경로는 0건(verify 조건 충족)",
+  "코드 대조: 세 갈래(바로 바뀜/재승인/잠김 422 CLASS_FIELD_LOCKED), EDIT_REQUEST_OPEN, 정원 요청 때 422·승인 때 409(S2-3.3 재사용), EDIT_SESSION_COUNT_CHANGED, 환불 마감일 앞당기기 409, 승인 한 트랜잭션(edit_approved·강사 알림·class_changed·감사)이 계약 11 §5 와 같고, 표 class_edit_requests 칸·제약이 data-model §8-5 와 같다",
+  "(참고) lib/server/services/class-edit-requests.ts 가 815줄로 800줄 기준을 조금 넘는다 — 나중에 판정 묶음을 떼어 낼 수 있다",
+  "(참고) EVIDENCE.md 에 적힌 설계 밖 판단 6개(대표 요청도 pending, 반려 사유를 class_approvals.reason 에 넣지 않음, withdraw 감사 없음 등)는 사용자 확인이 필요하다",
+  "(참고) 전체 단위 테스트의 repo-secret-scan 실패는 다른 Task(S2-4.8) 증거 로그 때문이고, 이 Task 범위 밖이다"
+ ],
+ "when": "2026-11-22T00:46:15+09:00"
+}

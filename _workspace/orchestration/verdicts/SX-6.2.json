@@ -1,0 +1,13 @@
+{
+ "id": "SX-6.2",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence PASS, 로그 머리 when 이 모두 2026-11-24 20:12~20:14(이번 작업 시각)",
+  "verify 재실행: promo-image-auto-conditions.test.ts 13 passed, tsc --noEmit exit 0 — 켠 요청에 genre_pose 있음·끈 요청에 없음·네 장르×켬/끔 모두 no_text 있음(수용 ②③)",
+  "goal 달성: 장르별 문장은 promo-image-conditions.json 설정값으로 두고 zod 로 네 장르·no_text removable:false 를 검사, 함수는 DB·시간·네트워크 없는 순수 함수. 라벨이 spec FR-061a 추천안과 일치",
+  "규칙 준수: 핵심 지점 한국어 주석, useEffect 없음, 비밀값 없음, 범위 밖 수정 없음. 계약 16 §4-7 에 모듈 설명과 (추천안·사후 확인 2026-11-24) 기록",
+  "(참고) verify 는 tests/unit/sx-6-2.test.ts 를 가리키지만 실제 파일은 promo-image-auto-conditions.test.ts — 워커가 보고·EVIDENCE 에 밝혔고 내용은 verify 기준을 덮으므로 반려 사유 아님. roadmap-tasks.json 의 verify 경로를 나중에 맞추면 좋다",
+  "(참고) textFor 의 non-null 단언(!)은 스키마 refine 이 보장하므로 안전"
+ ],
+ "when": "2026-11-24T20:15:05+09:00"
+}

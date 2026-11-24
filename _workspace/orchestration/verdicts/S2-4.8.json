@@ -1,0 +1,14 @@
+{
+ "id": "S2-4.8",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence.py PASS(행 18개·문제 0개), 로그 머리 # when 모두 2026-11-21 22:55~22:58 KST로 이번 작업 시각",
+  "verify 재실행: mobile tsc --noEmit exit 0, shots/I20.png·I20B.png·I20C.png 존재",
+  "I20·I20B·I20C·I20B 취소 뒤 스크린샷을 직접 열어 확인함. EVIDENCE 「확인한 것」과 일치하고 장면 빠짐 없음(잡기·결제 대기·시간 바꾸기·회원 요청·규칙 저장까지 12장)",
+  "클라이언트 본문이 서버 zod와 맞음: cancel은 instructor면 reason 필수, member면 선택(strictObject 대응). bookings·rules POST에 Idempotency-Key, reschedule에는 필수 키 없음. 경로 6개가 admin-web app/api 실제 route와 일치함",
+  "새 파일·바뀐 화면에 useEffect/useLayoutEffect/useFocusEffect 없음, 핵심 함수에 한국어 주석 있음, 비밀값 하드코딩 없음",
+  "(참고) 성공 안내에 colors.ok/okSoft(녹색)를 씀. 기존 화면들과 같은 테마 토큰이라 이번 Task 결함은 아니지만, 메모리의 「녹색 성공색 금지」·플럼 테마 전환은 theme.ts 정리 때 함께 다뤄야 함",
+  "(참고) 실서버 대조 없이 모킹 응답으로만 촬영함. I10의 강사 전체 수강권 목록 API가 아직 없고, I20B 보드의 「사유 선택」 표기와 서버 필수 규칙이 어긋나는 점은 사람이 확인해야 함(워커가 보고함)"
+ ],
+ "when": "2026-11-21T23:00:01+09:00"
+}

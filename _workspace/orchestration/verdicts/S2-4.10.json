@@ -1,0 +1,15 @@
+{
+ "id": "S2-4.10",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence PASS, 로그 # when 2026-11-23 10:27 KST — 이번 작업 시각(재활용 아님)",
+  "verify DB 테스트 직접 재실행 6 passed·skip 0, tsc exit 0, 계약 린터 전체·--contract 11 둘 다 PASS(오류 0), private-lesson 5경로 MISSING 없음",
+  "5경로가 계약 11 §10-1~§10-3 대로: close open→closed·재전송 200·감사 1줄, slots 10분 단위·길이 일치·매주 반복 1~26(기본 8)·하나라도 겹치면 전체 409, DELETE 는 조건부 UPDATE 로 open 만 닫고 held·booked 409 SLOT_NOT_OPEN, 남의 상품·시간 404, 소속 끝나면 403",
+  "S2-4.2 상품 서비스(findMyProduct·readProducts)·S2-2.4 겹침(lockScheduleOwners·computeScheduleConflicts)·S2-4.7 회차 서비스(toPassItem)를 다시 썼다. 핵심 지점 한국어 주석 있음, useEffect 없음, 비밀값 하드코딩 없음",
+  "(참고) PRODUCT_CLOSED 오류 코드는 계약 11 §10-1 에 없다 — 계약 오류 표에 한 줄 더해 M3 구매 경로가 같은 코드를 쓰게 하는 게 좋다",
+  "(참고) 수강권 목록 awaitingPayment 가 { until: null } 이다(계약 예시는 시각 문자열) — M3 주문 만료 전까지의 임시값이라고 주석에 적혀 있으니 M3 때 채워야 한다",
+  "(참고) slots 재전송 판정이 Idempotency-Key 가 아니라 「같은 시간이 이 상품에 open 으로 있나」다(S2-4.7 과 같은 방식) — 닫은 상품에 같은 요청을 다시 보내면 409 가 아니라 200 이 나올 수 있다",
+  "(참고) 단위 테스트 repo-secret-scan 1건 실패는 S2-4.8 증거 로그에서 난 것이라 이 Task 범위 밖 — 사람이 따로 확인해야 한다"
+ ],
+ "when": "2026-11-23T10:32:05+09:00"
+}

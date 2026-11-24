@@ -1,0 +1,15 @@
+{
+ "id": "S3-2.1",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence PASS, 로그 # when 이 모두 2026-11-23 12:21 KST(이번 작업 시각)",
+  "직접 다시 돌린 DB 테스트 13 passed·skip 0, tsc exit 0, 계약 린터 전체 오류 0 — 워커 보고와 같다",
+  "수업은 class-registration·class-approval 라우트로 만들어 읽는다(method 대로), 학원·직원만 바닥 행으로 넣는다",
+  "409 BASE_GENRE_REQUIRED·published/open/active 거르기·장르·지역·시간대·enrolled=confirmed·remaining=capacity−held−confirmed·커서·limit 20/50 이 계약 02 §1 과 맞다. 한국어 주석 있고 useEffect·비밀값 없음",
+  "(참고) 테스트 파일 이름 s3-2-1 → home-offerings 는 orchestration README 의 sync_verify_paths 관례대로라 문제 아님",
+  "(참고) 계약은 날짜가 비면 「오늘(KST) 이후 전부」인데 구현은 「지금 이후」다. 같은 표의 판매 상태 행(첫 회차가 지금 이후)이 어차피 걸려서 결과는 같다",
+  "(참고) listing_suspended 학원을 빼는 조건은 계약에 없는 추가다(FR-254 근거). 계약 02 §1 에 한 줄 적어 두면 좋다",
+  "(참고) D15 만료 주문 정리는 task method 대로 S3-3 에 남겼다"
+ ],
+ "when": "2026-11-23T12:22:52+09:00"
+}

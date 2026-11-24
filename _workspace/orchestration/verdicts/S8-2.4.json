@@ -1,0 +1,14 @@
+{
+ "id": "S8-2.4",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence PASS(행 4개·문제 0개). 로그 머리 # when 이 모두 2026-11-24 22:31~22:32 KST 로 이번 작업 시각이다",
+  "verify 명령을 새 파일 이름으로 직접 다시 돌렸다(flock). 5 passed, skip 0. tsc --noEmit exit 0",
+  "goal 을 이뤘다. 테스트가 확인하는 것: ① DB 전 스키마(public·auth)의 칸 이름과 contract.json 키에 주민등록번호 이름이 없고 CI 칸은 *_ci_hash 뿐이다 ② members 의 개인정보 칸 목록을 고정한다 ③ 주민등록번호·CI 원본을 일부러 실은 포트로 실제 가입 경로(createMemberSignupRoutes)를 돌려도 응답·DB 전체 행·console 로그 어디에도 그 값이 남지 않는다 ④ 검사기가 일부러 넣은 값을 실제로 잡는지 스스로 확인한다",
+  "운영 코드는 바꾸지 않았다. 바꾼 것은 테스트 파일, 계약 17 열린 점 ⑩, 증거뿐이다. 주석은 한국어이고 useEffect·비밀값 하드코딩은 없다(시크릿은 randomUUID 로 만든다)",
+  "추천안 phone 허용은 문제없다. spec 의 Q4 확정(2026-09-29)이 연락처를 필수 가입 정보로 정했고, FR-002 와도 맞다. 고른 이유와 사후 확인 표시는 계약 17 ⑩ 에 적혀 있다",
+  "(참고) 테스트 파일 이름을 verify 의 s8-2-4.db.test.ts 에서 identity-stored-fields.db.test.ts 로 바꿨다. EVIDENCE·no-task-number-test.log 에 기록돼 있다. roadmap-tasks.json 의 verify 문자열은 옛 이름 그대로이니 오케스트레이터가 고쳐 두면 좋다",
+  "(참고) 「로그」 검사는 console 출력만 본다. 파일 로그나 외부 로그 수집은 지금 코드에 없어 대상 밖이다"
+ ],
+ "when": "2026-11-24T22:33:36+09:00"
+}

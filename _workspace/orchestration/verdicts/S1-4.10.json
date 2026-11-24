@@ -1,0 +1,15 @@
+{
+ "id": "S1-4.10",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence PASS(행 9·문제 0), 로그 머리 when 이 모두 2026-11-21 12:23~12:25 KST 로 이번 작업 시각",
+  "verify 재실행 일치: mobile tsc --noEmit exit 0, 스크린샷 2장 test -f exit 0, admin-web tsc --noEmit exit 0",
+  "스크린샷 4장을 직접 열어 봄: 전체 칩(칩 6개·오늘/어제·확인하고 승인 ›), 운영 칩(계좌·약관만, 소속 신청 없음), 모두 읽음 뒤(점 사라짐·안내 문구), O37 강사 관리 이동 — EVIDENCE 의 「확인한 것」과 일치",
+  "goal 충족: 운영 칩은 category=operations(계약 10 §2 category 다섯과 같은 값), affiliation_requested → /owner/instructors 로 이동하며 POST …/{id}/read 를 먼저 보냄. read-all 본문 {category} 도 계약과 같음. 서버가 payload.actionLabel 「확인하고 승인」을 실제로 넣는 것도 instructor-invite-accept.ts 에서 확인",
+  "규칙: 새 파일에 useEffect 없음, 핵심 함수·분기에 한국어 주석, 비밀값 하드코딩 없음. owner-screen.tsx 는 선택 prop headerRight 만 더함(범위 안)",
+  "(참고) 계약의 30초 unread-count 폴링(추천값)은 넣지 않음 — EVIDENCE 에 범위 밖으로 밝혔고 goal 밖이라 반려 사유 아님",
+  "(참고) 촬영은 /api/** 를 계약 모양 예시로 가로챈 조건이고, 앱 Bearer 로 실서버(2단계 인증) 통과는 미검증 — S1-4.6 열린 점과 같음",
+  "(참고) 대표 앱 홈·탭에서 알림함 입구 없음(주소로만 열림) — 대표 앱 틀 Task 몫"
+ ],
+ "when": "2026-11-21T12:25:52+09:00"
+}

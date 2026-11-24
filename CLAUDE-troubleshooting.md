@@ -77,3 +77,16 @@
 **원인**: pnpm 10 이상은 esbuild·sharp 의 빌드 스크립트를 기본 차단한다. 패키지의 `pnpm-workspace.yaml` 에 `allowBuilds` 자리가 자리표시자로 비어 있다.
 **해결**: npx 캐시의 패키지 폴더(`~/.npm/_npx/*/node_modules/@penpot/mcp`)에서 `corepack pnpm install --dangerously-allow-all-builds` 한 번, 이후 `corepack pnpm run bootstrap` 으로 서버 둘(4400 플러그인·4401 MCP)을 띄운다. 새 버전을 받으면 다시 해야 한다.
 **연결**: Claude 는 `claude mcp add penpot -s user -t http http://localhost:4401/mcp`. 브라우저 Penpot → 파일 열기 → Plugins → `http://localhost:4400/manifest.json` 로드 → "Connect to MCP server". 크롬의 로컬 네트워크 접근 팝업은 허용. 플러그인 창을 닫으면 연결이 끊긴다.
+
+## Prisma 8 rc.24 에서 `contract emit` 이 어떤 계약을 줘도 실패 (2026-11-19)
+- 증상: `prisma contract emit` → `CLI.UNEXPECTED … typeAlias`. 계약 파일 내용과 상관없이 늘 같은 오류
+- 원인: CLI `prisma@8.0.0-rc.24` 가 내부 툴체인 `@prisma/orm-toolchain` 을 rc.18 로 실어 와 런타임(rc.24)과 계약 형식이 어긋났다(레지스트리에서 의존 버전 확인)
+- 해결: `admin-web/package.json` 에 `overrides` 두 줄 — `"@prisma/orm-toolchain": "8.0.0-rc.24"`, `"@prisma/composer-cli": {"@prisma/cli-engine": "0.9.0"}`. ERESOLVE 0 · `npm ls` invalid 0. 정식판이 나오면 뺀다(기술 스택 고정표 11-2)
+- 오진: 계약 문법 문제로 보고 계약을 고치기 쉽다 — 아무리 단순한 계약도 같은 오류가 나면 버전 어긋남부터 본다
+- 근거: `_workspace/05_implementer_T-M1-1_summary.md`, `_workspace/03_research.md` §3-1
+
+## 테스트 DB 주소를 잘못 넣으면 개발 DB 가 비워질 수 있었다 (2026-11-19)
+- 증상: 에러 없음 — 리뷰(M-2)에서 발견. 테스트 globalSetup 이 `TEST_DATABASE_URL` 을 그대로 믿고 테이블을 비우고 auth 스키마를 지운다
+- 원인: DB 이름 확인이 없었다. 또 앱 싱글턴 `db` 가 `.env` 의 개발 DB 를 가리켰다(M-1)
+- 해결: `admin-web/tests/setup/global-setup.ts` 에 이름 가드(`_test` 로 끝나지 않으면 연결 전에 실패), `vitest.config.mts` db 프로젝트 `env` 로 `DATABASE_URL` 을 테스트 주소로 덮음. `kdance_next` 를 넣어 연결 전에 멈추는 것 확인
+- 근거: `_workspace/08_code-reviewer_review.md` M-1·M-2, `_workspace/07_bug-fixer_fixes.md`

@@ -1,0 +1,14 @@
+{
+ "id": "S3-3.2",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence PASS, 로그 머리 # when 은 모두 2026-11-23 13:11~13:26 KST(이번 작업), 다시 돌린 db:migrate exit 0 · order-snapshot DB 테스트 6 passed skip 0 · tsc exit 0 으로 워커 보고와 같다",
+  "goal 의 상품 종류·회차 수·환불 마감일은 orders 칸으로, 수수료 표 판본은 기존 refund_notice_version_id 로 충족. 판매자·담당 강사 id 를 칸으로 두지 않은 것은 _workspace/03_data-model.md §10-11 ④(원장 sale 줄 소유, orders 새 칸 없음)와 일치하고 method 가 Phase 3 확정을 따르라고 했으므로 정당",
+  "테스트 ②③④ 가 주문 뒤 수업 종류·첫 회차·회차·휴강·마감일·수수료 표·수강권 횟수를 바꿔도 스냅샷이 그대로임을 직접 단언한다(verify 의 핵심 조건)",
+  "(참고) verify 의 파일 이름 tests/db/s3-3-2.db.test.ts 를 order-snapshot.db.test.ts 로 바꿨다 — roadmap-tasks.json verify 문구를 오케스트레이터가 맞춰 두면 좋다",
+  "(참고) 마이그레이션 backfill SQL 이 노쇼 판본 '2026-11-10' 을 상수 NO_SHOW_POLICY.version 과 따로 박아 두었다(주석으로 명시, 마이그레이션은 고정 스냅샷이라 허용 범위)",
+  "(참고) 전체 DB 스위트 17건 실패(permission-matrix 16 · affiliation-delegation 1)는 2단계 인증·S3-2 경로 행렬 누락으로 이 Task 와 무관해 보이나 다른 Task 에서 해소 필요",
+  "(참고) data-model §6-2 표에는 새 칸 5개가 아직 적혀 있지 않다 — 설계 문서 갱신 여부는 오케스트레이터 판단"
+ ],
+ "when": "2026-11-23T13:28:32+09:00"
+}

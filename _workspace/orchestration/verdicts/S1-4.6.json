@@ -1,0 +1,14 @@
+{
+ "id": "S1-4.6",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence PASS, 로그 머리 # when 이 모두 2026-11-21 02:17 KST(이번 작업)이다",
+  "DB 테스트 6 passed(skip 0)·tsc exit 0·계약 린터 오류 0을 직접 다시 돌려 똑같이 나왔다. 시나리오 3~5와 커서 25건 limit 7 네 쪽 넘김(중복·빠짐 0, DB ORDER BY 와 순서 같음)이 테스트에 들어 있다",
+  "계약 10 §2 의 네 경로 모양(items/nextCursor, total/byCategory, 읽음 멱등, read-all {category}→{updated})과 맞다. id 와 recipient_staff_account_id 를 같은 WHERE 에 걸어 남의 알림은 404 가 나고 read_at 도 바뀌지 않는다",
+  "핵심 지점에 한국어 주석이 있고 useEffect 는 없다. 비밀값 하드코딩도 없다(테스트 SECRET 은 randomBytes). 범위 밖 수정은 보이지 않는다",
+  "(참고) verify 에 적힌 파일 이름 tests/db/s1-4-6.db.test.ts 가 staff-notifications.db.test.ts 로 바뀌었다. 로드맵 verify 문구도 같이 고치면 다음 사람이 헷갈리지 않는다",
+  "(참고) 권한 행렬은 39 passed 1 failed 다. 실패 원인은 다른 Task 경로(terms·files·consents 등)가 ROUTE_FILE_COVERAGE 대응표에 빠진 것이고 알림함 4경로는 차이 목록에 없다. 이 Task 결함은 아니지만 따로 정리해야 한다",
+  "(참고) 계약에 「웹·앱 모두」라고 적혀 있는데 구현은 2단계 인증을 필수로 받는다. 앱 bearer 를 받을지는 앱 알림함 Task 에서 정해야 하는 열린 점이다"
+ ],
+ "when": "2026-11-21T02:18:50+09:00"
+}

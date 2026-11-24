@@ -1,0 +1,13 @@
+{
+ "id": "M1-END.3",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence PASS, 로그 3개 # when 2026-11-21 14:41 KST(이번 작업 시각)",
+  "크리틱 재실행: test:db m1-owner-flow 1 file·7 passed·skip 0·exit 0, tsc --noEmit exit 0 — 워커 보고와 같음",
+  "goal 순서(입점→승인→계좌 재확인→초대 1회→위임→공지 판본→공지 없는 게시 거부)가 테스트 ①~⑦로 한 파일에서 이어지고, 앞 단계 값(applicationId·academyId·affiliationId)을 뒤 단계가 이어받는다",
+  "실제 라우트 처리기·Better Auth 세션·PostgreSQL·Redis를 쓴다. 바뀐 파일은 테스트 1개와 증거뿐이고 범위 밖 수정은 없다. 한국어 주석이 있고 useEffect는 없으며, SECRET은 반복 문자열로 만든 테스트용 가짜 값이다",
+  "(참고) 수업 게시는 M2 전이라 테스트 안 흉내 경로(canPublish → assertRefundNoticeForPublish)로 판정한다. M2에서 실제 게시 경로가 생기면 그 경로로 바꿔야 한다",
+  "(참고) beforeAll에서 createStaffAuth가 마이그레이션 전에 Better Auth 'Database schema mismatch' ERROR를 stderr에 낸다. 테스트 결과에는 영향이 없다"
+ ],
+ "when": "2026-11-21T14:42:12+09:00"
+}

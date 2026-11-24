@@ -1,0 +1,8 @@
+{"id":"S1-2.11","verdict":"PASS","reasons":[
+"check_evidence PASS, 로그 # when 모두 2026-11-21 10:39~10:41(이번 작업 시각)",
+"verify 재실행: academy-employee-flag DB 테스트 6 passed/skip 0, tsc --noEmit exit 0, 계약 린터 전체 PASS(오류 0·경고 401) — 워커 보고와 같다",
+"goal 충족: PUT …/employment 하나, 켜기는 비율 없이(보내면 422), 끄기는 shareRateBp 필수(없으면 422 SHARE_RATE_REQUIRED), 감사 affiliation.employee_flag_changed — 계약 08 §4·data-model §7-5·감사 목록과 맞다",
+"(참고) 테스트 파일 이름이 verify 의 s1-2-11.db.test.ts 가 아니라 academy-employee-flag.db.test.ts — tests/db 의 기능 이름 관례와 맞고 EVIDENCE 에 밝혔다",
+"(참고) 권한 행렬 1 failed 는 S1-1 route 7개(consents·terms-notices·terms-versions·files 등) 누락으로 S1-2.10 증거와 같은 선행 실패, 새 employment 행은 표에 있고 통과",
+"(참고) 사람 확인 필요 3건(켜면 비율 행 닫힘 해석·응답 모양·강사 알림 없음)은 계약에 정해져 있지 않은 구현 선택이라 결함은 아니다 — 사용자 확인 대상으로 넘긴다"
+],"when":"2026-11-21T10:41:55+09:00"}

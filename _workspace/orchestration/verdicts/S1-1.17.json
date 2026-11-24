@@ -1,0 +1,14 @@
+{
+ "id": "S1-1.17",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence PASS(17행·문제 0), 로그 # when 이 모두 2026-11-20 23:26~23:33 KST — 이번 작업 시각",
+  "직접 다시 돌린 DB 테스트 8 passed·skip 0, tsc exit 0, 계약 린터 오류 0·경고 424 — 워커 보고와 같다",
+  "goal 충족: registration_type 은 그대로 두고 pending_registration_* 칸에 신청만 적으며 registration_verified_at 을 비워 엄격 기준 적용, readAcademyRegistration 이 이전 형태를 돌려준다. 계약 07 §4·열린 점 ③·⑫ 와 data-model §7-3 이 구현과 맞는다",
+  "FOR UPDATE 잠금·같은 신청 200·다른 신청 409·파일 소유 검사·감사 1행, 한국어 핵심 주석 있음, useEffect·비밀값 없음, 운영자 승인 경로(S7-4)는 만들지 않음 — 범위 지킴",
+  "(참고) verify 의 파일 이름 tests/db/s1-1-17.db.test.ts 대신 academy-registration-change.db.test.ts 를 썼다. tests/db 의 다른 파일도 모두 기능 이름이라 관례와 맞고 EVIDENCE.md 에 적혀 있다. roadmap-tasks.json 의 verify 문구는 오케스트레이터가 고쳐 두면 좋다",
+  "(참고) 권한 행렬의 대응표 검사 1건 실패는 consents·terms-notices 등 다른 Task 경로 7개 때문이다. 이번 경로는 대응표와 행렬 행에 들어가 있다",
+  "(참고) 열린 점 ⑫ 는 D20 임시 확정이라 사람 확인이 필요하다 — 특히 돌려보낼 때 확인 시각을 되살릴지(S7-4)"
+ ],
+ "when": "2026-11-20T23:35:06+09:00"
+}

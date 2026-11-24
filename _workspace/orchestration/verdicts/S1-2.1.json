@@ -1,0 +1,12 @@
+{
+ "id": "S1-2.1",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence PASS, 로그 머리 # when 이 모두 2026-11-21 09:28~09:31 KST 로 이번 작업분이다",
+  "verify 를 다시 돌려 1 file 7 passed, skip 0 을 확인했고 tsc --noEmit 도 exit 0 이다",
+  "DB(kdance_next) 제약을 직접 조회해 보니 data-model §7-5 의 ck_aff_rejected·ck_aff_source_invite·ck_invites_used·ck_invites_expiry·PK 가 모두 있었다. 칸 목록도 테스트 ① 과 §7-5 가 같아서 새 마이그레이션을 만들지 않은 판단(note: 남은 칸만 더함)이 맞다",
+  "(참고) verify 에 적힌 테스트 이름 tests/db/s1-2-1.db.test.ts 를 instructor-affiliation-tables.db.test.ts 로 바꿨다. EVIDENCE.md 에 이유가 적혀 있으니 roadmap-tasks.json 의 verify 문구도 새 이름으로 맞추면 좋다",
+  "(참고) 전체 DB 회귀에서 permission-matrix.db.test.ts 1건이 실패한다(S1-1 route 7개가 MATRIX 에 없음). 이 Task 범위 밖이라 log-fail 로 남겼고, 따로 Task 를 만들어 고쳐야 한다"
+ ],
+ "when": "2026-11-21T09:32:18+09:00"
+}

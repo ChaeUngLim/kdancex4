@@ -1,0 +1,15 @@
+{
+ "id": "S4-1.2a",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence PASS(행 10 · 문제 0). 로그 머리 # when 이 모두 2026-11-24 16:09~16:13 KST라 이번 작업분이다",
+  "DB 테스트를 직접 다시 돌렸다. refund-account-save.db.test.ts 5 passed, skip 0. 이름이 다른 계좌 422, 같은 이름 201, 로그에는 끝 4자리만, 403·404·409·422·401",
+  "tsc --noEmit exit 0. 첫 실행은 다른 명령과 함께 돌다 힙이 모자라 abort 됐고, 힙을 6GB로 늘려 혼자 다시 돌린 결과다. 계약 린터는 오류 0(경고 257은 다른 슬라이스 MISSING)이고 refund-accounts 경로는 경고에 없다",
+  "goal 충족: 예금주를 NFC 정규화·공백 제거 뒤 members.name 과 비교하고, 다르면 행·감사를 만들지 않은 채 422 ACCOUNT_HOLDER_MISMATCH 를 낸다. 번호는 AES-GCM 으로 암호화하고 칸 이름을 AAD 로 쓴다. 응답은 strict 스키마이고 로그는 ****last4 만 남긴다. 유료 실명 조회는 쓰지 않는다. method(라우트 1개)를 따랐다",
+  "규칙: 핵심 지점에 한국어 주석이 있다. useEffect 를 쓰지 않았다. 비밀값은 env 에서 읽고 하드코딩이 없다",
+  "(참고) verify 에 적힌 파일 이름 tests/db/s4-1-2a.db.test.ts 가 기능 이름 refund-account-save.db.test.ts 로 바뀌었다. 다른 DB 테스트도 기능 이름을 쓰고 EVIDENCE·보고에 바뀐 이름을 적어 두었으므로 반려 사유는 아니다. roadmap-tasks.json 의 verify 경로는 오케스트레이터가 고치면 된다",
+  "(참고) 계약 예시는 「국민은행 ****」, 구현은 은행 표 이름 「KB국민은행 ****」이다. 추천안으로 계약 163행에 이유와 함께 적어 두었다",
+  "(참고) 시연 스크립트에 개발 전용 시연 비밀번호(demo-refund-1234)가 있다. 앞 시연 스크립트와 같은 방식이고 DB 이름이 kdance_next 일 때만 돌도록 막혀 있다"
+ ],
+ "when": "2026-11-24T16:39:28+09:00"
+}

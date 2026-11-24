@@ -1,0 +1,16 @@
+{
+ "id": "SX-2.2",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence PASS(행 8, 문제 0), 로그 # when 전부 2026-11-23 19:56~19:59 KST — 이번 작업 시각",
+  "verify 재실행: tests/test_poster_draft_extraction.py 19 passed(skip 0, 진짜 kdance-llm 표본 포스터 포함), agent-server 전체 63 passed, mypy --strict 통과, admin-web tsc exit 0",
+  "goal 충족: 표본 포스터 1장에서 14칸 중 13칸 값 + 칸별 신뢰도 + overallConfidence 0.89, 포스터에 없는 capacity_total 만 null/null",
+  "계약 16 §7-1·§7-2 와 맞음: 202/중복 200/401 상수시간 비교/422 extra=forbid, json_schema 1회 호출·1회 재시도 후 EXTRACTION_FAILED, fieldKeys 밖 키 버림(FR-270), fileUrl 은 내부 경로만, 결과 본문 모양 일치. 값 목록이 admin-web constants.ts 와 같음",
+  "규칙: 핵심 지점 한국어 주석 있음, 토큰은 환경 변수로만(하드코딩 없음), 범위 밖 수정 없음(agent-server 만, 의존성 변경 없음)",
+  "(참고) 계약 §1-4 의 Redis Streams 대신 프로세스 안 asyncio 잠금 — 재시작 시 작업·jobId 기록 소실. EVIDENCE.md·코드 docstring 에 밝혔으니 FR-265(대화 우선) 를 거는 Task 에서 Redis 로 옮기거나 계약 열린 점 ③ 에 남길 것",
+  "(참고) accepted_job_ids 집합이 끝없이 커진다. 또 deadline 타이머가 잠금을 잡은 뒤에 시작돼, 앞 작업을 기다린 시간은 기한에 안 들어간다 — 큐 도입 때 같이 손볼 것",
+  "(참고) verify 의 tests/test_sx_2_2.py 를 tests/test_poster_draft_extraction.py 로 이름만 바꿈 — roadmap-tasks.json verify 문구를 오케스트레이터가 맞춰 둘 것",
+  "(참고) 신뢰도가 대부분 0.95 로 거칠다 — 흐린 포스터 검증과 정확도 목표는 계약 열린 점 ⑬ 몫"
+ ],
+ "when": "2026-11-23T20:01:35+09:00"
+}

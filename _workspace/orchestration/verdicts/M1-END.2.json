@@ -1,0 +1,14 @@
+{
+ "id": "M1-END.2",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence.py PASS, 로그 머리 # when 이 모두 2026-11-21 14:29~14:35 KST 로 이번 작업 시각이다",
+  "크리틱이 DB(kdance-db healthy)를 띄운 채 verify 명령을 다시 돌렸다: 124 files, 1476 passed, failed 0, skipped 0, exit 0. goal(skip 0 통과)을 이뤘다",
+  "tsc --noEmit exit 0",
+  "ROOM_STATUSES(active·archived)가 contract.prisma enum RoomStatus 와 같고, 한국어 주석이 달려 있다",
+  "class_submit 허용은 2026-11-20 결정 D3(data-model 470행)과 마이그레이션 admin-web/migrations/app/20261121T0119_delegation_class_submit 에 근거가 있다. 옛 값 3개는 계속 거부한다",
+  "(참고) permission-matrix 에 추가한 기대값은 서비스 주석과 계약을 근거로 했다고 적었지만, 실제 호출 결과와 맞춘 것이라 표가 코드를 따라갔을 가능성은 남는다. 허용 밖 2xx 0건 검사는 통과했다",
+  "(참고) constants.ts 의 git diff 154줄은 앞선 Task 들이 누적한 변경이고, 이번 Task 가 더한 것은 ROOM_STATUSES 블록이다. 테스트 파일 3개는 untracked 라서 diff 로 범위를 따로 가를 수 없었다"
+ ],
+ "when": "2026-11-21T14:38:00+09:00"
+}

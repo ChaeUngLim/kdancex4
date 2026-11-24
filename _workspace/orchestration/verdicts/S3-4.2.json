@@ -1,0 +1,13 @@
+{
+ "id": "S3-4.2",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence PASS, 로그 # when 모두 2026-11-23 17:03~17:05 KST(이번 작업)",
+  "DB 테스트 직접 재실행 7 passed skip 0(정규 8회차 확정 뒤 8건 포함), tsc --noEmit exit 0, 계약 린터 전체 오류 0·경고 306",
+  "구현이 계약 04 §1·§4-1 응답 모양(sessionId·absence·canToggle)·62일 한도·기본 오늘~+31일·startsAt 오름차순과 맞고, member_id=나 + r.status='confirmed' 로 본인 확정 예약만 읽는다",
+  "범위 밖 수정 없음(time.ts 등 기존 도우미 재사용, 바뀐 파일은 service·route·test 3개), 한국어 주석 있음, useEffect·비밀값 없음",
+  "(참고) verify 가 적은 테스트 파일명 tests/db/s3-4-2.db.test.ts 대신 tests/db/me-calendar.db.test.ts 로 바꿨다 — 테스트 머리 주석과 EVIDENCE.md 에 이유가 있으나 roadmap-tasks.json 의 verify 문구는 옛 이름 그대로다",
+  "(참고) --contract 04 로 좁힌 린터 FAIL 은 같은 계약의 다른 Task 경로 미구현(MISSING→오류) 때문이고 /api/me/calendar 는 목록에 없다"
+ ],
+ "when": "2026-11-23T17:06:41+09:00"
+}

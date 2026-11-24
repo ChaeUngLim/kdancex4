@@ -1,0 +1,15 @@
+{
+ "id": "S3-4.7",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence.py PASS(13행·문제 0), 로그 # when 이 모두 2026-11-23 18:14~18:15 KST, 스크린샷 9장 수정 시각도 같은 때라 옛 로그를 다시 쓴 흔적이 없다",
+  "verify 를 직접 다시 돌렸다: mobile tsc --noEmit exit 0, test -f M11·M16·M21.png exit 0. admin-web tsc --noEmit 도 exit 0",
+  "스크린샷 9장을 모두 열어 봤고 EVIDENCE.md 의 「확인한 것」과 같다. M11 참석/결석 토글·결석 예정 안내·강사 표시(역할만, 막힘), M16 탭 2개·상태 태그·지난 주문 접기·계좌 보기·빈 상태, M21 칩 5개·오늘/어제/이번 주 묶음·안 읽음 굵게+점·행동 문구·결제 칩 거르기·빈 상태",
+  "코드와 계약이 맞다: absence.ts 는 PUT/DELETE /api/me/sessions/{id}/absence(계약 04 §5), 토글 가능 여부는 서버 canToggle 로 정하고 직원 표시는 역할만 보인다(열린 점 ③). MyOrder·MemberNotification 타입은 계약 04 §9·§2 와 같고 「모두 읽음」을 뺀 것은 열린 점 ⑨ 를 따른 것이다",
+  "새 화면과 lib/me/* 에 useEffect 가 없다. home.tsx 의 useEffect 는 HEAD 에 원래 있던 것이다. 핵심 코드에 한국어 주석이 있고 비밀값 하드코딩도 없다",
+  "(참고) M11 은 spec 의 바텀시트 대신 달력 아래 목록으로 보인다. 워커가 EVIDENCE.md 에 범위 밖으로 적어 두었다",
+  "(참고) notifications.tsx·orders.tsx 는 reload() 를 해도 「더 보기」로 이어 받은 more 상태를 비우지 않는다. 다시 읽으면 뒤쪽 쪽이 겹칠 수 있다(지금은 reload 를 오류 화면에서만 부른다)",
+  "(참고) M16E 「수업 찾기」 버튼이 주황색이다. 플럼 강조 테마와 맞는지는 PrimaryButton 공용 색을 따로 확인해야 한다"
+ ],
+ "when": "2026-11-23T18:16:32+09:00"
+}

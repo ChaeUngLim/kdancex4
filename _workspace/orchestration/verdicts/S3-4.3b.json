@@ -1,0 +1,14 @@
+{
+ "id": "S3-4.3b",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence PASS, 로그 머리 when 이 모두 2026-11-23 17:29~17:30 KST(이번 작업 시각)",
+  "크리틱 재실행: absence-lock.db.test.ts 5 passed(skip 0), tsc exit 0, 전체 계약 린터 오류 0 — 워커 보고와 같다",
+  "계약 04 §7 대로: X-Internal-Token(withInternalRoute), advisory 잠금 + INSERT…SELECT NOT EXISTS 로 회차당 감사 1행, after.markCount, 응답 {locked:n}, 칸 추가 없음(열린 점 ⑥)",
+  "49시간째 표시 409 ABSENCE_WINDOW_CLOSED 를 작업 전·후 모두 테스트로 확인, 판정식은 ABSENCE_LOCK_HOURS 를 재사용해 표시 경로와 같다",
+  "한국어 주석 있음, useEffect·비밀값 하드코딩 없음, asOf 는 devRoutesEnabled 일 때만 받음",
+  "(참고) verify 문구의 테스트 파일명 s3-4-3b.db.test.ts 대신 기능 이름 absence-lock.db.test.ts 를 썼다 — tests/db 의 기존 이름 관례와 같아 문제로 보지 않음",
+  "(참고) permission-matrix ROUTE_FILE_COVERAGE 에 이 경로가 없다(S3-4.3·4.3a 도 같음) — 범위 밖으로 남긴 것이 맞고, 후속 정리 대상"
+ ],
+ "when": "2026-11-23T17:31:56+09:00"
+}

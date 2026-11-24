@@ -1,0 +1,14 @@
+{
+ "id": "S3-1.5",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence PASS(행 7·문제 0), 로그 # when 2026-11-23 11:43~11:45 KST 로 이번 작업 시각",
+  "DB 테스트 직접 재실행 10 passed·skip 0, tsc exit 0, 계약 린터 전체 PASS(오류 0·경고 314) — 워커 보고와 같다",
+  "계약 01 §4·§5·§6 과 코드가 맞다: 관심 장르 필수·1개 이상·중복 제거, 지역 최대 20, 시간대 짝·from<to, 모르는 칸 422(strictObject), 기준 장르 정확히 1개, 200 Member",
+  "트랜잭션 + FOR UPDATE 잠금 + 같은 트랜잭션 readMemberView 재조회로 '저장 뒤 조회 값이 같음' 충족. 한국어 주석 있음, useEffect·비밀값 없음",
+  "(참고) verify 의 테스트 파일 이름 tests/db/s3-1-5.db.test.ts 를 tests/db/member-profile.db.test.ts 로 바꿨다 — EVIDENCE.md 에 적었고 같은 내용을 검증하므로 통과로 본다. roadmap verify 문구는 오케스트레이터가 맞춰 둘 것",
+  "(참고) GET /api/me 추가는 method 의 'PUT 2개' 밖이지만 계약 01 §4 에 있고 verify 의 조회 확인에 필요해 범위 안으로 본다",
+  "(참고) 린터 경고 'PUT /api/me/base-genre(기준' MISSING 은 계약 흐름 줄(9줄)의 오파싱이며 실제 경로는 1대1 맞음"
+ ],
+ "when": "2026-11-23T11:48:16+09:00"
+}

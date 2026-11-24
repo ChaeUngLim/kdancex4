@@ -1,0 +1,14 @@
+{
+ "id": "S2-3.7",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence PASS(15행, 문제 0), 로그 # when 은 2026-11-21 21:11~21:16 KST 로 이번 작업 시각",
+  "직접 다시 돌린 verify(substitute-assigned-notification.db.test.ts) 2 passed, skip 0, tsc --noEmit exit 0 — 워커 보고와 같음",
+  "applyReleaseDecisions 가 회차 강사 변경 직후 같은 tx 에서 insertSubstituteAssigned 를 부름(kind substitute_assigned·category operations·dedupe release:<batch>:<session>:assigned·ON CONFLICT DO NOTHING) — 계약 11 알림 표와 §9 해제 트랜잭션 서술과 맞음",
+  "캘린더 행을 따로 쓰지 않은 것은 계약 11 §9(「일정은 회차의 담당 강사에서 읽으므로 따로 쓰지 않는다, 수용 ⑥」)를 따른 것이라 정당, 테스트가 mina 일정 포함·junho 일정 제외로 확인",
+  "(참고) 테스트 파일 이름이 verify 의 tests/db/s2-3-7.db.test.ts 와 다르다(substitute-assigned-notification.db.test.ts) — 워커가 보고·EVIDENCE 에 적었으니 roadmap verify 문구를 맞춰 두면 좋다",
+  "(참고) insertSubstituteAssigned 주석의 「계약 11 §12」는 시간 작업 절이다 — 알림 표·해제 트랜잭션은 §9 이므로 §9 로 고치면 정확하다",
+  "(참고) 전체 DB 테스트 1 failed(instructor-affiliation-tables ① calendar_color_index)는 S2-3.2·S2-3.6 증거 로그에도 있던 기존 실패"
+ ],
+ "when": "2026-11-21T21:17:46+09:00"
+}

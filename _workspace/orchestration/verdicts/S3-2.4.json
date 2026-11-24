@@ -1,0 +1,14 @@
+{
+ "id": "S3-2.4",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence PASS(행 6, 문제 0). 로그 머리 # when 은 모두 2026-11-23 12:37~12:39 KST로 이번 작업 시각이다",
+  "직접 다시 돌림: offering-seller-policy.db.test.ts 7 passed skip 0, 회귀 DB 4 files 28 passed, tsc exit 0. 워커 로그와 같다",
+  "goal 충족: GET /api/offerings/{id} 응답에 seller(6항목), refundNotice(classes.refund_notice_version_id 로 고정된 판본, 같은 학원 것만 LEFT JOIN, 없으면 null), intermediaryNotice(2026-11-06, spec 2220행 고정 문구와 같음)가 있다. 계약 02 §2 예시와 data-model §4/§2121행 S3-2 매핑과 맞는다",
+  "method 충족: 판매자 목록을 lib/domain/seller-info.ts 하나로 뽑았고 academy-settings.ts 와 offering-detail.ts 가 같은 sellerInfoSchema 를 쓴다. 서버 코드라 useEffect 는 없고, 핵심 지점에 한국어 주석이 있으며 비밀값 하드코딩도 없다",
+  "(참고) verify 가 가리키는 tests/db/s3-2-4.db.test.ts 를 offering-seller-policy.db.test.ts 로 이름을 바꿨다. tests/db 에 Task 번호 이름 파일이 하나도 없어 지금까지의 관례와 같고, EVIDENCE.md 와 테스트 머리 주석에도 적혀 있다",
+  "(참고) method 가 말한 S1-1.7 은 번호가 어긋나 있어 플랜 S1-1 수용 ⑤ 를 따랐다. roadmap 의 method 문구는 나중에 고쳐야 한다",
+  "(참고) 계약 02 §2 에 seller 칸과 임시 확정 3줄(2026-11-23)을 더했다. 사후 확인이 필요하다"
+ ],
+ "when": "2026-11-23T12:41:12+09:00"
+}

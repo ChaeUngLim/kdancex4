@@ -1,0 +1,14 @@
+{
+ "id": "S2-1.2a",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence PASS(행 8 · 문제 0), 로그 # when 은 모두 2026-11-21 15:09~15:12 KST 로 이번 작업분",
+  "크리틱이 다시 돌림: DB 테스트 4 passed(skip 0), tsc exit 0, 전체 계약 린터 오류 0(경고 382 MISSING)",
+  "goal 충족: 순차 경로는 S2-1.2 의 findStaffByCi→409 그대로, 동시 가입에서 진 쪽은 ciRaceLost 표식 → 롤백 뒤 findStaffByCi 로 먼저 계정의 가린 아이디·실제 hasInstructorRole 을 담은 409(instructor-signup.ts 182-256행). 한국어 주석 있음, useEffect·비밀값 없음, 응답 본문은 계약 11 §1-1 스키마 그대로",
+  "(참고) verify 가 적은 파일 tests/db/s2-1-2a.db.test.ts 를 기능 이름 tests/db/instructor-duplicate-identity.db.test.ts 로 바꿔 만들었다. EVIDENCE.md 에 사유가 있고 내용은 verify 그대로라 통과로 본다. roadmap-tasks.json 의 verify 경로는 오케스트레이터가 맞춰 고치면 된다",
+  "(참고) 「아이디 찾기는 계정 하나만」은 엔드포인트(S2-1.8 몫) 대신 findStaffByCi + staff_accounts 1행으로 확인했다. 범위 판단은 타당하고, 엔드포인트 단 검증은 S2-1.8 에서 다시 해야 한다",
+  "(참고) owner-signup.ts(S1-1.8)의 ciTaken 도 같은 경쟁 버그가 있다고 워커가 보고했다. 후속 Task 로 올려야 한다",
+  "(참고) DB 테스트 stderr 에 Better Auth 'schema mismatch' 경고가 찍히지만 테스트 결과와는 상관없다"
+ ],
+ "when": "2026-11-21T15:13:34+09:00"
+}

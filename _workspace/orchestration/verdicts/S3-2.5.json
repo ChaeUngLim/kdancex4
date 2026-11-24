@@ -1,0 +1,15 @@
+{
+ "id": "S3-2.5",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence PASS (15 rows, 0 problems); log # when values are all 2026-11-23 12:56-13:02 KST, so they come from this task",
+  "verify reran: mobile tsc --noEmit exit 0, M7/M8/C13A.png all present, admin-web tsc --noEmit exit 0",
+  "Screenshots M7, M8 and C13A match what the evidence says: sort chips, seat cells split male/female, 마감 shown in text, 「남녀 구분 없음」 chip, 「자리 1개 · 남녀 구분 없음」 row, seller info with 6 fields, pay button closed",
+  "Code: sort changes run from the tap handler (changeSort). The new seat-grid.tsx and offering/[id].tsx have no useEffect. Korean comments are present. Matches contract 02 §1 sort=recommended|deadline|seats and §2 seller (6 fields)",
+  "(참고) The home.tsx useEffect that loads the first page was there before this task (git diff shows no added or removed useEffect line)",
+  "(참고) admin-web/scripts/dev-demo-member-catalog.ts hardcodes a demo member password (demo-member-1234). It is a dev-only script and refuses any DB except kdance_next, so this is not treated as a blocking issue",
+  "(참고) priceBreakdownPreview is not sent by the server yet, so the type was made optional and the pay button stays closed. This should be closed out together with S3-3",
+  "(참고) The 403 INVALID_ORIGIN on app-web-origin email sign-in is outside this task. It is recorded in the evidence and should go into a follow-up task"
+ ],
+ "when": "2026-11-23T13:03:51+09:00"
+}

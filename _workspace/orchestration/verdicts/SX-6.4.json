@@ -1,0 +1,14 @@
+{
+ "id": "SX-6.4",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence PASS(12행·문제 0), 로그 # when 이 모두 2026-11-24 20:24~20:30 로 이번 작업 시각",
+  "verify 재실행: tests/test_promo_image_generation.py 26 passed, mypy --strict 25 파일 통과 — 워커 보고와 같음",
+  "goal 충족: sentenceKo 만 대화 모델이 영어로 옮기고(user 칸 JSON 데이터, 한글 남으면 1회 재시도) englishPrompt 를 결과에 실음, 포트 ImageEngine 뒤에 Cloudflare schnell 어댑터 1개, 에이전트는 /result POST 만 하고 DB 쓰기 없음",
+  "note 준수: 로컬 3개 엔진 enabled:false, 꺼진/목록 밖 engineId 422, 결과에 engine·model 기록, 유료 API 없음, 키는 환경 변수·repr 숨김",
+  "(참고) verify 의 tests/test_sx_6_4.py 를 워커 규칙(Task 번호 파일명 → 기능 이름)대로 test_promo_image_generation.py 로 바꾸고 증거에 적음 — roadmap verify 문구 갱신은 오케스트레이터 몫",
+  "(참고) 실제 생성 그림 확인: 빨간 조명 스튜디오 커플, 글자 없음, 무릎 아래 잘림으로 「온몸 구도」 미충족 — 워커가 사후 확인 4로 기록, schnell 품질 문제라 이 Task 반려 사유 아님",
+  "(참고) 엔진별 전체 하루 한도·사람당 하루 횟수는 Next.js(SX-6.5) 몫으로 계약 16 438행에 넘김"
+ ],
+ "when": "2026-11-24T20:32:34+09:00"
+}

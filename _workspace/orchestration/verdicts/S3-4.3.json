@@ -1,0 +1,12 @@
+{
+ "id": "S3-4.3",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence PASS(행 6 · 문제 0), 로그 # when 은 모두 2026-11-23 17:11~17:12 KST 로 이번 작업 시각",
+  "직접 다시 돌린 DB 테스트 8 passed·skip 0, S3-4.2 캘린더 회귀 7 passed, tsc exit 0, 계약 린터 전체 오류 0 — 워커 보고와 같음",
+  "코드가 계약 04 §5 서버 순서(404→403→SESSION_NOT_SCHEDULED→SESSION_ALREADY_STARTED→ABSENCE_MARKED_BY_STAFF)와 응답 모양(PUT 201/200, DELETE 200 absence null)을 따름. 쓰는 테이블은 attendance_marks 하나, 예약은 FOR SHARE 읽기 잠금만. 한국어 주석 있음, useEffect·비밀값 없음",
+  "(참고) verify 가 지정한 파일 이름 tests/db/s3-4-3.db.test.ts 대신 기능 이름 me-session-absence.db.test.ts 를 썼다. 워커가 보고했고 EVIDENCE.md 의 명령도 바뀐 이름과 맞아 반려하지 않음",
+  "(참고) 대기 줄 테이블은 아직 스키마에 없어 수용 ② 지문 비교에서 빠졌다. S3-5 에서 그 테이블이 생기면 UNTOUCHED_TABLES 에 더해야 함"
+ ],
+ "when": "2026-11-23T17:13:29+09:00"
+}

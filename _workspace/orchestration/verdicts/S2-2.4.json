@@ -1,0 +1,14 @@
+{
+ "id": "S2-2.4",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence PASS(행 17·문제 0), 로그 # when 은 모두 2026-11-21 17:31~17:42 KST 로 이번 작업 시각",
+  "verify 재실행: class-schedule-conflict.db.test.ts 7 passed, skip 0(①학원 간 강사 겹침 409·회차 0 ②경계 ③ROOM_CONFLICT ④임시 저장 409 ⑤대표 라벨 가림 ⑥동시 submit 한 건 ⑦EXCLUDE 23P01) · tsc exit 0 · class-registration 회귀 6 passed",
+  "goal 충족: submit 은 강사→홀 advisory lock 뒤 S2-1.5 findInstructorOverlaps 로 판정, 학원 조건 없음. 23P01 도 409 로 변환. 마이그레이션의 EXCLUDE 2개·status CHECK 3값은 data-model §8-2 문구와 같다. 409 본문 형태는 계약 11 §4-3 과 맞다. 한국어 주석 있음, useEffect·비밀값 없음",
+  "(참고) verify 가 가리킨 tests/db/s2-2-4.db.test.ts 대신 기능 이름 class-schedule-conflict.db.test.ts 를 썼다 — roadmap-tasks.json 의 verify 경로를 맞춰 두면 다음 재실행이 헷갈리지 않는다",
+  "(참고) method 의 「S1-2.6 강의실 판정」은 실제로는 소속 신청 API(roadmap 확인)라 홀 겹침을 S2-1.5 overlapMinutes 로 새로 계산한 판단은 타당하다",
+  "(참고) 인덱스 이름이 ix_sessions_instructor_time_699a23af 로 data-model 의 ix_sessions_instructor_time 과 접미사가 다르다(Prisma 자동 명명) · suggestions 빈 배열과 instructor_account_id NOT NULL 미적용은 EVIDENCE.md 에 범위 밖으로 적혀 있다",
+  "(참고) 전체 테스트 잔여 실패 2건(instructor-affiliation-tables ① 이전부터, refund-notice-versions ⑥ 재실행 시 6 passed)은 이 Task 와 무관하다고 보고됐고 로그로 확인됨"
+ ],
+ "when": "2026-11-21T17:43:43+09:00"
+}

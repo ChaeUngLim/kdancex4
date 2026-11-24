@@ -1,0 +1,8 @@
+{"id":"S2-1.2","verdict":"PASS","reasons":[
+"check_evidence PASS(행 13·문제 0), 로그 # when 전부 2026-11-21 14:58~15:06 KST 로 이번 작업 시각",
+"직접 재실행: DB 테스트 instructor-signup.db.test.ts 13 passed(skip 0) · tsc --noEmit exit 0 · api_contract_lint PASS 오류 0(경고 382)",
+"goal 충족: activityGenre 는 z.enum(GENRES) 하나만 받음, 본인확인 토큰을 먼저 풀고 실패 시 DB 미접근, 만 19세는 본인확인 생년월일·KST 기준일, 같은 CI 409 INSTRUCTOR_ALREADY_REGISTERED(가린 아이디+hasInstructorRole), 한 트랜잭션에 계정·role_grants·instructor_profiles·staff_consents 둘·감사 1행 — 계약 11 §1-1~§1-3 과 맞음. 한국어 주석 있음, useEffect·비밀값 하드코딩 없음",
+"(참고) verify 의 테스트 파일명 tests/db/s2-1-2.db.test.ts 대신 instructor-signup.db.test.ts 를 썼다 — 워커가 보고에 밝혔고 내용은 verify 요구(수용 ①·④)를 덮는다. roadmap-tasks.json verify 문구를 맞춰 두면 좋다",
+"(참고) staff_consents.item CHECK 가 TermsKind 7값을 모두 허용한다 — data-model §8-3 은 merchant_terms·merchant_privacy_collection 두 값만 적었다. 앱이 둘만 넣으므로 동작 문제는 없지만 데이터 모델 문서나 계약 중 하나를 맞춰 둘 것",
+"(참고) 트랜잭션 안 ciTaken(동시 가입 경합) 409 는 hasInstructorRole 을 늘 true 로 준다 — 대표 가입과 경합한 드문 경우 false 여야 맞다. 이어지는 Task 에서 다듬을 만하다"
+],"when":"2026-11-21T15:07:37+09:00"}

@@ -1,0 +1,15 @@
+{
+ "id": "S2-2.1",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence PASS(행 12개·문제 0), 로그 # when 모두 2026-11-21 17:02~17:07 KST — 이번 작업 시각",
+  "npm run db:migrate 재실행: Already up to date, marker 7c6de5fb…, exit 0",
+  "DB 테스트 재실행 7 passed skip 0 — 상태 값 집합 밖(rejected 등) 거부 확인, tsc exit 0, 상수↔계약 65 passed",
+  "마이그레이션 1개로 classes 승인 칸 7개·CHECK·색인과 class_approvals(§8-4) 생성 — data-model §8-2·§8-4·§8-7·§8-8 과 일치, 반려는 revision_requested 기록+draft 복귀로 설계대로",
+  "(참고) verify 의 파일명 tests/db/s2-2-1.db.test.ts 대신 class-approval-tables.db.test.ts 로 바꿈 — 저장소의 기능명 관례와 맞고 EVIDENCE.md 에 기록됨",
+  "(참고) 상태 CHECK 이름이 data-model 의 ck_classes_status 가 아니라 Prisma enum 자동 이름 classes_status_check_* 다 — 동작은 같음",
+  "(참고) 전체 테스트 1 failed(instructor-affiliation-tables ①, calendar_color_index 누락)는 S2-1.9 에서 온 기존 실패로 직접 재현 확인 — 이 Task 범위 밖, 별도 수정 필요",
+  "(참고) §8-2 나머지 칸·class_target_ages·EXCLUDE 는 S2-2.3·S2-2.4 전에 마이그레이션 추가 필요"
+ ],
+ "when": "2026-11-21T17:09:02+09:00"
+}

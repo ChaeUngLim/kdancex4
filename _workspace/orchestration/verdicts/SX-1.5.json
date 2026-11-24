@@ -1,0 +1,13 @@
+{
+ "id": "SX-1.5",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence PASS(행 8, 문제 0), 로그 # when 전부 2026-11-23 15:08~15:10 — 이번 작업 시각",
+  "verify 재실행 일치: agent-stream-translate.test.ts 22 passed, npm run build exit 0(ƒ /api/ai/chat), tsc exit 0, 단위 전체 1169 passed, 계약 린터 전체 PASS",
+  "goal 충족: translateAgentEvent 가 §3-3 표 10줄 그대로(transient 4종, text-start 한 번·text-delta·text-end, done→finish, error→data-error→finish), 상태 불변, createUIMessageStream+createUIMessageStreamResponse, x-ai-run-id·no-store 헤더",
+  "규칙 준수: 핵심 지점 한국어 주석, useEffect 없음, 비밀값 하드코딩 없음(.env.example 은 이름만), 범위 밖 DB 기록·취소·T2·1.5초 규칙은 손대지 않고 EVIDENCE 에 명시",
+  "(참고) verify 의 tests/unit/sx-1-5.test.ts 를 agent-stream-translate.test.ts 로 바꿨다 — 다른 완료 Task(S3-3.x 등)와 같은 관례이고 EVIDENCE 에 적혀 있다",
+  "(참고) 계약 16 §3 은 직원 세션이면 403 FORBIDDEN 인데 requireMember 는 회원 행이 없으면 403 SIGNUP_INCOMPLETE 를 낸다 — 기존 가드 동작이라 이 Task 결함은 아니지만 뒤 Task 에서 계약과 맞출 것"
+ ],
+ "when": "2026-11-23T15:13:00+09:00"
+}

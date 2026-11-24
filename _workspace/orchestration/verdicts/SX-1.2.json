@@ -1,0 +1,14 @@
+{
+ "id": "SX-1.2",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence.py PASS(행 9 · 문제 0). 로그 # when 은 모두 2026-11-23 14:41~14:43 KST 로 이번 작업 시각이다(RED 로그 14:41:39 이 GREEN 14:42:57 보다 앞선다)",
+  "verify 를 다시 돌린 결과가 같다: tests/test_read_only_tools.py 7 passed, agent-server 전체 8 passed, mypy --strict app tests Success(8 파일), admin-web tsc --noEmit exit 0, uv lock --check 통과",
+  "goal 충족: read_catalog.READ_TOOLS 12개 이름이 계약 16 §6 표와 정확히 같다(테스트가 계약 파일을 직접 읽어 대조한다). 쓰기 도구는 0개다. ReadOnlyToolbox 가 tools/list 를 이름 허용 목록과 read_only/destructive 힌트로 걸러 내고, 목록 밖 호출은 서버로 보내기 전에 막는다(테스트로 서버 도달 0건 확인). 입력 모델은 extra=forbid 로 memberId 를 거부한다(§6 신원은 토큰만)",
+  "method 를 지켰다: 읽기 도구만 등록했고 테스트를 먼저 썼다(RED 로그 있음). mcp==2.2.0 이 tech-stack 11 Protocol 행과 같다. DB 코드는 0이다. 핵심 지점마다 한국어 주석이 있고, 비밀값 하드코딩과 범위 밖 수정은 없다(git 상 agent-server/ 만 새로 생겼다)",
+  "(참고) verify 가 가리키는 tests/test_sx_1_2.py 를 tests/test_read_only_tools.py 로 바꿨다. SX-1.1 과 같은 관례이고 EVIDENCE.md 에 사유가 있다. 오케스트레이터가 roadmap-tasks.json 의 verify 경로를 고치면 된다",
+  "(참고) 계약 16 단독 린터를 다시 돌려도 FAIL(오류 28)이다. 전부 Next.js 경로 MISSING 이고 이 Task 의 endpoints 는 비어 있어 범위 밖이다. 전체 린터는 오류 0 으로 PASS",
+  "(참고) mypy 가 dev 의존성에 없어서 uv run --with mypy 로만 돌아간다. 나중에 dev 그룹에 넣으면 재현이 쉬워진다"
+ ],
+ "when": "2026-11-23T14:45:13+09:00"
+}

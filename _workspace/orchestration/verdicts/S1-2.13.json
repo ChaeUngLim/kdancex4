@@ -1,0 +1,14 @@
+{
+ "id": "S1-2.13",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence PASS(행 8 · 문제 0), 로그 # when 은 모두 2026-11-21 12:55~12:56 KST — 이번 작업분",
+  "verify 재실행 일치: academy-rooms DB 테스트 8 passed(skip 0), tsc exit 0, 계약 린터 PASS(오류 0 · 경고 391, rooms 는 MISSING 에 없음)",
+  "goal 충족: 계약 07 §4 세 경로(GET·POST rooms, POST archive)가 owner + 2단계 권한으로 돌고, 이름 중복 409 ROOM_NAME_TAKEN(지점 행 FOR UPDATE 뒤 검사)·다른 학원 403·보관 뒤 목록에서 빠짐을 테스트가 확인한다. data-model §7-3 rooms 칸·uq_rooms_branch_name 기준과 맞는다",
+  "범위 지킴: 겹침·주간표·불가 시간·ROOM_IN_USE 는 note 대로 M2(S2-2)로 미뤘고 주석·계약 열린 점 ⑱ⓖ에 적혀 있다. 핵심 지점 한국어 주석 있음, useEffect·비밀값 없음",
+  "(참고) verify 문구의 테스트 경로 tests/db/s1-2-13.db.test.ts 가 academy-rooms.db.test.ts 로 바뀌었다 — roadmap-tasks.json verify 문구를 나중에 맞추면 좋다",
+  "(참고) permission-matrix 테스트 1건 실패(59 passed)는 앞선 Task 가 ROUTE 표에 넣지 않은 route 11개 때문이다. rooms 두 파일은 표에 있다(diff 에서 + 아님). 이 Task 결함은 아니지만 별도 Task 로 고쳐야 한다",
+  "(참고) 응답 모양·입력 상한·목록 순서·두 번 보관 동작은 계약 07 열린 점 ⑱에 임시 확정(D20)으로 남겼다 — 사용자 사후 확인 필요"
+ ],
+ "when": "2026-11-21T12:57:40+09:00"
+}

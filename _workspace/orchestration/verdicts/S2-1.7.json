@@ -1,0 +1,15 @@
+{
+ "id": "S2-1.7",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence.py PASS(행 18개·문제 0), 로그 머리 # when 2026-11-21 16:05~16:10 KST로 이번 작업 시각",
+  "verify 재실행: mobile tsc --noEmit exit 0, shots/M1B·I12·I9.png 모두 존재, admin-web tsc --noEmit exit 0",
+  "스크린샷 M1B·I12·I12-승인-대기·I9·I31 직접 열어 EVIDENCE.md 「확인한 것」과 일치 확인 — goal(보드 M1B·I12·I9 프로필 줄) 충족",
+  "새 파일에 useEffect/useLayoutEffect 없음, 핵심 지점 한국어 주석 있음, 비밀값 하드코딩 없음, 부르는 API 경로(staff/me·instructor/signup/*·me/profile·affiliations·staff-notices)가 admin-web 에 실제로 있고 새 서버 경로 없음",
+  "(참고) 강조색이 갈색(theme.ts brown)이다 — 보드·결정은 딥 플럼이지만 theme.ts 교체는 별도 작업이라는 판단을 staff-ui.tsx 주석에 남겼다. 플럼 전환 Task 에서 함께 바꿀 것",
+  "(참고) TOTP 켠 직원 계정의 앱 로그인(twoFactorRedirect)은 계약 README §6-1 과 부딪히는 미결 — 서버 쪽 결정 필요",
+  "(참고) 실서버 로그인 성공 경로는 웹에 SecureStore 가 없어 캡처 못 함(목 응답으로만 검증). 앱 첫 화면 `/` 은 여전히 회원 로그인이고 강사 입구는 `/staff-login`",
+  "(참고) 가입 화면 I31C·I31 은 goal 의 보드 3장 밖이지만 title 의 「가입」 범위라 허용"
+ ],
+ "when": "2026-11-21T16:12:37+09:00"
+}

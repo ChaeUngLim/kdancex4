@@ -1,0 +1,14 @@
+{
+ "id": "M3-END.1",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence PASS(행 3·문제 0), 로그 # when 은 모두 2026-11-24 15:18~15:19 KST 로 이번 작업 시각",
+  "크리틱이 직접 다시 돌린 DB 시나리오 테스트 6 passed·skip 0, tsc exit 0, 계약 린터(02·03·04) 오류 0 — 워커 보고와 같음",
+  "goal 충족: 가입→취향·기준 장르→홈 목록·상세→카드 주문(pending·held 1)→가짜 PG dev 입금 서명 웹훅→확정(paid·confirmed·confirmed 1)→캘린더 12월 8건→강사 명단 1명(가린 번호, 본명·전체 번호 없음)을 한 파일에서 경로로 잇고, 시드(seed.ts·dev-demo-*)를 쓰지 않음",
+  "범위: files_changed 는 새 테스트 파일과 증거뿐(운영 코드·계약·로드맵 JSON 변경 없음). 한국어 주석 있음, useEffect 없음, 비밀값은 실행마다 randomUUID 로 만듦",
+  "(참고) verify 의 파일 이름 tests/db/m3-end-1.db.test.ts 를 m3-member-flow.db.test.ts 로 바꿨다 — M1-END.3(m1-owner-flow)·M2-END.3(m2-gate) 선례와 같고 EVIDENCE.md·파일 머리에 이유를 적었다. 로드맵 verify 문구는 오케스트레이터가 맞춰 둘 것",
+  "(참고) ⑦ 명단 경로 호출의 params 에 `as never` 캐스트가 있다 — 타입 검사를 우회하므로 맞는 타입으로 바꾸면 좋다",
+  "(참고) 비밀번호 상수 PASSWORD 는 테스트용 고정 문자열이다. 비밀값은 아니지만 다른 상수처럼 실행마다 만들어도 된다"
+ ],
+ "when": "2026-11-24T15:20:51+09:00"
+}

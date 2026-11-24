@@ -1,0 +1,14 @@
+{
+ "id": "SX-1.4",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence PASS(행 9개·문제 0개), 로그 # when 이 모두 2026-11-23 14:54~14:55 KST 로 이번 작업 시각이다(SX-1.3 판정 14:52 뒤)",
+  "verify 를 다시 돌린 결과가 워커 증거와 같다: test_prompt_injection_guard.py 26 passed, agent-server 전체 44 passed, mypy --strict 12 파일 Success, admin-web tsc exit 0",
+  "goal 을 이뤘다: 주입 12종×앞·뒤 2위치에서 '주입을 그대로 따르는 모델'이 낸 공격 호출이 서버 입구(JSON-RPC 본문 기록)에 한 건도 닿지 않고, 도착한 호출은 이름·인자·두 헤더까지 기준선과 같다. 도구 결과(공지) 속 주입도 데이터로만 돌아온다. 계약 16 §114·§459 와 맞다",
+  "범위 안이다: 바뀐 파일은 agent-server/app/tools/tool_call_runner.py(신규)와 tests/test_prompt_injection_guard.py(신규) 둘뿐. 핵심 코드에 한국어 주석이 있고 비밀값 하드코딩·DB 코드·useEffect 는 없다(테스트 토큰은 가짜 값)",
+  "(참고) verify 의 tests/test_sx_1_4.py 대신 tests/test_prompt_injection_guard.py 로 이름을 바꿨다. SX-1.2·1.3 과 같은 관례이고 EVIDENCE 에 적혀 있다. roadmap-tasks.json verify 칸은 sync_verify_paths.py 로 고칠 것",
+  "(참고) 막힌 호출에 돌려주는 TOOL_NOT_ALLOWED 는 계약 16 §371 의 오류 코드 목록(FORBIDDEN_SCOPE·NOT_FOUND·INVALID_INPUT·TOOL_LIMIT)에 없다. 서버 응답이 아니라 에이전트 안에서 모델에게 돌려주는 코드라 계약 위반은 아니지만, 계약에 한 줄 적어 두면 좋다",
+  "(참고) 변이 검사 로그는 scratchpad 플러그인으로 돌린 것이라 그 플러그인 파일 자체는 증거 폴더에 없다. 결과(25 failed, 1 passed)는 로그로 남아 있다"
+ ],
+ "when": "2026-11-23T14:59:14+09:00"
+}

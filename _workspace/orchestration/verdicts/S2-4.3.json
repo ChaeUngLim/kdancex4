@@ -1,0 +1,12 @@
+{
+ "id": "S2-4.3",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence PASS, 로그 # when 이 모두 2026-11-21 22:10~22:11 KST로 이번 작업 시각",
+  "직접 다시 돌림: private-lesson-cancel-deadline.test.ts 11 passed, tsc --noEmit exit 0",
+  "goal 달성: 시작 23시간 전 회원 취소는 cancelled_member_late·deducted=true, 25시간 전은 free. 정확히 24시간은 차감 없음으로 계약 11 §10·data-model §8-6(≥ 기한이면 free)과 맞다",
+  "method 지킴: now·changeDeadlineHours를 주입받는 순수 함수이고, 허용 값 [12,24,48]은 ck_pl_rule_deadline과 같다. 한국어 주석 있음, useEffect·비밀값 없음, 상태 값은 constants.ts의 기존 타입을 Extract로 씀",
+  "(참고) verify가 지정한 파일명 tests/unit/s2-4-3.test.ts 대신 private-lesson-cancel-deadline.test.ts를 썼다. 내용과 경계 사례는 verify를 충족하며, roadmap verify 문자열을 갱신하면 맞춰진다"
+ ],
+ "when": "2026-11-21T22:12:03+09:00"
+}

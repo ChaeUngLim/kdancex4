@@ -1,0 +1,14 @@
+{
+ "id": "S4-1.2",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence.py PASS, 로그 머리 when 이 모두 2026-11-24 15:52~15:54 KST(이번 작업)",
+  "DB 테스트 직접 재실행 1 file 6 passed skip 0, tsc --noEmit exit 0 — 워커 보고와 같음",
+  "철회 규칙(decision_kind IS NULL 인 received·in_progress 정규만, 승인 뒤 409)이 계약 12 §2-1 206~208행·열린 점 ③ 과 일치, 전이는 조건부 UPDATE + FOR UPDATE 잠금",
+  "이벤트형 409·알림 3종 S4-1.8 이월은 계약 12 189행에 「추천안·사후 확인」으로 이유와 함께 기록됨 — 돈 이동·삭제 없음",
+  "(참고) verify 의 파일 이름 tests/db/s4-1-2.db.test.ts 대신 refund-request-create-withdraw.db.test.ts 로 바꿨다 — 테스트 머리 주석에 기록. roadmap verify 경로 동기화 필요",
+  "(참고) 계약 린터 전체 오류 1건(POST /api/inquiries NO_SCHEMA)은 진행 중인 S7-2.2(문의 생성과 조회 권한) 파일(15:44 작성, status todo)이라 이 Task 책임 아님. refund-requests 경로는 오류 0",
+  "(참고) 시연 스크립트는 다시 돌리면 건너뜀(멱등), 비밀값은 환경 변수로만 읽음"
+ ],
+ "when": "2026-11-24T16:00:05+09:00"
+}

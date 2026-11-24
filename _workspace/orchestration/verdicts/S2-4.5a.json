@@ -1,0 +1,12 @@
+{
+ "id": "S2-4.5a",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence PASS, 로그 머리 when 이 모두 2026-11-21 22:24~22:25 KST로 이번 작업분이다",
+  "verify 다시 실행: student-name-visibility.test.ts 22 passed, tsc --noEmit exit 0 (워커 보고와 같다)",
+  "decideStudentNameDisplay 는 계약 11 §10-3(개인 레슨은 결제 대기여도 이름, 멤버십 끝나면 nameVisible=false)과 계약 18 §1-2(단체 결제 대기는 인원 수만)에 맞는다. 순수 함수이고 한국어 주석이 있다. useEffect·비밀값 없음",
+  "(참고) verify 가 지정한 파일 이름 tests/unit/s2-4-5a.test.ts 대신 student-name-visibility.test.ts 를 썼다. 파일 머리에 사유가 적혀 있다. roadmap-tasks.json 의 verify 문구는 다음에 맞춰 고친다",
+  "(참고) 테스트 30행 「멤버십 값을 안 주면 켜진 것으로 본다」는 instructorMembershipActive: true 를 넘겨 이름과 내용이 다르다. 기본값은 15행이 덮지만, 30행에서는 그 인자를 빼는 편이 맞다"
+ ],
+ "when": "2026-11-21T22:25:53+09:00"
+}

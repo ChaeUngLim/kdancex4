@@ -1,0 +1,15 @@
+{
+ "id": "S2-3.2",
+ "verdict": "PASS",
+ "reasons": [
+  "goal 충족: change·cancel 이 한 트랜잭션에서 회차 갱신 → session_changes 1행(폐강은 회차마다, 같은 batch_id) → 결제 확정 회원 알림(pending) → 강사가 했을 때 대표 알림 → 감사를 쓴다. 발송 코드 없음(method 준수)",
+  "verify 재실행 4 passed skip 0, tsc exit 0 — 워커 보고와 같다",
+  "(참고) verify 문구의 테스트 경로 tests/db/s2-3-2.db.test.ts 대신 tests/db/session-change-notifications.db.test.ts 로 이름을 바꿨다. roadmap-tasks.json 의 verify 경로를 맞춰 두는 편이 좋다",
+  "(참고) session_changes.idempotency_key + uq_session_changes_idem(changed_by_account_id, idempotency_key) 는 data-model §8-5 칸 목록에 없다. 계약이 change·cancel 을 '키' 멱등으로 정했고 다른 표(uq_class_edit_idem 등)와 같은 모양이라 타당하지만, 사용자 확인 후 data-model §8-5 에 칸·제약을 적어야 한다",
+  "(참고) 409 IDEMPOTENCY_KEY_REUSED 는 계약 오류표에 없다(같은 키를 변경↔휴강에 섞어 쓸 때만). README §5 는 '본문이 달라도 처음 것'만 정한다 — 계약 11 §6 오류표에 넣거나 빼는 결정이 필요하다",
+  "(참고) 계약 §6-2 의 'this_session 휴강 시 같은 트랜잭션에서 openClosureChoices 호출'은 아직 없는 S4-3 함수라 하지 않았고 코드 머리 주석에 S4-3 몫으로 적었다. 기한은 12 §4(확정+7일 KST 23:59)와 같은 계산이다. 계약 §6-2 예시 deadlineAt(05:00Z)은 이 규칙과 어긋나니 계약 예시를 고쳐야 한다",
+  "(참고) 전체 DB 1 failed(instructor-affiliation-tables ①, calendar_color_index)는 직접 돌려 확인했다. 원인은 이전 마이그레이션 20261121T0721_affiliation_calendar_color 이고 이번 ops.json 은 그 표를 건드리지 않는다 — 이 Task 책임이 아니다",
+  "규칙: 서비스·경로에 한국어 핵심 주석이 있고 useEffect·비밀값 하드코딩은 없다"
+ ],
+ "when": "2026-11-21T20:23:04+09:00"
+}

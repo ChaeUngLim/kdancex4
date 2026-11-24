@@ -1,0 +1,13 @@
+{
+ "id": "S4-1.1",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence.py PASS, 로그 # when 이 모두 2026-11-24 15:21~15:27 KST 로 이번 작업 시각이다",
+  "npm run db:migrate 다시 돌림: exit 0(Already up to date). DB 테스트 다시 돌림: 5 passed, skip 0. tsc --noEmit exit 0",
+  "contract.prisma 의 RefundRequest(상태 enum received·in_progress·completed·rejected·withdrawn, 기한·결정 칸, uq_refund_requests_open·uq_refund_requests_idem)와 RefundAccount(holder_name·account_number_enc·account_masked, ck_refund_accounts_holder_match)가 data-model §9-3·§9-6 과 맞는다. constants.ts 상수는 DB CHECK 와 같은 값이고 한국어 주석이 있다",
+  "(참고) verify 에 적힌 테스트 파일은 tests/db/s4-1-1.db.test.ts 인데, 워커가 tests/db/refund-request-tables.db.test.ts 로 이름을 바꿨다. 다른 DB 테스트도 내용으로 이름을 짓고 있고 보고·EVIDENCE 에도 적혀 있어 반려하지 않는다. roadmap-tasks.json 의 verify 경로를 바꿔 두면 좋다",
+  "(참고) 옛 refunds 평문 계좌 3칸을 지우지 않은 것은 추천안·사후 확인으로 기록돼 있다(EVIDENCE.md, data-model 818행). cancellation.ts 가 아직 그 칸을 쓰므로 삭제를 미룬 것은 타당하다. S4-1.5·S4-1.9 가 지워야 한다(FR-299)",
+  "(참고) constants.ts 의 git diff 에는 다른 Task(S2-2.1 등)의 커밋 전 변경이 섞여 있다. 이번 Task 몫은 REFUND_ACCOUNT_*·REFUND_REQUEST_* 블록뿐이다"
+ ],
+ "when": "2026-11-24T15:28:56+09:00"
+}

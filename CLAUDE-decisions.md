@@ -289,3 +289,11 @@
 - 미확인: 위 API 로 실제 Python SSE 를 번역해 화면까지 흘려 본 적은 없다. 에이전트 서버를 만들 때
   첫 단계에서 끝에서 끝까지 한 번 통과시킨다
 - 관련: ADR-004(에이전트 서버만 Python) — 그 "미확인" 첫 항목의 연결 방식을 정한 것이다
+
+## ADR-006. 돈·자리 트랜잭션은 Prisma 8 `db.transaction` + 필요한 곳만 raw, 인증 테이블은 `auth` 스키마 (2026-11-19)
+- 상태: 채택
+- 맥락: 정원 초과·이중 환불을 막는 원자성이 Prisma 8 RC 의 트랜잭션·행 잠금에 기대는데 실측된 적이 없었다(R2). 인증(Better Auth 1.7.5)도 별도 스키마에서 도는지 몰랐다(R-10).
+- 결정: S0-1 스파이크(rc.24)에서 S-1~S-6 이 모두 통과해 기본 경로 — `db.transaction` 안에서 ORM·빌더를 쓰고, 칸끼리 비교 같은 빌더가 못 쓰는 식만 raw — 를 쓴다. 인증 테이블은 `auth` 스키마(같은 BYO 풀, Kysely).
+- 버린 대안: `pg_advisory_xact_lock`·풀에서 직접 BEGIN/COMMIT 하는 `withPgTransaction` — 기본 경로가 통과해 쓸 이유가 없다(`withPgTransaction` 은 비상용으로만 남김). 인증 `public` + `auth_` 접두어 — 함께 통과했지만 앱 테이블과 섞인다.
+- 근거: `_workspace/03_research.md` §3-1, `admin-web/tests/spike/r2-prisma8.db.test.ts`(동시 20건 — 연결 20 겹침, 성공 1)·`auth-smoke.db.test.ts`, `_workspace/09_completion-verifier_report.md`(COMPLETE)
+- 관련: SCH-21(FastAPI→Next.js 전환) 일부 · S0-1(R2 스파이크·러너 바닥)

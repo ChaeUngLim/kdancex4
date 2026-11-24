@@ -1,0 +1,15 @@
+{
+ "id": "S2-4.1",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence.py PASS(행 12·문제 0), 로그 # when 은 모두 2026-11-21 21:54~22:01 KST 로 이번 작업 시각",
+  "verify 재실행 결과가 같음: db:migrate exit 0(이미 적용돼 no operations, marker d0fc2d8a…), DB 테스트 8 passed·skip 0, tsc --noEmit exit 0",
+  "개발 DB 에서 다섯 표의 CHECK·부분 유니크(uq_pl_booking_slot_live·uq_pl_pass_order·uq_pl_rule)·색인·FK 15개·EXCLUDE 2개(ex_pl_slots_instructor·ex_pl_slots_room)가 data-model §8-6·§8-7 과 맞음을 직접 확인",
+  "contract.prisma·마이그레이션 rawSql·테스트 파일에 핵심 한국어 주석이 있고 useEffect·비밀값 없음, 범위 밖 수정 없음",
+  "(참고) verify 가 적은 tests/db/s2-4-1.db.test.ts 대신 tests/db/private-lesson-tables.db.test.ts 를 씀 — 저장소에 s<번호> 이름 파일이 하나도 없어 기존 관례(기능 이름)를 따른 것으로 봄",
+  "(참고) 열린 점(수강권을 주문에 묶나 따로 두나)은 data-model §8-6 추천안(회차권 표 분리)으로 진행 — 사용자 사후 확인 필요",
+  "(참고) 설계에 없던 ck_pl_pass_total(sessions_total >= 1) 추가 — 해가 없는 방어선이지만 data-model §8-6 에 한 줄 반영 권장",
+  "(참고) 전체 스위트 1 failed(instructor-affiliation-tables ① calendar_color_index)는 S1-2.1·S2-1.1 등 앞선 증거에도 기록된 기존 실패"
+ ],
+ "when": "2026-11-21T22:03:21+09:00"
+}

@@ -1,0 +1,13 @@
+{
+ "id": "SX-6.7",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence PASS(19행·문제 0), 로그 # when 은 2026-11-24 21:25~21:38 — 이번 작업 시각",
+  "verify 테스트 직접 재실행 5 passed·skip 0, tsc exit 0, 계약 린터 전체 PASS 오류 0",
+  "관문 assertPromoAssetsReviewed 가 승인 요청(class-registration.ts:650, 대표 바로 공개 포함)과 대표 승인(class-approval.ts:135)의 조건부 UPDATE 뒤 같은 트랜잭션에 있다. 공개 때 publishPromoCoverFile 로 AI 표지 파일을 public 으로 바꾼다 — method(게시는 S2-2.7 경로만) 충족",
+  "사진이 먼저: decideCoverSource + 수업 포스터 대체, 이미지 위 글자는 저장 안 함(textOverlay.source=class_data 고정) — goal 충족. 한국어 주석 있음, useEffect 없음, 비밀값은 env 에서 읽음",
+  "(참고) verify 에 적힌 테스트 파일 이름 tests/db/sx-6-7.db.test.ts 가 class-promo-assets.db.test.ts 로 바뀌었다 — roadmap-tasks.json 의 verify 문구를 새 이름으로 맞추면 좋다",
+  "(참고) permission-matrix 「모든 route.ts 가 표에 있다」 실패(다른 Task 경로 7개 누락)는 범위 밖으로 log-fail 기록됨 — M?-END 전에 정리 필요"
+ ],
+ "when": "2026-11-24T21:42:28+09:00"
+}

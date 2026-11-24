@@ -1,0 +1,14 @@
+{
+ "id": "SX-2.1",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence.py PASS(행 7개·문제 0개), 로그 머리 # when 이 모두 2026-11-23 19:47 KST 로 이번 작업 시각",
+  "verify 3개를 직접 다시 돌려 같은 결과: health {\"status\":\"ok\"}, mmproj-F16.gguf 있음, vision-reply.json 있음",
+  "/props modalities.vision=True, kdance-llm 현재 기동(2026-11-23T01:17:30Z)의 마지막 multimodal 줄이 'loaded multimodal model' — goal(비전 모델과 함께 뜸) 달성",
+  "ask_vision.py 를 /tmp 출력으로 독립 재실행: 다섯 값 정확, 2.79초, missing [] exit 0",
+  "스크린샷 01-vision-input-poster.png 를 열어 다섯 값이 적힌 포스터임을 확인, 보고 내용과 일치",
+  "코드 변경 없음(method '코드 없음'과 일치), files_changed 는 모두 증거 폴더 안, ask_vision.py 에 한국어 주석·비밀값 없음",
+  "(참고) docker 로그에 앞선 기동의 'failed to load multimodal model' 줄이 남아 있음 — 원인은 기록되지 않았다. 재기동 때 재발하는지 SX-2(포스터 읽기·수업 초안) 다음 Task 에서 지켜볼 것"
+ ],
+ "when": "2026-11-23T19:48:29+09:00"
+}

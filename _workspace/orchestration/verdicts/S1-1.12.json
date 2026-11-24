@@ -1,0 +1,12 @@
+{
+ "id": "S1-1.12",
+ "verdict": "PASS",
+ "reasons": [
+  "goal 달성: lockOpenApplication(FOR UPDATE) 뒤 draft·submitted 만 withdrawn 으로 바꾸고(UPDATE WHERE 에도 상태 조건), in_review 는 409 APPLICATION_NOT_EDITABLE. DB 테스트로 상태 유지·감사 0 확인",
+  "계약 07 §2 행(draft·submitted 만 → withdrawn)과 일치, 열린 점 ⑧ 에 임시 확정 기록. 계약 린터 오류 0, withdraw 경로 MISSING 아님",
+  "(참고) verify 에 적힌 tests/db/s1-1-12.db.test.ts 대신 merchant-application-withdraw.db.test.ts 로 이름을 바꿨다. EVIDENCE.md 에 적혀 있고 같은 명령을 이 이름으로 다시 돌려 통과했다. roadmap-tasks.json 의 verify 경로는 나중에 고쳐 두는 것이 좋다",
+  "(참고) permission-matrix 「모든 route.ts 가 표에 있다」 1건 실패는 사실이다. 빠진 7개(consents·terms-notices·admin/terms-versions·files 2개·terms 2개)에 withdraw 는 없다. 다른 Task 몫",
+  "(참고) 열린 점 ⑧ 의 ⓐ~ⓓ 는 D20 추천안으로 정한 임시 확정이라 사람 확인이 필요하다"
+ ],
+ "when": "2026-11-20T22:55:40+09:00"
+}

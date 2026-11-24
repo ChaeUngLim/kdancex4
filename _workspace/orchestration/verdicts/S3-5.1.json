@@ -1,0 +1,14 @@
+{
+ "id": "S3-5.1",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence PASS(행 9 · 문제 0), 로그 # when 모두 2026-11-23 19:23~19:26 KST로 이번 작업 시각",
+  "직접 다시 돌린 결과가 워커 보고와 같다: DB 테스트 13 passed·skip 0, tsc exit 0, 계약 린터 PASS 오류 0",
+  "계약 18 §2-1·§2-2와 맞다: 경로 2개, owner 권한 + appToo, 위임 강사 403, 다른 학원 상세 404, 422 세 종류, 응답은 strict zod로 다시 검사(닉네임만, 계좌·PG id 없음), 커서는 (created_at,id), dueAt은 pending+가상계좌일 때만",
+  "학원 범위를 classes.academy_id 한 조건으로 거른다. 핵심 지점에 한국어 주석이 있고 useEffect·비밀값 하드코딩은 없다(시연 계정 비밀번호는 개발 DB 전용 가짜 값)",
+  "(참고) 테스트 파일 이름을 verify의 s3-5-1.db.test.ts에서 owner-orders.db.test.ts로 바꿨다. 저장소 tests/db 이름 관례(기능명)에 맞고 EVIDENCE.md에 적혀 있다. roadmap-tasks.json의 verify 문구는 오케스트레이터가 고쳐야 한다",
+  "(참고) 시연 데이터에 환불·부분 환불 장면이 없다. 회원 취소 경로(POST /api/reservations/{id}/cancel)가 개발 서버에서 500을 내서인데, 이 경로는 범위 밖이니 따로 Task로 올려야 한다. 스크립트는 kdance_next DB만 허용하고, 두 번째 실행은 건너뛴다(demo-run-3.log)",
+  "(참고) kindLabel(수업 구분+신청 단위 이름)은 임시 해석이고 refundRequest는 M4 전까지 늘 null이다. 사후 확인 대상으로 적혀 있다"
+ ],
+ "when": "2026-11-23T19:28:26+09:00"
+}

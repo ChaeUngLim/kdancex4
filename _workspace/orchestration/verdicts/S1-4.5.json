@@ -1,0 +1,14 @@
+{
+ "id": "S1-4.5",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence PASS(행 8, 문제 0), 로그 # when 모두 2026-11-21 12:05~12:07 KST로 이번 작업 시각",
+  "직접 재실행: owner-dashboard.db.test.ts 10 passed skip 0, tsc --noEmit exit 0, 계약 린터 PASS(오류 0·경고 394, academies/{academyId}/dashboard 는 MISSING 에 없음)",
+  "goal 충족: 라우트 1개(owner 권한 + createConsoleRoute 2단계), todos 정렬 기한 있음→오름차순→없음, 타일 7개 available:false·availableFrom 계약 값 그대로·숫자 null, no-store, 계약 10 §1 응답 모양을 strict zod 스키마로 고정",
+  "코드 규칙: 핵심 지점 한국어 주석 있음, useEffect 없음, 비밀값·process.env 하드코딩 없음, SQL 은 매개변수 바인딩",
+  "(참고) verify 문구의 테스트 경로는 tests/db/s1-4-5.db.test.ts 인데 실제 파일은 owner-dashboard.db.test.ts 다 — roadmap-tasks.json verify 를 새 이름으로 맞추는 것이 좋다",
+  "(참고) 권한 행렬 테스트 1건 실패를 직접 확인: 표에 빠진 route 는 consents·refund-notices 등 다른 Task 경로이고 dashboard 줄은 표에 있다(+ 표시 없음) — 이번 Task 원인이 아님",
+  "(참고) 계약에 없어 워커가 고른 값 3개(안 읽은 약관만 할 일, 남은 자리 0 은 마감 임박 제외, 개인정보 약관 이름표)는 사람 확인 대기로 남긴다"
+ ],
+ "when": "2026-11-21T12:08:33+09:00"
+}

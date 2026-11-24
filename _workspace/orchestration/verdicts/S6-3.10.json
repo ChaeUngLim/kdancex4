@@ -1,0 +1,14 @@
+{
+ "id": "S6-3.10",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence PASS(행 31·문제 0), 로그 # when 전부 2026-11-25 03:04~03:12 KST — 이번 작업 시각",
+  "mobile tsc exit 0 · admin-web tsc exit 0 · me-level-card-reveal.db.test 5 passed 직접 재현",
+  "장면 10장(M25 안내·M25B·M25C 앞면·모음 토스트·거절 토스트·본인 레벨업 M25C) 있음, 본인 레벨업 M25B 0 확인. 나이 표현 grep 0(코드·화면)",
+  "Animated(react-native 기본)만 사용, 새 3파일 useEffect 0, 한국어 주석 충실, 비밀값 하드코딩 없음, 계약 14:389 경로·414 추천안 기록과 구현 일치",
+  "(참고) home.tsx 의 useEffect(첫 장 불러오기)는 HEAD 에 이미 있던 것 — 이번 Task 가 넣은 것 아님",
+  "(참고) 08-m25c-self 의 발급일 2026-11-26 은 앞 Task 시연 데이터(issuedAt 2026-11-26T04:00Z)가 미래 시각이라서다 — 화면 계산(KST)은 맞음",
+  "(참고) 권한 행렬 1건·계약 린터 --contract 14 의 MISSING 52건은 다른 Task 경로 미등록 — 이 Task 행은 통과"
+ ],
+ "when": "2026-11-25T03:14:14+09:00"
+}

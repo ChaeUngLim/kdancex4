@@ -1,0 +1,13 @@
+{
+ "id": "S1-1.34",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence PASS, mobile tsc exit 0, 스크린샷 2장 test -f exit 0, useEffect 없음 — 직접 재실행으로 같은 결과",
+  "goal 충족: 안내 상자(항목·판본·적용일 D-n·알린 날·30일 통지·해지 문구)와 「읽었어요」 → 「읽음 · 시각」 전환이 두 스크린샷에서 확인됨. 읽음 POST 는 onPress 안에서 보냄",
+  "응답 모양이 계약 07 §5·열린 점 ⑰ ⓓ, staff/me(academyId·name·as) 와 일치",
+  "(참고) 계약 07 열린 점 ⑰ ⓐ 는 「대표 앱이 2단계 없이 부르게 할지는 앱 화면 Task 가 정한다」인데 이 Task 가 정하지 않고 사람 확인으로 넘겼다. 서버가 2단계 마친 세션만 받으므로 실제 앱 토큰으로는 401 이 날 수 있다 — 사람이 결정해야 함",
+  "(참고) 스크린샷은 실제 서버가 아니라 page.route 가짜 응답 기준(Expo 웹에 SecureStore 없음)",
+  "(참고) 읽음 버튼은 colors.brown, 읽음 표시는 colors.ok(초록). 기존 mobile/lib/theme.ts 토큰을 그대로 썼지만 11-09 확정 팔레트(딥 플럼·샴페인, 녹색 성공색 금지)와 어긋남 — 테마 전환 Task 에서 함께 바꿀 것"
+ ],
+ "when": "2026-11-21T02:11:20+09:00"
+}

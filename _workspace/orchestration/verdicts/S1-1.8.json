@@ -1,0 +1,15 @@
+{
+ "id": "S1-1.8",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence.py PASS(행 12, 문제 0), 로그 # when 전부 2026-11-20 21:19~21:47 KST — 이번 작업 시각",
+  "직접 재실행: owner-signup.db.test.ts 10 passed skip 0, tsc --noEmit exit 0, api_contract_lint 전체 PASS 오류 0(owner/signup 경고·오류 0건)",
+  "goal 충족: 본인확인 토큰을 먼저 풀어 실패 시 DB 미접촉, 같은 CI 409 STAFF_ACCOUNT_EXISTS(유니크 색인 + ON CONFLICT 로 동시 요청 방어), role_grants 를 만들지 않음, 인증 앱 등록은 S0-3.8 경로 재사용을 테스트로 확인",
+  "note D24 대로 계약 07 §0 을 먼저 적고 구현, 서비스 코드를 staff-signup.ts 로 나눠 S2-1.2 재사용 가능, 입점 신청 401 검사는 S1-1.10 으로 넘김 — note 와 일치",
+  "규칙: 핵심 지점 한국어 주석 있음, useEffect 없음, 비밀값 하드코딩 없음(본인확인 포트는 요청 때 lazy 로 꺼냄)",
+  "(참고) tests/db/owner-signup.db.test.ts 62행 가짜 본인확인 secret 이 문자열 고정값이다 — 테스트 전용이라 결함은 아니나 29행처럼 randomUUID 로 맞추면 일관된다",
+  "(참고) DB 전체 회귀의 permission-matrix 1건 실패는 S1-1.6·S1-1.9 경로(files·terms) 몫으로 이 Task 밖 — 해당 Task 에서 대응표를 채워야 한다",
+  "(참고) 계약 07 열린 점 ⑤(동의 기록을 감사 행에 둠·대표 만 19세·phone_enc 비움·x-forwarded-for 신뢰)는 추천안이라 사용자 사후 확인이 필요하다"
+ ],
+ "when": "2026-11-20T22:23:15+09:00"
+}

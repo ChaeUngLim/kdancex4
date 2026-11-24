@@ -1,0 +1,16 @@
+{
+ "id": "S1-1.32",
+ "verdict": "PASS",
+ "reasons": [
+  "반려 사유 ① 해소: admin-web/next.config.ts 에 experimental.authInterrupts:true, settings/page.tsx·app-page/page.tsx 가 대표가 아니면 forbidden() 을 부르고 app/forbidden.tsx(「이 메뉴를 쓸 권한이 없어요」, props 없음)가 뜬다. 옛 <Forbidden/>·settings-forbidden 흔적 없음 — 계약 README §6-3 기본 방법과 맞다",
+  "반려 사유 ② 해소: academy-settings.spec.ts 에 「권한 없음」 테스트가 있다. 다른 학원 대표로 남의 학원 두 주소를 열면 응답 403, 학원 A 이름·계좌·카드·편집기·A 로 가는 링크 0개를 확인한다. 고치기 전 실패 로그(200)도 log-fail 로 남겼다",
+  "check_evidence PASS(20행·문제 0), 로그 # when 이 모두 2026-11-21 01:37~01:49 KST 로 이번 작업 시각",
+  "직접 다시 돌림: tsc --noEmit exit 0, npm run build exit 0(✓ authInterrupts, ƒ settings·app-page), flock 잠금 E2E academy-settings.spec.ts 2 passed — 워커 보고와 같다",
+  "스크린샷 5장(설정·계좌-변경-재확인·사진-11장-오류·권한-없음-settings·권한-없음-app-page)을 열어 봤고 EVIDENCE.md 「확인한 것」과 맞다. 403 화면에 A 학원 데이터 없음, 계좌 재확인에 번호 원문 없음",
+  "코드: useEffect 없음, 핵심 분기에 한국어 주석, 비밀값 하드코딩 없음, 범위 밖 수정 없음",
+  "(참고) 403 화면에서 들어온 사람 자신의 사이드 메뉴가 보인다. §6-3 「메뉴는 그리지 않는다」를 「막힌 학원의 메뉴」로 해석한 것 — 데이터·A 로 가는 링크는 없어 결함으로 보지 않지만, 사이드 메뉴까지 지울지는 사람 확인을 권한다",
+  "(참고) verify 의 tests/e2e/s1-1-32.spec.ts 대신 기능 이름 academy-settings.spec.ts — 앞선 Task 와 같은 관례이니 roadmap verify 문자열만 고치면 된다",
+  "(참고) E2E 실행 중 Better Auth 「Database schema mismatch(Missing tables user, session …)」 로그가 찍히지만 테스트는 통과한다 — 이 Task 와 무관한 기존 시작 검사로 보이며 따로 확인할 만하다"
+ ],
+ "when": "2026-11-21T01:51:38+09:00"
+}

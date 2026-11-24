@@ -1,0 +1,13 @@
+{
+ "id": "S2-3.10",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence PASS(24행·문제 0), 로그 # when 전부 2026-11-21 21:43~21:46 KST — 이번 작업 시각",
+  "verify 직접 재실행 모두 같은 결과: admin-web build exit 0, admin tsc exit 0, mobile tsc exit 0, E2E affiliation-release-confirm.spec.ts 1 passed(테스트 DB, flock)",
+  "스크린샷 W3b2·O39·O39B·O21B 직접 열어 EVIDENCE 서술과 일치 확인(확인 창 묶음 3개·받는 회원 9명 문구, 회차 카드 3장·꺼진 버튼, 아래 시트, 대타 배지·확인하기 ›)",
+  "서버 경로 §8-1·§9-1·§9-2·§8 confirm 모두 이미 있는 route 와 일치, 새 서버 코드 없음. 새 파일에 useEffect 0건, 비밀값 하드코딩 0건, 핵심 지점 한국어 주석 있음",
+  "(참고) verify 문구의 tests/e2e/s2-3-10.spec.ts 대신 affiliation-release-confirm.spec.ts 로 이름을 바꿨다 — 기존 Task 들도 모두 기능 이름 파일을 쓰는 관례라 문제 삼지 않음. roadmap verify 문구는 사람이 고쳐 둘 것",
+  "(참고) 설계와 다른 4가지(합계 문구 열린 점 ⑯ 추천안, ownerNote 웹만, 대표 앱 갈색 theme, 대타 알림의 요청 강사 줄 생략)는 EVIDENCE.md 에 적혀 있고 사람 확인이 필요하다"
+ ],
+ "when": "2026-11-21T21:48:13+09:00"
+}

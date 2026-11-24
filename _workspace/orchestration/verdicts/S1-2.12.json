@@ -1,0 +1,14 @@
+{
+ "id": "S1-2.12",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence PASS(행 15·문제 0), 로그 # when 이 2026-11-21 10:43~10:48 로 이번 작업 시각",
+  "verify 재실행 결과 같음: DB 테스트 8 passed skip 0, tsc exit 0, 계약 린터 PASS 오류 0",
+  "계약 08 §5 세 줄(200 해제·위임 삭제·알림·감사 / 409 RELEASE_HAS_REMAINING_SESSIONS+remainingSessions / 이미 released 200 같은 본문) 모두 구현·테스트됨. 409 테스트는 위임 1행·active 유지·감사·알림 0 까지 확인",
+  "(참고) verify 의 테스트 파일 이름 tests/db/s1-2-12.db.test.ts 를 affiliation-release.db.test.ts 로 바꿨다 — roadmap-tasks.json verify 문구를 오케스트레이터가 맞춰 둘 것",
+  "(참고) 알림 dedupe_key 를 release:<소속id>:completed 로 썼다. 계약 11 표는 release:<releaseId>:completed 라 S2-3 에서 해제 요청 id 가 생기면 맞출지 정할 것",
+  "(참고) 권한 행렬 「모든 route.ts 가 표에 있다」 1건 실패는 S1-1 이 남긴 route 7개 때문(이번 경로는 표에 있음) — 이번 범위 밖",
+  "(참고) 사람 확인 대상 구현값: 모르는 본문 칸 422, 키 저장 없는 상태 기반 멱등, 감사 before/after·알림 payload 모양"
+ ],
+ "when": "2026-11-21T10:48:58+09:00"
+}

@@ -1,0 +1,14 @@
+{
+ "id": "S1-2.14",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence PASS(15행·문제 0), 로그 # when 이 모두 2026-11-21 10:54~10:57 KST 로 이번 작업 시각",
+  "직접 다시 돌림: tsc --noEmit exit 0, next build exit 0(ƒ /academies/[academyId]/instructors 포함), E2E instructor-management.spec.ts 2 passed(flock 아래)",
+  "스크린샷 4장(소속-목록·승인-시-비율-입력·위임-토글·초대-링크)을 열어 EVIDENCE 의 「확인한 것」과 일치함을 확인",
+  "goal 3가지(승인 시 % 정수 비율 입력·기본값 없음 → bp 저장, 위임 토글 2개 + class_submit 보존, 초대 링크 생성·복사)가 코드·E2E·DB 단정으로 확인됨. 서버 컴포넌트 선조회 + 이벤트 핸들러, useEffect 없음, 한국어 주석 있음, 비밀값 하드코딩 없음, 계약 08 §1·§3·§4·열린 점 ④·README §6-1 과 일치",
+  "(참고) W3c(강의실 배정 주간표)는 계약 08 머리말이 M2(S2-2)로 넘겼으므로 미구현이 타당. 다만 task title 의 「W3a·W3c」 표기는 로드맵에서 정리할 일",
+  "(참고) verify 의 파일 이름 tests/e2e/s1-2-14.spec.ts 대신 기능 이름 instructor-management.spec.ts 로 바꿨다 — verify 문자열 그대로는 파일이 없으므로 로드맵 verify 를 새 이름으로 고쳐 두는 것이 좋다",
+  "(참고) 보드의 거절·학원 직원 표시 토글·소속 해제는 goal 밖이라 뺐다 — 후속 Task 배정 여부는 사람이 확인"
+ ],
+ "when": "2026-11-21T10:59:12+09:00"
+}

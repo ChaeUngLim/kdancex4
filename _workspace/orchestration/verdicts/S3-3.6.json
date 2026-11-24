@@ -1,0 +1,14 @@
+{
+ "id": "S3-3.6",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence PASS(행 12·문제 0), 로그 # when 이 모두 2026-11-23 14:08~14:10 KST로 이번 작업 시각이다",
+  "verify 를 직접 다시 돌렸다: 5 passed, skip 0. 이벤트형 card·easy_pay 는 422 METHOD_NOT_ALLOWED(행 0·held 그대로·PG 호출 없음), easy_transfer·virtual_account·정규 card 는 201",
+  "order-create.ts 3-b단계가 판매 단위를 검사한 뒤, 자리·INSERT·PG 호출보다 앞에서 S3-3.1 isPaymentMethodAllowed 를 부른다. method 대로 했고, 한국어 주석이 있고, useEffect·비밀값은 없다",
+  "계약 03 §1 에 3-b 행을 더했다. METHOD_NOT_ALLOWED 는 14 계약(행사 주문 571·597행)이 이미 정한 422 코드와 같아서 두 계약이 서로 어긋나지 않는다",
+  "(참고) 테스트 파일 이름이 verify 의 tests/db/s3-3-6.db.test.ts 가 아니라 order-create-event-method.db.test.ts 다. EVIDENCE.md 에 이유를 적어 두었으니, roadmap 의 verify 경로도 이 이름으로 맞춰 둘 것",
+  "(참고) --contract 03 린터 FAIL 은 다른 Task 의 경로 5개가 아직 없어서 나는 것이다(이 Task 는 endpoints 가 빈 목록). 전체 린터는 PASS",
+  "(참고) order-create.ts·계약 03 은 아직 커밋하지 않았고 앞 Task 들이 바꾼 것도 섞여 있어서, git diff 로 이 Task 의 변경만 떼어 보지는 못했다. 3-b 블록과 계약의 3-b 행만 이 Task 몫으로 보고 확인했다"
+ ],
+ "when": "2026-11-23T14:11:42+09:00"
+}

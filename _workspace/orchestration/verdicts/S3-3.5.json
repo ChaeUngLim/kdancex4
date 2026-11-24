@@ -1,0 +1,13 @@
+{
+ "id": "S3-3.5",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence.py PASS(행 4개·문제 0개), 로그 # when 은 모두 2026-11-23 14:03~14:05 KST로 이번 작업 시각이다",
+  "직접 다시 돌린 verify(flock … npm run test:db -- tests/db/last-seat-concurrency.db.test.ts)가 1 file, 2 passed, skip 0 이다. tsc --noEmit 은 exit 0",
+  "goal 충족: 회원 20명이 서로 다른 Idempotency-Key 로 createOrderRoute 를 Promise.all 로 동시에 부르고 poolMax 25 로 연결 부족을 막았다. 201 1건, 409 SEAT_SOLD_OUT 19건, seat_pools held 1(정원 1)·held 3(정원 3), 주문·예약·결제 행 수까지 확인한다",
+  "method 대로 테스트 파일 하나만 더했다. order-create.ts 의 13:58 수정은 S3-3.4a 판정(14:02)과 시각이 겹쳐 그쪽 작업으로 본다. tests/setup/db.ts 의 poolMax 옵션은 11-19 부터 있었다",
+  "규칙 준수: 핵심 지점마다 한국어 주석이 있고 useEffect 는 쓰지 않았다. SECRET 은 실행할 때 randomUUID 로 만들어 비밀값 하드코딩이 없다",
+  "(참고) verify 에 적힌 파일 이름 tests/db/s3-3-5.db.test.ts 대신 last-seat-concurrency.db.test.ts 를 썼다. tests/db 의 다른 파일들이 모두 기능 이름을 쓰고 있어 관례에 맞고 EVIDENCE.md 와 파일 머리 주석에도 적혀 있다. roadmap-tasks.json 의 verify 문구는 오케스트레이터가 고치면 된다"
+ ],
+ "when": "2026-11-23T14:06:13+09:00"
+}

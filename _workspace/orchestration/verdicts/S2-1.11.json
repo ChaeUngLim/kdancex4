@@ -1,0 +1,13 @@
+{
+ "id": "S2-1.11",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence PASS(16행·문제 0), 로그 # when 이 전부 2026-11-21 16:45~16:47 KST — 이번 작업 시각",
+  "verify 재실행: mobile tsc --noEmit exit 0, test -f shots/I40.png·I36.png exit 0, admin-web tsc --noEmit exit 0",
+  "스크린샷 I40·I40-저장·I36·I36-넣은-뒤를 열어 확인: 소개 영상 줄 없음, 「나만 봐요」(불가 시간·일정이 있어요) 안내, 겹침 안내·지우기가 EVIDENCE 서술과 일치",
+  "코드: PUT 은 계약 11 §2-1 의 여섯 칸만(activityGenre·displayName 미전송, 사진 fileId 유지), POST 는 §2-3 모양(KST→UTC, 10분 단위 검사, repeat none/weekly/daily), DELETE 경로 일치. 효과 훅 없음, 한국어 주석 있음, 비밀값 없음, ?date= 검사함",
+  "(참고) 저장 완료 문구·겹침 없음 문구가 colors.ok(녹색)를 쓴다 — 기존 토큰이고 다른 화면도 쓰지만 「녹색 성공색 금지」 팔레트 메모와 어긋날 수 있어 사람이 볼 것",
+  "(참고) 사진 바꾸기(expo-image-picker 승인 대기)·schedule-check(S2-2)·개인 일정 목록(S2-4)·실서버 연동 촬영은 미완 — 워커가 정직하게 보고함"
+ ],
+ "when": "2026-11-21T16:48:46+09:00"
+}

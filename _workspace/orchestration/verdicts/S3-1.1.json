@@ -1,0 +1,14 @@
+{
+ "id": "S3-1.1",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence.py PASS, 로그 # when 이 모두 2026-11-23 11:00~11:03 KST(이번 작업)",
+  "직접 재실행: npm run db:migrate exit 0(Already up to date, marker 42e3410a…), member-consents-table DB 테스트 6 passed skip 0, tsc --noEmit exit 0",
+  "goal 충족: member_consents 에 item(필수4·선택2 CHECK)·agreed_at·withdrawn_at(timestamptz)·source, 철회≥동의 CHECK, FK 2, 마이그레이션 1개(20261123T0200_member_consents)",
+  "한국어 주석 있음, useEffect·비밀값 없음, 범위 밖(API·약관 판본) 미수정",
+  "(참고) verify 의 테스트 경로 tests/db/s3-1-1.db.test.ts 대신 기능 이름 member-consents-table.db.test.ts 를 썼다 — tests/db 의 다른 파일도 모두 기능 이름이라 관례에 맞고 EVIDENCE.md 에 명시됨",
+  "(참고) data-model §12-4 는 광고성 항목을 marketing, §12-9 는 marketing_consent 로 적어 문서가 어긋난다 — 이 Task 는 marketing_consent 를 썼으니 _workspace/03_data-model.md 1661행을 marketing_consent 로 맞추는 후속 정리가 필요",
+  "(참고) member_consents 칸은 설계 원본에 없어 워커가 staff_consents 를 본떠 정했다(유일 제약 없음·terms_version_id NULL 허용·source 3값) — 사용자 사후 확인 대상"
+ ],
+ "when": "2026-11-23T11:04:44+09:00"
+}

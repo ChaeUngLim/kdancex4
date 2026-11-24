@@ -1,0 +1,13 @@
+{
+ "id": "S2-3.13",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence PASS(행 14, 문제 0). 로그 # when 은 2026-11-22 00:48~00:53 KST 로 이 Task 의 앞 실행(마이그레이션 20261121T1548 와 같은 흐름) 시각이다. 옛 Task 로그를 다시 쓴 흔적은 없다",
+  "verify 를 다시 돌렸다: affiliation-release-request-decisions.db.test.ts 1 file, 4 passed, skip 0 (DB healthy). tsc --noEmit exit 0",
+  "계약 린터 --contract 11-instructor.md: affiliation-release-requests 경로 MISSING 0. 남은 ERROR 5건은 모두 S2-4 개인 레슨 경로라 이 Task 범위 밖이다",
+  "구현이 계약 11 §3-3·§9·§12 와 맞는다: 목록(owner+2단계, status 기본값 requested, 모르는 값 422), 거절(사유 trim 1~200자, 소속 active 유지, release_declined operations 알림, 열쇠 release:<id>:declined, 이미 declined 면 같은 본문, completed 면 409), 취소(본인 요청, 이미 withdrawn 면 같은 본문, completed 면 409). 한국어 주석 있음, useEffect 없음, 비밀값 없음",
+  "(참고) 목록 item 에 계약에 없는 status 칸이 더 있고, 거절 사유를 요청 표가 아닌 감사 after·알림 payload 에 둔다. 워커가 EVIDENCE.md 에 '사람 확인 필요'로 적어 두었으니 사용자가 확인하면 된다",
+  "(참고) EVIDENCE 의 log-fail 2건(권한 행렬의 route.ts 대응에서 빠진 12개, gitleaks 4건)은 다른 Task(S2-3.12·S2-4·S2-4.8 증거 로그) 몫이다. 이 Task 가 추가한 3행은 통과했다"
+ ],
+ "when": "2026-11-23T10:18:41+09:00"
+}

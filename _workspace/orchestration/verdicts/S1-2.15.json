@@ -1,0 +1,14 @@
+{
+ "id": "S1-2.15",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence PASS(12행·문제 0), 로그 # when 은 모두 2026-11-21 13:00~13:03 KST 로 이번 작업 시각",
+  "직접 재실행: tsc exit 0, npm run build exit 0(ƒ /academies/[academyId]/app-page), E2E academy-rooms 2 passed + academy-settings 회귀 2 passed, 단위 academy-rooms-form 7 passed — 워커 보고와 같음",
+  "스크린샷 2장 확인: 강의실-목록(A홀·B홀 2줄, 줄 끝 보관, 미리보기에 「A홀 · B홀」), 이름-중복-오류(입력 상자 열린 채 「이 지점에 같은 이름의 강의실이 이미 있어요」) — EVIDENCE 서술과 일치",
+  "코드: 목록은 서버 컴포넌트가 listActiveRooms 로 미리 받고 추가·보관은 버튼 핸들러에서 POST, useEffect 0건, 핵심 지점 한국어 주석 있음, 비밀값 없음. 겹침·주간표·불가 시간은 S2-2 로 남겨 note 와 맞음",
+  "(참고) verify 가 지정한 tests/e2e/s1-2-15.spec.ts 대신 기능 이름 academy-rooms.spec.ts 로 만들었다 — tests/e2e 의 다른 파일도 모두 기능 이름이라 관례에는 맞지만, roadmap-tasks.json 의 verify 문구도 같은 이름으로 맞춰 두면 다음 크리틱이 헷갈리지 않는다",
+  "(참고) 단위 전체에서 constants-contract.test.ts 1건 실패(RoomStatus 가 constants.ts 에 없음) — 이 Task 파일이 아니라 강의실 데이터 모델 쪽(S1-2.13/14) 누락으로 보이며 log-fail 로 정직하게 남겼다. 별도 Task 로 constants.ts 에 ROOM_STATUSES 짝을 넣어야 한다",
+  "(참고) academy-rooms-form.ts 의 상한 4개가 서버 academy-rooms.ts 상수와 값만 같고 따로 선언돼 있다 — 한쪽만 바뀌면 어긋날 수 있다"
+ ],
+ "when": "2026-11-21T13:04:22+09:00"
+}

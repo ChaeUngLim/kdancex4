@@ -1,0 +1,13 @@
+{
+ "id": "S7-2.1",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence PASS (행 16개, 문제 0), 로그 머리 # when 이 모두 2026-11-24 15:22~15:30 KST 로 이번 작업 시각",
+  "npm run db:migrate 재실행 exit 0, 문의·답변·신고 DB 테스트 재실행 8 passed / skip 0, tsc --noEmit exit 0",
+  "goal 충족: inquiries·inquiry_messages·reports 3표가 마이그레이션 20261124T0623_inquiries_reports 1개로 생김. inquiry_messages 는 rawSql 트리거로 UPDATE·DELETE 를 거부함. 한국어 주석 있음, 비밀값·useEffect 없음",
+  "추천안(TRUNCATE 는 막지 않음, uq_reports_open 을 부분 UNIQUE 두 개로 나눔, CHECK 추가)은 이유와 함께 data-model 1680·1685·1693행과 EVIDENCE.md 에 적혀 있음. 돈·삭제·바깥 계약에 닿는 일은 없음",
+  "(참고) verify 는 tests/db/s7-2-1.db.test.ts 를 가리키지만 실제 파일은 tests/db/inquiry-report-tables.db.test.ts 로 이름을 바꿨음. roadmap-tasks.json 의 verify 문구를 맞춰 두면 좋음",
+  "(참고) 지금 개발 DB marker 는 a0de4e28… 임. 뒤이어 0627_notification_delivery_retry(from 462973c7…)가 올라갔기 때문이고, 마이그레이션 사슬은 0622→0623→0627 한 줄로 이어짐"
+ ],
+ "when": "2026-11-24T15:36:58+09:00"
+}

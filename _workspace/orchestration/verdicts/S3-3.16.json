@@ -1,0 +1,14 @@
+{
+ "id": "S3-3.16",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence PASS(18행, 문제 0), 로그 # when 은 모두 2026-11-23 16:26~16:45 로 이번 작업 시각",
+  "verify 재실행: mobile tsc exit 0, 스크린샷 6장 test -f exit 0, admin-web tsc exit 0",
+  "스크린샷 6장을 직접 열어 확인: M9(4수단·카드 기본·정가→혜택→쿠폰→최종), M9N(멤버십 3,000원 카드), M9E(참가비→예매 수수료→최종·계좌 2종), M9C(가상계좌 입금 안내), M9B(예약 확정·서버 가격 내역), X2(결제 실패·다시 결제하기) — EVIDENCE 설명과 일치",
+  "금액은 서버 priceBreakdownPreview/priceBreakdown/payment.amount 만 표시, 결제 버튼 금액도 서버 final 줄 — method 준수. 멤버십 3,000원은 설정값(EXPO_PUBLIC_MEMBERSHIP_THREE_MONTH_PRICE) — note 준수",
+  "(참고) 화면 코드에 useEffect 는 없지만 공용 훅 mobile/lib/catalog/use-api-resource.ts(11-21, 이번 Task 밖)에 useEffect 가 있고 checkout/[orderId].tsx 는 이전 판부터 useFocusEffect 를 쓴다 — 기존 패턴이라 반려 사유는 아니나 전역 규칙과 어긋나니 별도 정리 대상",
+  "(참고) checkout/[orderId].tsx 의 order.payment?.amount ?? 0 은 금액이 없을 때 0원으로 보인다 — 「받지 못했어요」 표시가 더 안전",
+  "(참고) EVIDENCE 「남은 점」(M9E 환불 마감 날짜 없음, X2 실패 사유 없음, M9B 시연 주문 개발 DB 잔존)은 후속 Task 로 넘김"
+ ],
+ "when": "2026-11-23T16:46:27+09:00"
+}

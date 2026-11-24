@@ -1,0 +1,12 @@
+{
+ "id": "S2-1.1",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence PASS(행 11·문제 0), 로그 # when 모두 2026-11-21 14:53~14:55 로 이번 작업 시각",
+  "verify 재실행: db:migrate exit 0(이미 적용돼 no operations, marker d46ae684…), DB 테스트 8 passed·skip 0, tsc exit 0, 상수↔계약 짝 61 passed — 워커 보고와 같다",
+  "목표 칸 확인: instructor_profiles(activity_genre Genre 4값·business_registration_number NULL 허용+10자리 CHECK), 가능 시간=instructor_personal_events(계약 11 열린 점 ③ 임시 확정), CI=staff_accounts.identity_ci_hash+uq_staff_accounts_ci 재사용 — data-model §8-3 칸·제약·색인 이름과 일치",
+  "새 contract.prisma 모델에 한국어 주석 있음, 코드 화면 없음(useEffect 해당 없음), 비밀값 없음, 범위 밖 표(staff_consents 등)는 만들지 않았고 EVIDENCE.md 에 남김",
+  "(참고) verify 가 지정한 테스트 경로 tests/db/s2-1-1.db.test.ts 대신 tests/db/instructor-profile-tables.db.test.ts 로 만들었다 — EVIDENCE.md 에 이유를 적었고 내용은 목표를 덮지만, roadmap-tasks.json 의 verify 문구와 어긋나므로 오케스트레이터가 verify 경로를 갱신하거나 그대로 둘지 정한다"
+ ],
+ "when": "2026-11-21T14:56:34+09:00"
+}

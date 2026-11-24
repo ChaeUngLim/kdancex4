@@ -1,0 +1,15 @@
+{
+ "id": "SX-5.4",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence PASS(행 7·문제 0), 로그 머리 # when 이 모두 2026-11-24 10:48~10:50 KST(이번 작업), RED 로그(10:48)가 GREEN(10:49)보다 앞섬",
+  "verify 재실행 tests/unit/offering-no-result-widen.test.ts 14 passed, tsc --noEmit exit 0, 전체 계약 린터 PASS(오류 0)",
+  "goal 충족: 0건이면 「조건에 맞는 수업을 찾지 못했어요.」(aiGenerated false) + 강사만 남긴 「그 강사의 다른 수업」 → 칸 빼기 widen_search 버튼(최대 3), 1건 이상이면 null. 버튼 조건이 SX-5.3 searchOfferingsInputSchema 를 통과하는 테스트 있음",
+  "offering-no-result.ts: 순수 함수·입력 불변(스프레드만, 불변 테스트 있음), 한국어 주석 있음, useEffect·비밀값 없음, 154줄",
+  "테스트 파일명 변경(sx-5-4 → offering-no-result-widen)은 SX-5.3 크리틱 판정과 같은 자리표시 이름 규칙 선례에 맞음",
+  "추천안(칸 빼기만·순서·최대 3개·버튼별 수업 수 미표기·widen_search 타입)은 이유와 함께 EVIDENCE.md 와 계약 16 §5-2 359~366행에 (추천안·사후 확인 2026-11-24)로 기록됨. 조회 버튼이라 돈·삭제·외부 계약 없음, FR-039·FR-210 과 맞음",
+  "(참고) 전체 단위 테스트 2건 실패(internal-routes AI jobs route, mobile env-example)는 이 Task 가 건드리지 않은 파일 — 워커가 log-fail 로 기록. 크리틱은 전체 스위트를 다시 돌리지 않음",
+  "(참고) 계약 16 단독 린터 MISSING 20건은 뒤 SX Task 의 Next.js 경로이며 이 Task endpoints 는 비어 있음"
+ ],
+ "when": "2026-11-24T10:52:01+09:00"
+}

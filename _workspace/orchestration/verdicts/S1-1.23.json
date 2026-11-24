@@ -1,0 +1,14 @@
+{
+ "id": "S1-1.23",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence PASS(행 5·문제 0), 로그 # when 은 2026-11-20 21:56~21:58 KST 로 앞 실행(이번 Task 구현) 시각 — old/ 의 needs_human 로그와 분리돼 있다",
+  "직접 재실행: terms-version-publish DB 테스트 8 passed skip 0(29일 23시간 422 NOTICE_PERIOD_TOO_SHORT·30일 201 경계 포함), tsc exit 0, 계약 린터 PASS 오류 0",
+  "구현이 goal·method 와 맞다: 라우트 1개, isUnfavorable 를 strict 스키마로 아예 받지 않음, kind 별 advisory 잠금 후 30일(30×24시간) 검사, 한 트랜잭션에서 판본·알림 terms_change_notice(operations)·terms_change_notices·감사 terms_version.published. 한국어 주석 있음, useEffect·비밀값 하드코딩 없음",
+  "(참고) verify 의 테스트 파일 이름 s1-1-23.db.test.ts 대신 terms-version-publish.db.test.ts 로 바꿨다 — 증거·테스트 머리 주석에 밝혔으니 roadmap verify 문자열도 새 이름으로 고쳐 두면 좋다",
+  "(참고) 계약 07 §5 는 「active 학원 전부」에 통지 행을 쓴다고 했는데 구현은 active 대표가 없는 학원을 뺀다(알림 받는 사람이 없어서). 승인 때 대표가 함께 생겨 실제로는 드물지만 계약 문구와 맞춰 둘 것",
+  "(참고) 계약에 없던 201 본문·409 TERMS_VERSION_EXISTS·과거 시행일 422 VALIDATION_FAILED 를 워커가 정했다 — 계약 07 §5 에 반영 필요",
+  "(참고) permission-matrix.db.test.ts 「모든 route.ts 가 표에 있다」 1건 실패(재실행 35 passed 1 failed). 이전부터 있던 실패이고 이 Task 가 admin/terms-versions 한 줄을 더했다 — 표 담당 Task(S8-3.4 권한 행렬 자동 테스트 등)에서 함께 메울 것"
+ ],
+ "when": "2026-11-21T00:21:12+09:00"
+}

@@ -1,0 +1,15 @@
+{
+ "id": "S2-2.11",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence PASS(행 11, 문제 0), 로그 6개 머리 # when 이 모두 2026-11-21 19:57~19:58 KST로 이번 작업 시각이다",
+  "verify 재실행: mobile tsc --noEmit exit 0, O5.png·O5P.png test -f exit 0, admin-web tsc --noEmit exit 0",
+  "스크린샷 O5·O5P·사유 빈칸·수정요청 뒤 장면을 직접 열어 보니 EVIDENCE.md 「확인한 것」과 맞다(줄 8개, 승인 대기 칩, 수정 요청/승인 버튼, 빈 사유 안내, 임시 저장 전환)",
+  "goal(O5·O5P에서 승인·반려): 승인은 POST …/approve 본문 {}, 반려는 spec FR-050a의 「수정 요청」(POST …/request-revision {reason})으로 구현됐다. 서버 route 2개가 실제로 있고, class_submitted payload 키(classId·instructorName·title·schedule·priceAmount)가 class-registration.ts:720 서버 코드와 같다",
+  "규칙: 새 파일에 useEffect 없음(버튼 핸들러에서만 서버 호출), 핵심 지점 한국어 주석 있음, 비밀값 하드코딩 없음",
+  "(참고) O5P는 실제 잠금 화면 푸시가 아니라 앱 알림함 장면이다. 푸시 발송은 S7-1 몫이라 받아들일 만한 해석이고 EVIDENCE.md에도 적혀 있다",
+  "(참고) 대표 하단 5탭이 없고 강조색이 갈색이다(보드는 플럼). 워커가 범위 밖·S2-2.9와 같은 판단으로 밝혀 두었으니 대표 앱 틀·테마 Task에서 맞춰야 한다",
+  "(참고) lib/owner/notifications-view.ts는 추적되지 않는 파일이라 diff를 볼 수 없다. class_submitted 분기(79·83·91·126행)만 확인했고, 알림함 회귀 14건 OK 로그로 기존 동작을 갈음했다"
+ ],
+ "when": "2026-11-21T19:59:52+09:00"
+}

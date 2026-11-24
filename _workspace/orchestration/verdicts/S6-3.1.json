@@ -1,0 +1,12 @@
+{
+ "id": "S6-3.1",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence PASS(14행·문제 0), 로그 # when 2026-11-24 22:22~22:28 KST 로 이번 작업 시각",
+  "직접 재실행: npm run db:migrate exit 0(Already up to date, marker 353ddc7e…), DB 테스트 10 passed skip 0, tsc exit 0 — 워커 보고와 같음",
+  "contract.prisma 에 enum 3개·표 7개·members.featured_level_card_id(SetNull)가 data-model §11-4 대로 있고, 레벨 칸 다섯 곳 모두 CHECK 0~10, 한국어 주석 있음, 나이 표현 문자열 없음",
+  "(참고) verify 의 tests/db/s6-3-1.db.test.ts 를 기능 이름 level-card-candidate-tables.db.test.ts 로 바꿨다 — orchestration README 의 sync_verify_paths 관례와 맞음",
+  "(참고) smallint→int, CHECK·색인 추가는 추천안으로 data-model 1482행에 사후 확인 기록됨 — spec 규칙과 충돌 없음"
+ ],
+ "when": "2026-11-24T22:29:46+09:00"
+}

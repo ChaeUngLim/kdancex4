@@ -1,0 +1,11 @@
+{
+ "id": "S3-2.3",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence PASS, 로그 # when 모두 2026-11-23 12:31~12:32 KST(이번 작업), 다시 돌린 DB 테스트 6 passed·홈 목록 13 passed·tsc exit 0·계약 린터 오류 0 으로 워커 보고와 같다",
+  "goal 충족: offering-detail.ts 가 seat_pools 의 confirmed_count 만 enrolled 로 내고(held 는 잔여에서만 뺌), gender_split·single 둘 다 처리하며 buildCapacity 를 홈 목록과 같이 쓴다. 한국어 주석 있고 useEffect·비밀값 하드코딩 없음",
+  "(참고) verify 는 tests/db/s3-2-3.db.test.ts 를 적었지만 워커가 tests/db/offering-detail.db.test.ts 로 이름을 바꿨다. EVIDENCE.md 에 적혀 있으니 roadmap-tasks.json 의 verify 경로도 맞춰 고칠 것",
+  "(참고) 계약 02 §2 의 priceBreakdownPreview·myReservation 을 넣지 않았는데, roadmap-tasks.json 에서 이 두 칸을 맡은 Task 가 없다(S3-2.4 는 refundNotice·intermediaryNotice 만 맡음). S3-3 쪽 Task 의 goal 에 명시해야 빠지지 않는다. 응답 스키마가 strictObject 라 그때 같이 넓혀야 한다"
+ ],
+ "when": "2026-11-23T12:33:59+09:00"
+}

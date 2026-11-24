@@ -1,0 +1,14 @@
+{
+ "id": "S7-2.2",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence PASS(행 12·문제 0), 로그 # when 2026-11-24 16:01~16:04 KST 로 이번 작업 시각",
+  "verify DB 테스트 직접 재실행 1 file 6 passed skip 0, tsc exit 0",
+  "수용 ①: 대표 문의함은 가드(그 학원 active 대표) 뒤 WHERE i.kind=scope.kind AND academy_id=경로 학원, 운영자는 kind='system' 만 — method(조회 조건에 학원) 대로",
+  "핵심 코드 한국어 주석 있음, useEffect·비밀값 하드코딩 없음, 시연 데이터는 실제 API 로 넣고 재실행 시 200 재생으로 행 4 유지",
+  "(참고) verify 의 테스트 파일 이름 tests/db/s7-2-2.db.test.ts 대신 기능 이름 inquiry-access.db.test.ts 를 썼다 — 기존 tests/db 의 기능명 관례와 같고 EVIDENCE.md 에 기록됨",
+  "(참고) GET /api/inquiries/{id} 는 id 로 읽은 뒤 코드에서 문의자 여부를 판정한다(404/403 구분 때문) — 계약 §2-2 와 맞음",
+  "(참고) 추천안 9건(기한 23:59:59 KST, 문의함 정렬 등)은 이유와 함께 EVIDENCE.md·15-ops.md 에 표시됨"
+ ],
+ "when": "2026-11-24T16:10:44+09:00"
+}

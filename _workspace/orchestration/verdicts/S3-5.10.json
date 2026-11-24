@@ -1,0 +1,14 @@
+{
+ "id": "S3-5.10",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence.py PASS(행 14 · 문제 0), 로그 머리 # when 2026-11-24 11:31 KST — 이번 작업 시각",
+  "verify 재실행: gender-imbalance-check.db.test.ts 7 passed skip 0 · tsc --noEmit exit 0 · api_contract_lint PASS 오류 0(경고 270 MISSING)",
+  "goal 충족: 18:00 KST 앞 무동작, 내일 published·gender_split·scheduled 회차를 seat_pools.confirmed_count 로 evaluateGenderImbalance 판정, ON CONFLICT DO NOTHING 으로 강사·대표에게 1번만, 발송은 S7-1 몫으로 남김",
+  "규칙: 핵심 한국어 주석 있음, useEffect 없음, 비밀값 없음, 내부 토큰 경로(withInternalRoute)·strict zod, 시험 시계는 dev 경로에서만",
+  "(참고) dedupe_key 를 계약 원문 imbalance:<sessionId> 대신 imbalance:<sessionId>:<staffAccountId> 로 바꿨다 — (kind,dedupe_key) 유니크 때문에 2건을 못 쓰는 이유가 타당하고 계약 18 §7·data-model §15-4 ⑤·EVIDENCE 추천안에 기록됨",
+  "(참고) verify 의 테스트 파일명 s3-5-10.db.test.ts 를 기능 이름 gender-imbalance-check.db.test.ts 로 바꿔 돌렸고 EVIDENCE 에 사유를 적었다 — roadmap verify 문구는 옛 이름 그대로",
+  "(참고) 화면 없는 내부 작업이라 스크린샷·시연 데이터 해당 없음(사유 기록됨). 개발 DB 마이그레이션 20261124T0226 적용·db-verify 로그 있음"
+ ],
+ "when": "2026-11-24T15:14:17+09:00"
+}

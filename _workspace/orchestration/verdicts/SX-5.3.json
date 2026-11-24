@@ -1,0 +1,14 @@
+{
+ "id": "SX-5.3",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence PASS, 로그 머리 # when 이 모두 2026-11-24 10:39~10:44 KST(이번 작업)",
+  "verify DB 테스트 재실행 14 passed, skip 0 — 직접 검색 SQL 부분집합(수용 ①)·승인 대기/게시 제한/노출 중지 0건(수용 ③) 테스트 포함",
+  "offering-search.ts: 공개 조건이 홈 목록·상세와 같고 buildCapacity·isNearlyFull 재사용, 쓰기 SQL 없음, 한국어 주석 있음, 비밀값 없음. read-tools.ts 에 search_offerings 등록(readOnlyHint)",
+  "테스트 파일명 변경(sx-5-3 → offering-search-cards)은 orchestration README 의 자리표시 이름 규칙(sync_verify_paths.py)에 맞다",
+  "추천안(개인 레슨 offeringId null + classId, 모든 회차 기준 요일·시간, INVALID_INPUT 거부)은 이유와 함께 EVIDENCE.md 와 계약 16 §5-2·§6 에 기록됨",
+  "(참고) 재실행 tsc 는 tests/e2e/poster-review.spec.ts(203) 오류 1건으로 exit 2 — 이 파일은 10:44:44 에 다른 작업이 고친 것(워커 tsc 10:43:05 이후)이고 SX-5.3 파일에는 타입 오류 없음",
+  "(참고) 자리 묶음 SQL 안 ss.ends_at > now() 는 주입 clock 대신 DB 시각을 쓴다 — home-offerings.ts 299행과 같은 식을 그대로 옮긴 것"
+ ],
+ "when": "2026-11-24T10:46:20+09:00"
+}

@@ -1,0 +1,12 @@
+{
+ "id": "S1-1.24",
+ "verdict": "PASS",
+ "reasons": [
+  "1차 반려 사유 해소: 계약 07 열린 점 표 198행에 ⑰ 행(ⓐ~ⓔ, 「임시 확정 — D20 … 사후 확인」 형식)이 있고 §5 세 행(153~155) 끝에 「열린 점 ⑰」이 붙었다.",
+  "verify 재실행 결과가 워커 보고와 같다: DB 테스트 6 passed·skip 0(동의한 판본 전문 열림·읽음 두 번 같은 응답 테스트 포함), tsc exit 0, 계약 린터 PASS(오류 0·경고 420, 이번 3경로는 MISSING 아님). check_evidence PASS, 로그 # when 은 모두 2026-11-21 00:23~00:24 로 이번 제출 시각이다.",
+  "(참고) 처리기 terms-consent-records.ts 머리 주석 11행이 아직 「증거 EVIDENCE.md 의 열린 점」을 가리킨다. 다음에 이 파일을 고칠 때 「계약 07 열린 점 ⑰」로 바꾼다.",
+  "(참고) verify 의 tests/db/s1-1-24.db.test.ts 대신 terms-consent-records.db.test.ts 를 썼다. EVIDENCE.md 에 이유가 있어 받아들인다. roadmap-tasks.json verify 문구를 맞추는 것은 오케스트레이터 몫이다.",
+  "(참고) permission-matrix 「모든 route.ts 가 표에 있다」 1건 실패는 S1-1.23 증거에도 있는 이전부터의 범위 밖 실패이고 log-fail 로 남겼다."
+ ],
+ "when": "2026-11-21T00:25:23+09:00"
+}

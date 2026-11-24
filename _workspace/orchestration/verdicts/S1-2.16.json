@@ -1,0 +1,15 @@
+{
+ "id": "S1-2.16",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence.py 를 직접 돌려 PASS(행 11개·문제 0개)를 확인했다",
+  "로그 머리의 # when 은 2026-11-21 11:05~11:07 KST 로 이번 작업 시각이다. 소스 마지막 수정은 11:06:07, 스크린샷은 11:06:17~20, tsc 는 11:06:29 라 고친 뒤의 코드로 찍고 검사했다",
+  "verify 를 다시 돌렸다. mobile tsc --noEmit 은 exit 0, test -f O37.png·O38.png 도 exit 0, 덤으로 admin-web tsc --noEmit 도 exit 0",
+  "스크린샷 6장을 열어 봤다. O37(신청 2건·초대 카드·소속 강사), 승인 입력(프리랜서·60%·승인하기 켜짐), 승인 후(초록 안내·신청 1건·소속 4명), 초대 링크(만료 시각·복사 안내), O38(토글 3개, 셋째만 꺼짐), 토글 후(셋 다 켜짐)가 모두 EVIDENCE.md 설명과 맞고 빠진 장면은 없다",
+  "계약 08 과 맞다. approve 본문 {isAcademyEmployee:false, shareRateBp:6000}, 학원 직원이면 shareRateBp 를 보내지 않음, invites 는 {}, PUT permissions 는 roster_manage·class_manage·class_submit 3값으로 전체를 바꾸고 다른 권한은 그대로 둔다(D3)",
+  "규칙도 지켰다. 새 파일에 useEffect 0건(grep 확인), 핵심 함수·분기에 한국어 주석, 비밀값 하드코딩 없음, 화면 밖 파일(session.ts·theme.ts·terms.tsx)은 이번 작업 전에 수정된 것이라 범위 밖 수정도 없다",
+  "(참고) 촬영은 API 응답을 가짜로 넣고 했다. 실제 서버와 붙여서 돌려 보지는 않았다(워커도 밝힘)",
+  "(참고) 강조색이 아직 갈색(colors.brown)이다. 딥 플럼으로 바꾸는 theme.ts 작업이 따로 남아 있다. O37 거절 버튼과 O38 소속 해제 링크는 이번 goal 밖이라 만들지 않았다"
+ ],
+ "when": "2026-11-21T11:08:00+09:00"
+}

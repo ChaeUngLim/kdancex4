@@ -61,3 +61,9 @@ _workspace/penpot-gap/tools/boards/_name.js
 # 이력서·포트폴리오 — 실명 개인 문서라 저장소에 올리지 않는다(2026-11-18)
 _workspace/resume/
 _workspace/portfolio/
+
+# 품질 게이트 훅 실행 기록 — 파일을 고칠 때마다 한 줄씩 늘어난다(S0-4.6, 2026-11-20)
+.claude/hooks/logs/
+
+# 2026-11-25 사용자 결정 — 검증 증거(스크린샷·로그)는 로컬에만 둔다
+_workspace/evidence/

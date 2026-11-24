@@ -1,0 +1,12 @@
+{
+ "id": "S2-4.5",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence.py PASS(행 5개·문제 0), 로그 # when 은 모두 2026-11-21 22:21 KST 로 이번 작업 시각이다",
+  "DB 테스트를 flock 으로 직접 다시 돌려 5 passed, skip 0 — ① 두 학원 회차가 시간순 한 목록(수용 ③)을 검사한다. tsc --noEmit exit 0, 계약 린터 전체 검사 PASS(오류 0·경고 341), /api/instructor/schedule 은 MISSING 에 없다",
+  "서비스가 계약 11 §11 과 맞는다: 세션의 계정으로만 읽음(다른 강사 id 받는 칸 없음), 회차는 class_sessions.instructor_account_id 로 골라 대타 isSubstitute, include 기본값에서 open 제외, 62일 한도, 소속 해제 학원은 지난 것만, paid 는 seat_pools.confirmed_count, overlaps 안내, 응답을 zod strictObject 로 parse. 핵심 지점에 한국어 주석이 있고 useEffect·비밀값·console.log 는 없다. 범위 밖 수정 없음(새 파일 3개만)",
+  "(참고) verify 에 적힌 테스트 경로 tests/db/s2-4-5.db.test.ts 대신 tests/db/instructor-schedule.db.test.ts 를 썼다 — tests/db 의 기존 파일이 모두 기능 이름을 쓰는 관례라 받아들였다. roadmap 의 verify 문자열은 오케스트레이터가 새 이름으로 맞추면 좋다",
+  "(참고) 멤버십 403 과 nameVisible 숨김은 계약대로 S6-1 전이라 늘 통과다. 주석에 한계로 적혀 있다"
+ ],
+ "when": "2026-11-21T22:23:22+09:00"
+}

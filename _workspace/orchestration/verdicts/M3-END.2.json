@@ -1,0 +1,15 @@
+{
+ "id": "M3-END.2",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence PASS(행 19개, 문제 0개), 로그 # when 이 모두 2026-11-24 15:23~15:27 로 이번 작업 시각",
+  "verify 두 줄 직접 재실행: 가입.png·결제-대기.png 존재 exit 0, grep -c M3-END.2 03_research.md = 2",
+  "goal(SP-7 답) 충족: 03_research.md 3-6 절에 「된다」 결론·실행 명령·제약(웹 토큰 메모리 보관)·미검증 항목을 실측/미검증으로 나눠 적음. 의존성이 이미 있어 expo install 생략한 이유도 기록",
+  "스크린샷 2장 확인: 가입 정보(2/4, 닉네임 서연·여·연락처) 화면과 결제 대기(승인 대기·140,000원·하단 탭) 화면이 데이터로 채워져 있음",
+  "시연 스크립트는 kdance_next·@example.com 가드, 있으면 건너뛰는 멱등 구조, 한국어 주석, useEffect 없음. 2회차 로그가 「이미 있다」로 멱등 확인",
+  "(참고) 같은 시각 바뀐 admin-web/lib/domain/notification-retry.ts·constants.ts 는 병렬 Task(S7-1.6 등) 몫으로 보이며 이 워커 files_changed 에 없음",
+  "(참고) 시연 비밀번호 demo-signup-1234 가 스크립트에 박혀 있으나 개발 DB 전용 시연 계정이라 비밀값으로 보지 않음",
+  "(참고) 가입 화면 머리말의 영어 경로 이름(signup)은 범위 밖 열린 점으로 기록됨 — 후속 Task 로 고칠 것"
+ ],
+ "when": "2026-11-24T15:29:00+09:00"
+}

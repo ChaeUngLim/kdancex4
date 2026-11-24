@@ -1,0 +1,15 @@
+{
+ "id": "SX-6.1",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence PASS, 로그 머리 # when 이 모두 2026-11-24 18:23~18:26 KST 로 이번 작업 시각이다",
+  "verify 테스트를 직접 다시 돌려 20 passed, tsc --noEmit exit 0 — 워커 보고와 같다",
+  "goal 충족: checkPromoRequiredChips 가 네 칸 중 빠진 칸을 화면 순서로 거부하고 missing(키)·missingLabels(이름)·안내 문장을 돌려준다. 직접 쓰기({custom})는 채운 것, 장르는 promoGenreChip 이 수업 값으로 잠근다 — spec FR-061a 와 계약 16 §4-7(422 PROMO_REQUIRED_MISSING + missing:[\"place\"]) 과 맞다",
+  "method 충족: 칩 낱말은 promo-image-chips.json 설정 파일에 두고 zod 로 검사한다. 판정은 DB·시간·네트워크 없는 순수 함수다. 핵심 함수마다 한국어 주석이 있고 useEffect·비밀값은 없다. 범위 밖 수정 없음(constants.ts 는 읽기만 함)",
+  "추천안·사후 확인(JSON 설정, 목록 밖 낱말은 빠짐, 문장 틀, 안내 문구)은 이유와 함께 EVIDENCE.md 와 계약 16 §4-7 에 기록됐고 돈·삭제·바깥 계약과는 무관하다",
+  "(참고) 테스트 파일 이름을 verify 의 tests/unit/sx-6-1.test.ts 대신 promo-image-required-chips.test.ts 로 바꿨다. EVIDENCE.md 에 적어 두었으니 roadmap-tasks.json 의 verify 명령도 이 이름으로 맞추면 좋다",
+  "(참고) 계약 16 오류 코드 표(95행)는 「missing 에 항목 이름」이라 쓰고 §4-7(294행) 예시는 키(\"place\")다. 구현은 키를 missing, 이름을 missingLabels 로 돌려줘 둘 다 맞지만, 95행 문구를 「항목 키」로 맞추면 덜 헷갈린다",
+  "(참고) 전체 단위 테스트 1 failed(constants-contract Restriction enum)는 이 Task 와 무관한 기존 작업 트리 변경이다. M?-END 회귀에서 확인할 일이다"
+ ],
+ "when": "2026-11-24T18:27:32+09:00"
+}

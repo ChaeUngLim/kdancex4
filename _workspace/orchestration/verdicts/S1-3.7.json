@@ -1,0 +1,13 @@
+{
+ "id": "S1-3.7",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence PASS(7행, 문제 0), 로그 # when 은 모두 2026-11-21 11:39 KST 로 이번 작업 시각이다",
+  "직접 다시 돌림: private-lesson-notice-frame.db.test.ts 1 file 5 passed, skip 0 / tsc --noEmit exit 0",
+  "goal 달성: savePrivateLessonNoticeVersion 이 kind=private_lesson 판본을 정규·이벤트형과 같은 insertNoticeVersion 으로 저장한다(종류별 번호, baseVersion 409, 감사 1행). HTTP 경로는 계약 09 §1 대로 422 NOTICE_KIND_NOT_READY 를 유지한다. data-model §7-6 「private_lesson 은 틀만, content 모양은 S2-4」와 맞는다",
+  "한국어 주석이 핵심 지점에 있다. useEffect 없음(서버 코드), 비밀값 하드코딩 없음, 계약 09 에 구현 메모 한 줄만 추가돼 범위 밖 수정은 보이지 않는다",
+  "(참고) verify 가 지정한 tests/db/s1-3-7.db.test.ts 대신 tests/db/private-lesson-notice-frame.db.test.ts 로 이름을 바꿨다. EVIDENCE·테스트 머리 주석에 이유를 적었으니 roadmap-tasks.json 의 verify 경로도 새 이름으로 맞추면 된다",
+  "(참고) 감사 actor_role 이 'owner' 고정인데 spec I20C 는 강사가 쓴다고 한다. 워커가 S2-4 확인 사항으로 넘겼고, 본문 상한 2000자도 추천값이다"
+ ],
+ "when": "2026-11-21T11:40:25+09:00"
+}

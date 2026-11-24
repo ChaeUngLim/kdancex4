@@ -1,0 +1,14 @@
+{
+ "id": "S2-1.5",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence PASS(행 5개·문제 0), 로그 머리 # when 이 모두 2026-11-21 15:42~15:43 KST 로 이번 작업 시각이고, TDD Red 로그(test-1-fail.log)가 구현 전 실패를 남겼다",
+  "verify 재실행: tests/unit/instructor-schedule-overlap.test.ts 1 file 12 passed, tsc --noEmit exit 0 — 워커 보고와 같다",
+  "goal 충족: findInstructorOverlaps 는 existing 을 instructorAccountId 로만 거르고 academyId 는 판정에 쓰지 않는다. 「학원이 달라도 같은 시각이면 겹침(수용 ③)」 테스트가 60분 겹침으로 확인한다",
+  "계약 11 §4-3 과 맞다: [시작,끝) 반열린 구간·이동 여유 없음(2026-10-11)·overlapMinutes·label 을 돌려줘 SCHEDULE_CONFLICT 안내문과 대타 busy 판정에 같이 쓸 수 있다. 라벨 가리기는 호출자 몫으로 남겨 범위 밖 수정 없음",
+  "새 파일 두 개만 추가(lib/domain/instructor-schedule-overlap.ts·tests/unit/instructor-schedule-overlap.test.ts), 핵심 지점 한국어 주석 있음, 입력 불변(정렬은 복사본), useEffect·비밀값 없음",
+  "(참고) verify 문구의 tests/unit/s2-1-5.test.ts 대신 기능 이름 파일을 썼다 — S1-1.22 와 같은 처리이니 roadmap verify 문구를 나중에 맞추면 된다",
+  "(참고) 단위 테스트 전체 861 passed 는 크리틱이 다시 돌리지 않았다(워커 로그 unit-all.log 기준)"
+ ],
+ "when": "2026-11-21T15:44:32+09:00"
+}

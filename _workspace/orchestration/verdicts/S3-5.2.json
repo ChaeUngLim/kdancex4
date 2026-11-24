@@ -1,0 +1,14 @@
+{
+ "id": "S3-5.2",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence PASS(행 9 · 문제 0), 로그 # when 은 모두 2026-11-23 19:39~19:41 KST 로 이번 작업분이다",
+  "다시 돌린 verify 결과가 워커 보고와 같다: 단위 11 passed, DB 16 passed(skip 0), tsc exit 0, 계약 린터 PASS(오류 0, 경고 293)",
+  "goal 충족: session-roster.ts 는 결제 완료(reservation confirmed + order paid·partially_refunded)만 members 에 담고, 결제 대기는 count(*) 로 숫자만 읽는다. 대기자 칸은 SELECT 하지 않는다. phone 은 maskPhone 으로 바로 가리고, strict zod 스키마로 한 번 더 검사한다",
+  "method 충족: maskPhone·ageBandOf 는 순수 함수(member-privacy.ts, maskPhone 은 staff-signup.ts 에서 다시 내보냄)다. 응답 필드명은 계약 18 §1-2·§3·§4 와 같다",
+  "시연 스크립트는 개발 DB 이름을 확인하고 진짜 회원 경로를 부른다. 두 번째 실행은 건너뛴다(demo-run-2.log). 실서버 호출 로그에서 전체 연락처·대기자 닉네임 노출 0건. 핵심 지점에 한국어 주석이 있고 useEffect·비밀값 하드코딩은 없다(BETTER_AUTH_SECRET 은 env 에서 읽음)",
+  "(참고) roadmap-tasks.json 의 verify 는 아직 옛 테스트 파일 이름(tests/unit/s3-5-2.test.ts · tests/db/s3-5-2.db.test.ts)을 가리킨다. 워커가 member-privacy·academy-roster 로 이름을 바꿔서, 오케스트레이터가 verify 문구를 새 이름으로 고쳐야 한다",
+  "(참고) 임시 결정 4건은 EVIDENCE.md 에 적혀 있다: 문의 칸 null, onsite 0, maxOnsite 는 §6 식(§4 예시와 어긋남), 만 19세는 20s. 계약 §4 예시를 사후에 정리해야 한다"
+ ],
+ "when": "2026-11-23T19:43:20+09:00"
+}

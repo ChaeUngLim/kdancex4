@@ -1,0 +1,13 @@
+{
+ "id": "S3-1.4",
+ "verdict": "PASS",
+ "reasons": [
+  "goal 충족: withdrawMemberConsent 가 있던 동의 줄을 UPDATE 하지 않고 철회 줄을 INSERT 한다(method 「수정이 아니라 철회 행을 더한다」 그대로). withdrawn_at 은 서버 시계에서 온다. 회원 행 FOR UPDATE 로 동시 철회를 막고, 선택 동의만 받는다",
+  "검사기 PASS, 로그 머리 # when 은 모두 2026-11-23 11:35~11:37 KST(이번 작업). verify 재실행 6 passed, skip 0. tsc exit 0",
+  "contract.prisma 는 MemberConsent 주석만 바뀌었고 제약 ck_member_consents_withdrawn_after_agreed 와 색인은 그대로다. 핵심 지점마다 한국어 주석이 있고, useEffect·비밀값은 없다",
+  "(참고) 테스트 파일 이름을 verify 에 적힌 tests/db/s3-1-4.db.test.ts 대신 member-consent-withdrawal.db.test.ts 로 썼다. 이유는 EVIDENCE.md 에 있다. 로드맵 verify 문구는 아직 옛 경로라 맞춰 고쳐야 한다",
+  "(참고) MemberConsentSource 주석에서 settings 는 「알림 설정에서 다시 켬」인데, 철회 줄에도 source=settings 를 쓴다. S7-1 에서 경로를 붙일 때 enum 주석에 「설정에서 켬·끔」이라고 넓혀 적으면 좋다",
+  "(참고) data-model §12-4 는 항목을 marketing 이라 부르지만 코드 enum 은 marketing_consent 다. S3-1.1 에서 이미 정해진 것이라 이번 Task 의 결함은 아니다"
+ ],
+ "when": "2026-11-23T11:38:21+09:00"
+}

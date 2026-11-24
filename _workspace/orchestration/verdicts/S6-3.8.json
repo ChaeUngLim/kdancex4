@@ -1,0 +1,15 @@
+{
+ "id": "S6-3.8",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence PASS(22행·문제 0), 로그 # when 이 모두 2026-11-25 02:10~02:16 KST 로 이번 작업 시각이다",
+  "verify 재실행 결과가 같다: mobile tsc exit 0, shots/*.png 1장. admin-web tsc exit 0, me-level-cards DB 테스트 5/5, level-card-art 단위 테스트 4/4",
+  "스크린샷 01(박지호, Salsa Lv.1 입문 카드 1장, 「지금」 태그)과 03(최하은 빈 화면 C24A)을 직접 열어 EVIDENCE 설명과 맞는지 확인했다. 나이 표현 없음, 시연 값을 화면 코드에 박지 않음(API 로 받음), 시연 스크립트는 실제 판정 경로만 쓰고 다시 돌려도 결과가 같음(dev-demo-again.log)",
+  "코드: useEffect 없음, 핵심 지점에 한국어 주석 있음, 비밀값 없음. characterKey 매핑(라틴→samba, 스탠다드→viennese, 0~1=l01…10=l10)이 로드맵 메모와 맞고, 강사 평가 레벨·출석 숫자는 응답에 없음(strict 스키마)",
+  "(참고) isCurrent 필드 추가와 API 를 이 Task 에서 만든 것은 추천안·사후 확인으로 계약 14:408 과 EVIDENCE 에 이유와 함께 적혀 있다 — 사람이 확인해야 한다",
+  "(참고) 계약 14 의 S6-3.4 메모는 GET /api/me/levels 의 source:\"profile\" 줄을 S6-3.8 이 더한다고 했는데, 이번에도 더하지 않고 미룬 이유(경험 수준→레벨 매핑 함수 없음)만 적었다. 이 일을 맡을 Task 를 로드맵에 따로 정해야 한다",
+  "(참고) permission-matrix 1건 실패는 다른 Task 의 미등록 경로 9개 때문이고 level-cards 행은 등록돼 통과한다(로그 diff 로 확인). M?-END 회귀 때 다시 본다",
+  "(참고) 카드 칸 안 표기는 「Lv.1」+「입문」 태그로 나뉘어 있고 「Lv.1 (입문)」 형식은 섹션 머리에만 쓴다. 보드 M26 과 같으면 그대로 두어도 된다"
+ ],
+ "when": "2026-11-25T02:18:02+09:00"
+}

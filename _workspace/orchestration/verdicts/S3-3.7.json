@@ -1,0 +1,14 @@
+{
+ "id": "S3-3.7",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence PASS, 로그 # when 2026-11-23 14:17~14:19 KST(이번 작업), verify 3종 직접 재실행 결과 일치",
+  "order-expiry.ts: 건마다 한 트랜잭션 조건부 UPDATE(pending+기한 지난 ready 결제) → 0행이면 건너뜀, 결제·예약 expired, held -1(held_count>0 조건), order_events 1행, 커밋 뒤 cancelPayment 실패 허용 — 계약 03 §5 와 일치",
+  "내부 경로: withInternalRoute(X-Internal-Token)·strict zod·asOf 는 KDANCE_DEV_ROUTES 일 때만, 응답 {expired:n} — 계약 §5 일치. 주문 생성(키 대조 앞)·상세(그 판매 단위)·홈(전부) 읽기·쓰기 전 정리 연결 확인",
+  "한국어 핵심 주석 있음, useEffect 없음, 비밀값 하드코딩 없음",
+  "(참고) verify 의 테스트 파일명 tests/db/s3-3-7.db.test.ts 대신 tests/db/order-expiry.db.test.ts 로 바꿨다 — roadmap-tasks.json verify 문구도 맞춰 고칠 것",
+  "(참고) 권한 행렬 route 전체 대조 실패는 S3-2 경로 2개(home/offerings·offerings/[offeringId]) 누락으로 이 Task 이전부터다. 이번에 두 route 파일을 손댔으니 다음 Task 에서 표에 넣기를 권한다",
+  "(참고) order_events 사유 payment_deadline_passed 는 워커가 새로 정한 값 — 설계 원본(data-model)에 반영 필요"
+ ],
+ "when": "2026-11-23T14:21:23+09:00"
+}

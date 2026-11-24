@@ -1,0 +1,15 @@
+{
+ "id": "SX-5.2",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence PASS(행 9·문제 0), 로그 # when 전부 2026-11-24 10:25~10:30 KST 로 이번 작업분",
+  "verify 직접 재실행: uv run pytest -q -rs tests/test_planner_conditions.py → 18 passed, skip 0(kdance-llm 켜진 상태라 진짜 모델 3개 질문 포함) — 강사+학원·강사 전체 학원·강사+주말 오전 기대값과 같음",
+  "에이전트 서버 전체 81 passed, mypy --strict 25파일 Success, 전체 계약 린터 PASS(오류 0), admin-web tsc --noEmit exit 0",
+  "goal 충족: LangGraph 노드 1개(extract_conditions)가 여섯 칸만 채우고 상태에 수업 카드·답 문장 칸 없음, 결과는 계약 16 §5-1 모양(칸 11개, 이름은 {name,id:null}), DB·쓰기 코드 0",
+  "핵심 한국어 주석 있음, useEffect 해당 없음(Python), 비밀값 하드코딩 없음(설정은 환경 변수), 추천안 6개와 고른 이유가 EVIDENCE.md·계약 16 §5-1 에 기록됨",
+  "(참고) verify 의 파일 이름 tests/test_sx_5_2.py 대신 test_planner_conditions.py 로 바꿨다 — SX-5.1 과 같은 사정으로 EVIDENCE.md 에 기록돼 있으니 오케스트레이터가 roadmap-tasks.json verify 문구를 고쳐 두면 좋다",
+  "(참고) 새 환경 변수 LLM_CHAT_MODEL(기본 qwen3.5:9b)은 settings.py 에만 있고 계약 16 §0 환경 변수 목록·예시 파일에는 없다(LLM_VISION_MODEL 도 같은 상태) — 뒤 Task 에서 함께 적어 두면 좋다",
+  "(참고) 장르 낱말 목록(GENRE_WORDS)에 없는 표현은 장르를 못 받는 대가가 있고, 이는 추천안 4 에 기록됨"
+ ],
+ "when": "2026-11-24T10:31:46+09:00"
+}

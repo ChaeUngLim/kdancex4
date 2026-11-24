@@ -1,0 +1,14 @@
+{
+ "id": "S1-1.20",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence PASS(16행, 문제 0), 로그 # when 모두 2026-11-20 23:55~2026-11-21 00:00 KST — 이번 작업 시각",
+  "직접 재실행: academy-app-page DB 6 passed skip 0(11장 422 포함), tsc exit 0, 계약 린터 전체 PASS(오류 0·경고 421), file-download·unattached-file-cleanup 회귀 통과 — 워커 보고와 같음",
+  "코드: 학원 행 FOR UPDATE 후 tagline·intro 갱신, academy_photos 전부 지우고 배열 순서대로 position 0부터 다시 넣음, 빠진 사진 attached_at NULL·새 사진 attached_at 찍음. zod strict + max(10) + 중복 거부로 11장 이상 422 VALIDATION_FAILED. 계약 07 §4·열린 점 ⑮, data-model §7-3(academy_photos PK(academy_id, position), file_id UNIQUE)과 맞음. 한국어 주석 있음, useEffect·비밀값 하드코딩 없음",
+  "AcademyPhoto 모델·마이그레이션 20261120T1455_academy_photos 추가는 data-model 에 있던 표를 만든 것이라 범위 안. file-download·정리 작업에 academy_photos 를 붙은 자리로 넣은 것도 ⑮ⓒ 에 적혀 있음",
+  "(참고) verify 의 테스트 파일명 s1-1-20.db.test.ts 대신 기능 이름 academy-app-page.db.test.ts 를 썼다 — tests/db 기존 관례와 같고 S1-1.19 판정과 같은 처리",
+  "(참고) permission-matrix 1 failed 는 대응표에 없는 다른 Task 경로 7개(consents·terms-notices·terms-versions·files×2·terms×2) 때문이며 직접 재실행해 확인했다. app-page 는 대응표에 있다",
+  "(참고) 열린 점 ⑮(글 상한 60·2,000자, 감사 없음, 대표 앱 O30 미연결)은 D20 임시 확정이라 사람 사후 확인 필요"
+ ],
+ "when": "2026-11-21T00:02:36+09:00"
+}

@@ -1,0 +1,15 @@
+{
+ "id": "M1-END.4",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence PASS(행 17개·문제 0). 로그 6개의 # when 이 2026-11-21 14:46~14:48 KST 로 이번 작업 시각이다",
+  "크리틱 재실행: flock 아래 테스트 DB·E2E_PORT=3100 으로 playwright test tests/e2e/m1-owner-flow.spec.ts → 1 passed(32.7s), exit 0. 스펙 끝의 expect(consoleErrors).toEqual([]) 까지 통과해 콘솔 오류 0. tsc --noEmit exit 0. 워커 보고와 같다",
+  "goal 확인: 한 테스트 안에서 ①입점 신청 → ②운영자 승인 → ③계좌 변경(진짜 TOTP 6자리, DB replaced/active 확인) → ④초대 링크 1회(201 뒤 두 번째는 409 INVITE_ALREADY_USED) → 60% 승인 → ⑤roster 만 위임(me 의 menus [roster], 초대 만들기 403) → ⑥정규·이벤트형 공지 판본 1 → ⑦게시 판정 순서로 돈다. 앞 단계 값(applicationId·academyId·token)을 뒤 단계가 그대로 이어받는다",
+  "스크린샷 12장 중 6장(02 운영자 승인, 03 재확인, 04 초대 링크, 05 위임 토글, 05 위임 강사 콘솔, 06 이벤트형)을 열어 봤다. 표의 「확인한 것」과 맞고, 초대 토큰 칸은 마스크로 가려져 있다. ①~⑦ 단계마다 1장 이상 있다",
+  "범위: 바뀐 코드는 새 spec 1개와 공용 도우미 console-session.ts(registerTotp 로 묶고 totpSecret 을 돌려줌)뿐이다. 도우미를 쓰는 spec 4개의 회귀 로그는 7 passed. 핵심 지점에 한국어 주석이 있고 useEffect 는 없다. 비밀값은 환경 변수 BETTER_AUTH_SECRET 에서 읽고, TOTP 는 그때그때 무작위로 만든다",
+  "(참고) verify 에 적힌 파일 이름 tests/e2e/m1-end-4.spec.ts 를 m1-owner-flow.spec.ts 로 바꿨고 npx 대신 ./node_modules/.bin/playwright 로 돌렸다. spec 머리 주석과 EVIDENCE 에 적혀 있다. 로드맵 verify 문구도 새 이름으로 맞추는 것이 좋다",
+  "(참고) ⑦ 게시 거부는 M2 전이라 화면이 아니라 canPublish → assertRefundNoticeForPublish 를 같은 DB 에 직접 불러 판정한다(M1-END.3 와 같은 방식). M2 에서 게시 화면과 API 가 생기면 화면 경로로 바꿔야 한다",
+  "(참고) EVIDENCE.md 표의 학원 이름 「라틴하우스 강남 iujc」 는 첫 실행 값이다. 지금 PNG(두 번째 실행)에는 「kbjm」 으로 찍혀 있다. 이름 접미사는 무작위라 판정에는 영향이 없다. 운영자 화면 왼쪽 아래 이름은 Next.js 개발 표시(N 배지)에 일부 가려져 있다"
+ ],
+ "when": "2026-11-21T14:50:21+09:00"
+}

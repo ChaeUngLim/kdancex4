@@ -1,0 +1,12 @@
+{
+ "id": "SX-1.1",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence.py PASS(행 9 · 문제 0), 로그 # when 이 모두 2026-11-23 14:36~14:38 KST 로 이번 작업 시각이다",
+  "verify 재실행 결과가 같다: pytest 1 passed, 8100 에 띄운 서버의 curl /health 가 {\"status\":\"ok\"} http=200",
+  "goal 충족: agent-server/ 가 Next.js 와 별도 uv·Python 3.12 프로세스로 뜨고, 계약 16 §0(폴더·포트 8100·uv run uvicorn)과 §1-4 /health 행 그대로다. DB 드라이버·DB 코드 0, 고정 버전 6개가 tech-stack 11 과 같다, 핵심 코드에 한국어 주석, 비밀값 없음",
+  "(참고) verify 가 가리키는 tests/test_sx_1_1.py 를 tests/test_health.py 로 바꿔서 roadmap verify 명령을 글자 그대로 돌리면 파일이 없다. EVIDENCE.md 에 사유는 적혀 있다 — 오케스트레이터가 roadmap-tasks.json 의 verify 경로를 test_health.py 로 고치면 된다",
+  "(참고) 계약 16 단독 린터 FAIL(오류 28)은 전부 Next.js 쪽 /api/ai/**·/api/internal/** MISSING 이고 이 Task 의 endpoints 는 비어 있어 범위 밖이다. 전체 린터는 오류 0 PASS"
+ ],
+ "when": "2026-11-23T14:39:17+09:00"
+}

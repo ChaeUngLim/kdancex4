@@ -1,0 +1,15 @@
+{
+ "id": "S7-2.5",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence PASS(행 16개·문제 0). 로그 머리 when 이 모두 2026-11-24 17:19~17:57 KST 로 이번 작업 시각이다",
+  "verify 재실행: tests/db/report-handling.db.test.ts 6 passed, skip 0 — 워커 로그와 같다. 수용 ④(처리 뒤 신고자 알림 received→in_review→resolved 3건, 상대 0건, 감사 1행)를 테스트 ③ 이 직접 확인한다",
+  "goal 충족: 접수 때 active 운영자 전원에게 report_filed, 신고자에게 report_received, start-review/resolve 때 신고자에게 report_in_review/report_resolved 가 같은 트랜잭션에서 쓰인다. 서비스 밖 거래 신고(FR-255)는 reasonCode off_platform_payment 로 같은 경로다. 계약 15-ops §2-7 의 경로 5개·오류 코드·200 재생 규칙과 맞다",
+  "규칙: 핵심 함수·분기에 한국어 주석이 있고, useEffect 없음, 비밀값은 테스트에서 난수·시연 스크립트에서 env 로 읽는다. 시연 데이터는 진짜 처리기를 거치며 두 번 돌려도 행·알림·감사 수가 같다(demo-seed-again·demo-rows 로그)",
+  "(참고) 테스트 파일 이름을 verify 의 tests/db/s7-2-5.db.test.ts 대신 tests/db/report-handling.db.test.ts 로 바꿨다. EVIDENCE.md 에 이유가 적혀 있어 반려하지 않는다. roadmap-tasks.json 의 verify 문구를 새 이름으로 맞춰 두면 다음 크리틱이 헷갈리지 않는다",
+  "(참고) 계약 15-ops.md 309행 「신고자가 회원이면 member 대상은 못 한다」는 같은 파일 814행 열린 점 ⑩ 의 임시 확정 「회원: 넷 다」와 어긋난다. 구현은 814행을 따랐고 워커가 사후 확인 항목으로 남겼다. 309행 정리는 사용자 확인 뒤에 한다",
+  "(참고) 추천안 9개(openRestriction 422, 본인 신고 422, 끝난 신고 start-review 409 등)는 되돌릴 수 있는 API 세부이고, 이유와 다른 후보가 EVIDENCE.md 와 계약 324·325행에 남아 있다. 돈·삭제·바깥 계약 진행은 없다",
+  "(참고) 기본 힙으로 tsc --noEmit 를 돌리니 OOM(exit 134)이 났다. 환경 문제로 보고 NODE_OPTIONS=--max-old-space-size=8192 로 다시 돌렸고 exit 0 이었다"
+ ],
+ "when": "2026-11-24T18:02:07+09:00"
+}

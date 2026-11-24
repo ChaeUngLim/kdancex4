@@ -1,0 +1,13 @@
+{
+ "id": "S3-5.5",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence PASS(7행·문제 0), 로그 # when 은 모두 2026-11-23 20:12~20:13 KST 로 이번 작업 시각이다",
+  "goal 충족: admin-web/lib/domain/headcount.ts 의 computePresent 가 확정 − 결석 예정 + 현장(6·1·2 → 7, 수용 ⑤)을 계산하고, evaluateGenderImbalance 가 계약 18 §7 의 시그니처·반환 모양·GENDER_GAP_THRESHOLD=3 과 맞는다. session-roster.ts 도 이 함수를 부른다(276행). 한국어 주석이 있고 useEffect·비밀값은 없다",
+  "(참고) roadmap verify 는 tests/unit/s3-5-5.test.ts 를 가리키지만 실제 파일은 tests/unit/today-headcount.test.ts 다. 글자 그대로 돌리면 No test files found 가 난다. tests/unit 82개가 모두 기능 이름을 쓰는 관례라 반려하지 않았다. 오케스트레이터가 roadmap-tasks.json 의 verify 경로를 고치면 된다",
+  "(참고) 지금 tsc --noEmit 은 exit 2 다. 오류는 모두 lib/server/services/poster-extraction-jobs.ts 에서 나온다. 이 파일은 20:14:33 에 고쳐졌는데 워커가 끝난 뒤이고 files_changed 에도 없다. 다른 작업이 동시에 고친 것으로 보이며, 이 파일을 빼면 오류는 0이다",
+  "(참고) 계약 18 §7 의 GET /api/instructor/headcount · GET /api/academies/{academyId}/headcount 두 경로는 S3-5.5 제목 아래 있지만 이 Task 의 endpoints 가 비어 있다. 이 두 경로를 맡는 Task 를 roadmap 에 정해야 한다(워커가 말한 열린 점과 같다)",
+  "(참고) computePresent 의 0 하한(Math.max)은 계약에 없지만 주석에 이유가 있고, 이 때문에 정상 값이 달라지지 않는다"
+ ],
+ "when": "2026-11-23T20:15:26+09:00"
+}

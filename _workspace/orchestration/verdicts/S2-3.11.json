@@ -1,0 +1,13 @@
+{
+ "id": "S2-3.11",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence.py PASS (10 rows, 0 problems), log headers dated 2026-11-21 21:50-21:51 KST, so they come from this task",
+  "Reran the DB test: 6 passed, 0 skipped. tsc --noEmit exit 0. Contract linter PASS (0 errors, 343 warnings, MISSING only). All match the worker report",
+  "The service is one conditional UPDATE that covers open/accepted and starts_at <= now, so it is idempotent. The route matches the class-approval-reminders pattern (internal token, strict zod, asOf only with dev routes). It matches contract 11 §8-4, §12 and open point ⑮",
+  "Korean comments are in place, no useEffect, no hardcoded secrets, and nothing was changed outside the task's scope",
+  "(note) The test file is tests/db/substitute-requests-expire.db.test.ts, while the task's verify text names tests/db/s2-3-11.db.test.ts. Update the verify string in roadmap-tasks.json to match",
+  "(note) The job writes no notification or audit rows and leaves candidate rows unchanged. This follows contract §12, which mentions neither, and should be confirmed later"
+ ],
+ "when": "2026-11-21T21:52:41+09:00"
+}

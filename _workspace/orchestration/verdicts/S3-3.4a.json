@@ -1,0 +1,14 @@
+{
+ "id": "S3-3.4a",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence.py PASS(행 7개·문제 0), 로그 # when 이 모두 2026-11-23 13:58~14:00 KST 로 이번 작업 시각",
+  "직접 재실행: order-create-sales-block.db.test.ts 6 passed(skip 0), order-create.db.test.ts 12 passed, tsc --noEmit exit 0, api_contract_lint PASS(오류 0·경고 313)",
+  "goal 충족: order-create.ts 3단계 SELECT 에 academy_restrictions(kind='new_sales_blocked', ended_at IS NULL) EXISTS 를 붙여 409 ACADEMY_RESTRICTED(reason new_sales_blocked)로 거부, 자리·주문 생성 전이라 행이 남지 않음. 국세청 포트 참조 없음(method 준수). 기존 주문은 1단계(existingOrderFor)가 트랜잭션 전에 돌려줘 불변 — 테스트로 확인",
+  "데이터 모델 03_data-model.md:320 의 academy_restrictions.kind 값과 일치. 핵심 분기에 한국어 주석, useEffect·비밀값 없음, 범위 밖 수정 없음",
+  "(참고) 검증 테스트 파일명이 verify 의 tests/db/s3-3-4a.db.test.ts 가 아니라 order-create-sales-block.db.test.ts 다 — roadmap-tasks.json 의 verify 문구를 나중에 맞춰 두면 좋다",
+  "(참고) 코드에서는 3-a 검사가 판매 단위 open·첫 회차 검사(3단계)보다 앞이라, 막힌 학원의 닫힌 판매 단위는 CHECKOUT_CLOSED 대신 ACADEMY_RESTRICTED 를 받는다. 계약 표 순서(3 → 3-a)와 조금 다르다 — 동작상 문제는 없지만 계약 문구나 순서 하나를 맞추면 좋다",
+  "(참고) ACADEMY_RESTRICTED+reason 재사용과 ErrorExtra.reason 추가는 계약 03 §1 3-a 에 임시 확정으로 적혀 있다 — 사용자의 사후 확인이 필요하다"
+ ],
+ "when": "2026-11-23T14:02:10+09:00"
+}

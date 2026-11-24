@@ -1,0 +1,14 @@
+{
+ "id": "S7-1.5",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence PASS(행 7, 문제 0), 로그 # when 2026-11-24 15:20~15:21 KST — 이번 작업 시각",
+  "verify DB 테스트 직접 재실행: 1 file 8 passed, skip 0 — 수용 ②(거절 기기만 → skipped, server.requests 0) 단언 확인",
+  "tsc --noEmit exit 0(첫 실행은 다른 Task 가 동시에 이름을 바꾼 마이그레이션 20261124T0622_inquiries_reports 때문에 TS6053, 다시 돌려 0 — 이 Task 와 무관)",
+  "goal 충족: PushNotificationSender 가 NotificationSenderPort 를 구현, deps.ts 가 PUSH_DELIVERY(비우면 개발 fake·베타/운영 expo)로 선택, SMS 없음, 한국어 주석·useEffect 없음·비밀값 없음",
+  "(참고) verify 의 파일명 s7-1-5.db.test.ts 대신 기능 이름 push-notification-sender.db.test.ts 를 씀 — 저장소에 s*-* 이름 관례가 없고 EVIDENCE.md 에 이유를 적음",
+  "(참고) push_suppressed_reason·delivered_at 미기록, 'sending' 대신 선점에 'sent' 사용 — 추천안·사후 확인으로 계약 15 §1-4 와 EVIDENCE.md 에 기록돼 있고 후속 S7-1.6(발송 재시도 작업)이 맡음",
+  "(참고) 실기기·실제 exp.host 발송은 미확인(S8-2.9 몫)"
+ ],
+ "when": "2026-11-24T15:24:19+09:00"
+}

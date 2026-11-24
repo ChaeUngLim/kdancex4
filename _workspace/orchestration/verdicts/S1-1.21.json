@@ -1,0 +1,15 @@
+{
+ "id": "S1-1.21",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence PASS(행 11개·문제 0), 로그 # when 이 모두 2026-11-21 00:09~00:11 KST 로 이번 작업 시각이다",
+  "verify 핵심 명령 재실행 결과가 워커 보고와 같다: DB 테스트 7 passed·skip 0(시나리오 6 포함), tsc exit 0, 전체 계약 린터 PASS(오류 0·경고 420)",
+  "goal(FR-139) 충족: totpCode 를 요청마다 다시 확인(없음 401 SECOND_FACTOR_REQUIRED·틀림 422 TOTP_INVALID·authFailure 한도 429), 학원 행 FOR UPDATE 뒤 한 트랜잭션에서 옛 계좌 replaced→새 계좌 active(holder_verified_at NULL), 대표 알림 payout_account_changed(settlement), 감사 payout_account.changed 의 before/after 에 가린 번호만 있다. 데이터 모델 §7-3(uq_payout_accounts_active·account_last4)과 맞는다",
+  "규칙: 핵심 함수·분기에 한국어 주석이 있고 useEffect 없음, 비밀값 하드코딩 없음(TOTP 비밀값은 Better Auth 저장값을 서버 키로 복호화), 새 의존성 없음",
+  "permission-matrix 실패 1건은 직접 다시 돌려 확인했다 — payout-account 경로는 차이 표시가 없고, 누락 7개(consents·terms-notices·terms-versions·files 2개·terms 2개)는 다른 Task 경로다",
+  "(참고) 계약 §4 「앱 토큰이면 403 FORBIDDEN」은 구현되지 않았다. 지금은 앱 토큰 세션이 콘솔 가드에서 401 로 막혀 보안상 구멍은 아니며, 계약 07 열린 점 ⑯ⓓ 에 사람 확인 권장으로 적혀 있다 — 앱 토큰 경로가 생길 때 사람이 정해야 한다",
+  "(참고) verify 의 테스트 파일 이름 tests/db/s1-1-21.db.test.ts 대신 academy-payout-account-change.db.test.ts 를 썼다. EVIDENCE.md 에 밝혔고 같은 명령으로 돌렸다",
+  "(참고) 멱등 재생 확인이 TOTP 확인 뒤에 있어, 30초 창이 지난 뒤 같은 키·같은 코드로 재시도하면 처음 응답 대신 422 TOTP_INVALID 가 난다. 계약 ⑯ⓑ 검사 순서대로라 결함은 아니지만 클라이언트 재시도 안내 때 염두에 둘 것"
+ ],
+ "when": "2026-11-21T00:13:16+09:00"
+}

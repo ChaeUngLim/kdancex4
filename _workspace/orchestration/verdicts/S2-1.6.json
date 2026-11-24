@@ -1,0 +1,14 @@
+{
+ "id": "S2-1.6",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence PASS, 로그 # when 이 2026-11-21 15:46~15:55 KST로 이번 작업 시각이다",
+  "verify 재실행 결과가 워커 보고와 같다: 강사 프로필 DB 테스트 7 passed(skip 0), tsc exit 0, 계약 린터 오류 0(경고 376 MISSING), 권한 표 84 passed",
+  "goal 충족: GET·PUT /api/instructor/me/profile 을 전체 교체로 저장하고 다시 읽은 값을 돌려준다. 사진은 S1-1 POST /api/files(purpose=instructor_photo, public)를 그대로 쓰고, PDF는 422 FILE_TYPE_NOT_ALLOWED, 남의 파일·다른 목적 파일은 422 VALIDATION_FAILED다. 가능 시간은 계약 11 열린 점 ③(임시 확정)대로 개인 일정 POST·DELETE 로 구현했다. 마이그레이션은 purpose CHECK 에 값 하나를 더한 것뿐이다",
+  "규칙 준수: 핵심 지점에 한국어 주석이 있고 useEffect·비밀값 하드코딩이 없다. SQL 은 모두 매개변수 바인딩이고 DELETE 는 staff_account_id 조건으로 본인 일정만 지운다",
+  "(참고) verify 에 적힌 테스트 파일명 tests/db/s2-1-6.db.test.ts 대신 tests/db/instructor-profile.db.test.ts 를 썼다. 워커가 보고했으니 roadmap-tasks.json 의 verify 문구를 맞춰 두면 좋다",
+  "(참고) 계약 11 §2-3 의 POST personal-events 는 멱등 「키」인데 data-model §8-3 에 키 칸이 없어 구현하지 않았다. 계약과 데이터 모델 중 하나로 맞추는 설계 결정이 남아 있다",
+  "(참고) 사진 url 이 /api/files/{id} 다. 계약 예시는 공개 URL 이고, 공개 사진을 회원에게 내려 줄 경로는 아직 없다. overlaps·disciplines 는 S2-2 전까지 빈 목록이다. 셋 다 코드 머리말에 한계로 적혀 있다"
+ ],
+ "when": "2026-11-21T15:56:21+09:00"
+}

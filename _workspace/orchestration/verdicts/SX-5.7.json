@@ -1,0 +1,15 @@
+{
+ "id": "SX-5.7",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence.py PASS(행 21·문제 0), 로그 # when 이 모두 2026-11-24 이번 작업 시각",
+  "verify 재실행: mobile tsc --noEmit exit 0, shots PNG 3장 — 워커 보고와 같음",
+  "admin-web tsc exit 0, 플래너 단위 37 passed, DB 테스트 name-candidates 11·offering-detail 6 passed(skip 0)",
+  "스크린샷 02(M10G 후보 2장+선택)·03(M15 입구 정해진 강사 칩+카드 2장) 확인 — EVIDENCE 설명과 일치, 카드가 비어 있지 않음",
+  "goal 충족: 전용 화면 없이 플래너(M10)에 합침, M15 버튼이 instructorId·instructorName 으로 /planner 를 열고 context.instructorId 로 보냄. useEffect 없음, 핵심 한국어 주석 있음, 시연 이름은 주석·예시 문구에만 있고 화면 코드에 박힌 값 없음, 비밀값 하드코딩 없음",
+  "GET /api/instructors/{instructorId} 는 계약 16 §4-8 과 표(37행)에 추천안·사후 확인 2026-11-24 로 기록됨, 전체 계약 린터 오류 0",
+  "(참고) 촬영 때 에이전트 서버가 응답하지 않아 카드는 일반 검색 대체 경로로 나왔고 그 안내 문구가 화면에 보임 — 대체 경로 자체가 SX-5.5 범위라 반려 사유 아님",
+  "(참고) 16번만 돌린 린터의 MISSING 20건은 뒤 SX Task 경로라 log-fail 로 남긴 것이 타당"
+ ],
+ "when": "2026-11-24T15:17:19+09:00"
+}

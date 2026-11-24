@@ -1,0 +1,13 @@
+{
+ "id": "S2-2.8a",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence PASS(9행, 문제 0), 로그 # when 모두 2026-11-21 19:19~19:20 KST 로 이번 작업 시각",
+  "직접 재실행: test:db instructor-affiliation-rooms 6 passed skip 0, permission-matrix 95 passed, tsc --noEmit exit 0, 계약 린터 --contract 11 에 rooms 경로 MISSING 없음(오류 46 은 미구현 경로)",
+  "구현이 계약 11 §3-4 와 일치: 본인 소속 아니거나 없는 id 404 NOT_FOUND, active 아님 409 AFFILIATION_STATE_CONFLICT, 위임 꺼짐 403, active 홀만 지점명→홀명 정렬, Cache-Control no-store; 한국어 주석 있음, useEffect·비밀값 없음, 이번 작업 시점 이후 바뀐 파일이 files_changed 와 정확히 같음",
+  "(참고) verify 에 적힌 테스트 파일명 tests/db/s2-2-8a.db.test.ts 대신 기능 이름 instructor-affiliation-rooms.db.test.ts 로 만들었다 — roadmap-tasks.json 의 verify 문구를 나중에 맞춰 두면 좋다",
+  "(참고) 계약은 위임 class_submit 만 적었으나 구현은 웹 쿠키 면에서 class_manage 를 본다(수업 등록 class_writer 와 같은 면별 판정). 앱 요청은 계약 그대로이므로 계약 11 §3-4 에 면별 판정을 한 줄 덧붙여 두기를 권한다",
+  "(참고) Cache-Control 값이 'private, no-store' 로 계약의 no-store 를 포함한다"
+ ],
+ "when": "2026-11-21T19:21:33+09:00"
+}

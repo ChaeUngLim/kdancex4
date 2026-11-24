@@ -1,0 +1,15 @@
+{
+ "id": "S3-1.8",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence.py PASS(행 14개·문제 0), 로그 # when 모두 2026-11-23 12:11~12:12 KST — 이번 작업 시각",
+  "verify 재실행 일치: mobile tsc --noEmit exit 0, shots/M1·M2·M3.png 존재. admin-web tsc --noEmit 도 exit 0",
+  "M3 보드(boards/M3.png)·앱(shots/M3.png) 모두 성별 위 닉네임 칸·계약 01 열린 점 ① 추천 문구 그대로. 빈 닉네임 오류 화면 확인",
+  "가입 요청 본문(signup-request.json)이 계약 01 §3 과 일치: verificationToken·noticeAcknowledged·nickname·consents 여섯 칸만. 앱 닉네임 규칙(2~12자·허용 문자)이 서버 member-nickname.ts 와 같다",
+  "새 consent.tsx·signup.tsx 에 useEffect 없음, 한국어 주석 있음, 비밀값 하드코딩 없음(스크립트의 example-* 값은 가짜 응답용)",
+  "(참고) goal 문구의 「preferences·base-genre 에 동의 항목」은 넣지 않았다 — spec FR(가입 동의)·보드 C14A 가 동의를 본인확인 앞 별도 화면에 두므로 C14A 화면 + M3 동의 요약으로 충족한 것으로 판단. 원 의도가 다르면 roadmap goal 문구를 고쳐 두는 편이 좋다",
+  "(참고) signup.tsx 는 오류가 나면 종류와 상관없이 「본인확인 다시 하기」 버튼을 보여 준다 — NICKNAME_NOT_ALLOWED 일 때는 어색하다",
+  "(참고) spec·PRD·계약 파일에는 이 Task 이전의 커밋 안 된 변경이 섞여 있어 diff 만으로 이번 변경을 가를 수 없다. 이번 반영 줄은 spec 371·739행, PRD 386행, 계약 01 109행에서 확인했다"
+ ],
+ "when": "2026-11-23T12:14:20+09:00"
+}

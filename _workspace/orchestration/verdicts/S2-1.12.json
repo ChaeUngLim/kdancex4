@@ -1,0 +1,14 @@
+{
+ "id": "S2-1.12",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence PASS(행 8·문제 0), 로그 머리 when 2026-11-22 00:13 KST로 이번 작업 시각",
+  "DB 테스트 재실행 15 passed(15), skip 0 — 개발 200 토큰·운영 404·422·400 장면 포함",
+  "tsc --noEmit exit 0, 계약 린터 전체 PASS(오류 0), --contract 01 출력에 fake-verify 없음 — 오류 9는 /api/me·/api/members·sign-in/out 등 다른 Task 경로 MISSING",
+  "route.ts는 withDevRoute로 감쌈, 서비스는 계약 01 §2 요청·응답 모양(strictObject)과 일치, 기존 FakeIdentityVerification 인스턴스를 deps에서 그대로 재사용(method 대로)",
+  "한국어 핵심 주석 있음, useEffect 없음, 비밀값은 requireEnv로 읽고 하드코딩 없음",
+  "(참고) 전체 단위 테스트 1 failed(repo-secret-scan)는 S2-4.8 증거 로그를 잡은 것으로 이 Task 범위 밖 — 해당 Task 쪽에서 정리 필요",
+  "(참고) deps.ts가 git 미추적 파일이라 diff로 범위를 가를 수 없어, 추가된 getDevFakeIdentityIssuer 함수만 이 Task 몫으로 확인함"
+ ],
+ "when": "2026-11-22T00:14:58+09:00"
+}

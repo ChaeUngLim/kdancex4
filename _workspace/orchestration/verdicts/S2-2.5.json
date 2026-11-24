@@ -1,0 +1,13 @@
+{
+ "id": "S2-2.5",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence PASS(행 13 · 문제 0), 로그 머리 # when 이 모두 2026-11-21 17:44~17:50 KST(이번 작업)",
+  "verify 직접 재실행: class-refund-notice + 고친 픽스처 2파일 = 3 files, 18 passed, skip 0. tsc --noEmit exit 0",
+  "goal 충족: submit 때 classes.refund_notice_version_id 에 최신 판본 id 고정(본문 복사 없음, FK·색인 마이그레이션), 요청의 refundNotice 는 classDraftSchema(z.object)가 버림, 응답 readOnly:true — 계약 11 §4-2·§4-4 ②, data-model §8-2 와 일치",
+  "(참고) verify 의 테스트 경로 tests/db/s2-2-5.db.test.ts 를 기능 이름 class-refund-notice.db.test.ts 로 바꿨다 — roadmap-tasks.json 의 verify 문구를 오케스트레이터가 맞춰 두면 좋다",
+  "(참고) 전체 테스트 1 failed(instructor-affiliation-tables ①)는 이전 Task 부터 남은 실패로 증거에 기록됨. --contract 11 린터 FAIL 은 미구현 경로 MISSING 50건뿐(UNDOCUMENTED·NO_SCHEMA 0)",
+  "(참고) 대표 승인 때 판본 재부착(열린 점 ⑱)은 S2-2.7 몫으로 남김"
+ ],
+ "when": "2026-11-21T17:51:36+09:00"
+}

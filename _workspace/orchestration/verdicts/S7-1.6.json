@@ -1,0 +1,13 @@
+{
+ "id": "S7-1.6",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence PASS(행 18개·문제 0), 로그 # when 이 모두 2026-11-24 15:27~15:53 KST 로 이번 작업 시각",
+  "verify 테스트를 직접 다시 돌려 1 file·9 passed·skip 0. ① 에서 always_fail 가짜 발송기로 3번 시도 뒤 failed·http_503·attempt 3, 알림함 행이 그대로 남는 것을 확인(수용 ④)",
+  "tsc --noEmit exit 0. 조건부 갱신(pending/retry_wait→sending, WHERE delivery_status=…)과 decideAfterFailure 순수 함수, withInternalRoute + zod strict 경로가 계약 15-ops §1-4 와 맞음. 핵심 지점에 한국어 주석, useEffect·비밀값 없음",
+  "(참고) verify 에 적힌 파일 이름 tests/db/s7-1-6.db.test.ts 대신 기능 이름 notification-delivery-retry.db.test.ts 를 썼다. 내용은 verify 와 같고 EVIDENCE.md 에 이유가 적혀 있다",
+  "(참고) 전체 계약 린터 FAIL 1건은 다른 Task 의 POST /api/inquiries NO_SCHEMA 때문이다. retry 경로에는 오류가 없고 log-fail 로 남겨 두었다",
+  "(참고) 횟수·간격 상수, 재시도 포트 분리, 멈춘 sending 10분 처리는 추천안·사후 확인으로 15-ops.md·03_data-model.md 에 기록되어 있다. spec 규칙과 어긋나지 않는다"
+ ],
+ "when": "2026-11-24T15:59:42+09:00"
+}

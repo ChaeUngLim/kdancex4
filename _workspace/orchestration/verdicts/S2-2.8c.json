@@ -1,0 +1,14 @@
+{
+ "id": "S2-2.8c",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence PASS(10행·문제 0), 로그 # when 전부 2026-11-21 19:36~19:40 KST — 이번 작업 시각",
+  "verify 재실행: class-schedule-check.db.test.ts 9 passed skip 0 — 계약 §4-1 예시(16회·11:30Z/12:30Z·existing 두 줄·겹침 없음)와 9개 표 행 수 전후 동일을 테스트가 단언",
+  "S2-2.4 겹침 코드를 readScheduledSessions+computeScheduleConflicts 로 쪼개 미리보기·409 판정이 같은 함수를 씀. 관련 5파일+권한 행렬 124 passed 로 회귀 없음. IS NOT TRUE 처리로 exclude 없을 때 NULL 문제 해결 확인",
+  "쓰기 없음(SELECT 만), 한국어 핵심 주석 있음, useEffect·비밀값 없음, planSessions·requireClassWriter 재사용 — method 대로",
+  "(참고) verify 의 파일명 tests/db/s2-2-8c.db.test.ts 대신 class-schedule-check.db.test.ts 로 바꿈 — roadmap-tasks.json verify 문구를 새 이름으로 맞춰 두면 좋다",
+  "(참고) 계약 §4-1 은 suggestions 를 「가까운 빈 시간 2~3개」로 적고 예시는 겹침 없이도 칩 1개인데, 구현은 겹침이 있을 때만 칩을 낸다(추천안으로 표시됨). 계약 문구를 어느 쪽으로 할지 사람이 확정 필요",
+  "(참고) 실패한 NULL 버그 실행 로그는 남지 않음(워커가 스스로 밝힘), 개인 레슨 슬롯·409 suggestions 는 범위 밖으로 명시"
+ ],
+ "when": "2026-11-21T19:41:37+09:00"
+}

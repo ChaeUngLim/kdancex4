@@ -1,0 +1,15 @@
+{
+ "id": "S2-2.3",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence PASS(행 11 · 문제 0), 로그 머리 # when 2026-11-21 17:14~17:27 KST 로 이번 작업 시각",
+  "직접 재실행: class-registration DB 테스트 6 passed skip 0 · tsc --noEmit exit 0 · 계약 린터 PASS 오류 0 경고 368 — 워커 보고와 같음",
+  "goal 충족: POST/GET/PUT /api/classes·submit 이 계약 11 §4-2·§4-4 대로 zod 검증, class_writer(AFFILIATION_REQUIRED·CLASS_PERMISSION_REQUIRED), 멱등키, 한 트랜잭션 생성(판매 단위 closed·회차·자리 묶음·승인 기록·대표 알림·감사), 0원 수업 같은 경로",
+  "핵심 지점 한국어 주석 있음, useEffect 없음, 비밀값 하드코딩 없음, 라우트 파일은 얇게 서비스로 위임",
+  "(참고) verify 의 테스트 경로는 tests/db/s2-2-3.db.test.ts 인데 실제 파일은 tests/db/class-registration.db.test.ts — 기능 이름 규칙에 맞춘 것으로 보이며 roadmap-tasks.json verify 문구를 맞춰 두면 좋다",
+  "(참고) data-model 보다 약하게 건 곳 2개(ck_classes_genre_sub 를 값이 있을 때만, class_sessions.instructor_account_id NULL 허용) — 워커가 밝혔고 S2-2.4 에서 조여야 한다",
+  "(참고) 게시 판정이 canPublish(승인된 active 학원)라 계약의 restricted 보다 넓게 409 ACADEMY_RESTRICTED 를 낸다 — S1-1.16 게이트 재사용이라 수용",
+  "(참고) 전체 테스트 1건 실패(instructor-affiliation-tables ①)는 이 Task 이전부터 있던 것(S2-2.1 증거에도 기록)"
+ ],
+ "when": "2026-11-21T17:29:02+09:00"
+}

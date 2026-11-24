@@ -1,0 +1,15 @@
+{
+ "id": "S2-4.4",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence PASS(행 6 · 문제 0), 로그 # when 전부 2026-11-21 22:13~22:14 KST — 이번 작업 시각",
+  "verify 재실행: private-lesson-refund-notice.db.test.ts 5 passed, skip 0 / 관련 S2-4.2 private-lesson-product-open 7 passed / tsc exit 0 — 워커 보고와 같다",
+  "goal 충족: 개설 트랜잭션 안에서 판매자 학원의 notice_kind='private_lesson' 최신 판본 id 를 private_lesson_products.refund_notice_version_id 에 적고 감사 after 에도 남김, 본문 복사 없음 — S2-2.5 방식과 같음",
+  "계약 11 §10-1(L675)·열린 점 ⑨·data-model §8-6 「있으면 붙이고 없으면 null」과 일치, 정규·이벤트 공지로 대체하지 않음, strictObject 로 강사가 보낸 값 422",
+  "한국어 핵심 주석 있음, useEffect 없음, 비밀값 하드코딩 없음(테스트 SECRET 은 가짜 서명값으로 표기)",
+  "(참고) verify 의 tests/db/s2-4-4.db.test.ts 대신 기능 이름 파일로 돌렸고 EVIDENCE.md 에 적었다 — S2-2.5 와 같은 관례",
+  "(참고) --contract 11 린터 FAIL 은 아직 안 만든 경로 MISSING 24 뿐이고 log-fail 로 정직하게 남겼다. 이 Task 는 endpoints 없음",
+  "(참고) 서비스 파일이 untracked(S2-4.2 와 같은 작업 트리)라 S2-4.4 만의 diff 를 git 으로 분리하진 못했고, 파일 내용으로 확인했다. 구현 뒤 테스트를 써 Red 로그는 없다"
+ ],
+ "when": "2026-11-21T22:15:29+09:00"
+}

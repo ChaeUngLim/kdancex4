@@ -1,0 +1,14 @@
+{
+ "id": "SX-6.6",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence PASS(행 19개·문제 0), 로그 # when 이 모두 2026-11-24 21:07~21:20 KST로 이번 작업 시각이다",
+  "verify 테스트를 다시 돌린 결과가 워커 보고와 같다: 단위 class-intro-draft.test.ts 19 passed, DB class-intro-drafts.db.test.ts 5 passed(skip 0), 에이전트 test_intro_draft_writer.py 7 passed, tsc exit 0",
+  "goal·method 충족: 숫자(시간·가격·회차·레벨)는 buildIntroFacts/fillIntroTemplate 순수 함수가 수업 데이터로 채운다. 에이전트 요청에는 숫자와 이미지 칩·그림 문장이 실리지 않는다. 자리표시자 밖 숫자는 거부한 뒤 1회 다시 받고, 그래도 안 되면 기본 문장을 쓴다. 강조할 점은 60자까지 받고 61자는 zod 422로 거부한다",
+  "계약 16 §4-7(409 INTRO_FACTS_MISSING·503 AI_UNAVAILABLE fallback human·20초·분당 10회)과 구현이 맞는다. 추천안(title·emphasis 자리표시자, missingFields 등)은 계약 16 §4-7 '구현' 문단에 이유와 함께 적혀 있다",
+  "규칙 확인: 핵심 지점에 한국어 주석이 있고 useEffect는 없다. 비밀값은 하드코딩하지 않고 환경 변수로 받으며, 시연 스크립트는 2회차에 '이미 있다'로 건너뛰어 다시 돌려도 깨지지 않는다",
+  "(참고) verify 에 적힌 파일명 tests/unit/sx-6-6.test.ts 를 class-intro-draft.test.ts 로 바꿨다. 증거 test-rename.log 에 기록돼 있고 roadmap 의 verify 문구는 옛 이름 그대로다",
+  "(참고) 시연 문장에 '1회차 진행되며'가 나온다. 모델이 {{sessionCount}} 뒤에 '차'를 붙인 탓인데, 숫자는 데이터와 같으니 결함은 아니다. 다음에 프롬프트를 다듬을 때 볼 만하다"
+ ],
+ "when": "2026-11-24T21:22:18+09:00"
+}

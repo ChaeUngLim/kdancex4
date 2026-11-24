@@ -1,0 +1,14 @@
+{
+ "id": "S2-3.6",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence.py PASS(행 10 · 문제 0), 로그 머리 # when 이 모두 2026-11-21 21:01~21:08 KST로 이번 작업 시각이다",
+  "verify 재실행: affiliation-release-sessions 포함 DB 테스트 4파일 129 passed, skip 0 · 단위 7 passed · tsc --noEmit exit 0. 워커 보고와 같다",
+  "goal 확인: countDistinctMembers 순수 함수로 중복을 빼서 센다. 미리 보기와 해제가 같은 읽기·같은 함수를 쓰고, 알림은 groupByMember로 회원마다 1행(dedupe release:<batchId>:<memberId>)이다. 테스트가 hana 1행, totals {3,3}을 단언한다. 한 트랜잭션·같은 batch_id·409 undecided·SUBSTITUTE_UNAVAILABLE·422가 계약 11 §9-1·§9-2와 맞다",
+  "(참고) verify에 적힌 파일 이름 tests/db/s2-3-6.db.test.ts를 affiliation-release-sessions.db.test.ts로 바꿨다. EVIDENCE에 적었지만 roadmap-tasks.json의 verify 문구는 옛 이름 그대로다",
+  "(참고) 계약 §9-2는 instructor_changed·session_cancelled·class_closed를 한 건에 묶는다고 적었는데, 구현은 kind를 늘 instructor_changed로 두고 action을 payload items에 담는다. 워커가 사람 확인 항목으로 올렸다",
+  "(참고) groupByMember가 Map 안의 배열에 push로 값을 넣는다(불변성 규칙). 함수 안의 지역 상태라 결함은 아니다",
+  "(참고) 사람 확인 항목: 고정 사유 문장·payKind 모두 paid·행사형 회차 휴강 허용. substitute_assigned는 S2-3.7 몫으로 범위를 지켰다. useEffect·비밀값 없음, 핵심 지점에 한국어 주석이 있다"
+ ],
+ "when": "2026-11-21T21:09:53+09:00"
+}

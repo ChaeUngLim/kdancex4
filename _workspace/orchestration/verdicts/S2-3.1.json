@@ -1,0 +1,13 @@
+{
+ "id": "S2-3.1",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence PASS(행 10, 문제 0), 로그 # when 이 모두 2026-11-21 20:01~20:04 KST 로 이번 작업분이다",
+  "verify 재실행 결과가 워커 보고와 같다: db:migrate exit 0(Already up to date, marker 8b422663…), DB 테스트 7 passed skip 0, tsc --noEmit exit 0, 상수 단위 테스트 73 passed",
+  "kdance_next DB 에 세 표의 칸·NULL 허용·기본값이 §8-5 와 맞는다. uq_substitute_active 부분 유니크, uq_substitute_idem, ck_session_changes_deadline·ck_substitute_accepted·confirmed·msg, 값 집합 CHECK 3개, FK 9개가 마이그레이션에 있다",
+  "contract.prisma 새 모델·enum 과 상수·테스트에 한국어 주석이 달렸고, useEffect 나 비밀값 하드코딩은 없다. 범위 밖 표(class_edit_requests·class_announcements)는 만들지 않았다",
+  "(참고) verify 가 적은 테스트 파일 tests/db/s2-3-1.db.test.ts 대신 tests/db/substitute-change-tables.db.test.ts 를 썼다. 워커가 보고에 밝혔으니 roadmap-tasks.json 의 verify 경로를 이 이름으로 맞춰 두면 된다",
+  "(참고) before·after 칸이 jsonb 가 아니라 json 이다(기본값 '{}'::jsonb). 프로젝트의 다른 json 칸 15개도 모두 json 이라 기존 관례와는 맞는다. §8-5 에 없던 '{}' 기본값과 ck_session_changes_notified 가 추가돼 있지만 설계와 충돌하지는 않는다"
+ ],
+ "when": "2026-11-21T20:05:21+09:00"
+}

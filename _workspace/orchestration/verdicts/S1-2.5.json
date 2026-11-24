@@ -1,0 +1,13 @@
+{
+ "id": "S1-2.5",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence PASS(11행, 문제 0), 로그 # when 은 모두 2026-11-21 09:51~09:54 KST 로 이번 작업 시각이다",
+  "DB 테스트 직접 재실행 7 passed·skip 0(동시 2건 → 1건 10회, 시나리오 1·2, 410·404·409 AFFILIATION_ALREADY_OPEN 포함), tsc exit 0, 계약 린터 전체 PASS(오류 0·경고 412)",
+  "코드는 계약 08 §2 와 맞다: 조건부 UPDATE 로 토큰을 쓰고, pending·source invite 1행, 대표 알림 affiliation_requested(approval, dedupe affiliation:<id>:requested), 감사 1행을 한 트랜잭션에 남긴다. 409 면 롤백해서 링크가 사용됨으로 바뀌지 않는다. 한국어 주석이 있고 useEffect·비밀값은 없다",
+  "(참고) verify 가 정한 tests/db/s1-2-5.db.test.ts 대신 instructor-invite-accept.db.test.ts 로 이름을 바꿨다. EVIDENCE.md 에 적혀 있다. roadmap-tasks.json 의 verify 경로도 새 이름으로 맞추면 다음 크리틱이 헷갈리지 않는다",
+  "(참고) logs/contract-08-accept-implemented.log 는 없는 파일 logs/contract-lint-08.log 를 grep 했다. 파일이 없으니 ! grep 이 무조건 exit 0 을 낸다. 실제 파일 contract-lint-08-other-tasks-fail.log 를 크리틱이 직접 grep 해서 0건임을 확인했다. 다음부터는 실제 파일 이름으로 로그를 남길 것",
+  "(참고) 권한 행렬의 route 대응 실패 7개와 --contract 08 오류 12개는 다른 Task 몫이고 log-fail 로 남아 있다. 수락 경로는 MISSING 에 없다"
+ ],
+ "when": "2026-11-21T09:55:19+09:00"
+}

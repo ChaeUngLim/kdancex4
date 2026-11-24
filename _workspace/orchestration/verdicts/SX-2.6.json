@@ -1,0 +1,14 @@
+{
+ "id": "SX-2.6",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence PASS(36행·문제 0), verify 로그 # when 2026-11-24 10:42~10:48 KST 로 이번 작업 시각",
+  "직접 재실행: agent pytest 30 passed · tsc exit 0 · DB 테스트 8 passed · 전체 계약 린터 PASS(오류 0) — 워커 보고와 같음",
+  "goal 충족: 칸 17개(field_rules.py·constants·contract.prisma CHECK), 마이그레이션 0134 가 기존 읽기에 빈 기간 줄 backfill, missingPeriodKeys(개강일 + 종료일 또는 회차 수, 이벤트형은 개강일만), submit 409 POSTER_PERIOD_REQUIRED+missingFields, 422 에 classId+missingFields, 계약 16 §7 반영",
+  "스크린샷 01(기간 빈 칸 확인필요·채워야 해요·맞아요 없음·검토 끝/승인 요청 꺼짐)·02(2026-12-05/2026-12-26/4회 채움) 확인 — 시연 데이터는 시드 스크립트로 넣었고 재실행 시 「이미 있다」",
+  "poster-review 화면·클라이언트에 useEffect 없음, 핵심 분기 한국어 주석 있음",
+  "(참고) verify 의 「계약 린터 16 PASS」는 오류 20건 — 전부 다른 Task(FAQ·홍보 이미지·내부 MCP 등) 경로 MISSING 이고 포스터 경로는 없음. SX-2.4 와 같은 상태라 반려 사유로 보지 않음",
+  "(참고) 「승인 요청」 버튼 추가와 422 시 안내 문장 처리는 추천안·사후 확인으로 기록됨(수업 수정 폼 부재). 마이그레이션 postcheck 의 SELECT NOT EXISTS + expects absent 의미는 확인 못 함(migration check·db:migrate 는 통과)"
+ ],
+ "when": "2026-11-24T10:52:41+09:00"
+}

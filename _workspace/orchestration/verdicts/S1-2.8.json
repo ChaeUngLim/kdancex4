@@ -1,0 +1,14 @@
+{
+ "id": "S1-2.8",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence PASS(행 8개·문제 0), 로그 머리 when 전부 2026-11-21 10:15~10:16 KST(이번 작업)",
+  "DB 테스트 재실행 tests/db/academy-affiliation-list.db.test.ts 6 passed skip 0, tsc --noEmit exit 0, 전체 계약 린터 PASS 오류 0 경고 406 — 워커 보고와 같음",
+  "계약 08 §3 응답 모양(affiliationId·status·source·requestedAt·instructor{accountId,displayName,phoneMasked,activityGenre}·message·isAcademyEmployee·permissions) 그대로, owner 권한 + academyId 가드로 학원 B 대표 403(시나리오 5) 테스트 포함, phone_enc 를 읽지 않고 phone_masked 만 내림(FR-187)",
+  "한국어 핵심 주석 있음, useEffect 없음, 비밀값 하드코딩 없음, 위임 권한을 하위 질의로 읽어 N+1 없음",
+  "(참고) verify 의 테스트 경로 tests/db/s1-2-8.db.test.ts 와 실제 파일명 academy-affiliation-list.db.test.ts 가 다르다 — roadmap-tasks.json verify 문구를 새 이름으로 고칠 것(S1-2.7 과 같은 처리)",
+  "(참고) 권한 행렬 1 실패는 재실행해도 같고, 빠진 경로는 consents·terms-notices/read 등 다른 Task 것(이번 affiliations/route.ts 는 표에 있음) — S1-1 쪽에서 해소 필요",
+  "(참고) 계약 밖에서 정한 값(status 비우면 대기·소속 둘 다, 최근 신청순, 쪽 나누기 없음, 모르는 쿼리 422)과 class_submit 이 DB 열거형에 없는 점은 사람 확인 필요"
+ ],
+ "when": "2026-11-21T10:17:39+09:00"
+}

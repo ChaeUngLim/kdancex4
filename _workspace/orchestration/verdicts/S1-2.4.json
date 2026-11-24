@@ -1,0 +1,14 @@
+{
+ "id": "S1-2.4",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence PASS(행 7·문제 0), 로그 # when 2026-11-21 09:44~09:45 KST 로 이번 작업 시각",
+  "직접 재실행: academy-invites.db.test.ts 10 passed skip 0 · tsc --noEmit exit 0 · api_contract_lint 전체 PASS(오류 0·경고 413)",
+  "goal 충족: 계약 08 §1 의 3경로(POST/GET invites, revoke) 구현, owner+2단계(createConsoleRoute), 토큰 32바이트·DB 는 sha256 해시만, 7일, 감사 invite.created/revoked, 상태 판정 폐기→사용→만료→활성, 폐기 조건부 UPDATE 후 404/409 INVITE_NOT_ACTIVE 분기 — 계약과 일치",
+  "규칙: 핵심 지점 한국어 주석 있음, useEffect 없음(서버 코드), 비밀값 하드코딩 없음(BETTER_AUTH_URL 은 env 에서 읽음)",
+  "(참고) verify 의 tests/db/s1-2-4.db.test.ts 를 tests/db/academy-invites.db.test.ts 로 이름을 바꿨다 — EVIDENCE 에 적혀 있으나 roadmap-tasks.json verify 문구도 새 이름으로 맞추는 것이 좋다",
+  "(참고) permission-matrix 「모든 route.ts 가 표에 있다」 1건 실패는 재실행으로 확인 — 누락 7개는 S1-1 몫(consents·terms-notices read·admin terms-versions·files 2·terms 2)이고 invites 2파일은 표에 있다. 별도 Task 로 메울 것",
+  "(참고) revoke route 는 inviteBaseUrl 을 빈 문자열로 넘긴다 — 폐기는 URL 을 안 만들어 문제는 없지만 deps 타입을 나누면 더 깔끔하다"
+ ],
+ "when": "2026-11-21T09:46:22+09:00"
+}

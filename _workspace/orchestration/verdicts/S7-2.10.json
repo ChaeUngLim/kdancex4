@@ -1,0 +1,13 @@
+{
+ "id": "S7-2.10",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence.py PASS(행 25개, 문제 0). 로그 머리 # when 은 2026-11-24 21:16~21:31 KST로, 이번 작업 시각이다",
+  "verify 를 다시 돌렸다. mobile tsc exit 0, shots/*.png 1장(O22). admin-web tsc exit 0. DB 테스트 inquiry-access 7 passed, 단위 테스트 2 files 18 passed",
+  "goal(대표가 문의에 답한다) 충족: 칩 5개, 답변 대기 수, 펼친 대화, Idempotency-Key 답변, FR-205 환불 안내, 운영자 문의 카드가 있다. 04 장면에서 진짜 POST 뒤 「답변 완료」, 「내 답변」 말풍선, 대기 수 4→3 을 확인했다",
+  "새 GET /api/academies/{academyId}/inquiries/{inquiryId} 는 추천안·사후 확인으로 계약 15-ops.md(29·289행)에 이유와 함께 기록돼 있다. 가드(owner, 위임 강사 불가)와 canRead(kind=academy이고 academy_id가 같을 때만 허용)로 다른 학원·시스템 문의는 403 이다. 돈·삭제·바깥 계약에는 닿지 않는 읽기 경로다",
+  "useEffect 없음(useApiResource와 핸들러 사용). 핵심 지점에 한국어 주석이 있고 화면 코드에 시연 값이 박혀 있지 않다. 시연 스크립트는 Idempotency-Key 로 다시 돌려도 건너뛴다(demo-seed-again.log). 비밀값은 env 에서 읽는다",
+  "(참고) 「환불 처리 ›」 버튼은 S7-2.4·O48 몫이라 빠졌다. 범위를 지킨 선택이다"
+ ],
+ "when": "2026-11-24T21:34:01+09:00"
+}

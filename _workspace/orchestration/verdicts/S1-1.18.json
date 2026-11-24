@@ -1,0 +1,15 @@
+{
+ "id": "S1-1.18",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence PASS(행 11·문제 0), 로그 # when 이 모두 2026-11-20 23:41~23:42 KST 로 이번 작업 시각",
+  "verify 재실행 일치: academy-settings DB 테스트 4 passed·skip 0(수용 시나리오 4 포함), tsc exit 0, 계약 린터 전체 PASS(오류 0·경고 423), settings 경로 MISSING 없음",
+  "goal 충족: 학원·판매자·지점·등록 형태(readAcademyRegistration 재사용)·계좌 가린 값(110-***-***521, 원문 미노출)·입점 조건 요약·시행 전 약관 변경, owner+2단계 권한, Cache-Control private no-store. 한국어 주석 있음, useEffect·비밀값 하드코딩 없음",
+  "계약 07 §4 행과 열린 점 ⑬ 에 응답 모양을 D20 임시 확정으로 적어 코드 스키마와 일치",
+  "(참고) verify 의 파일명 tests/db/s1-1-18.db.test.ts 대신 기능 이름 academy-settings.db.test.ts — 다른 Task 들도 기능 이름을 써 왔고 EVIDENCE.md 에 명시해 수용",
+  "(참고) 수용 ④ 「아무 학원 id → 403」과 달리 없는 id 는 공통 가드 순서상 404 — 있는 학원 id 는 모두 403 확인. 열린 점 ⑬ ⓓ 로 사람 확인 필요",
+  "(참고) academy-settings.ts 머리 주석 「어떤 학원 id 를 넣어도 403 — 학원이 있는지를 알려 주지 않는다」는 실제(없는 id 404)와 어긋남 — 다음 손볼 때 문구 정정 권장",
+  "(참고) permission-matrix 「모든 route.ts 가 표에 있다」 1건 실패는 다른 Task 경로 7개 때문, 이번 경로 행은 표와 대응표 모두 있음"
+ ],
+ "when": "2026-11-20T23:44:55+09:00"
+}

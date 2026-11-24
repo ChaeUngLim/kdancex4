@@ -1,0 +1,15 @@
+{
+ "id": "S1-3.1",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence PASS(행 11·문제 0), 로그 # when 전부 2026-11-21 11:09~11:11 KST — 이번 작업분",
+  "verify 핵심 DB 테스트 재실행 6 passed·skip 0, tsc --noEmit exit 0, 상수↔계약 단위 56 passed — 워커 보고와 같음",
+  "개발 DB(kdance_next) 실측: notice_kind text NOT NULL default 'regular' + CHECK 3값, content NOT NULL default '{}', template_code·template_version·created_by_account_id(FK staff_accounts) 존재, UNIQUE (academy_id, notice_kind, version), 옛 (academy_id, version) 유니크 없음 — goal 충족",
+  "계약 enum RefundNoticeKind ↔ REFUND_NOTICE_KINDS 짝, 핵심 지점 한국어 주석 있음, useEffect·비밀값 없음, 범위 밖 수정 없음",
+  "(참고) verify 가 지정한 파일명 tests/db/s1-3-1.db.test.ts 대신 tests/db/refund-notice-versions.db.test.ts 로 만들었다 — 로드맵 verify 문구를 새 파일명으로 맞추면 좋다",
+  "(참고) data-model §7-6 은 content jsonb 인데 실제 칸은 json(기본값만 '{}'::jsonb) — 계약 Json 이 json 으로 나가는 프로젝트 공통 현상(academies.refund_policy_tiers·audit_logs 등 모두 json)이라 이번 Task 결함은 아님. data-model 표기 또는 계약 쪽을 나중에 한 번에 맞출 것",
+  "(참고) ix_refund_notice_latest 를 따로 만들지 않은 판단은 새 유니크와 칸이 같아 타당. 실제 색인 이름에 해시 접미사(_450d8177)가 붙는 것은 기존 색인과 같은 관례",
+  "(참고) data-model §2-2 의 옛 유니크 이름 정리는 워커 보고대로 남은 일"
+ ],
+ "when": "2026-11-21T11:12:22+09:00"
+}

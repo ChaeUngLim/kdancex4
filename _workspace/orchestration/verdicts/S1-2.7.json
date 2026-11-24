@@ -1,0 +1,14 @@
+{
+ "id": "S1-2.7",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence PASS, 로그 머리 when 전부 2026-11-21 10:08~10:10 KST(이번 작업)",
+  "DB 테스트 재실행 11 passed skip 0, tsc exit 0, 전체 계약 린터 오류 0 경고 407 — 워커 보고와 같음",
+  "계약 08 §3 대로: 비율 없이 프리랜서 승인 422 SHARE_RATE_REQUIRED, 직원+비율 422, 같은 트랜잭션에서 share_rates 첫 행·알림(dedupe_key, uq_notifications_dedupe 부분 유니크 인덱스로 ON CONFLICT 동작)·감사, 이미 active 200 같은 본문, 다른 상태 409 AFFILIATION_STATE_CONFLICT",
+  "한국어 주석 있음, useEffect 없음, 비밀값 없음",
+  "(참고) verify 의 테스트 경로 tests/db/s1-2-7.db.test.ts 와 실제 파일명 academy-affiliation-decisions.db.test.ts 가 다르다 — roadmap-tasks.json verify 문구를 새 이름으로 고칠 것",
+  "(참고) 권한 행렬 1 실패는 재실행해도 같고, 빠진 경로는 consents·terms-notices/read 등 다른 Task 것(approve·reject 는 표에 있음) — S1-1 쪽에서 해소 필요",
+  "(참고) 워커가 계약 밖에서 정한 값(재거절 409, 기타 사유 500자, 알림 링크 자리표시, isAcademyEmployee 필수)은 사람 확인 필요"
+ ],
+ "when": "2026-11-21T10:11:53+09:00"
+}

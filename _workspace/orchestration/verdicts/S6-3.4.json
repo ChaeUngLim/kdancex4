@@ -1,0 +1,14 @@
+{
+ "id": "S6-3.4",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence PASS(22행, 문제 0), verify 로그 머리 # when 2026-11-25 01:30 KST 로 이번 작업분",
+  "verify DB 테스트를 직접 다시 돌려 7 passed·skip 0, tsc --noEmit exit 0(워커가 말한 다른 파일 오류도 지금은 없음)",
+  "회원용 GET /api/me/levels 는 평가 표를 읽지 않고 strict 스키마로 검사한 뒤 내보낸다. 알림 payload 도 strict 라 평가 레벨 칸이 끼면 실패한다. 수용 ③(평가 레벨 숨김) 충족",
+  "멤버십 강사만 쓰게 하는 isInstructorMember 포트와 가짜 구현, 403 INSTRUCTOR_MEMBERSHIP_REQUIRED 모두 note(11-24 사용자 결정)와 맞음",
+  "시연 스크립트는 진짜 경로 처리기를 부르고 개발 DB 이름을 확인한다. 다시 돌려도 행 수가 같다(멱등). 나이 표현 0건, 한국어 주석 있음, useEffect·비밀값 하드코딩 없음",
+  "(참고) verify 에 적힌 tests/db/s6-3-4.db.test.ts 는 기능 이름 instructor-level-evaluations.db.test.ts 로 바뀌었다. roadmap-tasks.json 의 verify 문구도 맞춰 고치길 권한다",
+  "(참고) 추천안 3건(받는 회원 멤버십 칸 제거, 낮게 정하면 내 앞 안내 닫기, profile 매핑은 S6-3.8 로 넘김)은 이유와 함께 EVIDENCE.md·계약 14·data-model 에 적혀 있어 반려 사유가 아니다"
+ ],
+ "when": "2026-11-25T01:36:30+09:00"
+}

@@ -1,0 +1,49 @@
+# 저장소 비밀값 검사 설정 — gitleaks 8.21.2(로컬, 2026-11-20 사용자 결정)
+#
+# 무엇: gitleaks 기본 규칙을 그대로 쓰고(useDefault), 허용 목록은 「규칙 하나 + 커밋·경로·값」으로 좁혀서만 단다.
+# 왜: 규칙을 통째로 끄면 같은 종류의 진짜 비밀값이 새로 들어와도 못 잡는다. 그래서 허용 목록마다
+#     condition = "AND" 를 걸어, 적어 둔 조건이 전부 맞는 한 건만 빠지게 한다.
+# 검사 테스트: admin-web/tests/unit/repo-secret-scan.test.ts (S0-6.6(저장소 전체 비밀값 검사))
+
+[extend]
+useDefault = true
+
+# ── 1. 옛 커밋에 남은 GitHub 토큰 ──────────────────────────────────────────────
+# 폐기된 토큰, 2026-11-20 결정. 사용자가 GitHub 에서 폐기했고, 저장소 이력은 다시 쓰지 않는다(force push 없음).
+# 커밋 1c3ed61 이 docs/handoff/mcp-kdance.json 51행에 넣은 그 한 건만 뺀다.
+# (그 뒤 ca4bd47 이 파일을 docs/agent/handoff/ 로 옮겼지만 내용 변경이 없어 새 발견으로 잡히지 않는다.
+#  지금 파일은 ${GITHUB_PAT} 자리표시라 깨끗하다.)
+[[rules]]
+id = "github-pat"
+[[rules.allowlists]]
+description = "폐기된 토큰, 2026-11-20 결정 — 커밋 1c3ed61 의 docs/handoff/mcp-kdance.json 한 건만"
+condition = "AND"
+commits = ["1c3ed61cbf014ca11047e6193f59657e91b7d383"]
+paths = ['''^docs/handoff/mcp-kdance\.json$''']
+
+# ── 2. DB 테스트의 가짜 세션 서명값 ────────────────────────────────────────────
+# 테스트가 만든 가짜 값이라 비밀이 아니다(실서버 값은 저장소 밖 .env). 이름에 secret 이 들어가
+# generic-api-key 규칙이 잡는다. 그 두 파일의 그 두 값만 뺀다 — 같은 파일에 다른 값이 들어오면 다시 잡힌다.
+[[rules]]
+id = "generic-api-key"
+[[rules.allowlists]]
+description = "DB 테스트의 가짜 세션 서명값(테스트 고정값, 비밀 아님)"
+condition = "AND"
+paths = [
+  '''^admin-web/tests/db/staff-me\.db\.test\.ts$''',
+  '''^admin-web/tests/db/second-factor-gate\.db\.test\.ts$''',
+]
+regexes = [
+  '''^staff-me-test-secret-0123456789-0123456789$''',
+  '''^second-factor-gate-test-secret-0123456789-01$''',
+]
+
+# ── 3. 증거 로그에 찍힌 멱등키(Idempotency-Key) ─────────────────────────────────
+# 앱이 요청마다 만드는 일회용 키(`m-<시각 36진수>-<무작위 10자>`, mobile/lib/catalog/use-api-resource.ts)라 비밀이 아니다.
+# 화면 검증 로그(_workspace/evidence/*/logs/*.log)가 보낸 본문을 그대로 적어서 「…Key": "값"」 모양을 generic-api-key 가 잡는다.
+# 증거 로그 경로 + 그 키 모양이 둘 다 맞는 값만 뺀다 — 같은 로그에 다른 모양의 값이 찍히면 다시 잡힌다(M2-END.2, 2026-11-23).
+[[rules.allowlists]]
+description = "증거 로그의 앱 멱등키(일회용 요청 키, 비밀 아님)"
+condition = "AND"
+paths = ['''^_workspace/evidence/[^/]+/logs/[^/]+\.log$''']
+regexes = ['''^m-[a-z0-9]{8,9}-[a-z0-9]{10}$''']

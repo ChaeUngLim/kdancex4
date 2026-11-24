@@ -1,0 +1,14 @@
+{
+ "id": "S7-4.8c",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence PASS(행 15·문제 0), 로그 머리 when 모두 2026-11-24 22:24~22:29 KST — 이번 작업 시각",
+  "직접 재실행: business-check-console-views.db.test.ts 6 passed(skip 0), tsc --noEmit exit 0, 계약 린터 오류 0 PASS·business-checks 경고 0건",
+  "계약 13 §10-3 의 GET 목록·상세 두 경로가 처리기 묶음(list·detail)으로 붙었고, 받아들이기·게시 중단 POST 는 S1-1.29 것을 그대로 씀 — method 「라우트 2개 + 감사 행」과 맞음",
+  "상세는 raw_response·등록번호 원문을 내리지 않고(가린 값만), console.viewed 감사 행은 1분 합치기·상세 건마다 기록 — 15-ops §4-1 과 맞음",
+  "(참고) verify 의 테스트 파일 이름 s7-4-8c.db.test.ts 대신 기능 이름 business-check-console-views.db.test.ts 로 바꿨다 — 프로젝트 관례(Task 번호 파일 금지) 증거 있음",
+  "(참고) 응답에 더한 칸(dueLabel·overdue·explanationCount·notFound·academyId)은 계약 13 561줄에 추천안·사후 확인으로 기록됨. 권한 행렬 「모든 route.ts」 실패는 다른 Task route 8개 때문이며 이번 route 는 대응표에 들어 있음",
+  "(참고) 화면 Task 가 아니라 스크린샷 없음. 시연 스크립트 2회 실행 결과 동일(멱등) 로그 있음"
+ ],
+ "when": "2026-11-24T22:30:26+09:00"
+}

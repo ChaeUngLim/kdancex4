@@ -1,0 +1,14 @@
+{
+ "id": "S2-4.9",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence PASS(행 8, 문제 0), 로그 머리 # when 2026-11-21 23:02~23:03 KST — 이번 작업 시각",
+  "DB 테스트 재실행 6 passed(skip 0), tsc --noEmit exit 0, 계약 린터 PASS(오류 0·경고 334, holds-expire MISSING 없음) — 워커 보고와 같다",
+  "서비스는 WHERE status='held' AND held_until<=now 조건부 갱신 한 문장으로 open + held_until NULL(ck_pl_slot_held 와 맞음), 멱등. 경로는 withInternalRoute(X-Internal-Token)·strict 본문·dev 전용 asOf 로 형제 경로 substitute-requests-expire 와 같은 패턴",
+  "(참고) goal 의 「결제 대기 수강권 정리」는 하지 않았다 — method 가 M3 주문 만료와 한 묶음(열린 점 ⑫)으로 넘기라 했고, 스키마에 슬롯↔수강권 연결 칸이 없어 타당. 테스트 ④가 수강권을 건드리지 않음을 확인. M3 에서 반드시 받아야 한다",
+  "(참고) verify 의 테스트 파일 이름 s2-4-9.db.test.ts 대신 private-lesson-holds-expire.db.test.ts — 증거·테스트 머리 주석에 기록됨. roadmap-tasks.json 의 verify 문구는 나중에 맞추면 좋다",
+  "(참고) 권한 행렬 테스트 1 실패(S2-4.2·4.6·4.7 강사 경로 7개 미등록)와 단위 테스트 1 실패(S2-4.8 증거 로그 비밀값 검사)는 범위 밖 기존 실패로 log-fail 기록됨 — 별도 Task 로 처리 필요",
+  "한국어 핵심 주석 있음, useEffect·비밀값 하드코딩 없음"
+ ],
+ "when": "2026-11-21T23:05:26+09:00"
+}

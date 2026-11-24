@@ -1,0 +1,14 @@
+{
+ "id": "S2-1.3",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence PASS, 로그 # when 이 모두 2026-11-21 15:26~15:29 KST(이번 작업)",
+  "verify 테스트 직접 재실행 3 passed skip 0, tsc --noEmit exit 0 — 워커 보고와 같음",
+  "goal 충족: 직접 신청·초대 링크 두 길 모두 실제 경로로 거절 → 강사 알림 행(사유 포함) → 재신청 새 pending, 옛 rejected 행·거절 알림 보존, 초대 링크도 pending(active 0)",
+  "코드 변경(readActivityGenre, 대표 목록 LEFT JOIN instructor_profiles)은 한국어 주석 있음·useEffect 없음·비밀값 하드코딩 없음(SECRET 은 실행마다 randomUUID), 계약 08 의 activityGenre 와 데이터 모델 instructor_profiles.activity_genre 에 맞음",
+  "(참고) roadmap-tasks.json 의 verify 경로가 아직 tests/db/s2-1-3.db.test.ts — 기능 이름(instructor-affiliation-reapply.db.test.ts)으로 바뀐 것을 오케스트레이터가 verify 문자열에 반영해야 한다",
+  "(참고) 대표 알림 payload 의 genres 칸은 계약 08 에 글로 적혀 있지 않다(기존 칸을 채운 것) — 계약 08 §2 알림 payload 예시에 추가를 권한다",
+  "(참고) 강사 앱 GET /api/staff/notifications 401(2단계 인증) 문제는 별도 Task 로 남김 — 워커가 정직하게 적었다"
+ ],
+ "when": "2026-11-21T15:30:10+09:00"
+}

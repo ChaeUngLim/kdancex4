@@ -1,0 +1,12 @@
+{
+ "id": "S7-2.3",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence PASS(행 20·문제 0), verify DB 테스트 직접 재실행 6 passed·skip 0, 계약 린터 전체 오류 0·경고 255 PASS — 워커 보고와 같다",
+  "goal 확인: remindOverdueInquiries 가 status=answer_waiting·기한 지남·overdue_reminded_at IS NULL 조건 UPDATE 로 한 번만 표시하고 dedupe_key + ON CONFLICT DO NOTHING 으로 대표(학원 문의)·운영자(시스템 문의)에게 inquiry_overdue 를 보낸다. 회원 쪽 waiting 은 inquiries.ts 의 isInquiryWaitingOverdue 로 계산된다. 한국어 주석 있음, useEffect·비밀값 하드코딩 없음, 시험용 asOf 는 devRoutesEnabled 일 때만",
+  "(참고) 지금 tsc --noEmit 이 exit 1 — tests/db/permission-matrix.db.test.ts(1839) callers 에 S7-2.3 경로 3개와 POST /api/refund-accounts 가 빠졌다. 그 행렬 행은 16:56 에 M3-END.3(옛 AC 대응표 전체 재실행)이 추가한 것이고(파일 주석에 그렇게 적혀 있음) 진행 중인 다른 Task 편집이라 S7-2.3 반려 사유로 보지 않는다. S7-2.3 의 tsc.log(16:42)는 exit 0. M3-END.3 이 callers 를 채워야 한다",
+  "(참고) verify 에 적힌 파일명 tests/db/s7-2-3.db.test.ts 대신 tests/db/inquiry-reply-reminder.db.test.ts 로 이름을 바꿨다 — 증거에 적혀 있다",
+  "(참고) 대부분 로그는 16:12~16:43 이번 Task 회차 것이고 test-recheck.log 는 17:09 — 옛 로그 재활용 아님"
+ ],
+ "when": "2026-11-24T17:17:16+09:00"
+}

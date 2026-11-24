@@ -1,0 +1,15 @@
+{
+ "id": "S3-3.12",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence PASS(행 9·문제 0), 로그 머리 # when 이 모두 2026-11-23 15:01~15:04 KST 로 이번 작업 시각이다",
+  "verify 재실행: free-order.db.test.ts 4 passed, skip 0 — 가짜 PG 호출 0회(pgCalls []), 예약 confirmed 단언 확인. tsc exit 0",
+  "goal 달성: order-create.ts 가 total 0 이면 기한 검사를 건너뛰고 PG 를 부르지 않으며 free_ 번호의 0원 결제 행을 만든 뒤 같은 트랜잭션에서 confirmOrder 로 확정한다. 재요청 응답 경로도 0원이면 PG 를 다시 부르지 않는다",
+  "confirmOrder 는 reportedAmount null 을 받고 0원이면 정산 보류를 쓰지 않는다(data-model 정산 ⑧). 유료 웹훅 경로는 그대로이며 회귀 DB 10파일 68 passed 를 직접 재확인했다",
+  "한국어 주석 있음, useEffect·비밀값 없음, 계약 03 에 결정과 남은 빈칸이 적혀 있다",
+  "(참고) verify 칸의 tests/db/s3-3-12.db.test.ts 는 자리표시 이름이다. 실제 파일은 free-order.db.test.ts 이고 orchestration README 의 기능 이름 규칙에 맞는다 — sync_verify_paths.py 로 verify 칸을 바꿔야 한다",
+  "(참고) 0원 이벤트형은 orders.refund_notice_version_id NOT NULL 때문에 409 NOTICE_MISSING 이 나는 빈칸이 남았다. 데이터 모델 결정이 필요하고 계약에 적혀 있다",
+  "(참고) 계약 03 --contract 린터 오류 3건은 다른 Task 경로(GET /api/orders/{}·dev fake-pg)이고 이번 변경과 관계없다"
+ ],
+ "when": "2026-11-23T15:06:57+09:00"
+}

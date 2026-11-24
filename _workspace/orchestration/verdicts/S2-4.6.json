@@ -1,0 +1,15 @@
+{
+ "id": "S2-4.6",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence.py PASS(13행·문제 0), 로그 머리 # when 이 모두 2026-11-21 22:34~22:36 KST 로 이번 작업 시각이고 바뀐 파일 수정 시각(22:33~22:34:31) 뒤에 찍혔다",
+  "verify 재실행: mobile tsc --noEmit exit 0, 스크린샷 4장(I1·I10·I10B·I10C) test -f 모두 있음, admin-web tsc --noEmit exit 0",
+  "스크린샷 7장을 열어 봤고 EVIDENCE.md 「확인한 것」과 맞다(I1 두 학원 수업+개인 레슨 시간순, I10 주간 표·칩·남은 횟수, I10B 학원·장르·횟수·금액·길이, I10C 10분 단위·매주 반복·공개 뒤 「레슨 모집」 전환, 수강권 경로 실패 시 그 카드만 「다시 시도」)",
+  "바뀐 화면 4개와 schedule-api.ts 에 한국어 핵심 주석이 있고 useEffect/useLayoutEffect/useFocusEffect 0건, 비밀값 하드코딩 없음. 요청 본문(academyId·subGenre·lessonMinutes·sessionCount·priceAmount / slots·repeatWeeks + Idempotency-Key)과 schedule include 값이 계약 11 §10-1·§10-2·§11 과 같다",
+  "(참고) GET /api/instructor/private-lesson-passes · POST /api/instructor/private-lesson-products/{classId}/slots 는 서버에 없고(admin-web/app/api/instructor 에 route 없음 확인) 로드맵 어느 Task(S2-4.2·S2-4.7 포함)의 endpoints 에도 없다. 실제 서버에서는 I10 아래 카드가 「다시 시도」, I10C 공개가 404 로 끝난다 — 화면 Task 범위 밖의 계획 공백이라 사람이 소유 Task 를 정해야 한다(계약 11 열린 점 ⑰ 과 같은 지적)",
+  "(참고) 스크린샷은 계약 11 모양의 가짜 응답·고정 시계(2026-11-24)로 찍었다 — 실제 서버 연동 화면은 아직 확인되지 않았다",
+  "(참고) slots.tsx readNumber(params.minutes, 50, 80) 는 60 같은 값도 받는다 — LESSON_MINUTES(50·80) 둘 중 하나인지로 좁히면 더 정확하다(서버가 최종 거부하므로 사소)",
+  "(참고) 보드와의 차이(I10 결제 대기 줄, 종목·연습실 칸, I1 결석 칸 「—」, I20·I5D 링크 준비 중)는 EVIDENCE.md 에 정직하게 적혀 있다"
+ ],
+ "when": "2026-11-21T22:37:11+09:00"
+}

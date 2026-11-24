@@ -1,0 +1,13 @@
+{
+ "id": "S1-3.2",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence PASS, 로그 5개 # when 모두 2026-11-21 11:14 KST(이번 작업)",
+  "직접 재실행: refund-templates.test.ts 16 passed, money.test.ts 19 passed, tsc --noEmit exit 0 — 워커 보고와 같음",
+  "goal 충족: fractionToPercentCeil(2,3)=67 을 ceilMulDiv 정수 올림으로 계산, findTiersBelowTemplate 가 1/2 지나기 전 40% 를 minimum 50 으로 거부·67% 통과(FR-086)",
+  "계약 09 §1(code hakwon_act·templateVersion 2026-11-13·point 4종·minimums 100/67/50/0)과 data-model §7-6(코드 상수 lib/domain/refund-templates.ts, 분수 올림)에 맞음. 순수 함수, 한국어 주석, useEffect·비밀값 없음, 범위 밖 수정 없음",
+  "(참고) verify 문자열의 tests/unit/s1-3-2.test.ts 대신 기능 이름 refund-templates.test.ts 로 만들었다 — tests/unit 관례(전부 기능 이름)와 이전 판정 선례에 맞고 EVIDENCE.md 에 밝혔다. roadmap verify 문자열도 새 이름으로 고쳐 두면 좋다",
+  "(참고) 신고 체육시설·미등록용 템플릿은 spec 에 % 값이 없어 만들지 않았다 — S1-3.3·S1-3.4 에서 값 결정 필요"
+ ],
+ "when": "2026-11-21T11:15:08+09:00"
+}

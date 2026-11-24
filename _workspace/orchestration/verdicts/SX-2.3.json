@@ -1,0 +1,14 @@
+{
+ "id": "SX-2.3",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence PASS(18행, 문제 0), 로그 # when 2026-11-23 20:08~20:23 KST — 이번 작업 시각",
+  "DB 테스트 직접 재실행 7 passed·skip 0, tsc --noEmit exit 0, api_contract_lint PASS(오류 0)",
+  "submit 은 status=reviewed 가 아니면 409 REVIEW_REQUIRED, 검토 뒤 PATCH 는 ready 로 되돌림, DB CHECK(ck_poster_reviewed·ck_poster_submitted)로 이중 차단, S2-2 create/submit 처리기를 그대로 호출하고 게시는 S2-2.7 승인 — goal·method 충족",
+  "(참고) verify 의 파일명 tests/db/sx-2-3.db.test.ts 대신 poster-extraction-review.db.test.ts 로 바꿨다 — roadmap-tasks.json verify 문구를 오케스트레이터가 맞춰 고칠 것",
+  "(참고) submit 이 상태 검사·칸 읽기를 잠금 없이 한 뒤 S2-2 승인 요청까지 보내므로, 그 사이 PATCH 가 들어오면 검토 안 된 값으로 승인 요청이 나가고 마지막 갱신만 409 가 된다(대표 제출이면 auto_published). S2-2 PUT 으로도 같은 편집이 가능해 권한 우회는 아니지만, 후속에서 SELECT … FOR UPDATE 또는 칸을 revision 과 함께 읽는 방식을 검토할 것",
+  "(참고·사람 결정) 포스터 14칸에 기간이 없어 첫 submit 이 늘 422(schedule)로 끝나고 422 본문에 classId 가 없다 — SX-2.5 전에 결정 필요(워커 보고와 같음)",
+  "(참고) data-model 의 ck_poster_field_null_flagged 를 confirmed_at 예외로 완화한 편차는 EVIDENCE.md 에 근거와 함께 기록됨 — data-model 문서에도 반영 필요"
+ ],
+ "when": "2026-11-23T20:25:20+09:00"
+}

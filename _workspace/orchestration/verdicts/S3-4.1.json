@@ -1,0 +1,14 @@
+{
+ "id": "S3-4.1",
+ "verdict": "PASS",
+ "reasons": [
+  "attendance_marks 14칸·NULL 7칸·기본값(dispute_status='none', marked_at=now())이 data-model §7-8 과 같다. uq_attendance_session(WHERE cancelled_at IS NULL)·ck_attendance_marker 가 개발 DB(kdance_next)에 실제로 있다",
+  "verify 재실행: attendance-marks.db.test.ts 6 passed, skip 0. 중복 거부(uq_attendance_session)와 ck_attendance_marker 위반 4가지 거부를 둘 다 확인했다",
+  "(참고) 테스트 파일 이름이 verify 의 tests/db/s3-4-1.db.test.ts 와 다르다(tests/db/attendance-marks.db.test.ts). 기존 tests/db 의 기능명 관례에는 맞으니 roadmap-tasks.json 의 verify 경로를 새 이름으로 고치면 된다",
+  "(참고) 워커가 더한 CHECK 3종(ck_attendance_dispute_staff_only·_requested·_resolved)은 §7-8 문장(「강사·대표 표시 행에만 이의」, none→requested→accepted·rejected)을 옮긴 것이라 설계와 충돌하지 않는다. 다만 §7-8 이 이의 값 이름과 처리자를 「추천안」으로 두었으므로, 이의 처리 Task 에서 바뀌면 이 CHECK 도 같이 고쳐야 한다",
+  "(참고) accepted 일 때 cancelled_at 을 채운다는 §7-8 규칙은 DB 에서 강제하지 않는다. 이의 처리 API Task 의 몫이다",
+  "(참고) 새 FK 6개는 NO ACTION 이다. 스키마 전체 FK 133개가 같은 방식이라 「신규 FK Restrict」 관례와 실질적으로 같다",
+  "(참고) 전체 단위 실패 1건(mobile .env.example)과 전체 DB 실패 17건(permission-matrix 16 + affiliation-delegation 1)은 로그상 attendance 와 관계없는 기존 실패다"
+ ],
+ "when": "2026-11-23T16:58:54+09:00"
+}

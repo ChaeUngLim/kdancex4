@@ -1,0 +1,13 @@
+{
+ "id": "S1-1.13",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence PASS(행 10·문제 0), 로그 # when 이 모두 2026-11-20 23:00~23:01 KST 로 이번 작업 시각",
+  "직접 재실행: DB 테스트 13 passed skip 0, tsc exit 0, 계약 린터 오류 0(GET 두 경로 MISSING 아님) — 워커 보고와 같다",
+  "goal 충족: requireStaff(\"admin\", web), 제출된 신청만, documents[].fileId 노출, 계좌는 toResponse 의 accountMasked 만, 테스트가 대표 403·전체 계좌번호 0건을 단언",
+  "(참고) verify 의 파일명 s1-1-13.db.test.ts 대신 기능 이름 admin-merchant-applications.db.test.ts 를 썼다 — 기존 tests/db 관례와 같고 EVIDENCE.md 에 밝혔다",
+  "(참고) permission-matrix 「모든 route.ts 가 표에 있다」 1건 실패는 다른 Task 경로 7개 누락 때문이며 이번 두 행은 통과(재실행 27 passed·1 failed 확인)",
+  "(참고) 응답 모양·초안 숨김·정렬·limit·오류 코드는 계약 07 열린 점 ⑨ 에 임시 확정으로 적혀 있어 사람 사후 확인이 필요하다"
+ ],
+ "when": "2026-11-20T23:03:09+09:00"
+}

@@ -1,0 +1,13 @@
+{
+ "id": "S1-1.28",
+ "verdict": "PASS",
+ "reasons": [
+  "check_evidence.py PASS(18행, 문제 0). 로그 # when 은 2026-11-20 22:09~22:14 KST 로 이번 Task 실행분이다",
+  "verify DB 테스트를 다시 돌렸다. 6 passed, skip 0. S1-1.27 점검 테스트까지 합쳐 17 passed. tsc --noEmit exit 0",
+  "business-status-check.ts 의 recordCheck 트랜잭션 안에서 openClosureRestrictions(tx) 가 new_sales_blocked·payout_hold 2행(source_check_id 붙음, ON CONFLICT 로 중복 방지)과 감사 행, active 대표 알림 1건(restriction_notice/operations, dedupe_key)을 쓴다. goal·method·D26 note 와 맞는다. 한국어 주석 있음, useEffect·비밀값 없음",
+  "data-model §7-3b(320행)의 조치 연결과 §7-9 표(430·432행)에 반영돼 있다. restriction_notice 는 §12 에 정의된 값을 앞당겨 쓴 것이다",
+  "(참고) verify 의 파일 이름 tests/db/s1-1-28.db.test.ts 대신 tests/db/business-closure-restrictions.db.test.ts 를 썼다. EVIDENCE.md 에 적혀 있으니 roadmap verify 문자열만 고치면 된다",
+  "(참고) 사람 확인이 필요하다: 알림 kind·감사 action·reason 문자열(business_closed/business_suspended) 이름을 워커가 정했다. 전체 DB 회귀의 permission-matrix 1건 실패는 다른 Task 의 경로 때문이라 이 Task 와 무관하다"
+ ],
+ "when": "2026-11-21T00:26:22+09:00"
+}
