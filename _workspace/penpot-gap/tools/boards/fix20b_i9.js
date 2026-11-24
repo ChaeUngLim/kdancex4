@@ -1,0 +1,10 @@
+const B=FIND('I9 ·');const all=[];const w=s=>{for(const c of (s.children||[])){all.push(c);w(c);}};w(B);
+const card=all.find(c=>c.name.startsWith('card · 활동 장르'));
+const r2=card.children[card.children.length-1];
+const ts=[];const w2=s=>{for(const c of (s.children||[])){if(c.type==='text')ts.push(c);w2(c);}};w2(r2);
+ts[1].characters='사업자등록번호와 등록증 · 아직 안 넣었어요';
+card.resize(350,251);
+const quit=B.children.find(c=>c.type==='text'&&c.characters.startsWith('강사 탈퇴'));
+const ver=all.find(c=>c.type==='text'&&c.characters.startsWith('버전'));
+quit.y=ver.y-1;quit.x=B.x+370-quit.width;
+return [Math.round(card.height),Math.round(ver.y-B.y),Math.round(quit.y-B.y),Math.round(quit.x-B.x)];

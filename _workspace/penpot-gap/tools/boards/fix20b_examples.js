@@ -1,0 +1,11 @@
+const P=penpot.currentPage.root.children.filter(x=>x.type==='board'&&!/이전 안|폐기/.test(x.name));
+const out=[];
+const sub=(b,from,to,o={})=>{const B=P.find(x=>x.name.startsWith(b+' ·'));let n=0;const w=s=>{for(const c of (s.children||[])){if(c.type==='text'&&c.characters===from&&(!o.y||Math.abs(Math.round(c.y-B.y)-o.y)<=3)){c.characters=to;n++;}w(c);}};w(B);out.push([b,from.slice(0,12),n]);};
+sub('I5','20:00–21:00 · 라틴하우스 강남 A홀','20:30–21:30 · 라틴하우스 강남 A홀');
+sub('I7','20:00','20:30',{y:292});
+sub('I9C','D-210','D-174');
+sub('I16','10월 정산 · 쌈바(입문) · 환불 2건 −138,000','11월 5일 정산 · 조정 · 쌈바(입문) 환불 1건 −26,000');
+sub('I16','10월 정산에 환불 2건 −138,000원이 잡혔어요. 어느 회원의 어떤 회차 환불인지 근거를 볼 수 있을까요?','11월 5일 정산에 조정 환불 1건 −26,000원이 잡혔어요. 어느 회원의 어떤 회차 환불인지 근거를 볼 수 있을까요?');
+sub('I21','10월 정산 지급 예정 1,240,000원','11월 5일 정산 지급 예정 1,240,000원');
+const I7=P.find(x=>x.name.startsWith('I7 ·'));const r=[];const w=s=>{for(const c of (s.children||[])){if(c.name==='row · 20:00 바차타 쌈바'||c.name.startsWith('row · 20:00 바차')){c.name=c.name.replace('20:00','20:30');r.push(c.name);}w(c);}};w(I7);out.push(r);
+return out;
