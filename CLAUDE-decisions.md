@@ -297,3 +297,18 @@
 - 버린 대안: `pg_advisory_xact_lock`·풀에서 직접 BEGIN/COMMIT 하는 `withPgTransaction` — 기본 경로가 통과해 쓸 이유가 없다(`withPgTransaction` 은 비상용으로만 남김). 인증 `public` + `auth_` 접두어 — 함께 통과했지만 앱 테이블과 섞인다.
 - 근거: `_workspace/03_research.md` §3-1, `admin-web/tests/spike/r2-prisma8.db.test.ts`(동시 20건 — 연결 20 겹침, 성공 1)·`auth-smoke.db.test.ts`, `_workspace/09_completion-verifier_report.md`(COMPLETE)
 - 관련: SCH-21(FastAPI→Next.js 전환) 일부 · S0-1(R2 스파이크·러너 바닥)
+
+## ADR-007. 강사·대표 앱 로그인은 2단계 인증을 묻지 않는다 — 앱 전용 로그인 경로 (2026-11-25)
+- 상태: 채택(사용자 결정 「앱은 2단계 없이 통과」)
+- 맥락: 관리자 웹에서 인증 앱(TOTP)을 켠 강사·대표가 앱에 로그인하면 `/sign-in/username` 이 토큰 대신 `twoFactorRedirect` 를 줬다. 앱에는 6자리 화면이 없어 「관리자 웹에서 로그인해 주세요」로 멈췄다 — 대표가 입점 전에 인증 앱을 등록하므로(FR-011) 사실상 모든 대표가 앱에 못 들어오는 상태였다.
+- 결정: 앱은 Better Auth 플러그인 엔드포인트 `POST /api/auth/sign-in/staff-app` 으로 로그인한다. 비밀번호는 Better Auth 의 같은 함수로 확인하고, `staff_accounts` 가 `active` 일 때만 세션을 준다. 그 세션은 세션 훅이 경로를 보고 `secondFactorVerified = false` 로 적어, 앱 경로(Bearer)만 열고 관리자 웹 콘솔은 401 `SECOND_FACTOR_REQUIRED` 로 막는다. 쿠키는 심지 않는다. 비밀번호가 유일한 관문이 되므로 계약 §6-4 의 아이디·IP 실패 제한(15분 5회, Redis, 꺼지면 막음)을 이 경로에 건다.
+- 앱 세션은 2단계·계정 관리 경로를 못 쓴다(2026-11-25 보안 리뷰 C1·H1 반영): 세션에 `appSession=true` 이름표(`input:false`)를 엔드포인트가 직접 적고, 그 세션으로 부를 수 있는 Better Auth 경로는 허용 목록(`/get-session`·`/sign-out`·`/ok`·`/error`·앱 로그인)뿐이다. 나머지(`/two-factor/*`·`/change-password`·`/revoke-*`·`/update-user`·`/list-sessions` 등)는 403 `APP_SESSION_FORBIDDEN`. 막지 않으면 앱 토큰으로 인증 앱을 끄고 다시 등록해 「2단계를 마친 세션」을 얻어 콘솔이 열렸다(재현 테스트로 확인). 이름표는 세션 훅(앱 세션이 만든 새 세션도 물려받음)과 가드(`isSecondFactorVerified`)가 한 번 더 본다.
+- 2차 재리뷰(R2-C1) 반영: 허용 목록 훅이 쿠키를 손으로 읽어 따옴표 쿠키(`name="TOKEN.서명"`)로 건너뛸 수 있었다(재현 테스트로 2단계 끄기 200 확인). 쿠키는 Better Auth 가 세션을 읽는 그 함수(`ctx.getSignedCookie`)로, Bearer 는 bearer 플러그인과 같은 규칙으로 읽게 바꿨다. 깊이 방어로 `databaseHooks` 의 user(update·delete)·account(create·update·delete)·session(delete — 자기 세션만 허용) 앞에서 「Better Auth 가 이 요청에 실제로 쓴 세션(`ctx.context.session`)이 앱 세션이면 403」을 건다 — 해석을 우리가 다시 하지 않는 판정이다. 인증 앱 비밀값 표(twoFactor)는 플러그인이 훅 없는 어댑터로 써서 이 길목에 걸리지 않는다(앞단 훅만 지킨다).
+- 3차 리뷰 PASS(r3) 뒤 권고 반영: 비밀번호만으로 인증 앱 비밀값을 돌려주는 `/two-factor/get-totp-uri` 는 우리 화면이 쓰지 않아 `STAFF_DISABLED_AUTH_PATHS` 에 넣어 404 로 없앴다(LOW-1). **Better Auth 를 올릴 때는 `staff-app-sign-in.db.test.ts` 와 「데이터 길목만 켠 확인」(`_workspace/app-2fa-bypass/07_layer2_only.log` 방식)을 반드시 다시 돌린다** — 데이터 쪽 훅은 그 경로가 `ctx.context.session` 을 채울 때만 앱 세션을 알아보므로, 새 버전이 경로를 바꾸면 조용히 한 겹이 사라질 수 있다(LOW-2).
+- 위험(사용자에게 안내함): 비밀번호만 알면 대표 앱에서 회원 정보·정산을 볼 수 있다. 개인정보의 안전성 확보조치 기준 제6조 ② 해당 여부는 공개 운영 전 확인 필요.
+- 버린 대안:
+  - **앱에도 6자리 입력 화면** — 가장 안전하지만 앱 화면·세션 흐름(two_factor 임시 쿠키는 앱에 없다)을 새로 만들어야 하고, 사용자가 앱에서는 불편을 원하지 않았다.
+  - **지금처럼 앱 로그인을 막기** — 인증 앱을 켠 대표·강사가 앱을 아예 못 쓴다. 대표는 입점 전에 인증 앱 등록이 필수라 대표 앱이 통째로 쓸모없어진다.
+  - (구현 방식) Next.js 라우트에서 내부 어댑터로 세션을 만드는 안 — 세션 훅이 어느 요청에서 만든 세션인지 알 수 없어 `secondFactorVerified` 가 계정 값(true)으로 찍힌다. 플러그인 엔드포인트는 훅이 엔드포인트 문맥의 경로를 읽을 수 있고, `/sign-in` 기본 요청 제한도 그대로 받는다.
+- 근거: `admin-web/lib/server/staff-app-sign-in.ts` · `admin-web/lib/server/staff-auth.ts`(세션 훅) · `admin-web/tests/db/staff-app-sign-in.db.test.ts`(9 passed) · two-factor 설치본 1.7.5 `plugins/two-factor/index.mjs` after 훅 matcher(세 경로 정확히 일치)
+- 관련: FR-303(관리자 웹 2단계 인증) · FR-300(로그인 하나·콘솔 하나) · 계약 `_workspace/03_contracts/README.md` §6-1·§6-2

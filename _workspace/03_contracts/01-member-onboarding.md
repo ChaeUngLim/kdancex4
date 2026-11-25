@@ -71,8 +71,9 @@
 ```json
 { "id": "…", "name": "김회원", "nickname": "서연", "gender": "male", "birthDate": "1995-03-02", "phoneMasked": "010-****-5678",
   "profile": { "interestGenres": [], "regions": [], "availableFrom": null, "availableTo": null, "experienceLevel": null },
-  "baseGenre": null, "onboarding": { "profileDone": false, "baseGenreDone": false } }
+  "baseGenre": null, "baseSubGenre": null, "onboarding": { "profileDone": false, "baseGenreDone": false } }
 ```
+- `baseSubGenre` — 기준 장르 안의 세부 장르(FR-022a, 2026-11-25 추가). `latin`·`standard`(댄스스포츠) · `salsa`·`bachata`(살사/바차타) · `null`(=「전체」). 기존 회원은 `null`
 
 ## 4. `GET /api/me`
 
@@ -96,7 +97,14 @@
 
 ## 6. `PUT /api/me/base-genre` — 기준 장르(FR-022a)
 
-`{ "baseGenre": "salsa_bachata" }` → 200 `Member`. 정확히 1개. 바꾸기도 같은 경로.
+`{ "baseGenre": "salsa_bachata", "baseSubGenre": "bachata" }` → 200 `Member`. 정확히 1개. 바꾸기도 같은 경로(홈의 「장르 바꾸기」도 이 경로).
+
+| 칸 | 규칙 |
+|---|---|
+| `baseGenre` | 필수. 장르 4종 중 하나(배열·빈 값·null 은 422) |
+| `baseSubGenre` | 선택(2026-11-25 추가). 빼거나 `null` 이면 「전체」로 저장한다. `dance_sport` → `latin`·`standard`, `salsa_bachata` → `salsa`·`bachata` 만. 탱고·스윙은 세부 장르가 없어 `null` 만 받는다 |
+| 짝 안 맞음 | 422 `VALIDATION_FAILED`, `fields: [{ path: "baseSubGenre" }]` — 예: `argentine_tango` + `latin`. 저장값은 그대로. DB 도 CHECK `ck_members_base_sub_genre` 로 한 번 더 막는다 |
+| 덮어쓰기 | 저장할 때마다 두 칸을 함께 덮어쓴다 — 탱고로 바꾸면 예전 세부 장르가 남지 않고 `null` 이 된다 |
 
 기준 장르가 없으면 홈 목록이 409 `BASE_GENRE_REQUIRED` 를 낸다(`02-catalog.md`) — AC-9 의 「고르기 전에는 홈 데이터를 주지 않는다」를 **API 에서** 막는다(화면만 막으면 우회된다).
 

@@ -1,0 +1,96 @@
+
+> admin-web@0.0.0 test:db
+> vitest run --project db tests/db/staff-app-sign-in.db.test.ts
+
+
+ RUN  v4.1.12 /home/user/kdance/admin-web
+
+stderr | tests/db/staff-app-sign-in.db.test.ts > 강사·대표 앱 로그인 — 2단계 없이 토큰, 웹 콘솔은 그대로 2단계(FR-303)
+[2m2026-11-25T08:34:27.195Z[0m [31mERROR[0m [1m[Better Auth]:[0m Database schema mismatch
+
+  Missing tables
+    user, session, account, verification, twoFactor
+
+  help: Run `npx auth migrate` to add the missing tables and columns.
+
+ ❯ |db| tests/db/staff-app-sign-in.db.test.ts (16 tests | 3 failed) 2988ms
+     × R2-C1 따옴표로 감싼 서명 쿠키로도 2단계 끄기·비밀번호 바꾸기는 403, 계정 값은 그대로 128ms
+     × R2-C1 퍼센트 인코딩 쿠키 · 쿠키+Bearer 동시(앞뒤 바꿔도) 모두 403 65ms
+     × R2-C1 /get-session 갱신 응답으로 받은 서명 쿠키를 따옴표로 감싸 써도 403 126ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |db| tests/db/staff-app-sign-in.db.test.ts > 강사·대표 앱 로그인 — 2단계 없이 토큰, 웹 콘솔은 그대로 2단계(FR-303) > R2-C1 따옴표로 감싼 서명 쿠키로도 2단계 끄기·비밀번호 바꾸기는 403, 계정 값은 그대로
+AssertionError: expected [ 200, 401, 401 ] to deeply equal [ 403, 403, 403 ]
+
+- Expected
++ Received
+
+  [
+-   403,
+-   403,
+-   403,
++   200,
++   401,
++   401,
+  ]
+
+ ❯ tests/db/staff-app-sign-in.db.test.ts:344:60
+    342|     const change = await rawPost("/change-password", { currentPassword…
+    343|     const revoke = await rawPost("/revoke-sessions", {}, { cookie });
+    344|     expect([disable.status, change.status, revoke.status]).toEqual([40…
+       |                                                            ^
+    345|     expect(((await disable.json()) as Json)["code"]).toBe("APP_SESSION…
+    346|     expect(await accountState("owner_q")).toEqual(before);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  |db| tests/db/staff-app-sign-in.db.test.ts > 강사·대표 앱 로그인 — 2단계 없이 토큰, 웹 콘솔은 그대로 2단계(FR-303) > R2-C1 퍼센트 인코딩 쿠키 · 쿠키+Bearer 동시(앞뒤 바꿔도) 모두 403
+AssertionError: expected [ 403, 401, 403, 403 ] to deeply equal [ 403, 403, 403, 403 ]
+
+- Expected
++ Received
+
+  [
+    403,
+-   403,
++   401,
+    403,
+    403,
+  ]
+
+ ❯ tests/db/staff-app-sign-in.db.test.ts:363:22
+    361|     const statuses = [];
+    362|     for (const headers of cases) statuses.push((await rawPost("/two-fa…
+    363|     expect(statuses).toEqual([403, 403, 403, 403]);
+       |                      ^
+    364|     expect(await accountState("owner_q")).toEqual(before);
+    365|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  |db| tests/db/staff-app-sign-in.db.test.ts > 강사·대표 앱 로그인 — 2단계 없이 토큰, 웹 콘솔은 그대로 2단계(FR-303) > R2-C1 /get-session 갱신 응답으로 받은 서명 쿠키를 따옴표로 감싸 써도 403
+AssertionError: expected 200 to be 403 // Object.is equality
+
+- Expected
++ Received
+
+- 403
++ 200
+
+ ❯ tests/db/staff-app-sign-in.db.test.ts:382:28
+    380|     const value = decodeURIComponent(issued!.slice(name.length + 1));
+    381|     const disable = await rawPost("/two-factor/disable", { password: P…
+    382|     expect(disable.status).toBe(403);
+       |                            ^
+    383|     expect(await accountState("owner_q")).toEqual(before);
+    384|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  3 failed | 13 passed (16)
+   Start at  17:34:21
+   Duration  9.02s (transform 186ms, setup 0ms, import 912ms, tests 2.99s, environment 0ms)
+

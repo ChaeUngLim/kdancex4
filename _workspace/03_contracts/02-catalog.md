@@ -9,6 +9,7 @@ Q1(홈 목록: 거르기 vs 정렬) = **거르기**(사용자 결정 2026-11-06)
 | 조건 | 출처 | 비어 있으면 |
 |---|---|---|
 | 장르 | `members.base_genre`(FR-022a(첫 화면 장르 선택·유지)) | 409 `BASE_GENRE_REQUIRED` |
+| 세부 장르 | `members.base_sub_genre`(FR-022a, 2026-11-25 추가) — 값이 있으면 `classes.sub_genre` 가 같은 수업만 | `null`(「전체」)이면 조건 빠짐 — 장르 전체 |
 | 지역 | `member_regions` — 학원 `(region_sido, region_gu)` 가 목록 중 하나와 같음 | 조건 빠짐 |
 | 시간대 | `available_from~to` — 판매 단위의 **모든 회차**가 KST 하루 시각으로 [from, to] 안에 들어감 | 조건 빠짐 |
 | 날짜 | 쿼리 `?from=YYYY-MM-DD&to=YYYY-MM-DD`(선택, KST) — 첫 회차 날짜가 범위 안 | 오늘(KST) 이후 전부 |

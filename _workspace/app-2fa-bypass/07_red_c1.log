@@ -1,0 +1,45 @@
+
+> admin-web@0.0.0 test:db
+> vitest run --project db tests/db/staff-app-sign-in.db.test.ts -t C1
+
+
+ RUN  v4.1.12 /home/user/kdance/admin-web
+
+stderr | tests/db/staff-app-sign-in.db.test.ts > 강사·대표 앱 로그인 — 2단계 없이 토큰, 웹 콘솔은 그대로 2단계(FR-303)
+[2m2026-11-25T08:19:26.738Z[0m [31mERROR[0m [1m[Better Auth]:[0m Database schema mismatch
+
+  Missing tables
+    user, session, account, verification, twoFactor
+
+  help: Run `npx auth migrate` to add the missing tables and columns.
+
+ ❯ |db| tests/db/staff-app-sign-in.db.test.ts (13 tests | 1 failed | 12 skipped) 1077ms
+     × C1 앱 토큰으로 인증 앱 끄기 → 다시 등록 → 6자리 확인을 해도 관리자 웹 콘솔이 열리지 않고, 진짜 인증 앱은 그대로다 207ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |db| tests/db/staff-app-sign-in.db.test.ts > 강사·대표 앱 로그인 — 2단계 없이 토큰, 웹 콘솔은 그대로 2단계(FR-303) > C1 앱 토큰으로 인증 앱 끄기 → 다시 등록 → 6자리 확인을 해도 관리자 웹 콘솔이 열리지 않고, 진짜 인증 앱은 그대로다
+AssertionError: expected 200 to be 401 // Object.is equality
+
+- Expected
++ Received
+
+- 401
++ 200
+
+ ❯ tests/db/staff-app-sign-in.db.test.ts:232:84
+    230|
+    231|     // 끝에 손에 쥔 토큰·쿠키 어느 쪽으로도 웹 전용 콘솔은 열리지 않는다
+    232|     expect((await webOnlyRoute(bearer(token), { academyId: academyIdC1…
+       |                                                                                    ^
+    233|     if (lastCookie !== "") {
+    234|       expect((await webOnlyRoute(new Request(`${BASE}/api/console/test…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 12 skipped (13)
+   Start at  17:19:20
+   Duration  7.20s (transform 184ms, setup 0ms, import 901ms, tests 1.08s, environment 0ms)
+

@@ -124,7 +124,7 @@ FastAPI 의 `{"detail": …}` 모양을 **유지하고** 기계용 `code` 를 �
 |---|---|
 | 계정 | 직원 계정(`staff_accounts`) 하나로 강사·대표 앱과 관리자 웹에 들어온다. 아이디·비밀번호는 Better Auth `username` 플러그인(설치본 경로 `/sign-in/username` 실측) |
 | 관리자 웹 세션 | Better Auth 쿠키 세션(httpOnly · Secure · SameSite=Lax). **2단계 인증을 마친 세션만** 콘솔 경로를 쓸 수 있다 |
-| 강사·대표 앱 | 같은 계정, bearer 토큰(§2). 2단계 인증을 묻지 않는다(FR-303 은 관리자 웹만). 앱에서 돈 나가는 동작은 승인 버튼 → 확인 팝업(결정 10) |
+| 강사·대표 앱 | 같은 계정, bearer 토큰(§2). 2단계 인증을 묻지 않는다(FR-303 은 관리자 웹만) — **관리자 웹에서 인증 앱을 켠 계정도 마찬가지다**(2026-11-25 사용자 결정, 아래 「앱 로그인」). 로그인은 앱 전용 경로 `POST /api/auth/sign-in/staff-app` 을 쓴다. 앱에서 돈 나가는 동작은 승인 버튼 → 확인 팝업(결정 10) |
 | 2단계 인증 | Better Auth `two-factor` 플러그인의 TOTP(인증 앱 6자리)만 켠다. 문자·이메일 OTP·패스키 경로는 끈다(결정 10) |
 
 ```
@@ -135,6 +135,20 @@ FastAPI 의 `{"detail": …}` 모양을 **유지하고** 기계용 `code` 를 �
 ③ POST /api/auth/two-factor/verify-totp {code: "482107", trustDevice: true|false} → 세션 발급
 ④ GET /api/staff/me → 콘솔 메뉴 결정(아래)
 ```
+
+**앱 로그인 `POST /api/auth/sign-in/staff-app`** (2026-11-25 추가 — 사용자 결정 「앱은 2단계 없이 통과」, `CLAUDE-decisions.md` ADR-007)
+
+`/sign-in/username` 은 인증 앱을 켠 계정에 토큰 대신 `twoFactorRedirect` 를 준다(two-factor 플러그인 after 훅이 그 경로에만 붙는다). 앱에는 6자리 화면이 없으므로 앱은 이 경로를 쓴다. Better Auth 플러그인 엔드포인트라 `[...all]` 라우트로 들어온다(새 route 파일 없음). 구현: `admin-web/lib/server/staff-app-sign-in.ts`
+
+| 항목 | 규칙 |
+|---|---|
+| 요청 | `{ "username": "owner_kim", "password": "…" }` · 쿠키·Origin 필요 없음 |
+| 200 | `{ "token": "…", "user": { "id", "username", "displayUsername", "name" } }` — **쿠키를 심지 않는다**(Bearer 전용). `twoFactorRedirect` 는 오지 않는다 |
+| 세션 | `secondFactorVerified = false` 로 만든다(계정이 인증 앱을 켰어도). 그래서 앱 경로(Bearer = `surface='app'`, `appToo` 경로 포함)는 열리고, 관리자 웹 콘솔(`surface='web'`)은 §6-2 ③ 에서 401 `SECOND_FACTOR_REQUIRED` 그대로다 |
+| 앱 세션 제한 | **앱 세션은 2단계·계정 관리 경로를 못 쓴다**(보안 리뷰 C1·H1). 세션 이름표 `appSession=true`(`input:false`). 앱 세션으로 부를 수 있는 `/api/auth/**` 는 `/get-session`·`/sign-out`·`/ok`·`/error`·`/sign-in/staff-app` 뿐이고, 나머지는 403 `{ "code": "APP_SESSION_FORBIDDEN", "detail": "앱 로그인으로는 쓸 수 없는 기능이에요. 관리자 웹에서 해 주세요", "message": … }` (Bearer·서명 쿠키 모두, 따옴표·퍼센트 인코딩 쿠키 포함). 앞단 판정이 빗나가도 계정·비밀번호·2단계 켜짐·다른 세션은 데이터 쪽 길목(databaseHooks)에서 같은 403 으로 막힌다(2차 재리뷰) |
+| 401 | 틀린 비밀번호·없는 아이디 — `/sign-in/username` 과 **같은 본문**(`{ "code": "INVALID_USERNAME_OR_PASSWORD", "message": "Invalid username or password" }`). 계정 유무를 흘리지 않는다 |
+| 403 | 비밀번호가 맞은 뒤에만: 직원 계정 없음(회원)·탈퇴 → `STAFF_ACCOUNT_REQUIRED`, 정지 → `ACCOUNT_SUSPENDED`. 본문 `{ code, detail, message }`. 세션은 만들지 않는다 |
+| 429 | ① §6-4 의 `authFailure` — 같은 아이디(소문자로 맞춤) **또는** 같은 IP 가 15분에 5회 틀리면 15분 동안, 맞는 비밀번호도 막는다. Redis, 꺼지면 막는 쪽. 본문 §6-4 모양 + `Retry-After` ② Better Auth 기본 제한(IP·경로당 10초 3회, 운영에서만 켜짐) — `/sign-in/username` 과 같은 값 |
 
 - `/api/auth/**` 응답은 Better Auth 모양 그대로다(§2 와 같다). 우리 `code` 표(§4)는 `/api/**` 의 나머지 경로에만 적용한다. 단 **429 는 우리 모양으로** 낸다 — 요청 제한을 Better Auth before 훅에서 걸기 때문이다(동작은 SP-8(2단계 인증 플러그인 실측)에서 확인)
 - 위임 권한이 하나도 없는 강사는 ①이 끝난 뒤 `GET /api/staff/me` 가 `consoleAccess: false` 를 주고 화면은 「관리자 웹에서 쓸 메뉴가 없어요」를 띄운다(FR-300 추천안). 인증 앱 등록(②)을 시키지 않으려고 ① 직후 판정한다
@@ -159,7 +173,7 @@ FastAPI 의 `{"detail": …}` 모양을 **유지하고** 기계용 `code` 를 �
 |---|---|---|
 | 1 | 세션이 있다 | 401 `UNAUTHENTICATED` |
 | 2 | 세션의 사용자에게 `staff_accounts` 가 있고 `active` 다 | 403 `STAFF_ACCOUNT_REQUIRED` · 403 `ACCOUNT_SUSPENDED` |
-| 3 | `surface='web'` 이면 이 세션이 2단계 인증을 마쳤다. 대표 앱도 부르는 콘솔 경로(명세 `appToo: true` — 대시보드·소속 목록·승인·거절·위임·초대 만들기·해제·해제 미리 보기·동의 기록·약관 통지 읽음)는 Bearer 요청을 `surface='app'` 으로 보고 쿠키 요청만 `web` 으로 본다(2026-11-23 사용자 결정 — 대표 앱이 실서버에서 401 이던 문제, 수업 승인 경로와 같은 방식). 직원 본인 경로(`staff_self` — 직원 알림함 `GET/POST /api/staff/notifications…`)도 2단계는 쿠키 요청에만 묻는다(11 열린 점 ⑩ 적용, 같은 날) | 401 `SECOND_FACTOR_REQUIRED` |
+| 3 | `surface='web'` 이면 이 세션이 2단계 인증을 마쳤다. 대표 앱도 부르는 콘솔 경로(명세 `appToo: true` — 대시보드·소속 목록·승인·거절·위임·초대 만들기·해제·해제 미리 보기·동의 기록·약관 통지 읽음)는 Bearer 요청을 `surface='app'` 으로 보고 쿠키 요청만 `web` 으로 본다(2026-11-23 사용자 결정 — 대표 앱이 실서버에서 401 이던 문제, 수업 승인 경로와 같은 방식). 직원 본인 경로(`staff_self` — 직원 알림함 `GET/POST /api/staff/notifications…`)도 2단계는 쿠키 요청에만 묻는다(11 열린 점 ⑩ 적용, 같은 날). 앱 로그인(`/sign-in/staff-app`)으로 받은 세션은 계정이 인증 앱을 켰어도 「2단계 전」이라 `web` 판정에서는 늘 여기서 막힌다(2026-11-25) | 401 `SECOND_FACTOR_REQUIRED` |
 | 4 | `permission` 이 `admin` 이면 `role_grants(admin, active)` | 403 `FORBIDDEN` |
 | 5 | `academyId` 가 있으면 학원이 있다 | 404 `NOT_FOUND` |
 | 6 | 대표 권한(`owner`)이면 `academy_owners(active)` 가 그 계정이다 | 403 `FORBIDDEN` |
