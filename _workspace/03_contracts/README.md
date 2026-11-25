@@ -147,7 +147,7 @@ FastAPI 의 `{"detail": …}` 모양을 **유지하고** 기계용 `code` 를 �
   "platformMenus": [] }
 ```
 `as` 는 `owner` · `delegate` 둘. `menus` 는 서버가 권한에서 계산한다(대응: `roster_manage` → `roster`(예약·명단), `class_manage` → `classes`(수업·포스터 등록), 대표는 전체, `admin` 역할은 `platform_settlement` 추가). 화면은 이 목록만 그린다.
-- (2026-11-20 S0-3.7(직원 정보 조회 API) 구현 때 더함) 학원에 매이지 않는 운영자 메뉴는 `platformMenus` 에 담는다 — `admin` 역할이면 `["platform_settlement"]`, 아니면 `[]`. 대표의 `permissions` 는 `["owner"]`. 위임이 하나도 없는 학원은 `academies` 에 넣지 않는다. `consoleAccess` = `platformMenus` 또는 어느 학원의 `menus` 가 비어 있지 않음. 「대표는 전체」는 지금 이름이 정해진 `roster`·`classes` 둘이고, 대표 전용 화면의 메뉴 이름은 그 화면의 Task 가 여기에 먼저 적는다. 응답 스키마 원본: `admin-web/lib/server/services/staff-me.ts` 의 `staffMeResponseSchema`
+- (2026-11-20 S0-3.7(직원 정보 조회 API) 구현 때 더함) 학원에 매이지 않는 운영자 메뉴는 `platformMenus` 에 담는다 — `admin` 역할이면 `["platform_settlement", "reports"]`(`reports` = 신고 처리 화면 `/admin/reports`, 2026-11-25 최종 점검에서 메뉴 입구를 더함), 아니면 `[]`. 대표의 `permissions` 는 `["owner"]`. 위임이 하나도 없는 학원은 `academies` 에 넣지 않는다. `consoleAccess` = `platformMenus` 또는 어느 학원의 `menus` 가 비어 있지 않음. 「대표는 전체」는 지금 이름이 정해진 `roster`·`classes` 둘이고, 대표 전용 화면의 메뉴 이름은 그 화면의 Task 가 여기에 먼저 적는다. 응답 스키마 원본: `admin-web/lib/server/services/staff-me.ts` 의 `staffMeResponseSchema`
 - (2026-11-21 S1-1.32(학원 설정 화면 W2b·W22) 구현 때 더함) 대표 전용 메뉴 `settings`(입점·설정, 보드 W2b·W22)를 `menus` 에 더했다 — 대표는 이제 `["roster", "classes", "settings"]` 를 받는다. 위임으로는 열리지 않는다. 화면 주소는 `/academies/{academyId}/settings`(입점·설정)·`/academies/{academyId}/app-page`(학원 앱 페이지)
 - (2026-11-21 S1-2.14(강사·소속 화면 W3a) 구현 때 더함) 대표 전용 메뉴 `instructors`(강사 관리, 보드 W3a)를 `menus` 에 더했다 — 대표는 이제 `["roster", "classes", "instructors", "settings"]` 를 받는다. 소속 승인·위임 관리는 대표 고유 권한이라(08 시나리오 6) 위임으로는 열리지 않는다. 화면 주소는 `/academies/{academyId}/instructors`
 

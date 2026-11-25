@@ -1837,7 +1837,7 @@
       "title": "소명 기한 지남 → 운영자 게시 중단",
       "goal": "소명 기한(7일)이 지난 건을 P11 에 「기한 지남」으로 올리고, 운영자가 suspend-listing 을 누르면 listing_suspended 가 열린다(FR-254, 계약 13 — 자동 중단 없음)",
       "method": "운영자 API 경로 1개 [Phase 5→6→8 · kdance-implementer(Sonnet) · ecc:backend-patterns · ecc:tdd-workflow] — restriction_cases·restriction_explanations(S7) 위에서 만든다",
-      "verify": "cd admin-web && flock /tmp/kdance-next-test.lock npm run test:db -- tests/db/s1-1-29.db.test.ts → passed, skip 0 — DB 테스트 — 8일째 소명 없음이면 제한 2개 그대로 + 건이 「기한 지남」 · 운영자 suspend-listing 뒤 3개 · 소명 없이 accept-explanation 은 409 NO_EXPLANATION · 받아들이면 new_sales_blocked·payout_hold 닫힘(계약 13 555행)",
+      "verify": "cd admin-web && flock /tmp/kdance-next-test.lock npm run test:db -- tests/db/business-check-listing-suspension.db.test.ts → passed, skip 0 — DB 테스트 — 8일째 소명 없음이면 제한 2개 그대로 + 건이 「기한 지남」 · 운영자 suspend-listing 뒤 3개 · 소명 없이 accept-explanation 은 409 NO_EXPLANATION · 받아들이면 new_sales_blocked·payout_hold 닫힘(계약 13 555행)",
       "contract": "_workspace/03_contracts/13-settlement.md",
       "deps": [
         "S1-1.28",
@@ -5191,7 +5191,7 @@
       "title": "역할 불균형 알림 작업(FR-107)",
       "goal": "수업 전날 18:00(KST)에 남·여 결제 인원 차이가 3명 이상인 내일 회차마다 담당 강사와 대표에게 직원 알림 gender_imbalance 가 한 번만 생긴다",
       "method": "내부 작업 경로 POST /api/internal/jobs/gender-imbalance-check 1개. S3-5.5 의 evaluateGenderImbalance 를 부르고 notifications 에 dedupe_key='imbalance:<sessionId>' 로 쓴다. 실제 푸시 발송은 S7-1 [Phase 5→6→8 · kdance-implementer(Sonnet) · ecc:backend-patterns · ecc:tdd-workflow]",
-      "verify": "cd admin-web && flock /tmp/kdance-next-test.lock npm run test:db -- tests/db/s3-5-10.db.test.ts → passed, skip 0 — 남 8·여 5 회차는 강사·대표 알림 2건, 남 8·여 6 회차는 0건, 작업을 두 번 불러도 같은 회차는 1건 · cd admin-web && ./node_modules/.bin/tsc --noEmit → exit 0 · python3 .claude/skills/leave-verifiable-evidence/scripts/api_contract_lint.py → 오류 0(전체 검사 · MISSING 은 경고)",
+      "verify": "cd admin-web && flock /tmp/kdance-next-test.lock npm run test:db -- tests/db/gender-imbalance-check.db.test.ts → passed, skip 0 — 남 8·여 5 회차는 강사·대표 알림 2건, 남 8·여 6 회차는 0건, 작업을 두 번 불러도 같은 회차는 1건 · cd admin-web && ./node_modules/.bin/tsc --noEmit → exit 0 · python3 .claude/skills/leave-verifiable-evidence/scripts/api_contract_lint.py → 오류 0(전체 검사 · MISSING 은 경고)",
       "contract": "18-after-payment-views.md",
       "deps": [
         "S3-5.5",
@@ -5213,7 +5213,7 @@
       "title": "끝까지 한 바퀴",
       "goal": "M1·M2 가 만든 데이터 위에서 가입부터 캘린더·강사 명단까지 한 테스트로 통과한다",
       "method": "API 수준 시나리오 테스트 1개. 시드는 쓰지 않는다 [Phase 5→6→8 · kdance-implementer(Sonnet) · ecc:tdd-workflow · ecc:coding-standards]",
-      "verify": "cd admin-web && flock /tmp/kdance-next-test.lock npm run test:db -- tests/db/m3-end-1.db.test.ts → passed, skip 0 — 가입→검색→결제→가짜 입금→확정→캘린더 8회차→강사 명단 1명 · python3 .claude/skills/leave-verifiable-evidence/scripts/api_contract_lint.py --contract 02-catalog.md --contract 03-checkout-payment.md --contract 04-me-calendar-notifications.md → 오류 0 — M3 계약 경로가 모두 구현됨",
+      "verify": "cd admin-web && flock /tmp/kdance-next-test.lock npm run test:db -- tests/db/m3-member-flow.db.test.ts → passed, skip 0 — 가입→검색→결제→가짜 입금→확정→캘린더 8회차→강사 명단 1명 · python3 .claude/skills/leave-verifiable-evidence/scripts/api_contract_lint.py --contract 02-catalog.md --contract 03-checkout-payment.md --contract 04-me-calendar-notifications.md → 오류 0 — M3 계약 경로가 모두 구현됨",
       "contract": null,
       "deps": [
         "S3-1 전체",
@@ -5318,7 +5318,7 @@
       "title": "환불 요청·환불 계좌 테이블",
       "goal": "환불 요청(상태 4종 + 철회)과 환불 계좌(예금주 이름 칸 포함) 테이블이 있다",
       "method": "마이그레이션 1개 [Phase 5→6→8 · kdance-implementer(Opus) · ecc:database-reviewer · ecc:postgres-patterns · ecc:prisma-patterns]",
-      "verify": "cd admin-web && npm run db:migrate → exit 0 · cd admin-web && flock /tmp/kdance-next-test.lock npm run test:db -- tests/db/s4-1-1.db.test.ts → passed, skip 0 — 상태 값 집합 밖 거부 · 환불 요청(상태 4종 + 철회)·환불 계좌(예금주 이름 칸) 테이블 존재",
+      "verify": "cd admin-web && npm run db:migrate → exit 0 · cd admin-web && flock /tmp/kdance-next-test.lock npm run test:db -- tests/db/refund-request-tables.db.test.ts → passed, skip 0 — 상태 값 집합 밖 거부 · 환불 요청(상태 4종 + 철회)·환불 계좌(예금주 이름 칸) 테이블 존재",
       "contract": null,
       "deps": [
         "S3-5 전체",
@@ -5339,7 +5339,7 @@
       "title": "환불 요청 생성·철회",
       "goal": "회원이 환불을 요청하고 처리 전에는 철회한다",
       "method": "정규 과정은 문의 경로로 들어온다(FR-098b(환불 요청 경로)). 전이는 조건부 갱신 [Phase 5→6→8 · kdance-implementer(Opus) · ecc:tdd-workflow · ecc:coding-standards]",
-      "verify": "cd admin-web && flock /tmp/kdance-next-test.lock npm run test:db -- tests/db/s4-1-2.db.test.ts → passed, skip 0 — 처리 전 철회 성공, 처리 중 철회 거부(수용 ④) · 목표: 회원이 환불을 요청하고 처리 전에는 철회한다 · python3 .claude/skills/leave-verifiable-evidence/scripts/api_contract_lint.py → 오류 0(전체 검사 · MISSING 은 경고)",
+      "verify": "cd admin-web && flock /tmp/kdance-next-test.lock npm run test:db -- tests/db/refund-request-create-withdraw.db.test.ts → passed, skip 0 — 처리 전 철회 성공, 처리 중 철회 거부(수용 ④) · 목표: 회원이 환불을 요청하고 처리 전에는 철회한다 · python3 .claude/skills/leave-verifiable-evidence/scripts/api_contract_lint.py → 오류 0(전체 검사 · MISSING 은 경고)",
       "contract": "12-refund-cancel-waitlist.md",
       "deps": [
         "S4-1.1"
@@ -5359,7 +5359,7 @@
       "title": "환불 계좌 저장 API(본인 명의 확인)",
       "goal": "예금주가 본인확인 이름과 다르면 저장이 거부된다. 로그에는 끝 4자리만(FR-295)",
       "method": "라우트 1개. 유료 계좌 실명 조회는 쓰지 않는다 [Phase 5→6→8 · kdance-implementer(Opus) · ecc:backend-patterns · ecc:security-reviewer · ecc:tdd-workflow]",
-      "verify": "cd admin-web && flock /tmp/kdance-next-test.lock npm run test:db -- tests/db/s4-1-2a.db.test.ts → passed, skip 0 — 이름이 다른 계좌 422 · 같은 이름 저장 · 로그에 전체 번호 0 · 목표: 예금주가 본인확인 이름과 다르면 저장이 거부된다. 로그에는 끝 4자리만(FR-295) · cd admin-web && ./node_modules/.bin/tsc --noEmit → exit 0 · python3 .claude/skills/leave-verifiable-evidence/scripts/api_contract_lint.py → 오류 0(전체 검사 · MISSING 은 경고)",
+      "verify": "cd admin-web && flock /tmp/kdance-next-test.lock npm run test:db -- tests/db/refund-account-save.db.test.ts → passed, skip 0 — 이름이 다른 계좌 422 · 같은 이름 저장 · 로그에 전체 번호 0 · 목표: 예금주가 본인확인 이름과 다르면 저장이 거부된다. 로그에는 끝 4자리만(FR-295) · cd admin-web && ./node_modules/.bin/tsc --noEmit → exit 0 · python3 .claude/skills/leave-verifiable-evidence/scripts/api_contract_lint.py → 오류 0(전체 검사 · MISSING 은 경고)",
       "contract": "12-refund-cancel-waitlist.md",
       "deps": [
         "S4-1.1"
@@ -5379,7 +5379,7 @@
       "title": "중도 환불 금액 미리 채움 계산",
       "goal": "진행·남은 회차와 회차당 금액을 계산하고, 공지 판본의 시점별 환불 비율 %로 환불 금액을 미리 채워 준다(FR-294)",
       "method": "순수 함수. 대표가 고칠 수 있는 제안값일 뿐 확정하지 않는다 [Phase 5→6→8 · kdance-implementer(Opus) · ecc:tdd-workflow · ecc:coding-standards]",
-      "verify": "cd admin-web && npm run test:unit -- tests/unit/s4-1-3.test.ts → passed — 8회차 120,000원에서 3회 진행 → 남은 5회·회차당 15,000원 · 공지 50% 구간이면 미리 채움 값 = 계산값",
+      "verify": "cd admin-web && npm run test:unit -- tests/unit/refund-suggestion.test.ts → passed — 8회차 120,000원에서 3회 진행 → 남은 5회·회차당 15,000원 · 공지 50% 구간이면 미리 채움 값 = 계산값",
       "contract": null,
       "deps": [
         "S4-1.1",
@@ -5400,7 +5400,7 @@
       "title": "대표 환불 입력",
       "goal": "대표가 미리 채운 금액을 고치거나 거절하고(거절 근거 입력) 환불 여부·금액(0원~결제액)·근거 공지 항목을 넣는다(FR-293)",
       "method": "zod 검증 + 서버에서 결제액과 다시 비교한다. 빈 항목이 있으면 처리 완료로 넘어가지 않는다 [Phase 5→6→8 · kdance-implementer(Opus) · ecc:tdd-workflow · ecc:coding-standards]",
-      "verify": "cd admin-web && flock /tmp/kdance-next-test.lock npm run test:db -- tests/db/s4-1-4.db.test.ts → passed, skip 0 — 결제액보다 큰 금액 거부(수용 ①, SC-010(환불 초과 0건)) · 근거 항목 없으면 거부",
+      "verify": "cd admin-web && flock /tmp/kdance-next-test.lock npm run test:db -- tests/db/refund-decision.db.test.ts → passed, skip 0 — 결제액보다 큰 금액 거부(수용 ①, SC-010(환불 초과 0건)) · 근거 항목 없으면 거부",
       "contract": "12-refund-cancel-waitlist.md",
       "deps": [
         "S4-1.2",
@@ -5421,7 +5421,7 @@
       "title": "수단별 환불 실행(카드 부분 취소)",
       "goal": "카드 결제분이 포트를 거쳐 부분 취소로 실행된다",
       "method": "포트를 거친다. 돈이 나가기 전 확인은 앱·웹의 「승인 → 확인 팝업」이 맡는다(패스키 아님, 2026-11-18) [Phase 5→6→8 · kdance-implementer(Opus) · ecc:tdd-workflow · ecc:coding-standards]",
-      "verify": "cd admin-web && flock /tmp/kdance-next-test.lock npm run test:db -- tests/db/s4-1-5.db.test.ts → passed, skip 0 — 카드 주문은 부분 취소 호출 1회(수용 ②) · 목표: 카드 결제분이 포트를 거쳐 부분 취소로 실행된다",
+      "verify": "cd admin-web && flock /tmp/kdance-next-test.lock npm run test:db -- tests/db/refund-execution.db.test.ts → passed, skip 0 — 카드 주문은 부분 취소 호출 1회(수용 ②) · 목표: 카드 결제분이 포트를 거쳐 부분 취소로 실행된다",
       "contract": "12-refund-cancel-waitlist.md",
       "deps": [
         "S4-1.4"
@@ -5441,7 +5441,7 @@
       "title": "계좌 환불 송금 완료·반송 처리 API",
       "goal": "계좌 결제분은 대표가 이체 화면의 받는 사람 이름을 대조한 뒤 송금 완료를 누르고, 다르거나 반송되면 회원에게 계좌 재입력을 요청한다(FR-295)",
       "method": "라우트 2개. 송금은 가짜 PG 흉내 [Phase 5→6→8 · kdance-implementer(Opus) · ecc:backend-patterns · ecc:security-reviewer · ecc:tdd-workflow]",
-      "verify": "cd admin-web && flock /tmp/kdance-next-test.lock npm run test:db -- tests/db/s4-1-5a.db.test.ts → passed, skip 0 — 송금 완료 기록 1행 · 반송 시 재입력 요청 알림 1건 · 목표: 계좌 결제분은 대표가 이체 화면의 받는 사람 이름을 대조한 뒤 송금 완료를 누르고, 다르거나 반송되면 회원에게 계좌 재입력을  · cd admin-web && ./node_modules/.bin/tsc --noEmit → exit 0 · python3 .claude/skills/leave-verifiable-evidence/scripts/api_contract_lint.py → 오류 0(전체 검사 · MISSING 은 경고)",
+      "verify": "cd admin-web && flock /tmp/kdance-next-test.lock npm run test:db -- tests/db/refund-transfer.db.test.ts → passed, skip 0 — 송금 완료 기록 1행 · 반송 시 재입력 요청 알림 1건 · 목표: 계좌 결제분은 대표가 이체 화면의 받는 사람 이름을 대조한 뒤 송금 완료를 누르고, 다르거나 반송되면 회원에게 계좌 재입력을  · cd admin-web && ./node_modules/.bin/tsc --noEmit → exit 0 · python3 .claude/skills/leave-verifiable-evidence/scripts/api_contract_lint.py → 오류 0(전체 검사 · MISSING 은 경고)",
       "contract": "12-refund-cancel-waitlist.md",
       "deps": [
         "S4-1.5"
@@ -5461,7 +5461,7 @@
       "title": "환불 1회 보장 동시성 테스트",
       "goal": "같은 원인(요청·휴강 선택·일괄 취소 줄)으로 두 번 실행해도 환불은 한 번이고, 같은 예약에 다른 원인의 환불은 각각 가능하며, 한 주문의 환불 합계는 결제액 − 예매 수수료(법정 청약철회 환불이면 결제액)를 넘지 못한다(2026-11-20 사용자 결정 D13·D15·D21 — 이전: 같은 요청을 두 번 실행해도 환불은 한 번이다)",
       "method": "테스트만 쓴다. 원인(basis)당 활성 환불 부분 유니크 `uq_refunds_basis_active` 와 주문 환불 합계 CHECK `ck_orders_refunded_cap` 에 기댄다(2026-11-20 사용자 결정 D13 — 이전: 예약당 활성 환불 부분 유니크에 기댄다) [Phase 5→6→8 · kdance-implementer(Opus) · ecc:tdd-workflow · ecc:coding-standards]",
-      "verify": "cd admin-web && flock /tmp/kdance-next-test.lock npm run test:db -- tests/db/s4-1-6.db.test.ts → passed, skip 0 — 같은 원인 동시 2건 → 환불 1회(수용 ③, SC-007(중복 환불 0건)) · 같은 예약에 휴강 환불 뒤 중도 환불(다른 원인)은 둘 다 허용 · 주문 환불 합계가 결제액 − 예매 수수료를 넘는 INSERT/UPDATE 는 CHECK 로 거부, 단 basis_kind='statutory_withdrawal' 환불은 결제액까지 허용(2026-11-20 사용자 결정 D13·D15·D21) · 목표: 같은 원인으로 두 번 실행해도 환불은 한 번이다",
+      "verify": "cd admin-web && flock /tmp/kdance-next-test.lock npm run test:db -- tests/db/refund-once-concurrency.db.test.ts → passed, skip 0 — 같은 원인 동시 2건 → 환불 1회(수용 ③, SC-007(중복 환불 0건)) · 같은 예약에 휴강 환불 뒤 중도 환불(다른 원인)은 둘 다 허용 · 주문 환불 합계가 결제액 − 예매 수수료를 넘는 INSERT/UPDATE 는 CHECK 로 거부, 단 basis_kind='statutory_withdrawal' 환불은 결제액까지 허용(2026-11-20 사용자 결정 D13·D15·D21) · 목표: 같은 원인으로 두 번 실행해도 환불은 한 번이다",
       "contract": null,
       "deps": [
         "S4-1.5"
@@ -7618,7 +7618,7 @@
       "title": "레벨·카드·후보 동의 테이블",
       "goal": "세부 장르 레벨·카드·개강 후보 동의 테이블이 있다",
       "method": "마이그레이션 1개 [Phase 5→6→8 · kdance-implementer(Sonnet) · ecc:database-reviewer · ecc:postgres-patterns · ecc:prisma-patterns]",
-      "verify": "cd admin-web && npm run db:migrate → exit 0 · cd admin-web && flock /tmp/kdance-next-test.lock npm run test:db -- tests/db/s6-3-1.db.test.ts → passed, skip 0 — 레벨 0~10 밖 거부 · 세부 장르 레벨·카드·개강 후보 동의 테이블이 있다",
+      "verify": "cd admin-web && npm run db:migrate → exit 0 · cd admin-web && flock /tmp/kdance-next-test.lock npm run test:db -- tests/db/level-card-candidate-tables.db.test.ts → passed, skip 0 — 레벨 0~10 밖 거부 · 세부 장르 레벨·카드·개강 후보 동의 테이블이 있다",
       "contract": null,
       "deps": [
         "M3 완료"
@@ -7638,7 +7638,7 @@
       "title": "레벨 계산(끝까지 + 출석 70%)",
       "goal": "정기 수업을 끝까지 마치고 출석 70% 이상이면 세부 장르 레벨이 1 오른다. 결석은 회원·강사·대표가 표시한 것을 센다(FR-169a, 확정 2026-11-19)",
       "method": "순수 함수. 8회 과정이면 6회 이상. 결석 기록을 입력으로 받는다 [Phase 5→6→8 · kdance-implementer(Sonnet) · ecc:tdd-workflow · ecc:coding-standards]",
-      "verify": "cd admin-web && npm run test:unit -- tests/unit/s6-3-2.test.ts → passed — 8회 중 6회 출석 완주 → +1 · 5회 출석 → 0 · 강사 표시 결석도 셈",
+      "verify": "cd admin-web && npm run test:unit -- tests/unit/level-evaluation.test.ts → passed — 8회 중 6회 출석 완주 → +1 · 5회 출석 → 0 · 강사 표시 결석도 셈",
       "contract": null,
       "deps": [
         "S6-3.1",
@@ -7659,7 +7659,7 @@
       "title": "레벨 계산 작업",
       "goal": "정기 수업 기간이 끝나면 레벨이 반영되고 카드가 발급된다",
       "method": "내부 작업 경로 1개. 기간 종료 판정은 S5-1.3 과 같은 것을 쓴다 [Phase 5→6→8 · kdance-implementer(Sonnet) · ecc:backend-patterns · ecc:tdd-workflow]",
-      "verify": "cd admin-web && flock /tmp/kdance-next-test.lock npm run test:db -- tests/db/s6-3-3.db.test.ts → passed, skip 0 — 기간 종료 뒤 레벨 +1·카드 1장, 두 번 불러도 같음 · 목표: 정기 수업 기간이 끝나면 레벨이 반영되고 카드가 발급된다",
+      "verify": "cd admin-web && flock /tmp/kdance-next-test.lock npm run test:db -- tests/db/level-evaluation-job.db.test.ts → passed, skip 0 — 기간 종료 뒤 레벨 +1·카드 1장, 두 번 불러도 같음 · 목표: 정기 수업 기간이 끝나면 레벨이 반영되고 카드가 발급된다",
       "contract": "14-membership-benefits.md",
       "deps": [
         "S6-3.2"
@@ -7679,7 +7679,7 @@
       "title": "강사 레벨 조절과 평가 레벨 숨김",
       "goal": "강사가 레벨을 조절하고, 강사 평가 레벨은 회원 화면 응답에 없다",
       "method": "응답 스키마에서 평가 레벨 칸을 뺀다 [Phase 5→6→8 · kdance-implementer(Sonnet) · ecc:tdd-workflow · ecc:coding-standards]",
-      "verify": "cd admin-web && flock /tmp/kdance-next-test.lock npm run test:db -- tests/db/s6-3-4.db.test.ts → passed, skip 0 — 회원용 응답에 평가 레벨 키 없음(수용 ③) · 목표: 강사가 레벨을 조절하고, 강사 평가 레벨은 회원 화면 응답에 없다",
+      "verify": "cd admin-web && flock /tmp/kdance-next-test.lock npm run test:db -- tests/db/instructor-level-evaluations.db.test.ts → passed, skip 0 — 회원용 응답에 평가 레벨 키 없음(수용 ③) · 목표: 강사가 레벨을 조절하고, 강사 평가 레벨은 회원 화면 응답에 없다",
       "contract": "14-membership-benefits.md",
       "deps": [
         "S6-3.3"
@@ -7699,7 +7699,7 @@
       "title": "개강 후보",
       "goal": "강사가 새 반 후보를 보고, 연락처에 동의하지 않은 후보는 숫자로만 나온다",
       "method": "조회 1개. 동의 판정은 서버에서 [Phase 5→6→8 · kdance-implementer(Sonnet) · ecc:tdd-workflow · ecc:coding-standards]",
-      "verify": "cd admin-web && flock /tmp/kdance-next-test.lock npm run test:db -- tests/db/s6-3-5.db.test.ts → passed, skip 0 — 비동의 후보는 인원 수만(수용 ④) · 목표: 강사가 새 반 후보를 보고, 연락처에 동의하지 않은 후보는 숫자로만 나온다",
+      "verify": "cd admin-web && flock /tmp/kdance-next-test.lock npm run test:db -- tests/db/new-class-candidates.db.test.ts → passed, skip 0 — 비동의 후보는 인원 수만(수용 ④) · 목표: 강사가 새 반 후보를 보고, 연락처에 동의하지 않은 후보는 숫자로만 나온다",
       "contract": "14-membership-benefits.md",
       "deps": [
         "S6-3.3"
@@ -8051,7 +8051,7 @@
       "title": "알림 종류와 밤 지연 판정",
       "goal": "알림이 거래·서비스·광고성으로 나뉘고, 21시~8시의 광고성 알림은 8시 뒤로 밀린다",
       "method": "순수 함수(KST). 시간 값은 설정 [Phase 5→6→8 · kdance-implementer(Sonnet) · ecc:tdd-workflow · ecc:coding-standards]",
-      "verify": "cd admin-web && npm run test:unit -- tests/unit/s7-1-3.test.ts → passed — 20:59·21:00·07:59·08:00 경계(수용 ③) · 목표: 알림이 거래·서비스·광고성으로 나뉘고, 21시~8시의 광고성 알림은 8시 뒤로 밀린다",
+      "verify": "cd admin-web && npm run test:unit -- tests/unit/env-example-names.test.ts tests/unit/notification-quiet-hours.test.ts → passed — 20:59·21:00·07:59·08:00 경계(수용 ③) · 목표: 알림이 거래·서비스·광고성으로 나뉘고, 21시~8시의 광고성 알림은 8시 뒤로 밀린다",
       "contract": null,
       "deps": [
         "S7-1.2"
@@ -8071,7 +8071,7 @@
       "title": "알림 설정 API",
       "goal": "회원이 종류별로 켜고 끄되 거래 알림은 끌 수 없다",
       "method": "설정 경로 1개. 정규 신청·취소는 강사 휴대폰에 보내지 않고 알림함에만 둔다 [Phase 5→6→8 · kdance-implementer(Sonnet) · ecc:backend-patterns · ecc:security-reviewer · ecc:tdd-workflow]",
-      "verify": "cd admin-web && flock /tmp/kdance-next-test.lock npm run test:db -- tests/db/s7-1-4.db.test.ts → passed, skip 0 — 거래 알림 끄기 거부(수용 ①) · 목표: 회원이 종류별로 켜고 끄되 거래 알림은 끌 수 없다 · cd admin-web && ./node_modules/.bin/tsc --noEmit → exit 0 · python3 .claude/skills/leave-verifiable-evidence/scripts/api_contract_lint.py → 오류 0(전체 검사 · MISSING 은 경고)",
+      "verify": "cd admin-web && flock /tmp/kdance-next-test.lock npm run test:db -- tests/db/member-notification-settings.db.test.ts → passed, skip 0 — 거래 알림 끄기 거부(수용 ①) · 목표: 회원이 종류별로 켜고 끄되 거래 알림은 끌 수 없다 · cd admin-web && ./node_modules/.bin/tsc --noEmit → exit 0 · python3 .claude/skills/leave-verifiable-evidence/scripts/api_contract_lint.py → 오류 0(전체 검사 · MISSING 은 경고)",
       "contract": "15-ops.md",
       "deps": [
         "S7-1.3"
@@ -8091,7 +8091,7 @@
       "title": "발송 포트 실구현",
       "goal": "커밋 뒤 NotificationSenderPort 가 실제 푸시를 보낸다",
       "method": "포트 뒤 구현 1개. 경로는 S7-1.1 결과를 따른다. 문자는 쓰지 않는다 [Phase 5→6→8 · kdance-implementer(Sonnet) · ecc:tdd-workflow · ecc:coding-standards]",
-      "verify": "cd admin-web && flock /tmp/kdance-next-test.lock npm run test:db -- tests/db/s7-1-5.db.test.ts → passed, skip 0 — 푸시 권한 거절 기기에는 알림함 행만 있고 발송 시도 0(수용 ②) · 목표: 커밋 뒤 NotificationSenderPort 가 실제 푸시를 보낸다",
+      "verify": "cd admin-web && flock /tmp/kdance-next-test.lock npm run test:db -- tests/db/push-notification-sender.db.test.ts → passed, skip 0 — 푸시 권한 거절 기기에는 알림함 행만 있고 발송 시도 0(수용 ②) · 목표: 커밋 뒤 NotificationSenderPort 가 실제 푸시를 보낸다",
       "contract": "15-ops.md",
       "deps": [
         "S7-1.1",
@@ -8112,7 +8112,7 @@
       "title": "발송 재시도 작업",
       "goal": "발송 실패는 재시도 뒤 실패로 기록된다",
       "method": "내부 작업 경로 1개. delivery_status 를 조건부 갱신으로 바꾼다 [Phase 5→6→8 · kdance-implementer(Sonnet) · ecc:backend-patterns · ecc:tdd-workflow]",
-      "verify": "cd admin-web && flock /tmp/kdance-next-test.lock npm run test:db -- tests/db/s7-1-6.db.test.ts → passed, skip 0 — 계속 실패하는 가짜 발송기로 재시도 뒤 failed(수용 ④) · 목표: 발송 실패는 재시도 뒤 실패로 기록된다",
+      "verify": "cd admin-web && flock /tmp/kdance-next-test.lock npm run test:db -- tests/db/notification-delivery-retry.db.test.ts → passed, skip 0 — 계속 실패하는 가짜 발송기로 재시도 뒤 failed(수용 ④) · 목표: 발송 실패는 재시도 뒤 실패로 기록된다",
       "contract": "15-ops.md",
       "deps": [
         "S7-1.5"
@@ -8132,7 +8132,7 @@
       "title": "수업 전 알림 작업",
       "goal": "수업 전 정해진 시점에 알림이 한 번 간다",
       "method": "내부 작업 경로 1개. 멱등 [Phase 5→6→8 · kdance-implementer(Sonnet) · ecc:backend-patterns · ecc:tdd-workflow]",
-      "verify": "cd admin-web && flock /tmp/kdance-next-test.lock npm run test:db -- tests/db/s7-1-7.db.test.ts → passed, skip 0 — 두 번 불러도 알림 행 1건 · 목표: 수업 전 정해진 시점에 알림이 한 번 간다",
+      "verify": "cd admin-web && flock /tmp/kdance-next-test.lock npm run test:db -- tests/db/pre-class-reminders.db.test.ts → passed, skip 0 — 두 번 불러도 알림 행 1건 · 목표: 수업 전 정해진 시점에 알림이 한 번 간다",
       "contract": "15-ops.md",
       "deps": [
         "S7-1.5"
@@ -8173,7 +8173,7 @@
       "title": "문의·답변·신고 테이블",
       "goal": "문의·답변·신고 테이블이 있다",
       "method": "마이그레이션 1개 [Phase 5→6→8 · kdance-implementer(Sonnet) · ecc:database-reviewer · ecc:postgres-patterns · ecc:prisma-patterns]",
-      "verify": "cd admin-web && npm run db:migrate → exit 0 · cd admin-web && flock /tmp/kdance-next-test.lock npm run test:db -- tests/db/s7-2-1.db.test.ts → passed, skip 0 — 마이그레이션 적용 · 문의·답변·신고 테이블이 있다",
+      "verify": "cd admin-web && npm run db:migrate → exit 0 · cd admin-web && flock /tmp/kdance-next-test.lock npm run test:db -- tests/db/inquiry-report-tables.db.test.ts → passed, skip 0 — 마이그레이션 적용 · 문의·답변·신고 테이블이 있다",
       "contract": null,
       "deps": [
         "S3-5 전체"
@@ -8193,7 +8193,7 @@
       "title": "문의 생성과 조회 권한",
       "goal": "받는 곳을 골라 문의를 만들고, 학원 A 대표는 학원 B 문의를 보지 못한다",
       "method": "조회 조건에 학원을 넣는다. 운영자는 시스템 문의만 본다 [Phase 5→6→8 · kdance-implementer(Opus) · ecc:tdd-workflow · ecc:coding-standards]",
-      "verify": "cd admin-web && flock /tmp/kdance-next-test.lock npm run test:db -- tests/db/s7-2-2.db.test.ts → passed, skip 0 — 다른 학원 문의 0건·403(수용 ①) · 목표: 받는 곳을 골라 문의를 만들고, 학원 A 대표는 학원 B 문의를 보지 못한다",
+      "verify": "cd admin-web && flock /tmp/kdance-next-test.lock npm run test:db -- tests/db/inquiry-access.db.test.ts → passed, skip 0 — 다른 학원 문의 0건·403(수용 ①) · 목표: 받는 곳을 골라 문의를 만들고, 학원 A 대표는 학원 B 문의를 보지 못한다",
       "contract": "15-ops.md",
       "deps": [
         "S7-2.1"
@@ -8213,7 +8213,7 @@
       "title": "답변과 응답 기한 재알림",
       "goal": "1영업일을 넘긴 문의는 대표에게 재알림이 가고 회원에게 「답변 대기 중」이 보인다",
       "method": "답변 경로 1개 + 내부 작업 경로 1개 [Phase 5→6→8 · kdance-implementer(Sonnet) · ecc:tdd-workflow · ecc:coding-standards]",
-      "verify": "cd admin-web && flock /tmp/kdance-next-test.lock npm run test:db -- tests/db/s7-2-3.db.test.ts → passed, skip 0 — 1영업일 지난 문의에 재알림 행 1건, 두 번 불러도 1건(수용 ②) · 목표: 1영업일을 넘긴 문의는 대표에게 재알림이 가고 회원에게 「답변 대기 중」이 보인다 · python3 .claude/skills/leave-verifiable-evidence/scripts/api_contract_lint.py → 오류 0(전체 검사 · MISSING 은 경고)",
+      "verify": "cd admin-web && flock /tmp/kdance-next-test.lock npm run test:db -- tests/db/inquiry-reply-reminder.db.test.ts → passed, skip 0 — 1영업일 지난 문의에 재알림 행 1건, 두 번 불러도 1건(수용 ②) · 목표: 1영업일을 넘긴 문의는 대표에게 재알림이 가고 회원에게 「답변 대기 중」이 보인다 · python3 .claude/skills/leave-verifiable-evidence/scripts/api_contract_lint.py → 오류 0(전체 검사 · MISSING 은 경고)",
       "contract": "15-ops.md",
       "deps": [
         "S7-2.2"
@@ -8254,7 +8254,7 @@
       "title": "신고 접수·처리",
       "goal": "신고가 운영자에게 가고 접수·처리 결과가 신고자에게 간다",
       "method": "신고 경로 + 운영자 처리 경로. 서비스 밖 거래 신고도 같은 경로 [Phase 5→6→8 · kdance-implementer(Sonnet) · ecc:tdd-workflow · ecc:coding-standards]",
-      "verify": "cd admin-web && flock /tmp/kdance-next-test.lock npm run test:db -- tests/db/s7-2-5.db.test.ts → passed, skip 0 — 처리 뒤 신고자 알림 행(수용 ④) · 목표: 신고가 운영자에게 가고 접수·처리 결과가 신고자에게 간다",
+      "verify": "cd admin-web && flock /tmp/kdance-next-test.lock npm run test:db -- tests/db/report-handling.db.test.ts → passed, skip 0 — 처리 뒤 신고자 알림 행(수용 ④) · 목표: 신고가 운영자에게 가고 접수·처리 결과가 신고자에게 간다",
       "contract": "15-ops.md",
       "deps": [
         "S7-2.1"
@@ -8274,7 +8274,7 @@
       "title": "이용 제한 절차",
       "goal": "운영자가 이용을 제한하면 사유와 함께 기록된다(FR-254(이용 제한 절차))",
       "method": "전이 경로 1개 + 감사 행 [Phase 5→6→8 · kdance-implementer(Sonnet) · ecc:tdd-workflow · ecc:coding-standards]",
-      "verify": "cd admin-web && flock /tmp/kdance-next-test.lock npm run test:db -- tests/db/s7-2-6.db.test.ts → passed, skip 0 — 제한 뒤 감사 행 1건 · 목표: 운영자가 이용을 제한하면 사유와 함께 기록된다(FR-254(이용 제한 절차)) · python3 .claude/skills/leave-verifiable-evidence/scripts/api_contract_lint.py → 오류 0(전체 검사 · MISSING 은 경고)",
+      "verify": "cd admin-web && flock /tmp/kdance-next-test.lock npm run test:db -- tests/db/restriction-procedure.db.test.ts → passed, skip 0 — 제한 뒤 감사 행 1건 · 목표: 운영자가 이용을 제한하면 사유와 함께 기록된다(FR-254(이용 제한 절차)) · python3 .claude/skills/leave-verifiable-evidence/scripts/api_contract_lint.py → 오류 0(전체 검사 · MISSING 은 경고)",
       "contract": "15-ops.md",
       "deps": [
         "S7-2.5"
@@ -8294,7 +8294,7 @@
       "title": "문의·신고 첨부 파일",
       "goal": "문의·신고에 파일을 붙이고 당사자와 받는 쪽만 연다",
       "method": "파일 저장 포트 + 권한 판정 경로 [Phase 5→6→8 · kdance-implementer(Sonnet) · ecc:tdd-workflow · ecc:coding-standards]",
-      "verify": "cd admin-web && flock /tmp/kdance-next-test.lock npm run test:db -- tests/db/s7-2-7.db.test.ts → passed, skip 0 — 제3자의 첨부 요청 403/404 · 목표: 문의·신고에 파일을 붙이고 당사자와 받는 쪽만 연다",
+      "verify": "cd admin-web && flock /tmp/kdance-next-test.lock npm run test:db -- tests/db/inquiry-report-attachments.db.test.ts → passed, skip 0 — 제3자의 첨부 요청 403/404 · 목표: 문의·신고에 파일을 붙이고 당사자와 받는 쪽만 연다",
       "contract": "15-ops.md",
       "deps": [
         "S7-2.2"
@@ -8920,7 +8920,7 @@
       "title": "공휴일 운영자 입력 API(P9)",
       "goal": "운영자가 공휴일을 더하고 고친다. 자동 수집 행은 고칠 수 없다(Q35)",
       "method": "라우트 2개 + 감사 행 [Phase 5→6→8 · kdance-implementer(Sonnet) · ecc:backend-patterns · ecc:security-reviewer · ecc:tdd-workflow]",
-      "verify": "cd admin-web && flock /tmp/kdance-next-test.lock npm run test:db -- tests/db/s7-4-8a.db.test.ts → passed, skip 0 — 운영자 입력 행만 수정·삭제 · 영업일 계산이 바뀜 · 목표: 운영자가 공휴일을 더하고 고친다. 자동 수집 행은 고칠 수 없다(Q35) · cd admin-web && ./node_modules/.bin/tsc --noEmit → exit 0 · python3 .claude/skills/leave-verifiable-evidence/scripts/api_contract_lint.py → 오류 0(전체 검사 · MISSING 은 경고)",
+      "verify": "cd admin-web && flock /tmp/kdance-next-test.lock npm run test:db -- tests/db/admin-holidays.db.test.ts → passed, skip 0 — 운영자 입력 행만 수정·삭제 · 영업일 계산이 바뀜 · 목표: 운영자가 공휴일을 더하고 고친다. 자동 수집 행은 고칠 수 없다(Q35) · cd admin-web && ./node_modules/.bin/tsc --noEmit → exit 0 · python3 .claude/skills/leave-verifiable-evidence/scripts/api_contract_lint.py → 오류 0(전체 검사 · MISSING 은 경고)",
       "contract": "13-settlement.md",
       "deps": [
         "S0-4.7"
@@ -8961,7 +8961,7 @@
       "title": "사업자 점검 소명 처리 API(P11)",
       "goal": "운영자가 대표의 소명을 받아들여 제한을 풀거나 거절한다(FR-254)",
       "method": "라우트 2개 + 감사 행 [Phase 5→6→8 · kdance-implementer(Sonnet) · ecc:backend-patterns · ecc:security-reviewer · ecc:tdd-workflow]",
-      "verify": "cd admin-web && flock /tmp/kdance-next-test.lock npm run test:db -- tests/db/s7-4-8c.db.test.ts → passed, skip 0 — 받아들이면 열린 제한 모두 닫힘 · 목표: 운영자가 대표의 소명을 받아들여 제한을 풀거나 거절한다(FR-254) · cd admin-web && ./node_modules/.bin/tsc --noEmit → exit 0 · python3 .claude/skills/leave-verifiable-evidence/scripts/api_contract_lint.py → 오류 0(전체 검사 · MISSING 은 경고)",
+      "verify": "cd admin-web && flock /tmp/kdance-next-test.lock npm run test:db -- tests/db/business-check-console-views.db.test.ts → passed, skip 0 — 받아들이면 열린 제한 모두 닫힘 · 목표: 운영자가 대표의 소명을 받아들여 제한을 풀거나 거절한다(FR-254) · cd admin-web && ./node_modules/.bin/tsc --noEmit → exit 0 · python3 .claude/skills/leave-verifiable-evidence/scripts/api_contract_lint.py → 오류 0(전체 검사 · MISSING 은 경고)",
       "contract": "13-settlement.md",
       "deps": [
         "S1-1.29"
@@ -9525,7 +9525,7 @@
       "title": "저장 항목 검사",
       "goal": "본인확인 결과는 이름·성별·생년만 저장되고 주민등록번호는 어디에도 없다",
       "method": "스키마와 로그를 훑는 테스트 1개 [Phase 5→6→8 · kdance-implementer(Opus) · ecc:tdd-workflow · ecc:coding-standards]",
-      "verify": "cd admin-web && flock /tmp/kdance-next-test.lock npm run test:db -- tests/db/s8-2-4.db.test.ts → passed, skip 0 — 본인확인 저장 칸이 이름·성별·생년 세 가지뿐, 주민등록번호가 스키마·로그 어디에도 없음(수용 ②)",
+      "verify": "cd admin-web && flock /tmp/kdance-next-test.lock npm run test:db -- tests/db/identity-stored-fields.db.test.ts → passed, skip 0 — 본인확인 저장 칸이 이름·성별·생년 세 가지뿐, 주민등록번호가 스키마·로그 어디에도 없음(수용 ②)",
       "contract": null,
       "deps": [
         "S3-1 전체"
@@ -10285,7 +10285,7 @@
       "title": "시간 초과 대체",
       "goal": "시간이 넘으면 일반 검색 결과로 바꿔 준다",
       "method": "Next.js 쪽 시간 제한 + 대체 경로 [Phase 5→6→8 · kdance-implementer(Sonnet) · ecc:tdd-workflow · ecc:coding-standards]",
-      "verify": "cd admin-web && npm run test:unit -- tests/unit/sx-4-3.test.ts → passed — 시간 초과 시 일반 검색 응답",
+      "verify": "cd admin-web && npm run test:unit -- tests/unit/recommend-timeout-filter-search.test.ts → passed — 시간 초과 시 일반 검색 응답",
       "contract": "16-ai-agent.md",
       "deps": [
         "SX-4.2"
@@ -10347,7 +10347,7 @@
       "title": "조건 검색 결과를 수업 카드로",
       "goal": "뽑힌 조건으로 DB 를 검색한 게시 수업이 그대로 카드 값(수업명·학원·홀·요일·시간·기간·레벨·남은 자리·가격·모집 상태)으로 나온다",
       "method": "S3-2.1·S3-2.3 의 검색·상세 읽기를 부른다. AI 는 수업을 만들거나 고쳐 쓰지 않는다. 개인 레슨은 모집 시간만 보인다 [Phase 5→6→8 · kdance-implementer(Sonnet) · ecc:tdd-workflow · ecc:coding-standards]",
-      "verify": "cd admin-web && flock /tmp/kdance-next-test.lock npm run test:db -- tests/db/sx-5-3.db.test.ts → passed, skip 0 — 응답 수업 id 가 전부 같은 조건의 직접 검색 결과 안에 있음(지어낸 수업 0건, 수용 ①) · 승인 전·입점 심사 전 학원 수업 0건(수용 ③)",
+      "verify": "cd admin-web && flock /tmp/kdance-next-test.lock npm run test:db -- tests/db/offering-search-cards.db.test.ts → passed, skip 0 — 응답 수업 id 가 전부 같은 조건의 직접 검색 결과 안에 있음(지어낸 수업 0건, 수용 ①) · 승인 전·입점 심사 전 학원 수업 0건(수용 ③)",
       "contract": "16-ai-agent.md",
       "deps": [
         "SX-5.1",
@@ -10369,7 +10369,7 @@
       "title": "결과 없음 안내·조건 넓히기",
       "goal": "맞는 수업이 없으면 「찾지 못했어요」와 함께 그 강사의 다른 수업 또는 조건을 넓힌 검색으로 가는 버튼 값이 나온다",
       "method": "넓힌 조건을 만드는 순수 함수 [Phase 5→6→8 · kdance-implementer(Sonnet) · ecc:tdd-workflow · ecc:coding-standards]",
-      "verify": "cd admin-web && npm run test:unit -- tests/unit/sx-5-4.test.ts → passed — 결과 0건 입력에 「찾지 못했어요」 안내 문구와 넓힌 조건 버튼 값이 붙음",
+      "verify": "cd admin-web && npm run test:unit -- tests/unit/env-example-names.test.ts tests/unit/offering-no-result-widen.test.ts → passed — 결과 0건 입력에 「찾지 못했어요」 안내 문구와 넓힌 조건 버튼 값이 붙음",
       "contract": "16-ai-agent.md",
       "deps": [
         "SX-5.3"
@@ -10389,7 +10389,7 @@
       "title": "시간 초과 때 일반 검색으로 대체",
       "goal": "조건 뽑기가 제한 시간 안에 끝나지 않으면 일반 검색 결과로 바꿔 준다(FR-041(추천 시간 초과 대체))",
       "method": "Next.js 쪽 시간 제한 + 대체 경로. 제한 시간은 설정값으로 둔다 [Phase 5→6→8 · kdance-implementer(Sonnet) · ecc:tdd-workflow · ecc:coding-standards]",
-      "verify": "cd admin-web && npm run test:unit -- tests/unit/sx-5-5.test.ts → passed — 시간 초과 입력에 일반 검색 응답(수용 ⑤)",
+      "verify": "cd admin-web && npm run test:unit -- tests/unit/env-example-names.test.ts tests/unit/planner-timeout-plain-search.test.ts → passed — 시간 초과 입력에 일반 검색 응답(수용 ⑤)",
       "contract": "16-ai-agent.md",
       "deps": [
         "SX-5.2",
@@ -10410,7 +10410,7 @@
       "title": "신청하기는 수업 상세로만·쓰기 도구 0개",
       "goal": "카드의 신청하기가 수업 상세로 가는 값만 갖고, 에이전트 도구 목록에 쓰기가 0개다(FR-214(AI 쓰기 금지))",
       "method": "카드 값에 이동 경로만 넣는다. 예약·결제 호출은 넣지 않는다 [Phase 5→6→8 · kdance-implementer(Sonnet) · ecc:tdd-workflow · ecc:coding-standards]",
-      "verify": "cd agent-server && uv run pytest -q tests/test_sx_5_6.py → passed — 도구 목록에 쓰기 0개(FR-214(AI 쓰기 금지)) · cd admin-web && npm run test:unit -- tests/unit/sx-5-6.test.ts → passed — 카드의 이동 경로가 수업 상세 경로뿐(수용 ④)",
+      "verify": "cd agent-server && uv run pytest -q tests/test_sx_5_6.py → passed — 도구 목록에 쓰기 0개(FR-214(AI 쓰기 금지)) · cd admin-web && npm run test:unit -- tests/unit/env-example-names.test.ts tests/unit/offering-card-detail-only.test.ts → passed — 카드의 이동 경로가 수업 상세 경로뿐(수용 ④)",
       "contract": "16-ai-agent.md",
       "deps": [
         "SX-5.3"
@@ -10475,7 +10475,7 @@
       "title": "필수 4항목 검증·문장 채우기",
       "goal": "누가·분위기·장소·색감 중 빠진 항목이 있으면 만들기 요청이 거부되고 빠진 항목 이름을 알려 준다. 장르는 등록 중인 수업에서 가져온다",
       "method": "칩 낱말 목록은 설정 파일로 둔다(추천안). 직접 쓰기로 넣은 항목은 채운 것으로 본다. 판정은 순수 함수 [Phase 5→6→8 · kdance-implementer(Sonnet) · ecc:tdd-workflow · ecc:coding-standards]",
-      "verify": "cd admin-web && npm run test:unit -- tests/unit/sx-6-1.test.ts → passed — 필수 4항목(누가·분위기·장소·색감) 중 하나가 빠지면 거부와 빠진 항목 이름(수용 ①)",
+      "verify": "cd admin-web && npm run test:unit -- tests/unit/promo-image-required-chips.test.ts → passed — 필수 4항목(누가·분위기·장소·색감) 중 하나가 빠지면 거부와 빠진 항목 이름(수용 ①)",
       "contract": "16-ai-agent.md",
       "deps": [
         "S2-2.3"
@@ -10495,7 +10495,7 @@
       "title": "장르별 기본 조건·글자 없음 조건",
       "goal": "요청에 장르별 기본 조건이 붙고 끄면 붙지 않으며, 이미지 안 글자 없음 조건은 항상 붙는다",
       "method": "장르별 문장은 코드에 박지 않고 설정값으로 둔다. 붙이는 함수는 순수 함수 [Phase 5→6→8 · kdance-implementer(Sonnet) · ecc:tdd-workflow · ecc:coding-standards]",
-      "verify": "cd admin-web && npm run test:unit -- tests/unit/sx-6-2.test.ts → passed — 켠 요청에 장르 조건 있음 · 끈 요청에 없음 · 두 경우 모두 글자 없음 조건 있음(수용 ②③)",
+      "verify": "cd admin-web && npm run test:unit -- tests/unit/promo-image-auto-conditions.test.ts → passed — 켠 요청에 장르 조건 있음 · 끈 요청에 없음 · 두 경우 모두 글자 없음 조건 있음(수용 ②③)",
       "contract": null,
       "deps": [
         "SX-6.1"
@@ -10515,7 +10515,7 @@
       "title": "막는 입력 판정",
       "goal": "선정적·폭력적 내용, 실존 인물 얼굴 흉내, 다른 회사 상표·로고가 든 입력은 생성 전에 걸러지고 횟수가 줄지 않는다",
       "method": "판정 함수 1개를 생성 요청 앞에 둔다. 입력 문장은 명령이 아니라 데이터로 다룬다(FR-270(입력 지시문은 데이터)) [Phase 5→6→8 · kdance-implementer(Sonnet) · ecc:tdd-workflow · ecc:coding-standards]",
-      "verify": "cd admin-web && npm run test:unit -- tests/unit/sx-6-3.test.ts → passed — 막는 표본 문장(선정·폭력·실존 인물 얼굴·타사 상표)에 거부, 횟수 불변 · 문장에 섞인 지시문이 요청 인자를 바꾸지 못함(수용 ⑤)",
+      "verify": "cd admin-web && npm run test:unit -- tests/unit/promo-image-blocked-input.test.ts → passed — 막는 표본 문장(선정·폭력·실존 인물 얼굴·타사 상표)에 거부, 횟수 불변 · 문장에 섞인 지시문이 요청 인자를 바꾸지 못함(수용 ⑤)",
       "contract": "16-ai-agent.md",
       "deps": [
         "SX-6.1"
@@ -10557,7 +10557,7 @@
       "title": "하루 횟수·생성 요청 API",
       "goal": "계정마다 하루 N번(베타 3)만 만들 수 있고, 실패하거나 막히면 횟수를 돌려주며, 지난 입력을 불러올 수 있다",
       "method": "Next.js 경로 1개와 마이그레이션 1개(DB 쓰기는 Next.js 하나, ADR-004). N 은 설정값이고 하루는 한국 시간 0시에 바뀐다. 다시 만들기도 1번으로 센다 [Phase 5→6→8 · kdance-implementer(Sonnet) · ecc:backend-patterns · ecc:security-reviewer · ecc:tdd-workflow]",
-      "verify": "cd admin-web && flock /tmp/kdance-next-test.lock npm run test:db -- tests/db/sx-6-5.db.test.ts → passed, skip 0 — N+1번째 거부 · 모델 오류 때 횟수 원복 · 한국 시간 0시 경계에서 초기화 · 다음 날 같은 문장을 불러옴(수용 ⑥) · cd admin-web && ./node_modules/.bin/tsc --noEmit → exit 0 · python3 .claude/skills/leave-verifiable-evidence/scripts/api_contract_lint.py → 오류 0(전체 검사 · MISSING 은 경고)",
+      "verify": "cd admin-web && flock /tmp/kdance-next-test.lock npm run test:db -- tests/db/promo-image-quota.db.test.ts → passed, skip 0 — N+1번째 거부 · 모델 오류 때 횟수 원복 · 한국 시간 0시 경계에서 초기화 · 다음 날 같은 문장을 불러옴(수용 ⑥) · cd admin-web && ./node_modules/.bin/tsc --noEmit → exit 0 · python3 .claude/skills/leave-verifiable-evidence/scripts/api_contract_lint.py → 오류 0(전체 검사 · MISSING 은 경고)",
       "contract": "16-ai-agent.md",
       "deps": [
         "SX-6.4",
@@ -10578,7 +10578,7 @@
       "title": "소개 문구 초안",
       "goal": "수업 정보와 강조할 점(60자, 선택)으로 소개 문구 초안이 나오고, 시간·가격·회차는 수업 데이터 값 그대로 들어간다",
       "method": "숫자는 모델이 쓰지 않고 수업 데이터 값을 자리에 채우는 순수 함수로 넣는다. 모델은 문장만 쓴다. 이미지 프롬프트 묘사는 소개 문구에 쓰지 않는다 [Phase 5→6→8 · kdance-implementer(Sonnet) · ecc:tdd-workflow · ecc:coding-standards]",
-      "verify": "cd admin-web && npm run test:unit -- tests/unit/sx-6-6.test.ts → passed — 문구의 시간·가격·회차가 수업 데이터와 같음 · 강조할 점 61자 거부(수용 ④)",
+      "verify": "cd admin-web && npm run test:unit -- tests/unit/class-intro-draft.test.ts tests/unit/env-example-names.test.ts → passed — 문구의 시간·가격·회차가 수업 데이터와 같음 · 강조할 점 61자 거부(수용 ④)",
       "contract": "16-ai-agent.md",
       "deps": [
         "SX-1.1",
@@ -10599,7 +10599,7 @@
       "title": "검토 후 게시 경로",
       "goal": "생성 이미지와 소개 문구는 강사·대표가 검토·교체한 뒤에만 S2-2 의 승인 경로로 들어가고, 올린 사진이 있으면 사진이 먼저 쓰인다",
       "method": "게시는 S2-2.7 로만 한다. 이미지 위 글자는 저장하지 않고 수업 데이터로 앱이 얹는다 [Phase 5→6→8 · kdance-implementer(Sonnet) · ecc:backend-patterns · ecc:security-reviewer · ecc:tdd-workflow]",
-      "verify": "cd admin-web && flock /tmp/kdance-next-test.lock npm run test:db -- tests/db/sx-6-7.db.test.ts → passed, skip 0 — 검토 확인 없는 게시 요청 거부(수용 ⑦) · 올린 사진이 있으면 사진이 먼저 쓰임 · cd admin-web && ./node_modules/.bin/tsc --noEmit → exit 0 · python3 .claude/skills/leave-verifiable-evidence/scripts/api_contract_lint.py → 오류 0(전체 검사 · MISSING 은 경고)",
+      "verify": "cd admin-web && flock /tmp/kdance-next-test.lock npm run test:db -- tests/db/class-promo-assets.db.test.ts → passed, skip 0 — 검토 확인 없는 게시 요청 거부(수용 ⑦) · 올린 사진이 있으면 사진이 먼저 쓰임 · cd admin-web && ./node_modules/.bin/tsc --noEmit → exit 0 · python3 .claude/skills/leave-verifiable-evidence/scripts/api_contract_lint.py → 오류 0(전체 검사 · MISSING 은 경고)",
       "contract": "16-ai-agent.md",
       "deps": [
         "SX-6.5",
@@ -10622,7 +10622,7 @@
       "title": "AI 생성 표시·무료량 소진",
       "goal": "AI 가 만든 이미지·문구에 AI 생성 표시(FR-258)가 붙고, 무료량이 소진되면 생성만 막고 수업 등록은 막지 않는다",
       "method": "표시 판정과 소진 판정은 순수 함수 [Phase 5→6→8 · kdance-implementer(Sonnet) · ecc:tdd-workflow · ecc:coding-standards]",
-      "verify": "cd admin-web && npm run test:unit -- tests/unit/sx-6-8.test.ts → passed — 생성물에 AI 생성 표시(FR-258) · 무료량 소진 상태에서 생성 거부와 수업 등록 통과",
+      "verify": "cd admin-web && npm run test:unit -- tests/unit/promo-ai-label-free-quota.test.ts → passed — 생성물에 AI 생성 표시(FR-258) · 무료량 소진 상태에서 생성 거부와 수업 등록 통과",
       "contract": "16-ai-agent.md",
       "deps": [
         "SX-6.5"
