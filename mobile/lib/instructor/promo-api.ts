@@ -11,8 +11,7 @@
  *
  * 이 파일의 계산은 모두 순수 함수다(렌더 중에 바로 부른다). 서버 호출은 버튼 핸들러에서만 한다.
  */
-import { apiFetch, getBaseUrl } from '../api';
-import { peekSessionToken } from '../session';
+import { apiFetch } from '../api';
 import type { Genre } from '../onboarding/types';
 
 // ---- 응답 모양 -----------------------------------------------------------------------------------
@@ -136,12 +135,6 @@ export function savePromoAssets(
   },
 ): Promise<PromoAssets> {
   return apiFetch(promoAssetsPath(classId), { method: 'PUT', body });
-}
-
-/** 서버 사진 주소(/api/files/…)를 <Image> 소스로 — 사진은 로그인 토큰을 실어야 받힌다 */
-export function serverImageSource(path: string): { uri: string; headers?: Record<string, string> } {
-  const token = peekSessionToken();
-  return token === null ? { uri: `${getBaseUrl()}${path}` } : { uri: `${getBaseUrl()}${path}`, headers: { Authorization: `Bearer ${token}` } };
 }
 
 // ---- 순수 계산 -----------------------------------------------------------------------------------

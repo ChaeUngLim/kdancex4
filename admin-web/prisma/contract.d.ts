@@ -23,7 +23,7 @@ import type {
 } from '@prisma/orm-postgres/contract/types';
 
 export type StorageHash =
-  StorageHashBase<'2df1a9aa9c81500bc1f9db0dfe7da5fc3f861d0691e1872bffac8444eabf6cc7'>;
+  StorageHashBase<'aca27672a6d226b1daf5cb75ace4a1763aab180f0fa86032afa1e68c856b343b'>;
 export type ExecutionHash = ExecutionHashBase<string>;
 export type ProfileHash =
   ProfileHashBase<'3916f444a8a17ad749191acf9e08dad97d1a327b88c2f1d45d12f240296aa8b2'>;
@@ -787,6 +787,10 @@ type FieldTypeOverrides = {
         readonly base_genre: {
           readonly output: 'dance_sport' | 'argentine_tango' | 'swing' | 'salsa_bachata';
           readonly input: 'dance_sport' | 'argentine_tango' | 'swing' | 'salsa_bachata';
+        };
+        readonly base_sub_genre: {
+          readonly output: 'latin' | 'standard' | 'salsa' | 'bachata';
+          readonly input: 'latin' | 'standard' | 'salsa' | 'bachata';
         };
         readonly experience_level: {
           readonly output:
@@ -2158,6 +2162,10 @@ type ColumnTypeOverrides = {
       readonly base_genre: {
         readonly output: 'dance_sport' | 'argentine_tango' | 'swing' | 'salsa_bachata';
         readonly input: 'dance_sport' | 'argentine_tango' | 'swing' | 'salsa_bachata';
+      };
+      readonly base_sub_genre: {
+        readonly output: 'latin' | 'standard' | 'salsa' | 'bachata';
+        readonly input: 'latin' | 'standard' | 'salsa' | 'bachata';
       };
       readonly experience_level: {
         readonly output:
@@ -3674,6 +3682,7 @@ export namespace Models {
     available_from: FieldOutputTypes['public']['Member']['available_from'];
     available_to: FieldOutputTypes['public']['Member']['available_to'];
     base_genre: FieldOutputTypes['public']['Member']['base_genre'];
+    base_sub_genre: FieldOutputTypes['public']['Member']['base_sub_genre'];
     birth_date: FieldOutputTypes['public']['Member']['birth_date'];
     created_at: FieldOutputTypes['public']['Member']['created_at'];
     experience_level: FieldOutputTypes['public']['Member']['experience_level'];
@@ -10499,6 +10508,12 @@ type ContractBase = Omit<
                   readonly many: false;
                 };
                 readonly base_genre: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: true;
+                  readonly many: false;
+                };
+                readonly base_sub_genre: {
                   readonly dataType: 'pg/text';
                   readonly codecId: 'pg/text@1';
                   readonly nullable: true;
@@ -22852,6 +22867,10 @@ type ContractBase = Omit<
                 readonly nullable: true;
                 readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
               };
+              readonly base_sub_genre: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
               readonly birth_date: {
                 readonly nullable: false;
                 readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/date-string@1' };
@@ -23128,6 +23147,7 @@ type ContractBase = Omit<
                 readonly available_from: { readonly column: 'available_from' };
                 readonly available_to: { readonly column: 'available_to' };
                 readonly base_genre: { readonly column: 'base_genre' };
+                readonly base_sub_genre: { readonly column: 'base_sub_genre' };
                 readonly birth_date: { readonly column: 'birth_date' };
                 readonly created_at: { readonly column: 'created_at' };
                 readonly experience_level: { readonly column: 'experience_level' };

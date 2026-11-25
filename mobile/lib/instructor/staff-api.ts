@@ -2,7 +2,7 @@
  * 강사·대표 앱이 부르는 API 와 응답 모양 — S2-1.7(앱 강사 가입·소속·프로필 화면).
  *
  * 서버 경로는 이미 있는 것만 부른다(새 경로를 만들지 않았다).
- *   POST /api/auth/sign-in/username                  Better Auth 아이디 로그인(README §6-1). 앱은 bearer 토큰을 받는다
+ *   POST /api/auth/sign-in/staff-app                 앱 전용 아이디 로그인(README §6-1, 2단계 없음). 앱은 bearer 토큰을 받는다
  *   POST /api/auth/sign-out                          로그아웃(토큰을 서버에서도 끝낸다)
  *   GET  /api/staff/me                               내 역할·학원별 위임 권한(README §6-1)
  *   POST /api/dev/identity/fake-verify               가짜 휴대폰 본인확인(01 §2, 실제 기관이 붙기 전까지)
@@ -89,10 +89,12 @@ export function noticeCategoryLabel(category: string): string {
 
 // ---- 로그인 · 로그아웃 ------------------------------------------------------------------
 
-/** Better Auth 아이디 로그인 응답에서 읽는 칸. 2단계 인증이 걸린 계정이면 token 대신 twoFactorRedirect 가 온다 */
-interface UsernameSignInResponse {
+/**
+ * 앱 전용 로그인(`POST /api/auth/sign-in/staff-app`) 응답에서 읽는 칸.
+ * 이 경로는 2단계 인증을 묻지 않으므로 twoFactorRedirect 가 오지 않는다(2026-11-25 사용자 결정, README §6-1).
+ */
+interface StaffAppSignInResponse {
   token?: string | null;
-  twoFactorRedirect?: boolean;
 }
 
 /** 로그인 실패를 화면 문구로 바꾼 오류. code 로 화면이 갈래를 고른다 */
@@ -101,15 +103,16 @@ export const WRONG_CREDENTIALS = '아이디 또는 비밀번호가 맞지 않아
 /**
  * 아이디·비밀번호로 로그인하고 토큰을 저장한다.
  *
+ * 앱은 관리자 웹용 아이디 로그인(`/sign-in/username`) 대신 앱 전용 경로를 쓴다. 관리자 웹에서 인증 앱(6자리)을
+ * 켠 계정도 여기서는 비밀번호만으로 토큰을 받는다 — 그 토큰은 앱 경로만 열고 관리자 웹 콘솔은 열지 못한다(서버가 막는다).
  * Better Auth 의 실패 본문은 우리 오류 모양(§4)이 아니라 `apiFetch` 가 UNEXPECTED_RESPONSE 로 바꾼다.
- * 그래서 상태 401 은 「아이디·비밀번호가 틀림」으로 읽는다.
- * 앱은 2단계 인증을 묻지 않는다(README §6-1). 그래도 서버가 twoFactorRedirect 를 주면(관리자 웹에서
- * 인증 앱을 켠 계정) 세션이 없으니 그대로 멈추고 알린다 — 이 경우를 어떻게 풀지는 서버 쪽 결정이다.
+ * 그래서 상태 401·400 은 「아이디·비밀번호가 틀림」으로 읽는다. 403(직원 계정 아님·정지)·429(시도 너무 많음)는
+ * 서버가 준 code·문구를 그대로 화면에 넘긴다.
  */
 export async function signInWithUsername(username: string, password: string): Promise<void> {
-  let response: UsernameSignInResponse;
+  let response: StaffAppSignInResponse;
   try {
-    response = await apiFetch<UsernameSignInResponse>('/api/auth/sign-in/username', {
+    response = await apiFetch<StaffAppSignInResponse>('/api/auth/sign-in/staff-app', {
       method: 'POST',
       body: { username, password },
       auth: false,
@@ -119,13 +122,6 @@ export async function signInWithUsername(username: string, password: string): Pr
       throw new ApiError(401, 'BAD_REQUEST', WRONG_CREDENTIALS);
     }
     throw error;
-  }
-  if (response?.twoFactorRedirect === true) {
-    throw new ApiError(
-      403,
-      'TWO_FACTOR_REQUIRED',
-      '이 계정은 인증 앱 확인이 켜져 있어 앱에서 바로 로그인할 수 없어요. 관리자 웹에서 로그인해 주세요.',
-    );
   }
   if (!response?.token) {
     throw new ApiError(0, 'UNEXPECTED_RESPONSE', '로그인 응답을 읽지 못했어요. 잠시 뒤 다시 시도해 주세요.');

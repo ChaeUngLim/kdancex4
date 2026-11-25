@@ -39,8 +39,10 @@ function isAbort(error: unknown): boolean {
  * @param path 부를 경로. null 이면 부르지 않는다(주소 인자가 잘못된 경우 등).
  * @param postBody 주면 GET 대신 이 본문으로 POST 한다. 「쓰지 않는 미리 보기」(release-preview 처럼 POST 로
  *   읽는 경로) 전용이다 — 무언가를 만드는 POST 는 이 훅이 아니라 버튼 핸들러에서 부른다.
+ * @param read JSON 이 아닌 것을 읽을 때만 준다 — 예: 서버 사진을 data URI 로(api.ts `apiFetchImageDataUri`).
+ *   주면 apiFetch 대신 이 함수로 읽는다. 렌더마다 새로 만든 함수를 넘기지 말고 모듈의 함수를 그대로 넘긴다.
  */
-export function useApiResource<T>(path: string | null, postBody?: unknown): ApiResource<T> {
+export function useApiResource<T>(path: string | null, postBody?: unknown, read?: (path: string) => Promise<T>): ApiResource<T> {
   const [state, setState] = useState<ResourceState<T>>({ status: 'loading' });
   const [version, setVersion] = useState(0);
   // 마지막으로 데이터를 받은 경로. 경로가 바뀌면 이전 데이터는 다른 자원이므로 로딩부터 보인다.
@@ -57,8 +59,10 @@ export function useApiResource<T>(path: string | null, postBody?: unknown): ApiR
       setState({ status: 'loading' });
     }
     const request = bodyKey === null ? { signal: controller.signal } : { method: 'POST' as const, body: JSON.parse(bodyKey) as unknown, signal: controller.signal };
-    apiFetch<T>(path, request)
+    (read === undefined ? apiFetch<T>(path, request) : read(path))
       .then((data) => {
+        // read 로 읽는 요청은 취소 신호를 받지 않는다 — 화면을 떠났거나 경로가 바뀐 뒤 온 답은 버린다
+        if (controller.signal.aborted) return;
         loadedPath.current = path;
         setState({ status: 'ready', data });
       })

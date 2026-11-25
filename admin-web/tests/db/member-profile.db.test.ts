@@ -272,6 +272,53 @@ describe.skipIf(!dbAvailable())("회원 취향·기준 장르 API(계약 01 §4~
     expect((await stored(memberId)).base_genre).toBe("argentine_tango");
   });
 
+  // FR-022a(첫 화면 장르 선택·유지) — 세부 장르(라틴·스탠다드·살사·바차타)는 그 장르에 속할 때만 받는다(AC-6)
+  test("세부 장르: 맞는 짝은 저장·GET /api/me 에 나오고, 안 맞는 짝은 422(fields: baseSubGenre)이며 값은 그대로다", async () => {
+    const { bearer, memberId } = await signedUpMember("sub");
+    const subOf = async () =>
+      (await q("SELECT base_sub_genre FROM members WHERE id = $1", [memberId])).rows[0]?.["base_sub_genre"] ?? null;
+
+    // 세부 장르를 안 보내면 「전체」(null)
+    const plain = await call("putBaseGenre", bearer, { baseGenre: "dance_sport" });
+    expect(plain.status).toBe(200);
+    expect(memberSchema.parse(plain.body).baseSubGenre).toBeNull();
+
+    const latin = await call("putBaseGenre", bearer, { baseGenre: "dance_sport", baseSubGenre: "latin" });
+    expect(latin.status).toBe(200);
+    expect(memberSchema.parse(latin.body).baseSubGenre).toBe("latin");
+    expect(memberSchema.parse((await call("getMe", bearer)).body).baseSubGenre).toBe("latin");
+    expect(await subOf()).toBe("latin");
+
+    // 짝이 안 맞는 세부 장르·모르는 값은 422 — 화면만 막지 않고 서버가 막는다
+    for (const body of [
+      { baseGenre: "argentine_tango", baseSubGenre: "latin" },
+      { baseGenre: "swing", baseSubGenre: "salsa" },
+      { baseGenre: "dance_sport", baseSubGenre: "bachata" },
+      { baseGenre: "salsa_bachata", baseSubGenre: "standard" },
+      { baseGenre: "dance_sport", baseSubGenre: "kpop" },
+    ]) {
+      const res = await call("putBaseGenre", bearer, body);
+      expect(res.status, JSON.stringify(body)).toBe(422);
+      expect(res.code).toBe("VALIDATION_FAILED");
+      expect(fieldPaths(res.body), JSON.stringify(body)).toContain("baseSubGenre");
+    }
+    expect(await subOf()).toBe("latin");
+
+    // null 을 보내거나 세부 장르가 없는 장르로 바꾸면 「전체」로 돌아간다
+    const all = await call("putBaseGenre", bearer, { baseGenre: "dance_sport", baseSubGenre: null });
+    expect(memberSchema.parse(all.body).baseSubGenre).toBeNull();
+    expect((await call("putBaseGenre", bearer, { baseGenre: "salsa_bachata", baseSubGenre: "bachata" })).status).toBe(200);
+    const tango = await call("putBaseGenre", bearer, { baseGenre: "argentine_tango" });
+    expect(memberSchema.parse(tango.body).baseSubGenre).toBeNull();
+    expect(await subOf()).toBeNull();
+  });
+
+  test("세부 장르 DB 규칙: 앱을 거치지 않고 짝이 안 맞는 값을 넣어도 CHECK 가 막는다", async () => {
+    const { memberId } = await signedUpMember("subdb");
+    await q("UPDATE members SET base_genre = 'swing' WHERE id = $1", [memberId]);
+    await expect(q("UPDATE members SET base_sub_genre = 'latin' WHERE id = $1", [memberId])).rejects.toThrow(/check/i);
+  });
+
   test("문지기: 세션 없음 401, 가입 전 로그인 403 SIGNUP_INCOMPLETE, JSON 아님 400", async () => {
     const { bearer: notMember } = await loggedInUser("not-member");
     for (const handler of ["getMe", "putProfile", "putBaseGenre"] as const) {

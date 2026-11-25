@@ -19,7 +19,10 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { apiFetch, type ApiError } from '../../lib/api';
 import { formatKstDateTime, formatWon, genreLabel } from '../../lib/catalog/format';
 import { colors, font, radius, space } from '../../lib/theme';
-import type { HomeSort, OfferingSummary, Page } from '../../lib/catalog/types';
+import type { Genre, HomeSort, OfferingSummary, Page } from '../../lib/catalog/types';
+import { SUB_GENRE_LABELS } from '../../lib/onboarding/labels';
+import { fetchMe } from '../../lib/onboarding/members-api';
+import type { SubGenre } from '../../lib/onboarding/types';
 import { SeatGrid } from '../../lib/catalog/seat-grid';
 import { EmptyView, ErrorView, isSoldOut, LoadingView, shared } from '../../lib/catalog/ui';
 import { toApiError } from '../../lib/catalog/use-api-resource';
@@ -32,9 +35,13 @@ interface FeedState {
   nextCursor: string | null;
   status: 'loading' | 'ready' | 'error' | 'refreshing' | 'loadingMore';
   error: ApiError | null;
+  /** 내 기준 장르(FR-022a). 홈 목록 응답에 없어 `GET /api/me` 에서 따로 읽는다 */
+  baseGenre: Genre | null;
+  /** 기준 장르 안의 세부 장르(FR-022a). null 이면 「전체」 — 제목 괄호 「(라틴)」에 쓴다 */
+  baseSubGenre: SubGenre | null;
 }
 
-const INITIAL: FeedState = { items: [], nextCursor: null, status: 'loading', error: null };
+const INITIAL: FeedState = { items: [], nextCursor: null, status: 'loading', error: null, baseGenre: null, baseSubGenre: null };
 
 /**
  * 정렬 칩 3개(보드 M7 「정렬 칩」, FR-036a(검색 결과 정렬 5종) 중 지금 서버가 받는 3종).
@@ -52,6 +59,16 @@ function pagePath(sort: HomeSort, cursor: string | null): string {
   return `/api/home/offerings?limit=${PAGE_SIZE}&sort=${sort}${cursorPart}`;
 }
 
+/**
+ * 카드의 「기간 · N회」 글자. 서버가 만든 기간 이름(label)이 이미 「11/26~12/21 · 8회」처럼 회차 수로 끝나면
+ * 그대로 쓰고, 「12월 기간」처럼 회차 수가 없을 때만 덧붙인다 — 예전에는 늘 덧붙여 「8회 · 8회」가 됐다(2026-11-25 발견).
+ */
+function periodText(item: OfferingSummary): string {
+  // 「· 8회」처럼 구분점까지 맞춰 본다 — 그냥 「8회」로 끝나는지만 보면 「18회」도 맞다고 잘못 판정한다.
+  const count = `${item.sessionCount}회`;
+  return item.label.endsWith(` ${count}`) ? item.label : `${item.label} · ${count}`;
+}
+
 /** 첫 장 불러오기·새로 고침·다음 장 이어 붙이기. 결과는 매번 새 객체로 갈아 끼운다. */
 function useOfferingFeed() {
   const [feed, setFeed] = useState<FeedState>(INITIAL);
@@ -66,13 +83,21 @@ function useOfferingFeed() {
     const status = mode === 'more' ? 'loadingMore' : mode === 'refresh' ? 'refreshing' : 'loading';
     setFeed((prev) => ({ ...prev, status, error: null }));
     try {
-      const page = await apiFetch<Page<OfferingSummary>>(pagePath(sortBy, cursor));
+      // 첫 장·새로 고침 때는 기준 장르도 같이 읽는다(다른 화면에서 장르를 바꾸고 돌아와도 제목이 맞게).
+      // 수업이 0개여도 「아르헨티나 탱고」처럼 내 장르가 제목에 보여야 해서 목록과 따로 받는다.
+      // 내 정보(제목용)는 실패해도 목록은 보여 준다 — 그때는 이전 제목을 그대로 둔다(null).
+      const [page, me] = await Promise.all([
+        apiFetch<Page<OfferingSummary>>(pagePath(sortBy, cursor)),
+        mode === 'more' ? Promise.resolve(null) : fetchMe().catch(() => null),
+      ]);
       const pageItems = page.items ?? [];
       setFeed((prev) => ({
         items: mode === 'more' ? [...prev.items, ...pageItems] : pageItems,
         nextCursor: page.nextCursor ?? null,
         status: 'ready',
         error: null,
+        baseGenre: me === null ? prev.baseGenre : me.baseGenre,
+        baseSubGenre: me === null ? prev.baseSubGenre : me.baseSubGenre,
       }));
     } catch (error: unknown) {
       setFeed((prev) => ({ ...prev, status: 'error', error: toApiError(error) }));
@@ -130,7 +155,7 @@ export default function HomeScreen() {
 
   return (
     <View style={[styles.screen, { paddingTop: insets.top }]}>
-      <HomeHeader items={feed.items} />
+      <HomeHeader baseGenre={feed.baseGenre} baseSubGenre={feed.baseSubGenre} />
       <SortChips sort={sort} onChange={changeSort} />
       <FeedBody feed={feed} onRetry={refresh} />
       {feed.items.length > 0 && (
@@ -165,16 +190,43 @@ function FeedBody({ feed, onRetry }: { feed: FeedState; onRetry: () => void }) {
   return <EmptyView title="조건에 맞는 수업이 아직 없어요" hint="관심 지역·가능 시간대를 넓히면 더 보여요." />;
 }
 
-function HomeHeader({ items }: { items: readonly OfferingSummary[] }) {
-  // 응답에 기준 장르가 따로 오지 않아 첫 수업의 장르로 표시한다(summary 「계약 모호점」).
-  const genre = items[0]?.genre;
+interface HomeHeaderProps {
+  baseGenre: Genre | null;
+  baseSubGenre: SubGenre | null;
+}
+
+function HomeHeader({ baseGenre, baseSubGenre }: HomeHeaderProps) {
+  // 제목은 내 기준 장르(GET /api/me). 예전에는 첫 수업의 장르를 써서, 그 장르 수업이 0개면 「오늘의 수업」이 떴다.
+  // 세부 장르가 있으면 「댄스스포츠(라틴)」 — 괄호 부분은 조금 작게(spec FR-022a)
+  const subLabel = baseSubGenre === null ? null : SUB_GENRE_LABELS[baseSubGenre];
+
+  // 「장르 바꾸기」 — 기준 장르 화면으로 가면서 지금 값을 주소로 넘겨 미리 골라 두게 한다.
+  // 저장하고 돌아오면 아래 useFocusEffect 가 목록과 제목을 새로 읽는다
+  const openGenrePicker = () =>
+    router.push({
+      pathname: '/base-genre',
+      params: { from: 'home', genre: baseGenre ?? '', sub: baseSubGenre ?? '' },
+    });
+
   return (
     <View style={styles.headerRow}>
       <View style={styles.header}>
         <Text style={shared.muted}>기준 장르</Text>
-        <Text style={styles.headerTitle} accessibilityRole="header">
-          {genre === undefined ? '오늘의 수업' : genreLabel(genre)}
-        </Text>
+        <View style={styles.titleRow}>
+          <Text style={styles.headerTitle} accessibilityRole="header">
+            {baseGenre === null ? '오늘의 수업' : genreLabel(baseGenre)}
+            {subLabel !== null && <Text style={styles.headerSub}>({subLabel})</Text>}
+          </Text>
+          <Pressable
+            style={styles.changeGenre}
+            onPress={openGenrePicker}
+            hitSlop={6}
+            accessibilityRole="button"
+            accessibilityLabel="장르 바꾸기"
+          >
+            <Text style={styles.changeGenreText}>장르 바꾸기</Text>
+          </Pressable>
+        </View>
       </View>
       {/* 알림함(보드 M21) 들어가는 곳 — 홈 머리 오른쪽 */}
       <Pressable
@@ -228,7 +280,7 @@ function OfferingCard({ item }: { item: OfferingSummary }) {
         {soldOut && <Text style={[shared.tag, shared.tagClosed]}>마감</Text>}
       </View>
       <Text style={shared.muted}>
-        {item.academy?.name} · {item.academy?.regionGu} · {item.label} · {item.sessionCount}회
+        {item.academy?.name} · {item.academy?.regionGu} · {periodText(item)}
       </Text>
       <Text style={shared.muted}>첫 수업 {formatKstDateTime(item.firstSessionStartsAt)}</Text>
       {/* 정원 좌석 칸 — 남녀 정원은 남·여 두 덩어리, 단일 정원은 한 줄(보드 M7 카드 · spec 2026-10-05) */}
@@ -249,7 +301,20 @@ const styles = StyleSheet.create({
   header: { flex: 1, paddingHorizontal: space.lg, paddingVertical: space.md, gap: 2 },
   bell: { minWidth: 48, minHeight: 48, alignItems: 'center', justifyContent: 'center' },
   bellText: { fontSize: font.small, fontWeight: '700', color: colors.brown },
-  headerTitle: { fontSize: font.h1 - 4, fontWeight: '800', color: colors.ink },
+  headerTitle: { fontSize: font.h1 - 4, fontWeight: '800', color: colors.ink, flexShrink: 1 },
+  // 제목 괄호 「(라틴)」 — 제목보다 작게(spec FR-022a)
+  headerSub: { fontSize: font.h2 - 2, fontWeight: '700', color: colors.ink },
+  titleRow: { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', columnGap: space.sm },
+  changeGenre: {
+    minHeight: 36,
+    paddingHorizontal: space.md,
+    borderRadius: radius.pill,
+    borderWidth: 1,
+    borderColor: colors.brown,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  changeGenreText: { fontSize: font.small, fontWeight: '700', color: colors.brown },
   list: { paddingHorizontal: space.lg, paddingBottom: space.xl, gap: space.md },
   sortRow: { flexDirection: 'row', gap: space.sm, paddingHorizontal: space.lg, paddingBottom: space.md },
   sortChip: {

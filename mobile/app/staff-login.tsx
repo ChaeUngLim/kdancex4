@@ -8,12 +8,27 @@
  *  3. 역할이 없으면 바로 로그아웃시키고 「이 계정에는 강사 권한이 없어요」를 보인다(계약 11 §1)
  *  4. 있으면 강사는 학원 탭(I12), 대표는 대표 홈(O6)으로 간다
  *
+ * 위쪽 배경 띠(FR-011a 「강사·대표 앱 첫 화면」): 고른 역할마다 그림이 바뀐다 — 강사는 페이 40대 귀족 그림,
+ * 대표는 재즈 클럽 그림. 상태줄 아래부터 역할 버튼 바로 위까지 양옆을 꽉 채우고, 그림 위에는 그늘을 덮지 않는다.
+ *
  * 서버 호출은 「로그인」 버튼 핸들러 안에서만 한다(효과 훅 없음).
  * 아이디·비밀번호 찾기(I31B)는 S2-1.10 이 강사 탭에 붙였다. 대표 가입·입점 신청은 관리자 웹(W2a) 흐름이라 「준비 중」.
  */
 import { router, Stack, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
-import { KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import {
+  Image,
+  type ImageSourcePropType,
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  useWindowDimensions,
+  View,
+} from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ROLE_HOME, signInAs, type StaffRole } from '../lib/instructor/staff-api';
@@ -38,8 +53,31 @@ const ROLE_COPY: Readonly<Record<StaffRole, { english: string; korean: string; s
 
 const ROLES: readonly StaffRole[] = ['instructor', 'owner'];
 
+/**
+ * 역할별 배경 띠 그림(원본 `docs/prototype/assets/login/*-login-bg-band.jpg`, 1170×1194 를 그대로 복사).
+ * 원본이 이미 띠 비율(390×398)에 맞춰 잘려 있어 `cover` 로 깔면 강사는 머리부터 무릎 아래까지,
+ * 대표는 두 인물의 얼굴이 보인다.
+ */
+const ROLE_BAND: Readonly<Record<StaffRole, ImageSourcePropType>> = {
+  instructor: require('../assets/login/instructor-login-bg-band.jpg'),
+  owner: require('../assets/login/owner-login-bg-band.jpg'),
+};
+
+/** 보드 M1B·M1C 의 띠 크기(폭 390 에 높이 398). 화면 폭이 달라도 이 비율을 지킨다 */
+const BAND_ASPECT = 398 / 390;
+
+/**
+ * 띠 아래 끝을 바탕색으로 녹이는 겹친 띠들(아래로 갈수록 진하게). 새 패키지(그라데이션) 없이
+ * 얇은 View 몇 겹으로 흉내 낸다. 그림 위쪽에는 아무것도 덮지 않는다(캐릭터가 잘 보이게).
+ */
+const BAND_FADE_STEP_COUNT = 16;
+const BAND_FADE_STEP_HEIGHT = 2;
+/** 겹마다의 진하기 — 0 에서 1 까지 부드럽게(제곱 곡선) 올라가 줄무늬가 덜 보이게 한다 */
+const BAND_FADE_STEPS: readonly number[] = Array.from({ length: BAND_FADE_STEP_COUNT }, (_, index) => ((index + 1) / BAND_FADE_STEP_COUNT) ** 2);
+
 export default function StaffLoginScreen() {
   const insets = useSafeAreaInsets();
+  const { width } = useWindowDimensions();
   const params = useLocalSearchParams<{ role?: string }>();
   // 처음 한 번만 주소에서 고른다. 그 뒤로는 탭을 누른 값이 이긴다
   const [role, setRole] = useState<StaffRole>(() => (params.role === 'owner' ? 'owner' : 'instructor'));
@@ -67,13 +105,24 @@ export default function StaffLoginScreen() {
       <Stack.Screen options={{ headerShown: false }} />
       <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <ScrollView
-          contentContainerStyle={[styles.body, { paddingTop: insets.top + space.xl, paddingBottom: insets.bottom + space.xl }]}
+          contentContainerStyle={[styles.body, { paddingTop: insets.top, paddingBottom: insets.bottom + space.xl }]}
           keyboardShouldPersistTaps="handled"
         >
-          <Text style={styles.brand} accessibilityRole="header">
-            K-DanceX4
-          </Text>
-          <Text style={styles.lead}>강사·대표 앱</Text>
+          {/* 위쪽 배경 띠 — 상태줄 바로 아래부터 역할 버튼 위까지. 큰 제목·안내 알약은 두지 않는다(2026-10-09 결정) */}
+          <View
+            style={[styles.band, { height: width * BAND_ASPECT }]}
+            accessible
+            accessibilityRole="header"
+            accessibilityLabel={`K-DanceX4 강사·대표 앱, ${copy.korean} 로그인`}
+          >
+            <Image source={ROLE_BAND[role]} style={styles.bandImage} resizeMode="cover" />
+            {/* 띠 끝만 바탕색으로 짧게 녹인다 — 맨 아래 겹이 가장 진하다 */}
+            <View style={styles.bandFade} pointerEvents="none">
+              {BAND_FADE_STEPS.map((opacity, index) => (
+                <View key={index} style={[styles.bandFadeStep, { opacity }]} />
+              ))}
+            </View>
+          </View>
 
           {/* 역할 두 탭 — 반반 버튼(보드 M1B·M1C) */}
           <View style={styles.roleTabs} accessibilityRole="tablist">
@@ -188,8 +237,11 @@ const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.bg },
   flex: { flex: 1 },
   body: { flexGrow: 1, paddingHorizontal: space.xl, gap: space.lg },
-  brand: { fontSize: font.h1, fontWeight: '800', color: colors.ink },
-  lead: { fontSize: font.body, color: colors.ink3, marginTop: -space.sm },
+  // 띠는 본문 좌우 여백을 넘어 화면 양옆까지 꽉 채운다
+  band: { marginHorizontal: -space.xl, overflow: 'hidden', backgroundColor: colors.bg },
+  bandImage: { position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' },
+  bandFade: { position: 'absolute', left: 0, right: 0, bottom: 0 },
+  bandFadeStep: { height: BAND_FADE_STEP_HEIGHT, backgroundColor: colors.bg },
   roleTabs: {
     flexDirection: 'row',
     borderRadius: radius.md,

@@ -15,6 +15,14 @@ export default function RootLayout() {
     <Stack>
       {/* 회원 탭 묶음(홈·캘린더)은 화면마다 자기 머리말을 그린다 — 라우터 기본 머리말 「(tabs)」 글자를 숨긴다(보드 M7, S3-2.5) */}
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+      {/* 로그인·기준 장르 화면은 자기 제목을 직접 그린다. 기본 머리말을 두면 주소 이름(login·base-genre)이 그대로 보인다 */}
+      <Stack.Screen name="login" options={{ headerShown: false }} />
+      <Stack.Screen name="base-genre" options={{ headerShown: false }} />
+      {/* 나머지 가입 단계는 뒤로 가기가 필요해 머리말을 두되, 주소 이름 대신 한국어 제목을 단다 */}
+      <Stack.Screen name="identity" options={{ title: '본인확인' }} />
+      <Stack.Screen name="signup" options={{ title: '회원가입' }} />
+      <Stack.Screen name="consent" options={{ title: '약관 동의' }} />
+      <Stack.Screen name="preferences" options={{ title: '관심 장르 · 지역 · 시간대' }} />
     </Stack>
   );
 }

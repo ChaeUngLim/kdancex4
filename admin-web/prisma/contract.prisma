@@ -483,6 +483,8 @@ model Member {
   nickname_changed_at   DateTime(as: temporal)?
   signup_notice_ack_at  DateTime(as: temporal)
   base_genre            Genre?
+  // 기준 장르 안의 세부 장르(FR-022a). NULL 이면 「전체」. 댄스스포츠는 라틴·스탠다드, 살사/바차타는 살사·바차타만 — 아래 ck_members_base_sub_genre 가 지킨다
+  base_sub_genre        ClassSubGenre?
   experience_level      ExperienceLevel?
   available_from        Time?
   available_to          Time?
@@ -523,6 +525,11 @@ model Member {
   @@check(
     expression: sql`nickname = btrim(nickname) AND char_length(nickname) BETWEEN 2 AND 12`,
     name: "ck_members_nickname"
+  )
+  // 세부 장르는 기준 장르에 속할 때만 둔다 — 수업 쪽 ck_classes_genre_sub 와 같은 짝(FR-022a). 앱이 잘못 보내도 DB 가 막는다
+  @@check(
+    expression: sql`base_sub_genre IS NULL OR (base_genre = 'dance_sport' AND base_sub_genre IN ('latin', 'standard')) OR (base_genre = 'salsa_bachata' AND base_sub_genre IN ('salsa', 'bachata'))`,
+    name: "ck_members_base_sub_genre"
   )
   @@index([auth_user_id], unique: true, name: "uq_members_auth_user_id")
   @@index([identity_ci_hash], unique: true, name: "uq_members_identity_ci_hash")

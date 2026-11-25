@@ -229,7 +229,7 @@ export interface ReviewViewProps {
   remaining: number;
   canGenerate: boolean;
   lockMessage: string | null;
-  cover: { imageUrl: string | null; badge: string; pendingText?: string } | null;
+  cover: { imageSrc: string | null; badge: string; pendingText?: string } | null;
   overlay: { title: string; whenWhere: string; countPrice: string };
   intro: { text: string; note: string } | null;
   busy: boolean;
@@ -289,7 +289,7 @@ export function ReviewView(p: ReviewViewProps) {
         </View>
       ) : (
         <CoverCard
-          imageUrl={p.cover.imageUrl}
+          imageSrc={p.cover.imageSrc}
           badge={p.cover.badge}
           pendingText={p.cover.pendingText}
           title={p.overlay.title}

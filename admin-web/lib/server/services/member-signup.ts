@@ -17,6 +17,7 @@ import { z } from "zod";
 
 import type { Db } from "../../../prisma/db";
 import {
+  CLASS_SUB_GENRES,
   EXPERIENCE_LEVELS,
   GENDERS,
   GENRES,
@@ -91,6 +92,8 @@ export const memberSchema = z.strictObject({
     experienceLevel: z.enum(EXPERIENCE_LEVELS).nullable(),
   }),
   baseGenre: z.enum(GENRES).nullable(),
+  // 기준 장르 안의 세부 장르(FR-022a). null 이면 「전체」 — 홈 제목 「댄스스포츠(라틴)」 과 홈 목록 거르기에 쓴다
+  baseSubGenre: z.enum(CLASS_SUB_GENRES).nullable(),
   onboarding: z.strictObject({ profileDone: z.boolean(), baseGenreDone: z.boolean() }),
 });
 export type MemberView = z.infer<typeof memberSchema>;
@@ -121,7 +124,7 @@ const CONSENT_SOURCE: MemberConsentSource = "signup";
 export async function readMemberView(db: Db | Tx, memberId: string): Promise<MemberView | null> {
   const [row] = await db.query(
     db.raw.sql`SELECT id, name, nickname, gender::text AS gender, birth_date::text AS birth_date, phone,
-                      COALESCE(base_genre::text, '') AS base_genre, COALESCE(experience_level::text, '') AS experience_level,
+                      COALESCE(base_genre::text, '') AS base_genre, COALESCE(base_sub_genre::text, '') AS base_sub_genre, COALESCE(experience_level::text, '') AS experience_level,
                       COALESCE(to_char(available_from, 'HH24:MI'), '') AS available_from,
                       COALESCE(to_char(available_to, 'HH24:MI'), '') AS available_to
                FROM members WHERE id = ${memberId}::uuid`
@@ -133,6 +136,7 @@ export async function readMemberView(db: Db | Tx, memberId: string): Promise<Mem
         birth_date: "pg/text@1",
         phone: "pg/text@1",
         base_genre: "pg/text@1",
+        base_sub_genre: "pg/text@1",
         experience_level: "pg/text@1",
         available_from: "pg/text@1",
         available_to: "pg/text@1",
@@ -166,6 +170,7 @@ export async function readMemberView(db: Db | Tx, memberId: string): Promise<Mem
       experienceLevel: row.experience_level === "" ? null : row.experience_level,
     },
     baseGenre: row.base_genre === "" ? null : row.base_genre,
+    baseSubGenre: row.base_sub_genre === "" ? null : row.base_sub_genre,
     onboarding: { profileDone: genres.length > 0, baseGenreDone: row.base_genre !== "" },
   });
 }

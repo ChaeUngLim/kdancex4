@@ -11,6 +11,21 @@
 export const GENRES = ['dance_sport', 'argentine_tango', 'swing', 'salsa_bachata'] as const;
 export type Genre = (typeof GENRES)[number];
 
+/** FR-022a(첫 화면 장르 선택·유지) 세부 장르 — 서버 `CLASS_SUB_GENRES` 와 같은 값. null 은 「전체」. */
+export const SUB_GENRES = ['latin', 'standard', 'salsa', 'bachata'] as const;
+export type SubGenre = (typeof SUB_GENRES)[number];
+
+/**
+ * 장르마다 고를 수 있는 세부 장르(서버 `SUB_GENRES_OF` 와 같은 짝).
+ * 탱고·스윙은 목록이 비어 있어 세부 장르 칩이 나오지 않는다.
+ */
+export const SUB_GENRES_OF: Readonly<Record<Genre, readonly SubGenre[]>> = {
+  dance_sport: ['latin', 'standard'],
+  argentine_tango: [],
+  swing: [],
+  salsa_bachata: ['salsa', 'bachata'],
+};
+
 /** FR-029(경험 수준 구간) 6구간. */
 export const EXPERIENCE_LEVELS = [
   'entry',
@@ -51,6 +66,8 @@ export interface Member {
   readonly phoneMasked: string;
   readonly profile: ProfileInput;
   readonly baseGenre: Genre | null;
+  /** 기준 장르 안의 세부 장르(FR-022a). null 이면 「전체」. */
+  readonly baseSubGenre: SubGenre | null;
   readonly onboarding: {
     readonly profileDone: boolean;
     readonly baseGenreDone: boolean;

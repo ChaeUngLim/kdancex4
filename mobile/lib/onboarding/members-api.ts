@@ -14,6 +14,7 @@ import type {
   ProfileInput,
   SignInResponse,
   SignupInput,
+  SubGenre,
 } from './types';
 
 /**
@@ -58,7 +59,10 @@ export function saveProfile(profile: ProfileInput): Promise<Member> {
   return apiFetch<Member>('/api/me/profile', { method: 'PUT', body: profile });
 }
 
-/** 계약 §6 — 기준 장르 1개(FR-022a(첫 화면 장르 선택·유지)). */
-export function saveBaseGenre(baseGenre: Genre): Promise<Member> {
-  return apiFetch<Member>('/api/me/base-genre', { method: 'PUT', body: { baseGenre } });
+/**
+ * 계약 §6 — 기준 장르 1개와 세부 장르(FR-022a(첫 화면 장르 선택·유지)).
+ * 세부 장르는 null(「전체」)이어도 늘 같이 보낸다 — 서버가 두 칸을 함께 덮어써서 예전 값이 남지 않는다.
+ */
+export function saveBaseGenre(baseGenre: Genre, baseSubGenre: SubGenre | null): Promise<Member> {
+  return apiFetch<Member>('/api/me/base-genre', { method: 'PUT', body: { baseGenre, baseSubGenre } });
 }

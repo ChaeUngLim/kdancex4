@@ -12,7 +12,7 @@
 import { Image, Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { colors, font, MIN_TOUCH, radius, space } from '../theme';
-import { serverImageSource, type PromoEngineCard } from './promo-api';
+import type { PromoEngineCard } from './promo-api';
 
 // ---- 단계 칩 -------------------------------------------------------------------------------------
 
@@ -60,7 +60,8 @@ export function PromoChip({ label, selected, onPress }: { label: string; selecte
 // ---- 이미지 + 앱이 얹는 글자 ----------------------------------------------------------------------
 
 interface CoverCardProps {
-  imageUrl: string | null;
+  /** 그릴 사진 — 서버에서 받아 둔 data URI(`data:image/…`). 아직 없거나 못 받았으면 null(글자 카드만) */
+  imageSrc: string | null;
   badge: string;
   title: string;
   /** 「월·수 20:30–21:30 · 라틴하우스 강남 A홀」 */
@@ -75,10 +76,10 @@ interface CoverCardProps {
  * 이미지 위 글자는 이미지가 아니라 이 카드가 수업 데이터로 그린다 — 생성 모델은 한글을 제대로 못 그려서(FR-061a).
  * 그래서 수업 정보를 고치면 이미지를 다시 만들지 않아도 글자가 같이 바뀐다.
  */
-export function CoverCard({ imageUrl, badge, title, whenWhere, countPrice, pendingText }: CoverCardProps) {
+export function CoverCard({ imageSrc, badge, title, whenWhere, countPrice, pendingText }: CoverCardProps) {
   return (
     <View style={styles.cover} accessible accessibilityLabel={`${badge}. ${title}. ${whenWhere}. ${countPrice}`}>
-      {imageUrl !== null && <Image source={serverImageSource(imageUrl)} style={styles.coverImage} resizeMode="cover" accessibilityIgnoresInvertColors />}
+      {imageSrc !== null && <Image source={{ uri: imageSrc }} style={styles.coverImage} resizeMode="cover" accessibilityIgnoresInvertColors />}
       {/* 글자가 잘 읽히게 아래쪽을 어둡게 깐다 */}
       <View style={styles.coverShade} />
       <Text style={styles.coverBadge}>{badge}</Text>

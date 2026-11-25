@@ -13,6 +13,7 @@
  */
 import { fetch as expoFetch } from 'expo/fetch';
 
+import { imageContentType, toImageDataUri } from './server-image';
 import { clearSessionToken, getSessionToken } from './session';
 
 /** §4.8(오류 응답 형식)의 `fields` 한 줄 — 검증 실패(422 `VALIDATION_FAILED`)에만 온다. */
@@ -201,6 +202,20 @@ export async function apiFetchStream(path: string, options: ApiRequestOptions, o
   return all;
 }
 
+/**
+ * 서버 사진(`/api/files/{id}`)을 로그인 토큰을 실은 보통 요청으로 받아 `data:image/…;base64,…` 로 돌려준다(2026-11-25 홍보 이미지 버그).
+ * <Image source={{ uri, headers }}> 는 안드로이드에서 Authorization 헤더가 실리지 않아 401 이 났다 — 그래서 바이트를 직접 받아 넘긴다.
+ * 이미지가 아닌 응답이면 UNEXPECTED_RESPONSE 로 던진다(받는 쪽은 사진 없이 글자 카드만 그린다).
+ */
+export async function apiFetchImageDataUri(path: string): Promise<string> {
+  const response = await sendRequest(path, {}, 'image/*');
+  const contentType = imageContentType(response.headers.get('content-type'));
+  if (contentType === null) {
+    throw new ApiError(response.status, 'UNEXPECTED_RESPONSE', UNEXPECTED_RESPONSE_DETAIL);
+  }
+  return toImageDataUri(contentType, new Uint8Array(await response.arrayBuffer()));
+}
+
 /** 실제로 보내는 곳. 성공 응답(2xx)만 돌려주고, 실패는 ApiError 로 던진다 */
 async function sendRequest(
   path: string,
@@ -234,6 +249,10 @@ async function sendRequest(
       headers,
       body: body === undefined ? undefined : JSON.stringify(body),
       signal,
+      // 쿠키는 쓰지 않는다 — 앱 인증은 위의 Bearer 토큰 하나다. 휴대폰 fetch 는 받은 세션 쿠키를 몰래 저장해
+      // 다음 요청에 붙이는데, Origin 없는 요청에 쿠키가 붙으면 서버(Better Auth)가 CSRF 방어로 403 을 낸다.
+      // 실제로 회원 로그인 뒤 같은 앱에서 강사 로그인이 403(MISSING_OR_NULL_ORIGIN)으로 막혔다(2026-11-25 에뮬레이터).
+      credentials: 'omit',
     });
   } catch (error: unknown) {
     // 호출자가 취소한 요청은 오류로 바꾸지 않고 그대로 넘긴다.

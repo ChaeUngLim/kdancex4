@@ -7,10 +7,14 @@
  * (plan D16(홈 장르 조건)).
  *
  * 함께 듣고 싶은 연령대·세부 장르는 1회차 범위 밖이라 보내지 않는다(계약: 모르는 칸은 422).
+ *
+ * 관심 장르는 사진 카드 2×2 로 여러 개 고른다(2026-11-25, 보드 M4 「관심 장르 카드 (B · 3초 전환)」).
+ * 기준 장르 화면과 같은 카드(lib/onboarding/genre-photo-card.tsx)라 사진이 3초마다 번갈아 바뀐다.
+ * 다만 지금 계약은 장르 목록만 저장하므로, 어느 사진에서 눌렀든 장르 하나를 켜고 끄기만 한다.
  */
 import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, Text, View } from 'react-native';
+import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 
 import {
   Chip,
@@ -23,9 +27,10 @@ import {
   SectionLabel,
 } from '../lib/onboarding/components';
 import { nextOnboardingRoute } from '../lib/onboarding/flow';
+import { GenrePhotoCard } from '../lib/onboarding/genre-photo-card';
 import { EXPERIENCE_LABELS, GENRE_LABELS } from '../lib/onboarding/labels';
 import { fetchMe, saveProfile } from '../lib/onboarding/members-api';
-import { colors } from '../lib/theme';
+import { colors, space } from '../lib/theme';
 import { EXPERIENCE_LEVELS, GENRES, type ExperienceLevel, type Genre, type Region } from '../lib/onboarding/types';
 import { useRequest } from '../lib/onboarding/use-request';
 import { hasRegion, MAX_REGIONS, validateTimeWindow } from '../lib/onboarding/validation';
@@ -133,13 +138,16 @@ export default function PreferencesScreen() {
     >
       {load.loading ? <ActivityIndicator color={colors.brown} accessibilityLabel="저장된 취향을 불러오는 중" /> : null}
       <SectionLabel text="관심 장르" hint="필수 · 여러 개 선택" />
-      <View style={onboardingStyles.row}>
+      {/* 사진 카드 4장 — 누를 때마다 그 장르를 켜고 끈다(여러 개). 사진은 골라도 계속 번갈아 바뀐다 */}
+      <View style={styles.grid}>
         {GENRES.map((genre) => (
-          <Chip
+          <GenrePhotoCard
             key={genre}
-            label={GENRE_LABELS[genre].name}
+            genre={genre}
+            role="checkbox"
+            size="small"
             selected={genres.includes(genre)}
-            onPress={() => setGenres((previous) => toggle(previous, genre))}
+            onPress={(pressed) => setGenres((previous) => toggle(previous, pressed))}
           />
         ))}
       </View>
@@ -165,3 +173,7 @@ export default function PreferencesScreen() {
     </OnboardingScreen>
   );
 }
+
+const styles = StyleSheet.create({
+  grid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', rowGap: space.sm },
+});

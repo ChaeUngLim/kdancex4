@@ -309,6 +309,8 @@ export function createHomeOfferingsRoute(deps: HomeOfferingsDeps) {
                    AND NOT EXISTS (SELECT 1 FROM academy_restrictions r
                                    WHERE r.academy_id = a.id AND r.kind = 'listing_suspended' AND r.ended_at IS NULL)
                    AND c.genre = ${baseGenre}
+                   -- 세부 장르(FR-022a): 회원이 「전체」(NULL)면 조건 없음, 「라틴」처럼 골랐으면 같은 세부 장르 수업만
+                   AND (m.base_sub_genre IS NULL OR c.sub_genre = m.base_sub_genre)
                    -- 관심 지역: 하나도 없으면 조건 없음, 있으면 학원의 시·구가 그중 하나
                    AND (NOT EXISTS (SELECT 1 FROM member_regions mr WHERE mr.member_id = m.id)
                         OR EXISTS (SELECT 1 FROM member_regions mr

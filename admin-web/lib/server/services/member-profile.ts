@@ -11,9 +11,11 @@
 //   ② 관심 장르 0개는 거부(422 VALIDATION_FAILED, fields: profile.interestGenres) — 「필수·복수」
 //   ③ 가능 시간대는 둘 다 주거나 둘 다 비우고, 줄 때는 시작 < 끝(zod 에서 먼저, DB CHECK 가 한 번 더)
 //   ④ 기준 장르는 정확히 1개 — 배열·빈 값·모르는 장르는 422
+//   ⑤ 세부 장르(FR-022a)는 선택 — 그 장르에 속하지 않으면 422(fields: baseSubGenre), 안 보내면 null(전체)
 import { z } from "zod";
 
-import { EXPERIENCE_LEVELS, GENRES } from "../../domain/constants";
+import { SUB_GENRES_OF } from "../../domain/class-registration";
+import { CLASS_SUB_GENRES, EXPERIENCE_LEVELS, GENRES } from "../../domain/constants";
 import type { Clock } from "../../domain/time";
 import { createGuards, type GuardDeps } from "../guards";
 import { parseJsonBody, withRoute } from "../http";
@@ -36,6 +38,7 @@ const DETAIL = {
   windowOrder: "가능 시간대의 끝이 시작보다 늦어야 해요",
   timeShape: "시각은 00:00 ~ 23:59 사이의 HH:MM 형식이에요",
   notFound: "회원 정보를 찾을 수 없어요",
+  subGenreMismatch: "이 장르에서 고를 수 없는 세부 장르예요",
 } as const;
 
 const NO_STORE = { "Cache-Control": "private, no-store" } as const;
@@ -92,8 +95,25 @@ export const memberProfileRequestSchema = z
   });
 export type MemberProfileRequest = z.infer<typeof memberProfileRequestSchema>;
 
-/** 기준 장르 — 정확히 1개(배열이 아니라 값 하나). 바꾸기도 같은 경로 */
-export const memberBaseGenreRequestSchema = z.strictObject({ baseGenre: z.enum(GENRES) });
+/**
+ * 기준 장르 — 정확히 1개(배열이 아니라 값 하나). 바꾸기도 같은 경로.
+ * 세부 장르(FR-022a)는 고르지 않아도 된다 — 칸을 빼거나 null 이면 「전체」로 저장한다.
+ * 왜 서버에서 짝을 보나: 화면은 맞는 칩만 보여 주지만, 앱을 거치지 않은 요청(탱고 + 라틴)도 올 수 있다.
+ * 그런 요청은 DB CHECK(ck_members_base_sub_genre)에 걸려 500 이 되기 전에 여기서 422 로 돌려보낸다.
+ */
+export const memberBaseGenreRequestSchema = z
+  .strictObject({
+    baseGenre: z.enum(GENRES),
+    baseSubGenre: z.enum(CLASS_SUB_GENRES).nullable().optional(),
+  })
+  .superRefine((input, ctx) => {
+    const sub = input.baseSubGenre ?? null;
+    if (sub === null) return;
+    // 이 장르가 가질 수 있는 세부 장르 목록. 탱고·스윙은 목록이 없어 어떤 세부 장르도 맞지 않는다
+    const allowed = SUB_GENRES_OF[input.baseGenre] ?? [];
+    if (!allowed.includes(sub)) ctx.addIssue({ code: "custom", path: ["baseSubGenre"], message: DETAIL.subGenreMismatch });
+  })
+  .transform((input) => ({ baseGenre: input.baseGenre, baseSubGenre: input.baseSubGenre ?? null }));
 
 export type MemberProfileDeps = GuardDeps & { readonly clock: Clock };
 
@@ -197,7 +217,10 @@ export function createMemberProfileRoutes(deps: MemberProfileDeps) {
     const saved = await db.transaction(async (tx) => {
       await lockMember(tx, memberId);
       await tx.execute(
-        tx.raw.sql`UPDATE members SET base_genre = ${input.baseGenre}, updated_at = ${now}::timestamptz
+        // 세부 장르는 늘 함께 덮어쓴다 — 장르를 탱고로 바꾸면 예전 「라틴」 이 남지 않고 null(전체)이 된다.
+        // 쿼리 값 자리에 null 을 못 넣어 빈 글자로 보내고 NULLIF 로 NULL 로 바꾼다(putProfile 과 같은 방법)
+        tx.raw.sql`UPDATE members SET base_genre = ${input.baseGenre}, base_sub_genre = NULLIF(${input.baseSubGenre ?? ""}, ''),
+                          updated_at = ${now}::timestamptz
                    WHERE id = ${memberId}::uuid`
           .affectedCount()
           .build(),

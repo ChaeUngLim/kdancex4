@@ -15,7 +15,7 @@ import { router } from 'expo-router';
 import { useRef, useState } from 'react';
 import { Text } from 'react-native';
 
-import { ApiError } from '../api';
+import { ApiError, apiFetchImageDataUri } from '../api';
 import { newIdempotencyKey, toApiError } from '../catalog/use-api-resource';
 import { priceLine, scheduleLine, submitClass, TARGET_LEVEL_LABELS, type ClassRegistration } from './class-api';
 import { formStyles } from './class-form-ui';
@@ -47,6 +47,8 @@ interface Generation {
   generationId: string;
   status: PromoGenerationStatus;
   imageUrl: string | null;
+  /** 화면에 그릴 사진(data URI). 서버 주소(imageUrl)를 <Image> 에 바로 주면 안드로이드에서 토큰 헤더가 안 실려 401 이 난다 */
+  imageSrc: string | null;
 }
 
 /** 화면이 들고 있는 소개 문구 */
@@ -92,9 +94,11 @@ interface PromoFlowProps {
   cls: ClassRegistration;
   options: PromoOptions;
   assets: PromoAssets;
+  /** 화면을 열 때 promo.tsx 가 미리 받아 둔 표지 사진(data URI, initialCoverPath 의 사진). 없거나 못 받았으면 null */
+  initialCoverSrc: string | null;
 }
 
-export function PromoFlow({ cls, options, assets }: PromoFlowProps) {
+export function PromoFlow({ cls, options, assets, initialCoverSrc }: PromoFlowProps) {
   const last = options.lastGeneration;
   const dance = options.genreChip.label;
 
@@ -108,9 +112,9 @@ export function PromoFlow({ cls, options, assets }: PromoFlowProps) {
   const [remaining, setRemaining] = useState(options.usage.remaining);
   const [generation, setGeneration] = useState<Generation | null>(
     last !== null
-      ? { generationId: last.generationId, status: last.status, imageUrl: last.imageUrl }
+      ? { generationId: last.generationId, status: last.status, imageUrl: last.imageUrl, imageSrc: initialCoverSrc }
       : assets.aiImageGenerationId !== null
-        ? { generationId: assets.aiImageGenerationId, status: 'succeeded', imageUrl: assets.coverUrl }
+        ? { generationId: assets.aiImageGenerationId, status: 'succeeded', imageUrl: assets.coverUrl, imageSrc: initialCoverSrc }
         : null,
   );
   const [intro, setIntro] = useState<Intro | null>(
@@ -148,14 +152,14 @@ export function PromoFlow({ cls, options, assets }: PromoFlowProps) {
   const overlay = overlayOf(cls);
   const cover =
     assets.coverSource === 'uploaded_photo' && assets.coverUrl !== null
-      ? { imageUrl: assets.coverUrl, badge: '올린 사진 · 글자는 앱이 얹어요' }
+      ? { imageSrc: initialCoverSrc, badge: '올린 사진 · 글자는 앱이 얹어요' }
       : generation === null
         ? null
         : generation.status === 'succeeded'
-          ? { imageUrl: generation.imageUrl, badge: 'AI 생성 · 글자는 앱이 얹어요' }
+          ? { imageSrc: generation.imageSrc, badge: 'AI 생성 · 글자는 앱이 얹어요' }
           : generation.status === 'failed'
-            ? { imageUrl: null, badge: 'AI 생성', pendingText: '만들지 못했어요 · 횟수는 돌려드렸어요' }
-            : { imageUrl: null, badge: 'AI 생성', pendingText: '이미지를 만들고 있어요…' };
+            ? { imageSrc: null, badge: 'AI 생성', pendingText: '만들지 못했어요 · 횟수는 돌려드렸어요' }
+            : { imageSrc: null, badge: 'AI 생성', pendingText: '이미지를 만들고 있어요…' };
 
   // ---- 핸들러 ----
 
@@ -207,7 +211,7 @@ export function PromoFlow({ cls, options, assets }: PromoFlowProps) {
       setConfirmOpen(false);
       setSending(false);
       setRemaining(made.remaining);
-      setGeneration({ generationId: made.generationId, status: made.status, imageUrl: null });
+      setGeneration({ generationId: made.generationId, status: made.status, imageUrl: null, imageSrc: null });
       setView('review');
       await follow(made.generationId, made.status);
     } catch (caught: unknown) {
@@ -224,9 +228,13 @@ export function PromoFlow({ cls, options, assets }: PromoFlowProps) {
       await sleep(POLL_MS);
       try {
         const read = await readPromoImage(generationId);
+        // 다 만들어졌으면 사진 바이트를 토큰을 실은 보통 요청으로 받아 data URI 로 바꾼 뒤에 「완료」로 바꾼다 —
+        // 그래야 완료 카드가 빈 칸으로 깜박이지 않는다. 사진만 못 받으면 글자 카드로 두고(null) 등록은 그대로 된다
+        const imageSrc =
+          read.status === 'succeeded' && read.imageUrl !== null ? await apiFetchImageDataUri(read.imageUrl).catch(() => null) : null;
         current = read.status;
         setRemaining(read.remaining);
-        setGeneration({ generationId, status: read.status, imageUrl: read.imageUrl });
+        setGeneration({ generationId, status: read.status, imageUrl: read.imageUrl, imageSrc });
       } catch {
         // 한 번 못 읽어도 다음에 다시 읽는다
       }

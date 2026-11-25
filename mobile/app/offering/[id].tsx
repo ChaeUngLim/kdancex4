@@ -92,14 +92,24 @@ function OfferingSummaryCard({ detail }: { detail: OfferingDetail }) {
   );
 }
 
-/** 「화 20:00–21:00」 — 첫 회차의 요일·시각. 회차 목록은 아래 카드에 따로 있다 */
+/** 월요일부터 세는 요일 순서 — 요약에 요일을 「월·목」처럼 주 순서대로 늘어놓을 때 쓴다 */
+const WEEK_ORDER = ['월', '화', '수', '목', '금', '토', '일'] as const;
+
+/**
+ * 「월·목 19:00–20:00」 — 모든 회차의 요일을 모아 주 순서로, 시각은 첫 회차 것.
+ * 예전에는 첫 회차 요일 하나만 써서 월·목 수업이 「목」으로만 보였다(2026-11-25 시연 중 발견).
+ * 회차 목록은 아래 카드에 따로 있다.
+ */
 function weeklyTimeText(detail: OfferingDetail): string {
-  const first = detail.sessions?.[0];
+  const sessions = detail.sessions ?? [];
+  const first = sessions[0];
   if (first === undefined) {
     return '일정 미정';
   }
-  const day = formatKstDateTime(first.startsAt).match(/\((.)\)/)?.[1] ?? '';
-  return `${day} ${formatKstTime(first.startsAt)}–${formatKstTime(first.endsAt)}`;
+  const dayOf = (iso: string) => formatKstDateTime(iso).match(/\((.)\)/)?.[1] ?? '';
+  const days = new Set(sessions.map((session) => dayOf(session.startsAt)));
+  const dayText = WEEK_ORDER.filter((day) => days.has(day)).join('·');
+  return `${dayText} ${formatKstTime(first.startsAt)}–${formatKstTime(first.endsAt)}`;
 }
 
 /**

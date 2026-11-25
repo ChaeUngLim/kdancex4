@@ -3,7 +3,7 @@
  *
  * 서버는 영문 값만 주고 받는다(공유 계약 README 「장르·구분 값」: 한글 이름은 앱이 붙인다).
  */
-import type { ConsentKey, ExperienceLevel, Gender, Genre } from './types';
+import type { ConsentKey, ExperienceLevel, Gender, Genre, SubGenre } from './types';
 
 /** FR-020(장르 4종) 카드에 올릴 이름·한 줄 설명. 문구는 보드 sec-tokens 장르 카드에서 가져왔다. */
 export const GENRE_LABELS: Readonly<Record<Genre, { readonly name: string; readonly description: string }>> = {
@@ -11,6 +11,14 @@ export const GENRE_LABELS: Readonly<Record<Genre, { readonly name: string; reado
   argentine_tango: { name: '아르헨티나 탱고', description: '밀롱가에서 즉흥으로 이어 가는 안기의 춤' },
   swing: { name: '스윙댄스', description: '재즈에 맞춰 뛰노는 린디합·찰스턴' },
   salsa_bachata: { name: '살사/바차타', description: '라틴 클럽의 밤을 채우는 두 리듬' },
+};
+
+/** FR-022a(첫 화면 장르 선택·유지) 세부 장르 칩 이름. 홈 제목 괄호 「댄스스포츠(라틴)」에도 쓴다. */
+export const SUB_GENRE_LABELS: Readonly<Record<SubGenre, string>> = {
+  latin: '라틴',
+  standard: '스탠다드',
+  salsa: '살사',
+  bachata: '바차타',
 };
 
 /** FR-029(경험 수준 구간) 버튼 이름. 괄호는 구간 기간이다. */

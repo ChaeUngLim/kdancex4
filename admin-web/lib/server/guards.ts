@@ -51,7 +51,7 @@ export type RequireStaffOptions<P extends StaffPermission> = {
  */
 export type AuthSession = {
   user: { id: string; twoFactorEnabled?: boolean | null };
-  session?: { secondFactorVerified?: boolean | null } | null;
+  session?: { secondFactorVerified?: boolean | null; appSession?: boolean | null } | null;
 };
 
 /**
@@ -59,10 +59,16 @@ export type AuthSession = {
  * 둘 다 참이어야 한다:
  *   ① 세션이 2단계를 거쳐 만들어졌다 — 인증 앱 등록 전에 비밀번호만으로 만든 세션(다른 기기·앱 토큰)을 막는다
  *   ② 계정이 지금도 인증 앱을 켜 두었다 — 나중에 인증 앱을 끄면 예전 세션도 다시 2단계를 거쳐야 한다
+ *   ③ (2026-11-25) 앱 로그인으로 만든 세션(appSession)이 아니다 — 앱 세션은 6자리를 거치지 않았으므로
+ *      세션 훅이 어떤 이유로 secondFactorVerified 를 잘못 적어도 여기서 한 번 더 막는다(막는 쪽 이중 확인)
  * requireStaff(③)와 GET /api/staff/me 의 secondFactorVerified 가 같은 함수를 써서 서로 어긋나지 않는다.
  */
 export function isSecondFactorVerified(session: AuthSession): boolean {
-  return session.user.twoFactorEnabled === true && session.session?.secondFactorVerified === true;
+  return (
+    session.user.twoFactorEnabled === true &&
+    session.session?.secondFactorVerified === true &&
+    session.session?.appSession !== true
+  );
 }
 export type SessionReader = (headers: Headers) => Promise<AuthSession | null>;
 

@@ -10851,6 +10851,19 @@
                   "plane": "domain"
                 }
               },
+              "base_sub_genre": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                },
+                "valueSet": {
+                  "entityKind": "enum",
+                  "entityName": "ClassSubGenre",
+                  "namespaceId": "public",
+                  "plane": "domain"
+                }
+              },
               "birth_date": {
                 "nullable": false,
                 "type": {
@@ -11243,6 +11256,9 @@
                 },
                 "base_genre": {
                   "column": "base_genre"
+                },
+                "base_sub_genre": {
+                  "column": "base_sub_genre"
                 },
                 "birth_date": {
                   "column": "birth_date"
@@ -28748,6 +28764,11 @@
                   "prefix": "ck_members_available_window"
                 },
                 {
+                  "expression": "base_sub_genre IS NULL OR (base_genre = 'dance_sport' AND base_sub_genre IN ('latin', 'standard')) OR (base_genre = 'salsa_bachata' AND base_sub_genre IN ('salsa', 'bachata'))",
+                  "name": "ck_members_base_sub_genre_5f6db99c",
+                  "prefix": "ck_members_base_sub_genre"
+                },
+                {
                   "expression": "nickname = btrim(nickname) AND char_length(nickname) BETWEEN 2 AND 12",
                   "name": "ck_members_nickname_99460e30",
                   "prefix": "ck_members_nickname"
@@ -28756,6 +28777,11 @@
                   "expression": "\"base_genre\" IN ('dance_sport', 'argentine_tango', 'swing', 'salsa_bachata')",
                   "name": "members_base_genre_check_93719b87",
                   "prefix": "members_base_genre_check"
+                },
+                {
+                  "expression": "\"base_sub_genre\" IN ('latin', 'standard', 'salsa', 'bachata')",
+                  "name": "members_base_sub_genre_check_9db5ca8a",
+                  "prefix": "members_base_sub_genre_check"
                 },
                 {
                   "expression": "\"experience_level\" IN ('entry', 'beginner', 'novice_intermediate', 'intermediate', 'advanced', 'dancer')",
@@ -28791,6 +28817,17 @@
                   "valueSet": {
                     "entityKind": "valueSet",
                     "entityName": "Genre",
+                    "namespaceId": "public",
+                    "plane": "storage"
+                  }
+                },
+                "base_sub_genre": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true,
+                  "valueSet": {
+                    "entityKind": "valueSet",
+                    "entityName": "ClassSubGenre",
                     "namespaceId": "public",
                     "plane": "storage"
                   }
@@ -38817,7 +38854,7 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "2df1a9aa9c81500bc1f9db0dfe7da5fc3f861d0691e1872bffac8444eabf6cc7"
+    "storageHash": "aca27672a6d226b1daf5cb75ace4a1763aab180f0fa86032afa1e68c856b343b"
   },
   "capabilities": {
     "postgres": {

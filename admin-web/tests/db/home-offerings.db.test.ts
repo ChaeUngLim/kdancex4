@@ -177,15 +177,15 @@ describe.skipIf(!dbAvailable())("홈 목록 API(계약 02 §1, S3-2.1)", () => {
   /** 가입을 마친 회원(S3-1.2 결과와 같은 행). 취향은 S3-1.5 의 칸에 바로 적는다 */
   async function member(
     key: string,
-    o: { baseGenre: string | null; regions?: [string, string][]; window?: [string, string] },
+    o: { baseGenre: string | null; baseSubGenre?: string; regions?: [string, string][]; window?: [string, string] },
   ): Promise<string> {
     const { token, userId } = await loggedInUser(key);
     const memberId = randomUUID();
     await q(
       `INSERT INTO members (id, auth_user_id, name, gender, birth_date, phone, identity_ci_hash, nickname, signup_notice_ack_at,
-                            base_genre, available_from, available_to, updated_at)
-       VALUES ($1, $2, '김회원', 'female', '1995-03-02', '01012345678', $3, '서연', now(), $4, $5::time, $6::time, now())`,
-      [memberId, userId, `ci-${randomUUID()}`, o.baseGenre, o.window?.[0] ?? null, o.window?.[1] ?? null],
+                            base_genre, base_sub_genre, available_from, available_to, updated_at)
+       VALUES ($1, $2, '김회원', 'female', '1995-03-02', '01012345678', $3, '서연', now(), $4, $7, $5::time, $6::time, now())`,
+      [memberId, userId, `ci-${randomUUID()}`, o.baseGenre, o.window?.[0] ?? null, o.window?.[1] ?? null, o.baseSubGenre ?? null],
     );
     for (const [sido, gu] of o.regions ?? []) {
       await q("INSERT INTO member_regions (member_id, region_sido, region_gu) VALUES ($1, $2, $3)", [memberId, sido, gu]);
@@ -296,6 +296,23 @@ describe.skipIf(!dbAvailable())("홈 목록 API(계약 02 §1, S3-2.1)", () => {
   test("기준 장르로 거른다 — 살사·바차타 회원에게는 살사 수업만", async () => {
     const token = await member("salsa-fan", { baseGenre: "salsa_bachata" });
     expect((await homeKeys(token)).keys).toEqual(["A_salsa"]);
+  });
+
+  // FR-022a(첫 화면 장르 선택·유지) — 세부 장르가 정해져 있으면 classes.sub_genre 가 같은 수업만(AC-3). 「전체」(null)는 장르 전체
+  test("세부 장르로 거른다 — 라틴만 고른 회원에게는 라틴 수업만, 스탠다드만 고르면 스탠다드만, 전체면 둘 다", async () => {
+    // 바닥의 댄스스포츠 수업은 모두 라틴이라, 이 테스트 동안만 B_early 를 스탠다드(왈츠)로 바꿔 둔다
+    const bEarly = classes["B_early"]?.classId ?? "";
+    await q("UPDATE classes SET sub_genre = 'standard', discipline = 'waltz' WHERE id = $1", [bEarly]);
+    try {
+      const latin = await member("latin-fan", { baseGenre: "dance_sport", baseSubGenre: "latin" });
+      expect((await homeKeys(latin)).keys).toEqual(["A_evening"]);
+      const standard = await member("standard-fan", { baseGenre: "dance_sport", baseSubGenre: "standard" });
+      expect((await homeKeys(standard)).keys).toEqual(["B_early"]);
+      const all = await member("ds-all", { baseGenre: "dance_sport" });
+      expect((await homeKeys(all)).keys).toEqual(["B_early", "A_evening"]);
+    } finally {
+      await q("UPDATE classes SET sub_genre = 'latin', discipline = 'samba' WHERE id = $1", [bEarly]);
+    }
   });
 
   test("관심 지역으로 거른다 — 마포구만 고른 회원에게는 마포구 학원 수업만, 시·구가 둘 다 맞아야 한다", async () => {

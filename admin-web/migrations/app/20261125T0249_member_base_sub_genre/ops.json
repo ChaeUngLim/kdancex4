@@ -1,0 +1,156 @@
+[
+  {
+    "id": "column.public.members.base_sub_genre",
+    "label": "Add column \"base_sub_genre\" to \"members\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "base_sub_genre",
+        "table": "members"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"base_sub_genre\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "members",
+          "base_sub_genre"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "column \"base_sub_genre\" on \"members\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"base_sub_genre\"",
+        "sql": "ALTER TABLE \"public\".\"members\" ADD COLUMN \"base_sub_genre\" text"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"base_sub_genre\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "members",
+          "base_sub_genre"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "column \"base_sub_genre\" on \"members\""
+        }
+      },
+      {
+        "description": "verify column \"base_sub_genre\" has type \"text\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_attribute\" AS \"a\" INNER JOIN \"pg_class\" AS \"c\" ON \"c\".\"oid\" = \"a\".\"attrelid\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"a\".\"attname\" = $3 AND (format_type(\"a\".\"atttypid\", \"a\".\"atttypmod\")) = $4 AND NOT (\"a\".\"attisdropped\"))) AS \"result\"",
+        "params": [
+          "public",
+          "members",
+          "base_sub_genre",
+          "text"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "checkConstraint.members.ck_members_base_sub_genre_5f6db99c",
+    "label": "Add check constraint \"ck_members_base_sub_genre_5f6db99c\" on \"members\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "checkConstraint",
+        "name": "ck_members_base_sub_genre_5f6db99c",
+        "table": "members"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"ck_members_base_sub_genre_5f6db99c\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "ck_members_base_sub_genre_5f6db99c",
+          "public",
+          "\"public\".\"members\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "constraint \"ck_members_base_sub_genre_5f6db99c\" on \"members\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add check constraint \"ck_members_base_sub_genre_5f6db99c\"",
+        "sql": "ALTER TABLE \"public\".\"members\" ADD CONSTRAINT \"ck_members_base_sub_genre_5f6db99c\" CHECK (base_sub_genre IS NULL OR (base_genre = 'dance_sport' AND base_sub_genre IN ('latin', 'standard')) OR (base_genre = 'salsa_bachata' AND base_sub_genre IN ('salsa', 'bachata')))"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify check constraint \"ck_members_base_sub_genre_5f6db99c\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4)) AS \"result\"",
+        "params": [
+          "ck_members_base_sub_genre_5f6db99c",
+          "public",
+          "\"public\".\"members\"",
+          "c"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "checkConstraint.members.members_base_sub_genre_check_9db5ca8a",
+    "label": "Add check constraint \"members_base_sub_genre_check_9db5ca8a\" on \"members\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "checkConstraint",
+        "name": "members_base_sub_genre_check_9db5ca8a",
+        "table": "members"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"members_base_sub_genre_check_9db5ca8a\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "members_base_sub_genre_check_9db5ca8a",
+          "public",
+          "\"public\".\"members\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "constraint \"members_base_sub_genre_check_9db5ca8a\" on \"members\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add check constraint \"members_base_sub_genre_check_9db5ca8a\"",
+        "sql": "ALTER TABLE \"public\".\"members\" ADD CONSTRAINT \"members_base_sub_genre_check_9db5ca8a\" CHECK (\"base_sub_genre\" IN ('latin', 'standard', 'salsa', 'bachata'))"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify check constraint \"members_base_sub_genre_check_9db5ca8a\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4)) AS \"result\"",
+        "params": [
+          "members_base_sub_genre_check_9db5ca8a",
+          "public",
+          "\"public\".\"members\"",
+          "c"
+        ]
+      }
+    ]
+  }
+]

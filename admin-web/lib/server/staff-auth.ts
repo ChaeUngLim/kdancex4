@@ -22,6 +22,16 @@ import { Kysely, PostgresDialect } from "kysely";
 import type { Pool } from "pg";
 
 import { APP_WEB_DEV_ORIGIN } from "../../proxy";
+import {
+  APP_SESSION_FIELD,
+  appCallerSession,
+  rejectAppCaller,
+  STAFF_APP_SIGN_IN_PATH,
+  staffAppSignInPlugin,
+  type StaffAppSignInLimit,
+} from "./staff-app-sign-in";
+
+export { APP_SESSION_FIELD, STAFF_APP_SIGN_IN_PATH } from "./staff-app-sign-in";
 
 export type StaffAuthOptions = {
   /** 앱이 쓰는 pg 풀(prisma/db.ts 의 BYO 풀). 접속 수를 늘리지 않으려고 같은 풀을 넘겨받는다. */
@@ -30,6 +40,11 @@ export type StaffAuthOptions = {
   secret: string;
   /** 이 서버의 바깥 주소(예: https://admin.example.com). */
   baseURL: string;
+  /**
+   * 앱 로그인(POST /api/auth/sign-in/staff-app)의 아이디·IP 실패 횟수 제한(계약 §6-4 authFailure).
+   * 실서버 인스턴스(staff-auth-instance.ts)는 늘 넘긴다. 빠지면 Better Auth 기본 제한(IP·경로당 10초 3회, 운영만)만 걸린다.
+   */
+  appSignInLimit?: StaffAppSignInLimit;
 };
 
 /** 인증 앱 등록 화면에 보이는 발급처 이름. */
@@ -44,6 +59,9 @@ export const STAFF_DISABLED_AUTH_PATHS: ReadonlySet<string> = new Set([
   "/two-factor/verify-otp",
   "/two-factor/verify-backup-code",
   "/two-factor/generate-backup-codes",
+  // 비밀번호만으로 인증 앱 비밀값을 돌려주는 읽기 경로. 우리 화면은 등록 때 enable 응답의 totpURI 만 쓴다.
+  // 앱 세션 차단(앞단 한 겹)만 지키던 자리라 아예 없앤다(2026-11-25 보안 리뷰 r3 LOW-1).
+  "/two-factor/get-totp-uri",
 ]);
 
 /** 앞단 훅: 막아 둔 경로는 라우터에 없는 것처럼 404 를 준다. */
@@ -141,7 +159,7 @@ export function staffTwoFactorPlugin() {
 /** 세션 표(auth.session)에 더하는 칸 이름. 가드(guards.ts)가 이 값을 읽는다. */
 export const SECOND_FACTOR_SESSION_FIELD = "secondFactorVerified";
 
-export function createStaffAuth({ pool, secret, baseURL }: StaffAuthOptions) {
+export function createStaffAuth({ pool, secret, baseURL, appSignInLimit }: StaffAuthOptions) {
   // Better Auth 는 Kysely 로 DB 에 붙는다. 테이블은 `auth` 스키마에 둔다(public 을 건드리지 않는다).
   const db = new Kysely<unknown>({ dialect: new PostgresDialect({ pool }) });
 
@@ -156,10 +174,20 @@ export function createStaffAuth({ pool, secret, baseURL }: StaffAuthOptions) {
       // 2단계를 마친 세션인가. 사용자가 보내는 값으로는 바꿀 수 없다(input: false) — 아래 훅만 정한다.
       additionalFields: {
         [SECOND_FACTOR_SESSION_FIELD]: { type: "boolean", required: false, defaultValue: false, input: false },
+        // 앱 로그인(/sign-in/staff-app)으로 만든 세션의 이름표(2026-11-25, 보안 리뷰 C1·H1). 엔드포인트가 직접 true 로 적는다.
+        // 이 이름표가 붙은 세션은 2단계를 마친 세션이 될 수 없고, 2단계·계정 관리 경로를 부르지 못한다(staff-app-sign-in.ts).
+        [APP_SESSION_FIELD]: { type: "boolean", required: false, defaultValue: false, input: false },
       },
     },
     databaseHooks: {
       session: {
+        // 앱 세션이 지울 수 있는 세션은 자기 자신뿐이다(로그아웃). 남의 세션을 지우는 revoke-* 는 여기서 끊는다.
+        delete: {
+          before: async (row: { token?: unknown }, ctx: unknown) => {
+            const caller = appCallerSession(ctx);
+            if (caller && row.token !== caller["token"]) rejectAppCaller(ctx);
+          },
+        },
         create: {
           // 세션이 생기는 순간, 그 계정이 이미 인증 앱을 켜 두었으면 「2단계를 마친 세션」으로 적는다.
           // 이 판정이 맞는 이유(two-factor 설치본 실측, S0-3.2·S0-3.6):
@@ -167,7 +195,20 @@ export function createStaffAuth({ pool, secret, baseURL }: StaffAuthOptions) {
           //     twoFactorRedirect 를 준다. 남는 것은 6자리 코드(verify-totp)나 같은 기기 30일 쿠키를 거친 세션뿐이다.
           //   - 인증 앱을 처음 등록할 때는 플러그인이 계정 값을 먼저 켜고 나서 새 세션을 만든다 → 그 새 세션도 true.
           //   - 등록 전에 만든 세션은 그때 계정 값이 꺼져 있었으므로 false 로 남는다 → 콘솔에서 401.
-          before: async (session) => {
+          //   - 앱 세션(2026-11-25)은 6자리 없이 만들어진다 → 계정 값과 상관없이 false, 이름표(appSession)도 true 로 못 박는다.
+          //     「앱 세션인가」는 막는 쪽으로 넓게 본다(보안 리뷰 L1) — 셋 중 하나라도 맞으면 앱 세션이다:
+          //       ① 엔드포인트가 넘긴 이름표 ② 지금 요청 경로가 앱 로그인 ③ 지금 요청을 보낸 세션이 앱 세션(앱 세션이 어떤 길로든
+          //       새 세션을 만들게 되면 그 새 세션도 앱 세션으로 물려받는다 — C1 의 「verify-totp 로 새 세션」 같은 길을 원천 차단)
+          //     이 판정이 빗나가도 guards.ts 의 isSecondFactorVerified 가 appSession 을 한 번 더 본다.
+          before: async (session, ctx) => {
+            const callerSession = (ctx?.context as { session?: { session?: Record<string, unknown> } | null } | undefined)?.session?.session;
+            const fromApp =
+              (session as Record<string, unknown>)[APP_SESSION_FIELD] === true ||
+              ctx?.path === STAFF_APP_SIGN_IN_PATH ||
+              callerSession?.[APP_SESSION_FIELD] === true;
+            if (fromApp) {
+              return { data: { ...session, [APP_SESSION_FIELD]: true, [SECOND_FACTOR_SESSION_FIELD]: false } };
+            }
             const { rows } = await pool.query<{ twoFactorEnabled: boolean | null }>(
               'SELECT "twoFactorEnabled" FROM auth."user" WHERE id = $1',
               [session.userId],
@@ -178,6 +219,23 @@ export function createStaffAuth({ pool, secret, baseURL }: StaffAuthOptions) {
         },
       },
       verification: trustDeviceFixedWindowHooks,
+      // ── 2차 재리뷰(R2-C1) 깊이 방어: 앱 세션으로는 계정·비밀번호·다른 세션을 바꾸지 못한다 ──────────────
+      // 앞단 허용 목록 훅(staff-app-sign-in.ts)이 쿠키·토큰 해석 차이로 빗나가도, 데이터가 바뀌는 순간에 한 번 더 막는다.
+      // 판정은 Better Auth 가 그 요청에서 실제로 쓴 세션(ctx.context.session)으로 한다 — 해석을 우리가 다시 하지 않는다.
+      //   user    : 2단계 끄기·켜기(twoFactorEnabled), 이름·이메일 바꾸기, 탈퇴
+      //   account : 비밀번호 바꾸기·설정(account.password), 소셜 연결·해제
+      //   session : 다른 세션 끊기(revoke-*). 자기 세션 지우기(로그아웃)만 허용한다
+      // 못 막는 것: 인증 앱 비밀값 표(twoFactor) — 플러그인이 hooks 를 거치지 않는 ctx.context.adapter 로 바로 쓴다(설치본 실측).
+      //   이미 켜진 계정에 enable 을 다시 부르면 그 표의 비밀값만 바뀐다. 이 길은 앞단 허용 목록 훅만 지킨다.
+      user: {
+        update: { before: async (_data: unknown, ctx: unknown) => rejectAppCaller(ctx) },
+        delete: { before: async (_data: unknown, ctx: unknown) => rejectAppCaller(ctx) },
+      },
+      account: {
+        create: { before: async (_data: unknown, ctx: unknown) => rejectAppCaller(ctx) },
+        update: { before: async (_data: unknown, ctx: unknown) => rejectAppCaller(ctx) },
+        delete: { before: async (_data: unknown, ctx: unknown) => rejectAppCaller(ctx) },
+      },
     },
     emailAndPassword: {
       enabled: true, // username 플러그인이 이 비밀번호 로그인 위에서 돈다
@@ -189,6 +247,8 @@ export function createStaffAuth({ pool, secret, baseURL }: StaffAuthOptions) {
       // 인증 앱(TOTP)만 + 같은 기기 30일(S0-3.9). 설정은 staffTwoFactorPlugin 한 곳.
       staffTwoFactorPlugin(),
       bearer(),
+      // 강사·대표 앱 전용 로그인 — 2단계를 묻지 않는 대신 그 세션은 콘솔을 열지 못한다(staff-app-sign-in.ts).
+      staffAppSignInPlugin({ pool, limit: appSignInLimit }),
     ],
   });
 }
