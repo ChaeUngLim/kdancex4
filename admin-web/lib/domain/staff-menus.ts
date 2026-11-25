@@ -27,8 +27,12 @@ export const DELEGATION_MENU = {
 export const ACADEMY_MENUS = ["roster", "classes", "instructors", "settings"] as const;
 export type AcademyMenu = (typeof ACADEMY_MENUS)[number];
 
-/** 학원과 무관한 플랫폼 메뉴 — 운영자(admin 역할)만 받는다(§6-1 「admin 역할은 platform_settlement 추가」). */
-export const PLATFORM_MENUS = ["platform_settlement"] as const;
+/**
+ * 학원과 무관한 플랫폼 메뉴 — 운영자(admin 역할)만 받는다(§6-1 「admin 역할은 platform_settlement 추가」).
+ *   - reports(신고 처리, 화면 /admin/reports · S7-2.10b) — 2026-11-25 최종 점검에서 더했다. 화면은 있는데 메뉴 입구가 없었다.
+ *     메뉴는 보기용이고, 화면·API 는 따로 운영자 가드(requireStaff("admin"))로 막는다(FR-300)
+ */
+export const PLATFORM_MENUS = ["platform_settlement", "reports"] as const;
 export type PlatformMenu = (typeof PLATFORM_MENUS)[number];
 
 /** 학원 하나에서의 자격과 메뉴. as=owner 면 대표, delegate 면 위임받은 강사. */
@@ -58,7 +62,7 @@ function menusFor(permissions: readonly DelegationPermission[]): AcademyMenu[] {
  * 직원 한 명의 콘솔 메뉴를 계산한다.
  *   - 대표인 학원: 메뉴 전체. 같은 학원에 위임 행이 있어도 대표 자격이 우선한다
  *   - 위임받은 학원: 켜진 위임의 메뉴만. 위임이 하나도 없는 학원은 목록에 넣지 않는다
- *   - admin 역할: platform_settlement
+ *   - admin 역할: platform_settlement · reports(신고 처리)
  */
 export function computeStaffConsole(actor: StaffActor): StaffConsole {
   const owned = new Set(actor.ownedAcademyIds);

@@ -97,6 +97,24 @@ describe("buildConsoleSidebar", () => {
     expect(s.account).toEqual({ title: "운영자", subtitle: "운영자" });
   });
 
+  test("운영자 메뉴 「신고 처리」는 /admin/reports 링크로, 화면 없는 「플랫폼 정산」은 주소 없이 그린다", () => {
+    const s = buildConsoleSidebar(me({ roles: ["admin"], platformMenus: ["platform_settlement", "reports"] }));
+    expect(s.platformItems).toEqual([
+      { key: "platform_settlement", label: "플랫폼 정산" },
+      { key: "reports", label: "신고 처리", href: "/admin/reports" },
+    ]);
+  });
+
+  test("대표·강사는 platformMenus 가 비어 「신고 처리」가 생기지 않는다", () => {
+    const s = buildConsoleSidebar(
+      me({
+        roles: ["owner"],
+        academies: [{ academyId: A, name: "라틴하우스 강남", as: "owner", permissions: ["owner"], menus: ["roster"] }],
+      }),
+    );
+    expect(s.platformItems).toEqual([]);
+  });
+
   test("메뉴가 빈 학원은 묶음을 만들지 않는다(응답에 없는 메뉴는 그리지 않음)", () => {
     const s = buildConsoleSidebar(
       me({ academies: [{ academyId: A, name: "라틴하우스 강남", as: "delegate", permissions: [], menus: [] }] }),

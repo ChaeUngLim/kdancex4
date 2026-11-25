@@ -45,12 +45,22 @@ export function ConsoleSidebar({ sidebar }: { sidebar: Sidebar }) {
         <>
           {sidebar.groups.length > 0 && <hr className={styles.divider} />}
           <ul className={styles.menu} data-testid="platform-menu">
-            {sidebar.platformItems.map((item) => (
-              <li key={item.key} className={styles.platformItem}>
-                <span className={styles.dot} aria-hidden="true" />
-                {item.label}
-              </li>
-            ))}
+            {sidebar.platformItems.map((item) =>
+              // 화면이 있는 운영자 메뉴(신고 처리)는 학원 메뉴와 같은 링크로, 아직 화면이 없는 것(플랫폼 정산)은 글자로 둔다
+              item.href === undefined ? (
+                <li key={item.key} className={styles.platformItem}>
+                  <span className={styles.dot} aria-hidden="true" />
+                  {item.label}
+                </li>
+              ) : (
+                <li key={item.key}>
+                  <SidebarLink href={item.href} activePaths={item.activePaths ?? [item.href]}>
+                    <span className={styles.dot} aria-hidden="true" />
+                    {item.label}
+                  </SidebarLink>
+                </li>
+              ),
+            )}
           </ul>
         </>
       )}

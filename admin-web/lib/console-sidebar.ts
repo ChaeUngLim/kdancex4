@@ -15,6 +15,7 @@ export const MENU_LABELS: Record<AcademyMenu | PlatformMenu, string> = {
   instructors: "강사 관리",
   settings: "입점 · 설정",
   platform_settlement: "플랫폼 정산",
+  reports: "신고 처리",
 };
 const ACADEMY_MENU_ORDER: AcademyMenu[] = ["classes", "roster", "instructors", "settings"];
 
@@ -48,6 +49,14 @@ const MENU_ACTIVE_PATHS: Partial<Record<AcademyMenu, (academyId: string) => stri
     // 학원 공지(W5, S1-4.7)도 「학원 공지」 메뉴가 메뉴 목록에 생기기 전까지 이 아래 딸린 화면으로 둔다
     `/academies/${academyId}/staff-notices`,
   ],
+};
+
+/**
+ * 운영자 메뉴 중 화면이 이미 있는 것의 주소. 「플랫폼 정산」은 화면이 아직 없어 글자로만 보인다.
+ * 「신고 처리」는 운영자 신고함(S7-2.10b, /admin/reports) — 2026-11-25 에 입구를 달았다.
+ */
+const PLATFORM_HREF: Partial<Record<PlatformMenu, string>> = {
+  reports: "/admin/reports",
 };
 
 export type SidebarItem = { key: string; label: string; href?: string; activePaths?: string[] };
@@ -102,6 +111,10 @@ export function buildConsoleSidebar(me: StaffMeResponse): ConsoleSidebar {
       };
     }),
   }));
-  const platformItems = me.platformMenus.map((m) => ({ key: m, label: MENU_LABELS[m] }));
+  // 운영자 메뉴 — 서버가 준 platformMenus 만 그린다(대표·강사는 빈 목록을 받아 이 줄이 하나도 생기지 않는다)
+  const platformItems = me.platformMenus.map((m) => {
+    const href = PLATFORM_HREF[m];
+    return { key: m, label: MENU_LABELS[m], ...(href === undefined ? {} : { href }) };
+  });
   return { groups, platformItems, account: accountBox(me) };
 }

@@ -176,12 +176,12 @@ describe.skipIf(!dbAvailable())("GET /api/staff/me(README §6-1)", () => {
     expect(res.body?.academies.map((a) => a.academyId)).toEqual([academyA]);
   });
 
-  test("운영자는 학원 없이 platform_settlement 메뉴를 받는다", async () => {
+  test("운영자는 학원 없이 platform_settlement · reports 메뉴를 받는다", async () => {
     expect((await me("admin")).body).toMatchObject({
       roles: ["admin"],
       consoleAccess: true,
       academies: [],
-      platformMenus: ["platform_settlement"],
+      platformMenus: ["platform_settlement", "reports"],
     });
   });
 

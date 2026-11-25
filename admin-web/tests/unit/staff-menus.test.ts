@@ -42,10 +42,10 @@ describe("computeStaffConsole", () => {
     ]);
   });
 
-  test("admin 역할은 platform_settlement 를 받고 학원 없이도 consoleAccess:true", () => {
+  test("admin 역할은 platform_settlement · reports 를 받고 학원 없이도 consoleAccess:true", () => {
     expect(computeStaffConsole(staff({ roles: ["admin"] }))).toEqual({
       academies: [],
-      platformMenus: ["platform_settlement"],
+      platformMenus: ["platform_settlement", "reports"],
       consoleAccess: true,
     });
   });

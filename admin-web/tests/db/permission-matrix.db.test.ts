@@ -173,6 +173,10 @@ import { createInquiryReplyRoutes } from "@/lib/server/services/inquiry-replies"
 import { createRestrictionRoutes } from "@/lib/server/services/restrictions";
 import { createReportRoutes } from "@/lib/server/services/reports";
 import { createAiChatRoute } from "@/lib/server/ai/ai-chat-route";
+import { createRefundTransferCompleteRoute, createRefundTransferReinputRoute } from "@/lib/server/services/refund-transfers";
+import { createClassIntroDraftRoute } from "@/lib/server/services/class-intro-drafts";
+import { createPromoImageOptionsRoute } from "@/lib/server/services/promo-image-options";
+import { createPromoImageRoutes } from "@/lib/server/services/promo-image-generations";
 import { insertCancellationChain } from "../fixtures/cancellation";
 import { closeTestDb, dbAvailable, openTestDb, truncateAll, type TestDb } from "../setup/db";
 import { ACADEMY_SELLER_COLUMNS, ACADEMY_SELLER_VALUES } from "../fixtures/academy-seller";
@@ -219,7 +223,9 @@ const PASSED_NOT_MULTIPART = "400 BAD_REQUEST";
 const PASSED_NO_REASON = "422 CONTACT_REASON_REQUIRED";
 // 회원 칸이 회원 가드를 통과했고 그다음 검사(기준 장르를 아직 안 골랐음)에서 멈춘 칸 — 권한 거부가 아니다(M3-FIX.1 홈 목록 행)
 const PASSED_NO_BASE_GENRE = "409 BASE_GENRE_REQUIRED";
-type Expected = typeof PASSED_NO_REASON | typeof PASSED_NO_BASE_GENRE | typeof OK | typeof CREATED | typeof PASSED_NO_KEY | typeof PASSED_NOT_MULTIPART | typeof PASSED_NOT_FOUND | typeof PASSED_INVALID_BODY | typeof NO_SESSION | typeof NEED_2FA | typeof NOT_STAFF | typeof FORBIDDEN | typeof NOT_MEMBER;
+// 권한은 통과했고 그다음 검사(본문 {} 에 이름 대조 체크 nameChecked 가 없음)에서 멈춘 칸 — 권한 거부가 아니다(S4-1.5a 송금 완료 행)
+const PASSED_NO_NAME_CHECK = "422 NAME_CHECK_REQUIRED";
+type Expected = typeof PASSED_NO_NAME_CHECK | typeof PASSED_NO_REASON | typeof PASSED_NO_BASE_GENRE | typeof OK | typeof CREATED | typeof PASSED_NO_KEY | typeof PASSED_NOT_MULTIPART | typeof PASSED_NOT_FOUND | typeof PASSED_INVALID_BODY | typeof NO_SESSION | typeof NEED_2FA | typeof NOT_STAFF | typeof FORBIDDEN | typeof NOT_MEMBER;
 type Row = Record<ActorKey, Expected>;
 
 const isAllowed = (cell: string) => cell.startsWith("2");
@@ -1323,6 +1329,56 @@ const MATRIX = {
     anonymous: NO_SESSION, member: NO_SESSION, instructor: NO_SESSION, delegateRoster: NO_SESSION, delegateClass: NO_SESSION,
     delegateNo2fa: NO_SESSION, ownerA: NO_SESSION, ownerB: NO_SESSION, admin: NO_SESSION,
   },
+  // ---- 최종 점검(2026-11-25)에서 더한 행 — S7-2.10·S4-1.5a·SX-5.8·SX-6.5·SX-6.6·SX-6.9 가 만든 경로 9개 ----
+  // 대표 문의 상세(S7-2.10, 계약 15 §2) — 문의함과 같은 가드(owner, appToo, 위임 강사 불가 FR-207). 없는 문의 id 라 통과한 학원 A 대표만 404
+  "GET /api/academies/{academyId}/inquiries/{inquiryId}": {
+    anonymous: NO_SESSION, member: NOT_STAFF, instructor: FORBIDDEN, delegateRoster: FORBIDDEN, delegateClass: FORBIDDEN,
+    delegateNo2fa: NEED_2FA, ownerA: PASSED_NOT_FOUND, ownerB: FORBIDDEN, admin: FORBIDDEN,
+  },
+  // 계좌 환불 송금 완료·다시 입력 요청(S4-1.5a, 계약 12 §2-5) — requireStaff("owner"). 쿠키면 2단계, Bearer 면 묻지 않는다(웹·앱 공통).
+  // 경로 id 모양 검사(404)가 가드보다 먼저라 모양이 맞는 무작위 id 로 부른다. 본문 {} 라 통과한 학원 A 대표만
+  // 완료는 이름 대조 체크 없음(422 NAME_CHECK_REQUIRED), 다시 입력 요청은 reason 없음(422 VALIDATION_FAILED)에서 멈춘다
+  "POST /api/academies/{academyId}/refund-transfers/{refundId}/complete": {
+    anonymous: NO_SESSION, member: NOT_STAFF, instructor: FORBIDDEN, delegateRoster: FORBIDDEN, delegateClass: FORBIDDEN,
+    delegateNo2fa: NEED_2FA, ownerA: PASSED_NO_NAME_CHECK, ownerB: FORBIDDEN, admin: FORBIDDEN,
+  },
+  "POST /api/academies/{academyId}/refund-transfers/{refundId}/request-reinput": {
+    anonymous: NO_SESSION, member: NOT_STAFF, instructor: FORBIDDEN, delegateRoster: FORBIDDEN, delegateClass: FORBIDDEN,
+    delegateNo2fa: NEED_2FA, ownerA: PASSED_INVALID_BODY, ownerB: FORBIDDEN, admin: FORBIDDEN,
+  },
+  // AI 홍보 이미지·소개 문구(SX-6.5·SX-6.6·SX-6.9, 계약 16 §4-7) — 수업 쪽 직원 경로와 같은 createClassAccess.readStaff
+  // (직원 계정만 확인, 쿠키면 2단계). 수업을 고칠 수 있는지(requireClassAccess)는 수업을 찾은 뒤에 본다 —
+  // 그래서 없는 수업 id·빈 본문·빠진 키로 부르면 직원 칸은 모두 그다음 검사에서 멈춘다
+  "POST /api/ai/class-intro-drafts": {
+    anonymous: NO_SESSION, member: NOT_STAFF, instructor: PASSED_INVALID_BODY, delegateRoster: PASSED_INVALID_BODY, delegateClass: PASSED_INVALID_BODY,
+    delegateNo2fa: NEED_2FA, ownerA: PASSED_INVALID_BODY, ownerB: PASSED_INVALID_BODY, admin: PASSED_INVALID_BODY,
+  },
+  // 없는 수업 id(classId 쿼리)로 부른다 — 직원 칸은 수업 찾기(404)에서 멈춘다
+  "GET /api/ai/promo-image/options": {
+    anonymous: NO_SESSION, member: NOT_STAFF, instructor: PASSED_NOT_FOUND, delegateRoster: PASSED_NOT_FOUND, delegateClass: PASSED_NOT_FOUND,
+    delegateNo2fa: NEED_2FA, ownerA: PASSED_NOT_FOUND, ownerB: PASSED_NOT_FOUND, admin: PASSED_NOT_FOUND,
+  },
+  // 만들기는 Idempotency-Key 를 본문보다 먼저 본다 — 직원 칸은 열쇠 없음(400)에서 멈춘다
+  "POST /api/ai/promo-images": {
+    anonymous: NO_SESSION, member: NOT_STAFF, instructor: PASSED_NO_KEY, delegateRoster: PASSED_NO_KEY, delegateClass: PASSED_NO_KEY,
+    delegateNo2fa: NEED_2FA, ownerA: PASSED_NO_KEY, ownerB: PASSED_NO_KEY, admin: PASSED_NO_KEY,
+  },
+  // 결과 읽기는 만든 직원 또는 그 수업 학원 대표만(행을 찾은 뒤 판정) — 없는 생성 id 라 직원 칸은 404
+  "GET /api/ai/promo-images/{generationId}": {
+    anonymous: NO_SESSION, member: NOT_STAFF, instructor: PASSED_NOT_FOUND, delegateRoster: PASSED_NOT_FOUND, delegateClass: PASSED_NOT_FOUND,
+    delegateNo2fa: NEED_2FA, ownerA: PASSED_NOT_FOUND, ownerB: PASSED_NOT_FOUND, admin: PASSED_NOT_FOUND,
+  },
+  // 지난 입력은 본인 것만(조회 조건 staff_account_id = 나) — 직원이면 누구나 200(각자 빈 목록)
+  "GET /api/ai/promo-images/history": {
+    anonymous: NO_SESSION, member: NOT_STAFF, instructor: OK, delegateRoster: OK, delegateClass: OK,
+    delegateNo2fa: NEED_2FA, ownerA: OK, ownerB: OK, admin: OK,
+  },
+  // MCP 읽기 도구 문(SX-5.8, 계약 16 §6) — 에이전트 서버만 부른다. X-Internal-Token 이 먼저라 사람의 세션으로는 열리지 않는다
+  // (그 뒤 회원 질문 토큰 Bearer 를 한 번 더 본다)
+  "POST /api/internal/mcp": {
+    anonymous: NO_SESSION, member: NO_SESSION, instructor: NO_SESSION, delegateRoster: NO_SESSION, delegateClass: NO_SESSION,
+    delegateNo2fa: NO_SESSION, ownerA: NO_SESSION, ownerB: NO_SESSION, admin: NO_SESSION,
+  },
 } as const satisfies Record<string, Row>;
 type RouteName = keyof typeof MATRIX;
 
@@ -1371,6 +1427,15 @@ const WEB_AND_APP = new Set<RouteName>([
   "POST /api/classes/{classId}/sessions/{sessionId}/absences/{markId}/cancel",
   "PUT /api/classes/{classId}/sessions/{sessionId}/onsite-headcount",
   "GET /api/classes/{classId}/sessions/{sessionId}/roster",
+  // 최종 점검(2026-11-25)에서 더한 경로 — 대표 문의 상세(appToo) · 계좌 환불 송금(Bearer 면 앱) · AI 홍보(readStaff)
+  "GET /api/academies/{academyId}/inquiries/{inquiryId}",
+  "POST /api/academies/{academyId}/refund-transfers/{refundId}/complete",
+  "POST /api/academies/{academyId}/refund-transfers/{refundId}/request-reinput",
+  "POST /api/ai/class-intro-drafts",
+  "GET /api/ai/promo-image/options",
+  "POST /api/ai/promo-images",
+  "GET /api/ai/promo-images/{generationId}",
+  "GET /api/ai/promo-images/history",
 ]);
 
 /** 앱(Bearer)으로 부를 때의 기대값 — 웹 칸에서 2단계 칸만 같은 위임을 가진 강사의 답으로 바꾼다 */
@@ -1586,6 +1651,17 @@ const ROUTE_FILE_COVERAGE: Record<string, RouteName | { public: string }> = {
     "POST /api/academies/{academyId}/poster-extractions/{extractionId}/submit",
   "app/api/admin/inquiries/route.ts": "GET /api/admin/inquiries",
   "app/api/ai/chat/route.ts": "POST /api/ai/chat",
+  "app/api/academies/[academyId]/inquiries/[inquiryId]/route.ts": "GET /api/academies/{academyId}/inquiries/{inquiryId}",
+  "app/api/academies/[academyId]/refund-transfers/[refundId]/complete/route.ts":
+    "POST /api/academies/{academyId}/refund-transfers/{refundId}/complete",
+  "app/api/academies/[academyId]/refund-transfers/[refundId]/request-reinput/route.ts":
+    "POST /api/academies/{academyId}/refund-transfers/{refundId}/request-reinput",
+  "app/api/ai/class-intro-drafts/route.ts": "POST /api/ai/class-intro-drafts",
+  "app/api/ai/promo-image/options/route.ts": "GET /api/ai/promo-image/options",
+  "app/api/ai/promo-images/route.ts": "POST /api/ai/promo-images",
+  "app/api/ai/promo-images/[generationId]/route.ts": "GET /api/ai/promo-images/{generationId}",
+  "app/api/ai/promo-images/history/route.ts": "GET /api/ai/promo-images/history",
+  "app/api/internal/mcp/route.ts": "POST /api/internal/mcp",
   "app/api/attendance-marks/[markId]/dispute/resolve/route.ts": "POST /api/attendance-marks/{markId}/dispute/resolve",
   "app/api/classes/[classId]/sessions/[sessionId]/absences/[markId]/cancel/route.ts":
     "POST /api/classes/{classId}/sessions/{sessionId}/absences/{markId}/cancel",
@@ -2047,6 +2123,17 @@ describe.skipIf(!dbAvailable())("역할 4종 × 보호 경로 권한 행렬(플�
     const aiJobFile = await import("@/app/api/internal/ai/jobs/[jobId]/file/route");
     const aiJobResult = await import("@/app/api/internal/ai/jobs/[jobId]/result/route");
     const jobCtx = { params: Promise.resolve({ jobId: randomUUID() }) };
+    // ---- 최종 점검(2026-11-25)에서 더한 경로 — route.ts 와 같은 공장 함수. 표의 요청은 본문·키·id 검사에서 멈추므로
+    //      에이전트(소개 문구 틀·이미지 작업)까지 가지 않는다. 닿으면 실패하도록 둔다 ----
+    const refundTransferComplete = createRefundTransferCompleteRoute({ ...deps, clock: systemClock });
+    const refundTransferReinput = createRefundTransferReinputRoute({ ...deps, clock: systemClock });
+    const refundTransferCtx = { params: Promise.resolve({ academyId: academyA, refundId: randomUUID() }) };
+    const classIntroDraft = createClassIntroDraftRoute({ ...deps, writeIntro: unreachable });
+    const promoImageOptions = createPromoImageOptionsRoute({ ...deps, clock: systemClock });
+    const promoImages = createPromoImageRoutes({ ...deps, clock: systemClock, dispatchJob: unreachable });
+    // MCP 문 — 실제 route.ts 를 그대로 불러 X-Internal-Token 검사를 거치게 한다(위 내부 작업과 같다).
+    // 모듈 타입을 그대로 받으면 MCP SDK 타입까지 펼쳐져 tsc 가 메모리를 넘긴다(2026-11-25 실측 4GB 초과) — 쓰는 POST 모양만 적는다
+    const internalMcp: { POST: (request: Request) => Promise<Response> } = await import("@/app/api/internal/mcp/route");
     const sessionCtx = { params: Promise.resolve({ classId: randomUUID(), sessionId: randomUUID() }) };
     const extractionCtx = { params: Promise.resolve({ academyId: academyA, extractionId: randomUUID() }) };
 
@@ -2133,6 +2220,17 @@ describe.skipIf(!dbAvailable())("역할 4종 × 보호 경로 권한 행렬(플�
       "POST /api/admin/inquiries/{inquiryId}/replies": (r) =>
         inquiryReplies.adminReply(r, { params: Promise.resolve({ inquiryId: randomUUID() }) }),
       "POST /api/internal/jobs/inquiries/remind-overdue": (r) => inquiryRemindOverdue.POST(r, undefined),
+      "GET /api/academies/{academyId}/inquiries/{inquiryId}": (r) =>
+        inquiries.ownerReadOne(r, { params: Promise.resolve({ academyId: academyA, inquiryId: randomUUID() }) }),
+      "POST /api/academies/{academyId}/refund-transfers/{refundId}/complete": (r) => refundTransferComplete(r, refundTransferCtx),
+      "POST /api/academies/{academyId}/refund-transfers/{refundId}/request-reinput": (r) => refundTransferReinput(r, refundTransferCtx),
+      "POST /api/ai/class-intro-drafts": (r) => classIntroDraft(r, undefined),
+      "GET /api/ai/promo-image/options": (r) => promoImageOptions(withQuery(r, { classId: randomUUID() }), undefined),
+      "POST /api/ai/promo-images": (r) => promoImages.create(r, undefined),
+      "GET /api/ai/promo-images/{generationId}": (r) =>
+        promoImages.read(r, { params: Promise.resolve({ generationId: randomUUID() }) }),
+      "GET /api/ai/promo-images/history": (r) => promoImages.history(r, undefined),
+      "POST /api/internal/mcp": (r) => internalMcp.POST(r),
       "POST /api/admin/restrictions": (r) => restrictions.open(r, undefined),
       "POST /api/reports": (r) => reports.create(r, undefined),
       "GET /api/reports": (r) => reports.listMine(r, undefined),
